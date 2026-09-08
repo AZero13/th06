@@ -25,7 +25,8 @@ struct Item
 {
     AnmVm sprite;
     D3DXVECTOR3 currentPosition;
-    D3DXVECTOR3 startPosition;
+    // For some reason ZUN reused the same field for both startPosition and velocity
+    D3DXVECTOR3 startPositionVelocity;
     D3DXVECTOR3 targetPosition;
     ZunTimer timer;
     i8 itemType;
