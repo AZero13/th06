@@ -1,5 +1,6 @@
 #include <stddef.h>
 
+#include "ZunMemory.hpp"
 #include "pbg3/Pbg3Archive.hpp"
 
 namespace th06
@@ -91,7 +92,7 @@ i32 Pbg3Archive::Release()
         delete[] this->entries;
         this->entries = NULL;
     }
-    free(this->unk);
+    ZunFree(this->unk);
     return TRUE;
 }
 
@@ -148,13 +149,13 @@ u8 *Pbg3Archive::ReadEntryRaw(u32 *outSize, u32 *outChecksum, i32 entryIdx)
         size = this->entries[entryIdx + 1].dataOffset - this->entries[entryIdx].dataOffset;
     }
 
-    u8 *data = (u8 *)malloc(size);
+    u8 *data = (u8 *)ZunAlloc(size);
     if (data == NULL)
         return NULL;
 
     if (this->parser->ReadByteAlignedData(data, size) == FALSE)
     {
-        free(data);
+        ZunFree(data);
         return NULL;
     }
 
@@ -198,12 +199,10 @@ i32 Pbg3Archive::Load(char *path)
 #define LZSS_DICTSIZE_MASK 0x1fff
 #define LZSS_MIN_MATCH 3
 
-#define DEC_NEXT_BIT()                                                                                                 \
+#define DEC_ADVANCE_READ_HEAD()                                                                                        \
     inBitMask >>= 1;                                                                                                   \
     if (inBitMask == 0)                                                                                                \
-    {                                                                                                                  \
-        inBitMask = 0x80;                                                                                              \
-    }
+        inBitMask = 0x80;
 
 #define DEC_WRITE_BYTE(data)                                                                                           \
     *outCursor++ = data;                                                                                               \
@@ -215,20 +214,16 @@ i32 Pbg3Archive::Load(char *path)
     {                                                                                                                  \
         currByte = *inCursor;                                                                                          \
         if (inCursor - rawData >= (i32)size)                                                                           \
-        {                                                                                                              \
             currByte = 0;                                                                                              \
-        }                                                                                                              \
         else                                                                                                           \
-        {                                                                                                              \
             inCursor++;                                                                                                \
-        }                                                                                                              \
         checksum += currByte;                                                                                          \
     }
 
 #define DEC_READ_FLAG_BIT()                                                                                            \
     DEC_HANDLE_FETCH_NEW_BYTE();                                                                                       \
     opcode = currByte & inBitMask;                                                                                     \
-    DEC_NEXT_BIT();
+    DEC_ADVANCE_READ_HEAD();
 
 #define DEC_READ_BITS(bitsCount)                                                                                       \
     outBitMask = 0x01 << (bitsCount - 1);                                                                              \
@@ -237,106 +232,112 @@ i32 Pbg3Archive::Load(char *path)
     {                                                                                                                  \
         DEC_HANDLE_FETCH_NEW_BYTE();                                                                                   \
         if ((currByte & inBitMask) != 0)                                                                               \
-        {                                                                                                              \
             inBits |= outBitMask;                                                                                      \
-        }                                                                                                              \
         outBitMask >>= 1;                                                                                              \
-        DEC_NEXT_BIT();                                                                                                \
+        DEC_ADVANCE_READ_HEAD();                                                                                       \
     }
 
 u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, char *filename)
 {
-    if (entryIdx >= this->numOfEntries || this->parser == NULL)
-        return NULL;
-
-    u32 size = this->GetEntrySize(entryIdx);
-    u8 *out = (u8 *)malloc(size);
-    if (out == NULL)
-        return NULL;
-
-    u8 *outCursor = out;
-
+    u8 *rawData;
+    u8 *inCursor;
+    u8 *out;
+    u8 *outCursor;
+    u8 dict[LZSS_DICTSIZE];
+    u32 size;
     u32 expectedCsum;
-    u8 *rawData = this->ReadEntryRaw(&size, &expectedCsum, entryIdx);
+    u32 checksum;
+    u32 dictHead;
+    u32 matchOffset;
+    u32 opcode;
+    u32 inBits;
+    u32 outBitMask;
+    u32 currByte;
 
-    if (rawData == NULL)
+    u8 inBitMask;
+    i32 i;
+
+    if (entryIdx >= this->numOfEntries || this->parser == NULL)
     {
-        if (out != NULL)
-        {
-            free(out);
-            out = NULL;
-        }
         return NULL;
     }
 
-    u8 *inCursor = rawData;
-    u8 inBitMask = 0x80;
-    u32 checksum = 0;
-    u32 dictHead = 1;
+    size = this->entries[entryIdx].uncompressedSize;
 
-    u8 dict[LZSS_DICTSIZE];
+    out = (u8 *)ZunAlloc(size);
+    if (out == NULL)
+    {
+        return NULL;
+    }
 
-    // Memset doesn't produce matching assembly
-    for (i32 i = 0; i < LZSS_DICTSIZE; i++)
+    rawData = this->ReadEntryRaw(&size, &expectedCsum, entryIdx);
+    if (rawData == NULL)
+    {
+        ZunFree(out);
+        return NULL;
+    }
+
+    inCursor = rawData;
+    outCursor = out;
+    checksum = 0;
+    dictHead = 1;
+    inBitMask = 0x80;
+
+    for (i = 0; i < LZSS_DICTSIZE; i++)
     {
         dict[i] = 0;
     }
-
-    u32 currByte;
-    u32 inBits;
-    u32 outBitMask;
-    u32 matchOffset;
-    u32 opcode;
 
     for (;;)
     {
         DEC_READ_FLAG_BIT();
 
-        // Read literal byte from next 8 bits
         if (opcode != 0)
         {
             DEC_READ_BITS(8);
             DEC_WRITE_BYTE(inBits);
+            continue;
         }
-        // Copy from dictionary, 13 bit offset, then 4 bit length
-        else
+
+        DEC_READ_BITS(13);
+        matchOffset = inBits;
+
+        if (matchOffset == 0)
         {
-            DEC_READ_BITS(13);
+            break;
+        }
 
-            matchOffset = inBits;
-            if (matchOffset == 0)
+        DEC_READ_BITS(4);
+
+        {
+            i32 end = (i32)inBits + 2;
+
+            for (i = 0; i <= end; i++)
             {
-                break;
-            }
-
-            DEC_READ_BITS(4);
-
-            for (i32 i = 0; i <= (i32)inBits + 2; i++)
-            {
-                u32 c = dict[(matchOffset + i) & LZSS_DICTSIZE_MASK];
-                DEC_WRITE_BYTE(c);
+                DEC_WRITE_BYTE(dict[(matchOffset + i) & LZSS_DICTSIZE_MASK]);
             }
         }
     }
 
-    // Skip past any remaining bits in the data
     while (inBitMask != 0x80)
     {
         DEC_READ_FLAG_BIT();
     }
 
-    free(rawData);
+    ZunFree(rawData);
 
-    if (this->entries[entryIdx].checksum != checksum)
+    if (this->entries[entryIdx].checksum == checksum)
     {
-        if (out != NULL)
-        {
-            free(out);
-            out = NULL;
-        }
-        return NULL;
+        return out;
     }
 
-    return out;
+    ZunFree(out);
+    return NULL;
 }
+
+#undef DEC_ADVANCE_READ_HEAD
+#undef DEC_WRITE_BYTE
+#undef DEC_HANDLE_FETCH_NEW_BYTE
+#undef DEC_READ_FLAG_BIT
+#undef DEC_READ_BITS
 }; // namespace th06

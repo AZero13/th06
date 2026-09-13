@@ -8,7 +8,7 @@
 
 namespace th06
 {
-inline void *ZunAlloc(i32 size)
+inline void *ZunAlloc(size_t size)
 {
     return malloc(size);
 }
