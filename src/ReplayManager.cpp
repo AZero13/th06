@@ -2,15 +2,12 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "Controller.hpp"
-#include "FileSystem.hpp"
 #include "GameManager.hpp"
+#include "Global.hpp"
 #include "Gui.hpp"
 #include "ReplayManager.hpp"
-#include "Rng.hpp"
 #include "Supervisor.hpp"
 #include "ZunMemory.hpp"
-#include "utils.hpp"
 
 namespace th06
 {
@@ -301,8 +298,8 @@ ZunResult ReplayManager::AddedCallbackDemo(ReplayManager *mgr)
     g_GameManager.powerItemCountForScore = replayData->powerItemCountForScore;
     if (2 <= g_GameManager.currentStage && mgr->replayData->stageReplayData[g_GameManager.currentStage - 2] != NULL)
     {
-        g_GameManager.guiScore = mgr->replayData->stageReplayData[g_GameManager.currentStage - 2]->score;
-        g_GameManager.score = g_GameManager.guiScore;
+        g_GameManager.score = mgr->replayData->stageReplayData[g_GameManager.currentStage - 2]->score;
+        g_GameManager.guiScore = g_GameManager.score;
     }
     return ZUN_SUCCESS;
 }

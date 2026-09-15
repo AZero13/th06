@@ -4,14 +4,11 @@
 #include "Enemy.hpp"
 #include "EnemyEclInstr.hpp"
 #include "EnemyManager.hpp"
-#include "FileSystem.hpp"
-#include "GameErrorContext.hpp"
 #include "GameManager.hpp"
+#include "Global.hpp"
 #include "Gui.hpp"
 #include "Player.hpp"
-#include "Rng.hpp"
 #include "Stage.hpp"
-#include "utils.hpp"
 
 namespace th06
 {
@@ -21,7 +18,6 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 64, g_SpellcardScore) = {
     300000, 300000, 300000, 300000, 300000, 300000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
     400000, 500000, 500000, 500000, 500000, 500000, 500000, 600000, 600000, 600000, 600000, 600000, 700000,
     700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000};
-DIFFABLE_STATIC(EclManager, g_EclManager);
 typedef void (*ExInsn)(Enemy *, EclRawInstr *);
 DIFFABLE_STATIC_ARRAY_ASSIGN(ExInsn, 17, g_EclExInsn) = {EnemyEclInstr::ExInsCirnoRainbowBallJank,
                                                          EnemyEclInstr::ExInsShootAtRandomArea,
@@ -40,6 +36,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(ExInsn, 17, g_EclExInsn) = {EnemyEclInstr::ExInsCir
                                                          EnemyEclInstr::ExInsStageXFunc14,
                                                          EnemyEclInstr::ExInsStageXFunc15,
                                                          EnemyEclInstr::ExInsFlandreFinalContextUpdate};
+DIFFABLE_STATIC(EclManager, g_EclManager);
 
 ZunResult EclManager::Load(char *eclPath)
 {
@@ -767,13 +764,11 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                             if (!g_GameManager.isInReplay)
                             {
                                 local_80->numSuccess++;
-                                // What. the. fuck?
-                                // memmove(&local_80->nameCsum, &local_80->characterShotType, 4);
-                                for (local_84 = 4; 0 < local_84; local_84 = local_84 + -1)
+                                for (local_84 = 4; 0 < local_84; local_84--)
                                 {
-                                    ((u8 *)&local_80->nameCsum)[local_84 + 1] = ((u8 *)&local_80->nameCsum)[local_84];
+                                    local_80->characterShotType[local_84] = local_80->characterShotType[local_84 - 1];
                                 }
-                                local_80->characterShotType = g_GameManager.CharacterShotType();
+                                local_80->characterShotType[0] = g_GameManager.CharacterShotType();
                             }
                             g_GameManager.spellcardsCaptured++;
                         }
@@ -899,7 +894,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 }
                 else
                 {
-                    enemy->bulletProps.flags &= 0xfffffdff;
+                    enemy->bulletProps.flags &= ~0x200;
                 }
                 break;
             case ECL_OPCODE_ENEMYFLAGDISABLECALLSTACK:

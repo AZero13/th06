@@ -3,18 +3,17 @@
 
 #include "AnmManager.hpp"
 #include "ChainPriorities.hpp"
-#include "Controller.hpp"
 #include "GameManager.hpp"
+#include "Global.hpp"
 #include "Gui.hpp"
 #include "Supervisor.hpp"
-#include "utils.hpp"
 #include <stdio.h>
 
 namespace th06
 {
+DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawMenusChain)
 DIFFABLE_STATIC(AsciiManager, g_AsciiManager)
 DIFFABLE_STATIC(ChainElem, g_AsciiManagerCalcChain)
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawMenusChain)
 DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawPopupsChain)
 
 AsciiManager::AsciiManager()
@@ -775,8 +774,8 @@ i32 StageMenu::OnUpdateRetryMenu()
             g_GameManager.livesRemaining = g_Supervisor.defaultConfig.lifeCount;
             g_GameManager.bombsRemaining = g_Supervisor.defaultConfig.bombCount;
             g_GameManager.grazeInStage = 0;
-            g_GameManager.currentPower = 0;
             g_GameManager.pointItemsCollectedInStage = 0;
+            g_GameManager.currentPower = 0;
             g_GameManager.extraLives = 0;
             g_Gui.flags.flag0 = 2;
             g_Gui.flags.flag1 = 2;

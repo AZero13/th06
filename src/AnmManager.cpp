@@ -1,12 +1,9 @@
 #include "AnmManager.hpp"
-#include "FileSystem.hpp"
-#include "GameErrorContext.hpp"
-#include "Rng.hpp"
+#include "Global.hpp"
 #include "Supervisor.hpp"
 #include "TextHelper.hpp"
 #include "ZunMath.hpp"
 #include "i18n.hpp"
-#include "utils.hpp"
 
 #include <stdio.h>
 
@@ -18,7 +15,7 @@ DIFFABLE_STATIC(VertexTex1DiffuseXyz, g_PrimitivesToDrawUnknown[4]);
 DIFFABLE_STATIC(AnmManager *, g_AnmManager)
 
 #ifndef DIFFBUILD
-D3DFORMAT g_TextureFormatD3D8Mapping[6] = {
+const D3DFORMAT g_TextureFormatD3D8Mapping[6] = {
     D3DFMT_UNKNOWN, D3DFMT_A8R8G8B8, D3DFMT_A1R5G5B5, D3DFMT_R5G6B5, D3DFMT_R8G8B8, D3DFMT_A4R4G4B4,
 };
 #endif
@@ -98,6 +95,10 @@ AnmManager::AnmManager()
     this->currentVertexShader = 0;
     this->currentZWriteDisable = 0;
     this->screenshotTextureId = -1;
+}
+
+AnmManager::~AnmManager()
+{
 }
 
 void AnmManager::SetupVertexBuffer()
@@ -425,9 +426,9 @@ void AnmManager::ReleaseAnm(i32 anmIdx)
         for (i = 0; i < this->anmFiles[anmIdx]->numScripts; i++, byteOffset += 2)
         {
             this->scripts[*byteOffset + spriteIdxOffset] = NULL;
-            this->spriteIndices[*byteOffset + spriteIdxOffset] = NULL;
+            this->spriteIndices[*byteOffset + spriteIdxOffset] = 0;
         }
-        this->anmFilesSpriteIndexOffsets[anmIdx] = NULL;
+        this->anmFilesSpriteIndexOffsets[anmIdx] = 0;
         AnmRawEntry *entry = this->anmFiles[anmIdx];
         this->ReleaseTexture(entry->textureIdx);
         AnmRawEntry *anmFilePtr = this->anmFiles[anmIdx];
