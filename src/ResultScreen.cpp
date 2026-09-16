@@ -1316,6 +1316,7 @@ ZunResult ResultScreen::RegisterChain(i32 unk)
 
     ResultScreen *resultScreen;
     resultScreen = ZUN_NEW(ResultScreen);
+    UnusedStackPadding();
 
     utils::DebugPrint(TH_DBG_RESULTSCREEN_COUNAT, g_GameManager.counat);
 
