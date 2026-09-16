@@ -1310,13 +1310,17 @@ u32 ResultScreen::DrawFinalStats()
     return 0;
 }
 
-#pragma var_order(resultScreen, unused)
+static inline void UnusedStackPadding()
+{
+    i32 unused[16];
+}
+
 ZunResult ResultScreen::RegisterChain(i32 unk)
 {
 
-    i32 unused[16];
     ResultScreen *resultScreen;
     resultScreen = ZUN_NEW(ResultScreen);
+    UnusedStackPadding();
 
     utils::DebugPrint(TH_DBG_RESULTSCREEN_COUNAT, g_GameManager.counat);
 
