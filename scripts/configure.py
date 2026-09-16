@@ -78,6 +78,10 @@ def configure(build_type):
             "AsciiManager",
             "Stage",
             "BombData",
+            "BombReimuA",
+            "BombReimuB",
+            "BombMarisaA",
+            "BombMarisaB",
             "EclManager",
             "EnemyEclInstr",
             "EffectManager",
@@ -103,7 +107,6 @@ def configure(build_type):
             "MainMenu",
             "zwave",
             "BulletData",
-            "ZunTimer",
         ]
 
         small_codegen_sources = set(

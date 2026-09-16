@@ -42,10 +42,67 @@ struct ZunTimer
         return this->current <= time;
     }
 
-    void Initialize();
-    void Increment(i32 value);
-    void Decrement(i32 value);
-    i32 NextTick();
+    void Initialize()
+    {
+        this->current = 0;
+        this->previous = -1;
+        this->subFrame = 0;
+    }
+    void Increment(i32 value)
+    {
+        if (g_Supervisor.framerateMultiplier > 0.99f)
+        {
+            this->current = this->current + value;
+
+            return;
+        }
+
+        if (value < 0)
+        {
+            Decrement(-value);
+
+            return;
+        }
+
+        this->previous = this->current;
+        this->subFrame = g_Supervisor.effectiveFramerateMultiplier * (float)value + this->subFrame;
+
+        while (this->subFrame >= 1.0f)
+        {
+            this->current++;
+            this->subFrame = this->subFrame - 1.0f;
+        }
+    }
+    void Decrement(i32 value)
+    {
+        if (g_Supervisor.framerateMultiplier > 0.99f)
+        {
+            this->current = this->current - value;
+
+            return;
+        }
+
+        if (value < 0)
+        {
+            Increment(-value);
+
+            return;
+        }
+
+        this->previous = this->current;
+        this->subFrame = this->subFrame - g_Supervisor.effectiveFramerateMultiplier * (float)value;
+
+        while (this->subFrame < 0.0f)
+        {
+            this->current--;
+            this->subFrame = this->subFrame + 1.0f;
+        }
+    }
+    i32 NextTick()
+    {
+        this->Tick();
+        return this->current;
+    }
 
     void IncrementInline(i32 value)
     {
