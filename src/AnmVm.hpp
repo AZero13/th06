@@ -152,10 +152,7 @@ struct AnmVm
         this->currentTimeInScript.Initialize();
     }
 
-    AnmVm()
-    {
-        this->activeSpriteIndex = -1;
-    }
+    AnmVm();
 
     void SetInvisible()
     {
@@ -205,11 +202,4 @@ struct AnmVm
 };
 ZUN_ASSERT_SIZE(AnmVm, 0x110);
 
-struct FakePaddedAnmVm : AnmVm
-{
-    FakePaddedAnmVm()
-    {
-        FAKE_INLINE_DWORD_STACK_PADDING<4>();
-    }
-};
 }; // namespace th06

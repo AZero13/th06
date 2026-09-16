@@ -486,7 +486,7 @@ void ResultScreen::WriteScore(ResultScreen *resultScreen)
     sd->csum = 0;
 
     sd->xorseed[1] = g_Rng.GetRandomU16InRange(0x100);
-    sd->unk[0] = g_Rng.GetRandomU16InRange(0x100);
+    sd->unk = g_Rng.GetRandomU16InRange(0x100);
     sd->unk_8 = 0x10;
 
     for (remainingSize = 4; remainingSize < sizeOfFile; remainingSize++)
@@ -1312,7 +1312,6 @@ u32 ResultScreen::DrawFinalStats()
 
 ZunResult ResultScreen::RegisterChain(i32 unk)
 {
-    FAKE_INLINE_DWORD_STACK_PADDING<16>();
 
     ResultScreen *resultScreen;
     resultScreen = ZUN_NEW(ResultScreen);
@@ -1347,14 +1346,6 @@ ZunResult ResultScreen::RegisterChain(i32 unk)
 
     return ZUN_SUCCESS;
 }
-
-#pragma function(memset)
-ResultScreen::ResultScreen()
-{
-    memset(this, 0, sizeof(ResultScreen));
-    this->cursor = 1;
-}
-#pragma intrinsic(memset)
 
 #pragma var_order(i, vm, characterShotType, difficulty)
 ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)

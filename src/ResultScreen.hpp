@@ -108,7 +108,6 @@ ZUN_ASSERT_SIZE(Pscr, 0x14);
 
 struct Hscr
 {
-
     Th6k base;
     u32 score;
     u8 character;
@@ -136,20 +135,26 @@ ZUN_ASSERT_SIZE(ScoreListNode, 0xc);
 
 struct ScoreDat
 {
-
     u8 xorseed[2];
     u16 csum;
     u16 unk_8;
-    u8 unk[2];
+    u8 unk;
+    // u8 padding by compiler;
     u32 dataOffset;
     ScoreListNode *scores;
     u32 fileLen;
 };
 ZUN_ASSERT_SIZE(ScoreDat, 0x14);
 
+#pragma function(memset)
 struct ResultScreen
 {
-    ResultScreen();
+    ResultScreen()
+    {
+        memset(this, 0, sizeof(ResultScreen));
+        this->cursor = 1;
+    }
+
     ~ResultScreen()
     {
         ZUN_FREE(this->scoreDat);
@@ -199,8 +204,8 @@ struct ResultScreen
     i32 cheatCodeStep;
     char replayName[8];
     i32 unk_3c;
-    FakePaddedAnmVm unk_40[38];
-    FakePaddedAnmVm unk_28a0[16];
+    AnmVm unk_40[38];
+    AnmVm unk_28a0[16];
     AnmVm unk_39a0;
     ScoreListNode scores[HSCR_NUM_DIFFICULTIES][HSCR_NUM_CHARS_SHOTTYPES];
     Hscr defaultScore[HSCR_NUM_DIFFICULTIES][HSCR_NUM_CHARS_SHOTTYPES][HSCR_NUM_SCORES_SLOTS];
@@ -211,5 +216,7 @@ struct ResultScreen
     ReplayData replays[15];
     ReplayData defaultReplay;
 };
+#pragma intrinsic(memset)
+
 ZUN_ASSERT_SIZE(ResultScreen, 0x56b0);
 }; // namespace th06
