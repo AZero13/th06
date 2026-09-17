@@ -1,0 +1,8 @@
+You said: "This has absolutely nothing to do with the fact that you have a variable in the function and everything to do with the fact that in the second case you call a function."
+And "VS2002 fails to remove variables from inline functions when reverting an inline".
+And "Od code adds extra unreferenced stack slots, which can contribute to the inline bug"
+
+I tried making `AnmVm::AnmVm()` inline in `AnmVm.hpp`, and it didn't change the stack size. I also tried making `Item::Item()` inline, and it didn't add the missing 20 bytes in `ItemManager`.
+Where exactly does the spill space come from? Is it from the compiler creating hidden variables (like `this` pointers) for inline function calls and failing to remove them? If so, why didn't my test of inlining `Item::Item()` produce the extra 20 bytes?
+Does the inline function need to take arguments by value? Or return something?
+Could you clarify what triggers this MSVC 7 inline padding bug?

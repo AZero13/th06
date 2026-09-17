@@ -84,6 +84,11 @@ ZUN_ASSERT_SIZE(PlayerRect, 0x10);
 
 struct PlayerBullet
 {
+    PlayerBullet()
+    {
+        this->unk_140.Initialize();
+    }
+
     AnmVm sprite;
     D3DXVECTOR3 position;
     D3DXVECTOR3 size;

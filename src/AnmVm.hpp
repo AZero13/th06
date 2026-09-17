@@ -125,7 +125,7 @@ union AnmVmFlags {
     };
 };
 
-struct AnmVm
+struct AnmVmBase
 {
     void Initialize()
     {
@@ -152,11 +152,6 @@ struct AnmVm
         this->currentTimeInScript.Initialize();
     }
 
-    AnmVm()
-    {
-        this->activeSpriteIndex = -1;
-    }
-
     void SetInvisible()
     {
         this->flags.isVisible = 0;
@@ -180,6 +175,12 @@ struct AnmVm
     i16 pendingInterrupt;
     i16 posInterpEndTime;
     // Two padding bytes
+};
+ZUN_ASSERT_SIZE(AnmVmBase, 0x84);
+
+struct AnmVm : public AnmVmBase
+{
+    AnmVm();
     D3DXVECTOR3 pos;
     f32 scaleInterpInitialY;
     f32 scaleInterpInitialX;
@@ -205,11 +206,4 @@ struct AnmVm
 };
 ZUN_ASSERT_SIZE(AnmVm, 0x110);
 
-struct FakePaddedAnmVm : AnmVm
-{
-    FakePaddedAnmVm()
-    {
-        FAKE_INLINE_DWORD_STACK_PADDING<4>();
-    }
-};
 }; // namespace th06

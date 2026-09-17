@@ -1,0 +1,6 @@
+rule cl
+  command = wine Z:\Users\main\Untitled\scripts\prefix\bin\cl.exe /nologo /c /Od /Os /Gy /GF /Op /GX $in /Fo$out
+build scratch/test_eh.obj: cl scratch/test_eh.cpp
+rule dumpbin
+  command = wine Z:\Users\main\Untitled\scripts\prefix\bin\dumpbin.exe /DISASM $in > $out
+build scratch/test_eh.asm: dumpbin scratch/test_eh.obj

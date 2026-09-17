@@ -29,6 +29,11 @@ ZUN_ASSERT_SIZE(AsciiManagerString, 0x60);
 
 struct AsciiManagerPopup
 {
+    AsciiManagerPopup()
+    {
+        this->timer.Initialize();
+    }
+
     char digits[8];
     D3DXVECTOR3 position;
     D3DCOLOR color;

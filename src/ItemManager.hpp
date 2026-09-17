@@ -23,6 +23,11 @@ enum ItemType // This enum is 1 byte in size on Enemy
 
 struct Item
 {
+    Item()
+    {
+        this->timer.Initialize();
+    }
+
     AnmVm sprite;
     D3DXVECTOR3 currentPosition;
     D3DXVECTOR3 startPosition;

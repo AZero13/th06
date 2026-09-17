@@ -13,8 +13,13 @@ namespace th06
 {
 DIFFABLE_STATIC(ItemManager, g_ItemManager);
 
-ItemManager::ItemManager() {
-
+ItemManager::ItemManager()
+{
+    for (int i = 0; i < 513; i++)
+    {
+        this->items[i].sprite.AnmVm::AnmVm();
+        this->items[i].timer.Initialize();
+    }
 };
 
 void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
