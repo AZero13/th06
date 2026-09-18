@@ -125,11 +125,9 @@ union AnmVmFlags {
     };
 };
 
-//#if IS_Os
+
 struct AnmVmBase
-//#else
-//struct AnmVm
-//#endif
+
 {
     D3DXVECTOR3 rotation;
     D3DXVECTOR3 angleVel;
@@ -148,11 +146,9 @@ struct AnmVmBase
     i16 pendingInterrupt;
     i16 posInterpEndTime;
 
-//#if IS_Os
 };
 struct AnmVm : public AnmVmBase
 {
-//#endif
 
     void Initialize()
     {
