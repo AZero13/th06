@@ -37,7 +37,7 @@ def configure(build_type):
         writer.variable("link", "link.exe")
         writer.variable(
             "th06_link_flags",
-            "/subsystem:windows /machine:X86 /filealign:4096 /incremental:no /opt:ref /map /mapinfo:exports /mapinfo:lines",
+            "/subsystem:windows /machine:X86 /filealign:4096 /incremental:no /opt:ref /map /mapinfo:exports /mapinfo:lines /NODEFAULTLIB:libcpmt.lib",
         )
 
         writer.variable("msvc_deps_prefix", "Note: including file:")
@@ -248,7 +248,7 @@ def configure(build_type):
         if build_type == BuildType.DIFFBUILD:
             objfiles += ["$builddir/globals.obj"]
 
-        th06_link_libs = "dxguid.lib d3dx8.lib d3d8.lib dsound.lib winmm.lib kernel32.lib user32.lib dinput8.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+        th06_link_libs = "dinput8.lib dsound.lib d3d8.lib dxguid.lib d3dx8.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
         writer.build(
             "$builddir/th06.exe",
             "link",
