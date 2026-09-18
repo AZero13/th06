@@ -5,7 +5,7 @@
 #include <windows.h>
 
 #ifdef DEBUG
-#include <cstdarg>
+#include <stdarg.h>
 #endif
 
 #include "GameWindow.hpp"
