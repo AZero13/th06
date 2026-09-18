@@ -534,7 +534,7 @@ ZunResult GuiImpl::RunMsg()
     {
         this->msg.timer = this->msg.currentInstr->time;
     }
-    while (this->msg.timer >= (i32)this->msg.currentInstr->time)
+    while (this->msg.timer >= this->msg.currentInstr->time)
     {
         switch (this->msg.currentInstr->opcode)
         {
@@ -892,7 +892,7 @@ void Gui::UpdateStageElements()
         {
             this->impl->bonusScore.pos.x = 104.0f;
         }
-        if ((i32)(250 <= this->impl->bonusScore.timer.current))
+        if (this->impl->bonusScore.timer >= 250)
         {
             this->impl->bonusScore.isShown = 0;
         }
@@ -909,7 +909,7 @@ void Gui::UpdateStageElements()
         {
             this->impl->fullPowerMode.pos.x = 104.0f;
         }
-        if ((i32)(180 <= this->impl->fullPowerMode.timer.current))
+        if (this->impl->fullPowerMode.timer >= 180)
         {
             this->impl->fullPowerMode.isShown = 0;
         }
@@ -917,7 +917,7 @@ void Gui::UpdateStageElements()
     }
     if (this->impl->spellCardBonus.isShown)
     {
-        if ((i32)(280 <= this->impl->spellCardBonus.timer.current))
+        if (this->impl->spellCardBonus.timer >= 280)
         {
             this->impl->spellCardBonus.isShown = 0;
         }
