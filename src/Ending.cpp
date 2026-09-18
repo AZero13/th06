@@ -16,7 +16,7 @@ i32 Ending::ReadEndFileParameter()
 {
     i32 readResult;
 
-    readResult = atol(this->endFileDataPtr);
+    readResult = atoi(this->endFileDataPtr);
     while (this->endFileDataPtr[0] != '\0')
     {
         this->endFileDataPtr++;
