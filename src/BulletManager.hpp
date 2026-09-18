@@ -101,7 +101,7 @@ struct Laser
     {
         // this *one thing* doesn't match even
         // with FAKE_INLINE_DWORD_STACK_PADDING
-        i32 pad[4];
+        //i32 pad[4];
     }
 };
 ZUN_ASSERT_SIZE(Laser, 0x270);

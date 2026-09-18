@@ -73,9 +73,9 @@ struct GuiMsgVm
     i32 currentMsgIdx;
     ZunTimer timer;
     i32 framesElapsedDuringPause;
-    FakePaddedAnmVm portraits[2];
-    FakePaddedAnmVm dialogueLines[2];
-    FakePaddedAnmVm introLines[2];
+    AnmVm portraits[2];
+    AnmVm dialogueLines[2];
+    AnmVm introLines[2];
     D3DCOLOR textColorsA[4];
     D3DCOLOR textColorsB[4];
     u32 fontSize;
@@ -97,7 +97,7 @@ struct PadEvilNoWhy
 {
     PadEvilNoWhy()
     {
-        FAKE_INLINE_DWORD_STACK_PADDING<14>();
+        FAKE_INLINE_DWORD_STACK_PADDING<9>();
     }
 };
 
