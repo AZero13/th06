@@ -495,23 +495,30 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         g_EclManager.extra.coords[0] = enemy->position;
         g_EclManager.extra.coords[1] = g_Player.positionCenter;
         g_EclManager.extra.starAngleTable[0] = g_Rng.GetRandomF32ZeroToOne() * (ZUN_PI * 2) - ZUN_PI;
-        g_EclManager.extra.starAngleTable[1] = utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[1] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
     }
     if (enemy->currentContext.var2 % 30 == 0)
     {
         g_EclManager.extra.starAngleTable[0] = g_EclManager.extra.starAngleTable[1];
-        g_EclManager.extra.starAngleTable[1] = utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
-        g_EclManager.extra.starAngleTable[2] = utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[1], 4 * ZUN_PI / 5);
-        g_EclManager.extra.starAngleTable[3] = utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[2], 4 * ZUN_PI / 5);
-        g_EclManager.extra.starAngleTable[4] = utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[3], 4 * ZUN_PI / 5);
-        g_EclManager.extra.starAngleTable[5] = utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[4], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[1] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[2] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[1], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[3] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[2], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[4] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[3], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[5] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[4], 4 * ZUN_PI / 5);
     }
     if (enemy->currentContext.var2 % 6 == 0)
     {
         patternPosition = (f32)enemy->currentContext.var2 / (f32)enemy->currentContext.var3;
         targetDistance = patternPosition * 0.1f;
 
-        baseTargetPosition = (g_EclManager.extra.coords[1] - g_EclManager.extra.coords[0]) * targetDistance + g_EclManager.extra.coords[0];
+        baseTargetPosition = (g_EclManager.extra.coords[1] - g_EclManager.extra.coords[0]) * targetDistance +
+                             g_EclManager.extra.coords[0];
         baseTargetPosition.z = 0.0f;
 
         patternPosition += 0.5f;
