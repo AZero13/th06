@@ -125,7 +125,28 @@ union AnmVmFlags {
     };
 };
 
-struct AnmVm
+struct AnmVmBase
+{
+    ZunVec3 rotation;
+    ZunVec3 angleVel;
+    f32 scaleY;
+    f32 scaleX;
+    f32 scaleInterpFinalY;
+    f32 scaleInterpFinalX;
+    ZunVec2 uvScrollPos;
+    ZunTimer currentTimeInScript;
+    D3DXMATRIX matrix;
+    ZunColor color;
+    AnmVmFlags flags;
+    i16 alphaInterpEndTime;
+    i16 scaleInterpEndTime;
+    i16 autoRotate;
+    i16 pendingInterrupt;
+    i16 posInterpEndTime;
+    // Two padding bytes
+};
+
+struct AnmVm : AnmVmBase
 {
     void Initialize()
     {
@@ -162,24 +183,6 @@ struct AnmVm
         this->flags.isVisible = 0;
     }
 
-    D3DXVECTOR3 rotation;
-    D3DXVECTOR3 angleVel;
-    f32 scaleY;
-    f32 scaleX;
-    f32 scaleInterpFinalY;
-    f32 scaleInterpFinalX;
-    D3DXVECTOR2 uvScrollPos;
-    ZunTimer currentTimeInScript;
-    D3DXMATRIX matrix;
-    ZunColor color;
-    AnmVmFlags flags;
-
-    i16 alphaInterpEndTime;
-    i16 scaleInterpEndTime;
-    i16 autoRotate;
-    i16 pendingInterrupt;
-    i16 posInterpEndTime;
-    // Two padding bytes
     D3DXVECTOR3 pos;
     f32 scaleInterpInitialY;
     f32 scaleInterpInitialX;
@@ -204,12 +207,4 @@ struct AnmVm
     // Two final padding bytes
 };
 ZUN_ASSERT_SIZE(AnmVm, 0x110);
-
-struct FakePaddedAnmVm : AnmVm
-{
-    FakePaddedAnmVm()
-    {
-        FAKE_INLINE_DWORD_STACK_PADDING<4>();
-    }
-};
 }; // namespace th06

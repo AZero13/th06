@@ -1312,8 +1312,6 @@ u32 ResultScreen::DrawFinalStats()
 
 ZunResult ResultScreen::RegisterChain(i32 unk)
 {
-    FAKE_INLINE_DWORD_STACK_PADDING<16>();
-
     ResultScreen *resultScreen;
     resultScreen = ZUN_NEW(ResultScreen);
 
