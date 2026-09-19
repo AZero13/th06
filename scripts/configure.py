@@ -50,7 +50,7 @@ def configure(build_type):
         writer.rule("rc", "$rc /fo $out $in")
         writer.rule(
             "link",
-            "$link $link_flags /nologo /out:$out $link_libs $in /order:@config/order.txt",
+            "$link $link_flags /nologo /out:$out $link_libs $in",
         )
         writer.rule(
             "copyicon",
@@ -253,7 +253,6 @@ def configure(build_type):
             "$builddir/th06.exe",
             "link",
             inputs=objfiles,
-            implicit="config/order.txt",
             variables={
                 "link_libs": th06_link_libs,
                 "link_flags": "$th06_link_flags /debug /pdb:$builddir/th06.pdb",
