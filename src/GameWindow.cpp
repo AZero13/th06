@@ -46,7 +46,8 @@ RenderResult GameWindow::Render()
                 viewport.MinZ = 0.0;
                 viewport.MaxZ = 1.0;
                 g_Supervisor.d3dDevice->SetViewport(&viewport);
-                g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, g_Stage.skyFog.color, 1.0, 0);
+                g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, g_Stage.skyFog.color, 1.0,
+                                              0);
                 g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
             }
             g_Supervisor.d3dDevice->BeginScene();
@@ -203,8 +204,8 @@ void GameWindow::CreateGameWindow(HINSTANCE hInstance)
     {
         width = GAME_WINDOW_WIDTH;
         height = GAME_WINDOW_HEIGHT;
-        g_GameWindow.window =
-            CreateWindow("BASE", TH_WINDOW_TITLE, WS_OVERLAPPEDWINDOW, 0, 0, width, height, NULL, NULL, hInstance, NULL);
+        g_GameWindow.window = CreateWindow("BASE", TH_WINDOW_TITLE, WS_OVERLAPPEDWINDOW, 0, 0, width, height, NULL,
+                                           NULL, hInstance, NULL);
     }
     else
     {
@@ -355,19 +356,19 @@ i32 GameWindow::InitD3dRendering(void)
         else
         {
             if (FAILED(g_Supervisor.d3dIface->CreateDevice(0, D3DDEVTYPE_HAL, g_GameWindow.window,
-                                                    D3DCREATE_HARDWARE_VERTEXPROCESSING, &present_params,
-                                                    &g_Supervisor.d3dDevice)))
+                                                           D3DCREATE_HARDWARE_VERTEXPROCESSING, &present_params,
+                                                           &g_Supervisor.d3dDevice)))
             {
                 g_GameErrorContext.Log(TH_ERR_TL_HAL_UNAVAILABLE);
                 if (FAILED(g_Supervisor.d3dIface->CreateDevice(0, D3DDEVTYPE_HAL, g_GameWindow.window,
-                                                        D3DCREATE_SOFTWARE_VERTEXPROCESSING, &present_params,
-                                                        &g_Supervisor.d3dDevice)))
+                                                               D3DCREATE_SOFTWARE_VERTEXPROCESSING, &present_params,
+                                                               &g_Supervisor.d3dDevice)))
                 {
                     g_GameErrorContext.Log(TH_ERR_HAL_UNAVAILABLE);
                 REFERENCE_RASTERIZER_MODE:
                     if (FAILED(g_Supervisor.d3dIface->CreateDevice(0, D3DDEVTYPE_REF, g_GameWindow.window,
-                                                            D3DCREATE_SOFTWARE_VERTEXPROCESSING, &present_params,
-                                                            &g_Supervisor.d3dDevice)))
+                                                                   D3DCREATE_SOFTWARE_VERTEXPROCESSING, &present_params,
+                                                                   &g_Supervisor.d3dDevice)))
                     {
                         if (g_Supervisor.IsForced60Fps() && !g_Supervisor.vsyncEnabled)
                         {
@@ -436,8 +437,7 @@ i32 GameWindow::InitD3dRendering(void)
     g_Supervisor.d3dDevice->SetTransform(D3DTS_PROJECTION, &g_Supervisor.projectionMatrix);
     g_Supervisor.d3dDevice->GetViewport(&g_Supervisor.viewport);
     g_Supervisor.d3dDevice->GetDeviceCaps(&g_Supervisor.d3dCaps);
-    if (!g_Supervisor.IsHardwareBlendingDisabled() &&
-        !(g_Supervisor.d3dCaps.TextureOpCaps & D3DTEXOPCAPS_ADD))
+    if (!g_Supervisor.IsHardwareBlendingDisabled() && !(g_Supervisor.d3dCaps.TextureOpCaps & D3DTEXOPCAPS_ADD))
     {
         g_GameErrorContext.Log(TH_ERR_NO_SUPPORT_FOR_D3DTEXOPCAPS_ADD);
         g_Supervisor.cfg.opts |= 1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING;

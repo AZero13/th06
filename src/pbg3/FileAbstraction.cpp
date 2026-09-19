@@ -45,7 +45,7 @@ i32 FileAbstraction::Open(char *filename, char *mode)
         return 0;
     }
     this->handle = CreateFile(filename, this->access, FILE_SHARE_READ, NULL, creationDisposition,
-                               FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+                              FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
     if (this->handle == INVALID_HANDLE_VALUE)
         return 0;

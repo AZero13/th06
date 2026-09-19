@@ -488,8 +488,8 @@ void AnmManager::SetRenderStateForVm(AnmVm *vm)
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
         }
     }
-    if (!g_Supervisor.IsHardwareBlendingDisabled() &&
-        !g_Supervisor.IsColorCompositingDisabled() && this->currentColorOp != vm->flags.colorOp)
+    if (!g_Supervisor.IsHardwareBlendingDisabled() && !g_Supervisor.IsColorCompositingDisabled() &&
+        this->currentColorOp != vm->flags.colorOp)
     {
         this->currentColorOp = vm->flags.colorOp;
         if (this->currentColorOp == AnmVmColorOp_Modulate)
@@ -520,8 +520,7 @@ void AnmManager::SetRenderStateForVm(AnmVm *vm)
         g_PrimitivesToDrawUnknown[2].diffuse = vm->color;
         g_PrimitivesToDrawUnknown[3].diffuse = vm->color;
     }
-    if (!g_Supervisor.IsDepthTestDisabled() &&
-        (this->currentZWriteDisable != vm->flags.zWriteDisable))
+    if (!g_Supervisor.IsDepthTestDisabled() && (this->currentZWriteDisable != vm->flags.zWriteDisable))
     {
         this->currentZWriteDisable = vm->flags.zWriteDisable;
         if (!this->currentZWriteDisable)
@@ -600,7 +599,8 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
     this->SetRenderStateForVm(vm);
     if (!g_Supervisor.IsVertexBufferDisabled())
     {
-        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawVertexBuf, sizeof(VertexTex1Xyzrwh));
+        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawVertexBuf,
+                                                sizeof(VertexTex1Xyzrwh));
     }
     else
     {
@@ -624,7 +624,8 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
             vm->sprite->uvStart.y + vm->uvScrollPos.y;
         g_PrimitivesToDrawNoVertexBuf[2].textureUV.y = g_PrimitivesToDrawNoVertexBuf[3].textureUV.y =
             vm->sprite->uvEnd.y + vm->uvScrollPos.y;
-        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawNoVertexBuf, sizeof(VertexTex1DiffuseXyzrwh));
+        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawNoVertexBuf,
+                                                sizeof(VertexTex1DiffuseXyzrwh));
     }
     return ZUN_SUCCESS;
 }
@@ -895,7 +896,8 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     }
     else
     {
-        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawUnknown, sizeof(VertexTex1DiffuseXyz));
+        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawUnknown,
+                                                sizeof(VertexTex1DiffuseXyz));
     }
     return ZUN_SUCCESS;
 }
@@ -975,7 +977,8 @@ ZunResult AnmManager::Draw2(AnmVm *vm)
     }
     else
     {
-        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawUnknown, sizeof(VertexTex1DiffuseXyz));
+        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawUnknown,
+                                                sizeof(VertexTex1DiffuseXyz));
     }
     return ZUN_SUCCESS;
 }

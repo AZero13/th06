@@ -712,24 +712,20 @@ ZunResult GuiImpl::DrawDialogue()
     }
     VertexDiffuseXyzrwh vertices[4];
     vertices[0].position =
-            D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f -
-                            16.0f,
-                        384.0f, 0.0f);
+        D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f - 16.0f,
+                    384.0f, 0.0f);
 
-    vertices[1].position =
-            D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f +
-                            256.0f + 16.0f,
-                        384.0f, 0.0f);
+    vertices[1].position = D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x +
+                                           (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f + 256.0f + 16.0f,
+                                       384.0f, 0.0f);
 
     vertices[2].position =
-            D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f -
-                            16.0f,
-                        384.0f + dialogueBoxHeight, 0.0f);
+        D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f - 16.0f,
+                    384.0f + dialogueBoxHeight, 0.0f);
 
-    vertices[3].position =
-            D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f +
-                            256.0f + 16.0f,
-                        384.0f + dialogueBoxHeight, 0.0f);
+    vertices[3].position = D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x +
+                                           (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f + 256.0f + 16.0f,
+                                       384.0f + dialogueBoxHeight, 0.0f);
 
     vertices[0].diffuse = vertices[1].diffuse = 0xd0000000;
     vertices[2].diffuse = vertices[3].diffuse = 0x90000000;

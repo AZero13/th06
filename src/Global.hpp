@@ -24,8 +24,7 @@
 
 #define IS_PRESSED(key) (g_CurFrameInput & (key))
 #define WAS_PRESSED(key) (IS_PRESSED(key) && (g_CurFrameInput & (key)) != (g_LastFrameInput & (key)))
-#define WAS_PRESSED_WEIRD(key)                                                                                         \
-    (WAS_PRESSED(key) || (IS_PRESSED(key) && g_IsEigthFrameOfHeldInput))
+#define WAS_PRESSED_WEIRD(key) (WAS_PRESSED(key) || (IS_PRESSED(key) && g_IsEigthFrameOfHeldInput))
 
 #define ZUN_ALLOC(size) (u8 *)g_ZunMemory.Alloc(size)
 #define ZUN_ALLOC_TYPE(type) (type *)ZUN_ALLOC(sizeof(type))

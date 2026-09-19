@@ -341,7 +341,8 @@ ZunResult Supervisor::SetupDInput(Supervisor *supervisor)
         return ZUN_ERROR;
     }
 
-    if (FAILED(DirectInput8Create(hInst, DIRECTINPUT_VERSION, IID_IDirectInput8, (LPVOID *)&supervisor->dinputIface, NULL)))
+    if (FAILED(DirectInput8Create(hInst, DIRECTINPUT_VERSION, IID_IDirectInput8, (LPVOID *)&supervisor->dinputIface,
+                                  NULL)))
     {
         supervisor->dinputIface = NULL;
         g_GameErrorContext.Log(TH_ERR_DIRECTINPUT_NOT_AVAILABLE);
@@ -366,7 +367,7 @@ ZunResult Supervisor::SetupDInput(Supervisor *supervisor)
     }
 
     if (FAILED(supervisor->keyboard->SetCooperativeLevel(supervisor->hwndGameWindow,
-                                                  DISCL_NONEXCLUSIVE | DISCL_FOREGROUND | DISCL_NOWINKEY)))
+                                                         DISCL_NONEXCLUSIVE | DISCL_FOREGROUND | DISCL_NOWINKEY)))
     {
         SAFE_RELEASE(supervisor->keyboard);
 
