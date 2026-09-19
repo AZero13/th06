@@ -5,6 +5,7 @@
 #include <d3dx8math.h>
 
 #include "Chain.hpp"
+#include "Global.hpp"
 #include "ResultScreen.hpp"
 #include "ZunResult.hpp"
 #include "diffbuild.hpp"
@@ -32,11 +33,8 @@ enum StageNumber
     EXTRA_STAGE,
 };
 
-#define PSCR_NUM_CHARS_SHOTTYPES 4
 #define PSCR_NUM_STAGES 6
 #define PSCR_NUM_DIFFICULTIES 4
-
-#define CLRD_NUM_CHARACTERS 4
 
 #define CATK_NUM_CAPTURES 64
 
@@ -68,9 +66,10 @@ struct GameManager
 
     i32 HasReachedMaxClears(i32 character, i32 shottype)
     {
-        return (this->clrd[shottype + character * 2].difficultyClearedWithRetries[1] == MAX_CLEARS ||
-                this->clrd[shottype + character * 2].difficultyClearedWithRetries[2] == MAX_CLEARS ||
-                this->clrd[shottype + character * 2].difficultyClearedWithRetries[3] == MAX_CLEARS);
+        return (
+            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[1] == MAX_CLEARS ||
+            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[2] == MAX_CLEARS ||
+            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[3] == MAX_CLEARS);
     }
     void IncreaseSubrank(i32 amount);
     void DecreaseSubrank(i32 amount);
@@ -83,7 +82,7 @@ struct GameManager
 
     static i32 CharacterShotType()
     {
-        return g_GameManager.shotType + g_GameManager.character * 2;
+        return g_GameManager.shotType + g_GameManager.character * SHOTTYPES_PER_CHARACTER;
     }
 
     u32 guiScore;
@@ -99,8 +98,8 @@ struct GameManager
     i32 spellcardsCaptured;
     i8 isTimeStopped;
     Catk catk[CATK_NUM_CAPTURES];
-    Clrd clrd[CLRD_NUM_CHARACTERS];
-    Pscr pscr[PSCR_NUM_CHARS_SHOTTYPES][PSCR_NUM_STAGES][PSCR_NUM_DIFFICULTIES];
+    Clrd clrd[SHOTTYPE_COUNT];
+    Pscr pscr[SHOTTYPE_COUNT][PSCR_NUM_STAGES][PSCR_NUM_DIFFICULTIES];
     u16 currentPower;
     i8 unk_1812;
     i8 unk_1813;

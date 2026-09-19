@@ -115,7 +115,7 @@ i32 GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height)
 #pragma var_order(score_increment, is_in_menu)
 ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
 {
-    u32 isInMenu;
+    ZunBool isInMenu;
     u32 scoreIncrement;
 
     if (gameManager->demoMode)
@@ -147,11 +147,11 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
 
     if (!gameManager->isInRetryMenu && !gameManager->isInGameMenu)
     {
-        isInMenu = 1;
+        isInMenu = true;
     }
     else
     {
-        isInMenu = 0;
+        isInMenu = false;
     }
 
     gameManager->isInMenu = isInMenu;

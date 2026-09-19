@@ -8,6 +8,7 @@
 #include <windows.h>
 
 #include "ZunBool.hpp"
+#include "ZunColor.hpp"
 #include "ZunMath.hpp"
 #include "ZunResult.hpp"
 #include "diffbuild.hpp"
@@ -50,6 +51,10 @@
 
 namespace th06
 {
+
+#define CHARACTER_COUNT 2
+#define SHOTTYPES_PER_CHARACTER 2
+#define SHOTTYPE_COUNT (CHARACTER_COUNT * SHOTTYPES_PER_CHARACTER)
 
 namespace utils
 {
@@ -146,7 +151,7 @@ class CMyFont
         m_lpFont = NULL;
     };
     virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
-    virtual void Print(char *str, int x, int y, D3DCOLOR color = 0xffffffff);
+    virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
     virtual void Clean();
 };
 

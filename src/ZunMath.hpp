@@ -18,11 +18,6 @@ struct ZunVec2
     {
         return (f64)this->VectorLength();
     }
-
-    D3DXVECTOR2 *AsD3dXVec()
-    {
-        return (D3DXVECTOR2 *)this;
-    }
 };
 ZUN_ASSERT_SIZE(ZunVec2, 0x8);
 

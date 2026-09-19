@@ -4,6 +4,7 @@
 #include "AnmManager.hpp"
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
+#include "GameWindow.hpp"
 #include "Global.hpp"
 #include "Gui.hpp"
 #include "Supervisor.hpp"
@@ -245,8 +246,8 @@ void AsciiManager::DrawStrings(void)
             {
                 g_Supervisor.viewport.X = 0;
                 g_Supervisor.viewport.Y = 0;
-                g_Supervisor.viewport.Width = 640;
-                g_Supervisor.viewport.Height = 480;
+                g_Supervisor.viewport.Width = GAME_WINDOW_WIDTH;
+                g_Supervisor.viewport.Height = GAME_WINDOW_HEIGHT;
                 g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
             }
         }
@@ -271,7 +272,7 @@ void AsciiManager::DrawStrings(void)
                 else
                 {
                     this->vm0.sprite = &g_AnmManager->sprites[*text + 0x61];
-                    this->vm0.color = 0xFFFFFFFF;
+                    this->vm0.color = COLOR_WHITE;
                 }
                 g_AnmManager->DrawNoRotation(&this->vm0);
                 this->vm0.pos.x += charWidth;

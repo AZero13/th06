@@ -81,13 +81,13 @@ ZunBool MusicRoom::ProcessInput()
 
             if (lineCharBuffer[0] != '\0')
             {
-                this->descriptionSprites[i].flags.flag1 = 1;
+                this->descriptionSprites[i].flags.isVisibleOverride = true;
                 g_AnmManager->DrawVmTextFmt(&this->descriptionSprites[i], COLOR_MUSIC_ROOM_SONG_DESC_TEXT,
                                             COLOR_MUSIC_ROOM_SONG_DESC_SHADOW, lineCharBuffer);
             }
             else
             {
-                this->descriptionSprites[i].flags.flag1 = 0;
+                this->descriptionSprites[i].flags.isVisibleOverride = false;
             }
 
             this->descriptionSprites[i].pos.x = ((f32)(i % 2)) * 248.0f + 96.0f;
@@ -381,13 +381,13 @@ finishMusiccmtRead:
 
         if (lineCharBuffer[0] != '\0')
         {
-            musicRoom->descriptionSprites[i].flags.flag1 = 1;
+            musicRoom->descriptionSprites[i].flags.isVisibleOverride = true;
             g_AnmManager->DrawVmTextFmt(&musicRoom->descriptionSprites[i], COLOR_MUSIC_ROOM_SONG_DESC_TEXT,
                                         COLOR_MUSIC_ROOM_SONG_DESC_SHADOW, lineCharBuffer);
         }
         else
         {
-            musicRoom->descriptionSprites[i].flags.flag1 = 0;
+            musicRoom->descriptionSprites[i].flags.isVisibleOverride = false;
         }
 
         musicRoom->descriptionSprites[i].pos.x = ((f32)(i % 2)) * 248.0f + 96.0f;

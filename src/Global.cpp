@@ -717,7 +717,7 @@ u8 *th06::Controller::GetControllerState()
         {
             return g_ControllerData;
         }
-        memcpy(&g_ControllerData, dijoystate2.rgbButtons, sizeof(dijoystate2.rgbButtons));
+        memcpy(g_ControllerData, dijoystate2.rgbButtons, sizeof(dijoystate2.rgbButtons));
         return g_ControllerData;
     }
 }

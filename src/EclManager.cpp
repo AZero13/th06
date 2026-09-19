@@ -246,10 +246,9 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 enemy->currentContext.currentInstr = (EclRawInstr *)((u8 *)instruction + instruction->offsetToNext);
                 if (!enemy->flags.disableCallStack)
                 {
-                    memcpy(&enemy->savedContextStack[enemy->stackDepth], &enemy->currentContext,
-                           sizeof(EnemyEclContext));
+                    enemy->savedContextStack[enemy->stackDepth] = enemy->currentContext;
                 }
-                g_EclManager.CallEclSub(&enemy->currentContext, (u16)local_14);
+                g_EclManager.CallEclSub(&enemy->currentContext, local_14);
                 if (!enemy->flags.disableCallStack && enemy->stackDepth < 7)
                 {
                     enemy->stackDepth++;
@@ -263,7 +262,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                     utils::DebugPrint2("error : no Stack Ret\n");
                 }
                 enemy->stackDepth--;
-                memcpy(&enemy->currentContext, &enemy->savedContextStack[enemy->stackDepth], sizeof(EnemyEclContext));
+                enemy->currentContext = enemy->savedContextStack[enemy->stackDepth];
                 continue;
             case ECL_OPCODE_CALLLSS:
                 local_14 = *EnemyEclInstr::GetVar(enemy, &args->call.cmpLhs, NULL);
@@ -433,10 +432,10 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 }
                 break;
             case ECL_OPCODE_SHOOTDISABLED:
-                enemy->flags.shootingDisabled = 1;
+                enemy->flags.shootingDisabled = true;
                 break;
             case ECL_OPCODE_SHOOTENABLED:
-                enemy->flags.shootingDisabled = 0;
+                enemy->flags.shootingDisabled = false;
                 break;
             case ECL_OPCODE_SHOOTNOW:
                 enemy->bulletProps.position = enemy->position + enemy->shootOffset;
@@ -531,16 +530,16 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 if (instruction->args.setInt >= 0)
                 {
                     g_EnemyManager.bosses[instruction->args.setInt] = enemy;
-                    g_Gui.bossPresent = 1;
+                    g_Gui.bossPresent = true;
                     g_Gui.SetBossHealthBar(1.0f);
-                    enemy->flags.isBoss = 1;
+                    enemy->flags.isBoss = true;
                     enemy->bossId = instruction->args.setInt;
                 }
                 else
                 {
-                    g_Gui.bossPresent = 0;
+                    g_Gui.bossPresent = false;
                     g_EnemyManager.bosses[enemy->bossId] = NULL;
-                    enemy->flags.isBoss = 0;
+                    enemy->flags.isBoss = false;
                 }
                 break;
             case ECL_OPCODE_SPELLCARDEFFECT:
@@ -608,10 +607,10 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 enemy->lowerMoveLimit.y = instruction->args.moveBoundSet.lowerMoveLimit.y;
                 enemy->upperMoveLimit.x = instruction->args.moveBoundSet.upperMoveLimit.x;
                 enemy->upperMoveLimit.y = instruction->args.moveBoundSet.upperMoveLimit.y;
-                enemy->flags.shouldClampPos = 1;
+                enemy->flags.shouldClampPos = true;
                 break;
             case ECL_OPCODE_MOVEBOUNDSDISABLE:
-                enemy->flags.shouldClampPos = 0;
+                enemy->flags.shouldClampPos = false;
                 break;
             case ECL_OPCODE_MOVERAND:
                 local_8 = instruction->args.move.pos;
@@ -688,8 +687,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 enemy->currentContext.currentInstr = (EclRawInstr *)((u8 *)instruction + instruction->offsetToNext);
                 if (!enemy->flags.disableCallStack)
                 {
-                    memcpy(&enemy->savedContextStack[enemy->stackDepth], &enemy->currentContext,
-                           sizeof(EnemyEclContext));
+                    enemy->savedContextStack[enemy->stackDepth] = enemy->currentContext;
                 }
                 g_EclManager.CallEclSub(&enemy->currentContext, enemy->interrupts[enemy->runInterrupt]);
                 if (enemy->stackDepth < ARRAY_SIZE_SIGNED(enemy->savedContextStack) - 1)
