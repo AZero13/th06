@@ -216,7 +216,7 @@ Effect *EffectManager::SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count
             continue;
         }
 
-        effect->inUseFlag = 1;
+        effect->inUseFlag = true;
         effect->effectId = effectIdx;
         effect->pos1 = *pos;
 
@@ -254,7 +254,7 @@ ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
     mgr->activeEffects = 0;
     for (effectIdx = 0; effectIdx < ARRAY_SIZE_SIGNED(mgr->effects) - 1; effectIdx++, effect++)
     {
-        if (effect->inUseFlag == 0)
+        if (!effect->inUseFlag)
         {
             continue;
         }
@@ -262,12 +262,12 @@ ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
         mgr->activeEffects++;
         if (effect->updateCallback != NULL && (effect->updateCallback)(effect) != EFFECT_CALLBACK_RESULT_DONE)
         {
-            effect->inUseFlag = 0;
+            effect->inUseFlag = false;
         }
 
         if (g_AnmManager->ExecuteScript(&effect->vm) != 0)
         {
-            effect->inUseFlag = 0;
+            effect->inUseFlag = false;
         }
 
         effect->timer++;
@@ -284,7 +284,7 @@ ChainCallbackResult EffectManager::OnDraw(EffectManager *mgr)
     effect = &mgr->effects[0];
     for (effectIdx = 0; effectIdx < ARRAY_SIZE_SIGNED(mgr->effects) - 1; effectIdx++, effect++)
     {
-        if (effect->inUseFlag == 0)
+        if (!effect->inUseFlag)
         {
             continue;
         }

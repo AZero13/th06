@@ -53,6 +53,12 @@ enum OptionsCursorPosition
     CURSOR_OPTIONS_POS_EXIT,
 };
 
+#define REPLAYS_PER_PAGE 15
+#define NORMAL_REPLAY_COUNT REPLAYS_PER_PAGE
+#define USER_REPLAY_PAGES 3
+#define USER_REPLAY_COUNT (USER_REPLAY_PAGES * REPLAYS_PER_PAGE)
+#define TOTAL_REPLAY_COUNT (NORMAL_REPLAY_COUNT + USER_REPLAY_COUNT)
+
 struct MainMenu
 {
     MainMenu();
@@ -104,12 +110,12 @@ struct MainMenu
     u8 colorMode16bit;
     u8 windowed;
     u8 frameskipConfig;
-    i8 padding4;
+    // one padding byte
     ChainElem *chainCalc;
     ChainElem *chainDraw;
-    char replayFilePaths[60][512];
-    char replayFileName[60][8];
-    ReplayData replayFileData[60];
+    char replayFilePaths[TOTAL_REPLAY_COUNT][512];
+    char replayFileName[TOTAL_REPLAY_COUNT][8];
+    ReplayData replayFileData[TOTAL_REPLAY_COUNT];
     ReplayData *currentReplay;
     i32 timeRelatedArrSize;
     f32 timeRelatedArr[16];

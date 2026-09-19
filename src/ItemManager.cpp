@@ -43,7 +43,7 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
         {
             this->nextIndex = 0;
         }
-        item->isInUse = 1;
+        item->isInUse = true;
         item->currentPosition = *position;
         item->startPosition.x = 0.0f;
         item->startPosition.y = -2.2f;
@@ -140,7 +140,7 @@ void ItemManager::OnUpdate()
         curItem->currentPosition += curItem->startPosition * g_Supervisor.effectiveFramerateMultiplier;
         if (g_GameManager.arcadeRegionSize.y + (f32)GAME_REGION_TOP <= curItem->currentPosition.y)
         {
-            curItem->isInUse = 0;
+            curItem->isInUse = false;
             g_GameManager.DecreaseSubrank(3);
             continue;
         }
@@ -313,7 +313,7 @@ void ItemManager::OnUpdate()
                 break;
             case ITEM_POINT_BULLET:
                 itemScore = (g_GameManager.grazeInStage / 3) * 10 + 500;
-                if (g_Player.bombInfo.isInUse != 0)
+                if (g_Player.bombInfo.isInUse)
                 {
                     itemScore = 100;
                 }
@@ -321,7 +321,7 @@ void ItemManager::OnUpdate()
                 g_AsciiManager.CreatePopup2(&curItem->currentPosition, itemScore, COLOR_WHITE);
                 break;
             }
-            curItem->isInUse = 0;
+            curItem->isInUse = false;
             itemAcquired = true;
             continue;
         }
@@ -363,7 +363,7 @@ void ItemManager::OnDraw()
     idx = 0;
     for (; idx < ARRAY_SIZE_SIGNED(this->items) - 1; idx++, curItem++)
     {
-        if (curItem->isInUse == 0)
+        if (!curItem->isInUse)
         {
             continue;
         }

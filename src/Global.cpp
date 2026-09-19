@@ -436,7 +436,7 @@ u16 Controller::GetJoystickCaps(void)
         return 1;
     }
 
-    joyGetDevCapsA(0, &g_JoystickCaps, sizeof(g_JoystickCaps));
+    joyGetDevCaps(0, &g_JoystickCaps, sizeof(g_JoystickCaps));
     return 0;
 }
 
@@ -682,9 +682,9 @@ u8 *th06::Controller::GetControllerState()
             return g_ControllerData;
         }
         for (joyButtonBit = joyinfoex.dwButtons, joyButtonIndex = 0; joyButtonIndex < 32;
-             joyButtonIndex += 1, joyButtonBit >>= 1)
+             joyButtonIndex++, joyButtonBit >>= 1)
         {
-            if ((joyButtonBit & 1) != 0)
+            if (joyButtonBit & 1)
             {
                 g_ControllerData[joyButtonIndex] = 0x80;
             }
@@ -861,7 +861,7 @@ void CMyFont::Clean()
 }
 
 #pragma var_order(pbg3Idx, entryname, entryIdx, fsize, data, file)
-u8 *FileSystem::OpenPath(char *filepath, int isExternalResource)
+u8 *FileSystem::OpenPath(char *filepath, ZunBool isExternalResource)
 {
     u8 *data;
     FILE *file;
@@ -871,29 +871,29 @@ u8 *FileSystem::OpenPath(char *filepath, int isExternalResource)
     i32 pbg3Idx;
 
     entryIdx = -1;
-    if (isExternalResource == 0)
+    if (!isExternalResource)
     {
         entryname = strrchr(filepath, '\\');
-        if (entryname == (char *)0x0)
+        if (entryname == NULL)
         {
             entryname = filepath;
         }
         else
         {
-            entryname = entryname + 1;
+            entryname++;
         }
         entryname = strrchr(entryname, '/');
-        if (entryname == (char *)0x0)
+        if (entryname == NULL)
         {
             entryname = filepath;
         }
         else
         {
-            entryname = entryname + 1;
+            entryname++;
         }
         if (g_Pbg3Archives != NULL)
         {
-            for (pbg3Idx = 0; pbg3Idx < 0x10; pbg3Idx += 1)
+            for (pbg3Idx = 0; pbg3Idx < 16; pbg3Idx++)
             {
                 if (g_Pbg3Archives[pbg3Idx] != NULL)
                 {

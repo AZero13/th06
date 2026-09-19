@@ -127,7 +127,7 @@ void SoundPlayer::StopBGM()
         this->backgroundMusic->Stop();
         if (this->backgroundMusicThreadHandle != NULL)
         {
-            PostThreadMessageA(this->backgroundMusicThreadId, WM_QUIT, 0, 0);
+            PostThreadMessage(this->backgroundMusicThreadId, WM_QUIT, 0, 0);
             utils::DebugPrint2("stop m_dwNotifyThreadID\n");
             WaitForSingleObject(this->backgroundMusicThreadHandle, INFINITE);
             utils::DebugPrint2("comp\n");
@@ -200,7 +200,7 @@ ZunResult SoundPlayer::LoadWav(char *path)
     numSamplesPerSec = waveFile.m_pwfx->nSamplesPerSec;
     notifySize = numSamplesPerSec * 2 * blockAlign >> 2;
     notifySize -= (notifySize % blockAlign);
-    this->backgroundMusicUpdateEvent = CreateEventA(NULL, 0, 0, NULL);
+    this->backgroundMusicUpdateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     this->backgroundMusicThreadHandle = CreateThread(NULL, 0, SoundPlayer::BackgroundMusicPlayerThread,
                                                      g_Supervisor.hwndGameWindow, 0, &this->backgroundMusicThreadId);
     res = this->manager->CreateStreaming(&this->backgroundMusic, path,
@@ -243,7 +243,7 @@ ZunResult SoundPlayer::LoadPos(char *path)
         return ZUN_ERROR;
     }
 
-    fileData = FileSystem::OpenPath(path, 0);
+    fileData = FileSystem::OpenPath(path);
     if (fileData == NULL)
     {
         return ZUN_ERROR;
@@ -330,7 +330,7 @@ ZunResult SoundPlayer::LoadSound(i32 idx, char *path)
         return ZUN_SUCCESS;
     }
     SAFE_RELEASE(this->soundBuffers[idx]);
-    soundFileData = FileSystem::OpenPath(path, 0);
+    soundFileData = FileSystem::OpenPath(path);
     sFDCursor = soundFileData;
     if (sFDCursor == NULL)
     {
@@ -519,7 +519,7 @@ DWORD __stdcall SoundPlayer::BackgroundMusicPlayerThread(LPVOID lpThreadParamete
             }
             break;
         case 1:
-            while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE) != 0)
+            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
             {
                 if (msg.message == WM_QUIT)
                 {

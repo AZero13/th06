@@ -112,7 +112,7 @@ struct EnemyFlags
     u8 deathMode : 3;
 
     // Third byte
-    bool shouldClampPos : 1;
+    u8 shouldClampPos : 1;
     u8 rotateAnm : 1;
     u8 disableCallStack : 1;
     u8 isInvisible : 1;

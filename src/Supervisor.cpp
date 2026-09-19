@@ -22,7 +22,7 @@
 namespace th06
 {
 DIFFABLE_STATIC(ControllerMapping, g_ControllerMapping)
-DIFFABLE_STATIC(IDirect3DSurface8 *, g_TextBufferSurface)
+DIFFABLE_STATIC(LPDIRECT3DSURFACE8, g_TextBufferSurface)
 DIFFABLE_STATIC(Supervisor, g_Supervisor)
 
 ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
@@ -34,14 +34,14 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
     }
     g_LastFrameInput = g_CurFrameInput;
     g_CurFrameInput = Controller::GetInput();
-    g_IsEigthFrameOfHeldInput = 0;
+    g_IsEigthFrameOfHeldInput = false;
     if (g_LastFrameInput == g_CurFrameInput)
     {
         if (0x1e <= g_NumOfFramesInputsWereHeld)
         {
             if (g_NumOfFramesInputsWereHeld % 8 == 0)
             {
-                g_IsEigthFrameOfHeldInput = 1;
+                g_IsEigthFrameOfHeldInput = true;
             }
             if (0x26 <= g_NumOfFramesInputsWereHeld)
             {
@@ -83,7 +83,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
             case SUPERVISOR_STATE_EXITERROR:
                 return CHAIN_CALLBACK_RESULT_EXIT_GAME_ERROR;
             case SUPERVISOR_STATE_RESULTSCREEN:
-                if (ResultScreen::RegisterChain(NULL) != ZUN_SUCCESS)
+                if (ResultScreen::RegisterChain(FALSE) != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
@@ -214,33 +214,21 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(anmm0, anmm1, anmm2, anmm3, anmm4, anmm5)
 ChainCallbackResult Supervisor::OnDraw(Supervisor *s)
 {
-    AnmManager *anmm0 = g_AnmManager;
-    anmm0->currentVertexShader = 0xff;
-
-    AnmManager *anmm1 = g_AnmManager;
-    anmm1->currentSprite = NULL;
-
-    AnmManager *anmm2 = g_AnmManager;
-    anmm2->currentTexture = NULL;
-
-    AnmManager *anmm3 = g_AnmManager;
-    anmm3->currentColorOp = 0xff;
-
-    AnmManager *anmm4 = g_AnmManager;
-    anmm4->currentBlendMode = 0xff;
-
-    AnmManager *anmm5 = g_AnmManager;
-    anmm5->currentZWriteDisable = 0xff;
+    g_AnmManager->SetCurrentVertexShader(0xff);
+    g_AnmManager->SetCurrentSprite(NULL);
+    g_AnmManager->SetCurrentTexture(NULL);
+    g_AnmManager->SetCurrentColorOp(0xff);
+    g_AnmManager->SetCurrentBlendMode(0xff);
+    g_AnmManager->SetCurrentZWriteDisable(0xff);
 
     Supervisor::DrawFpsCounter();
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
 #pragma var_order(diprange, pvRefBackup)
-BOOL CALLBACK Supervisor::ControllerCallback(LPCDIDEVICEOBJECTINSTANCEA lpddoi, LPVOID pvRef)
+BOOL CALLBACK Supervisor::ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
     LPVOID pvRefBackup;
     DIPROPRANGE diprange;
@@ -255,7 +243,7 @@ BOOL CALLBACK Supervisor::ControllerCallback(LPCDIDEVICEOBJECTINSTANCEA lpddoi, 
         diprange.lMin = -1000;
         diprange.lMax = 1000;
 
-        if (g_Supervisor.controller->SetProperty(DIPROP_RANGE, &diprange.diph) < 0)
+        if (FAILED(g_Supervisor.controller->SetProperty(DIPROP_RANGE, &diprange.diph)))
         {
             return FALSE;
         }
@@ -289,7 +277,6 @@ ZunResult Supervisor::RegisterChain()
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(i)
 ZunResult Supervisor::AddedCallback(Supervisor *s)
 {
     i32 i;
@@ -306,11 +293,11 @@ ZunResult Supervisor::AddedCallback(Supervisor *s)
     }
     g_AnmManager->LoadSurface(0, "data/title/th06logo.jpg");
     g_AnmManager->CopySurfaceToBackBuffer(0, 0, 0, 0, 0);
-    if (g_Supervisor.d3dDevice->Present(0, 0, 0, 0) < 0)
+    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
 
     g_AnmManager->CopySurfaceToBackBuffer(0, 0, 0, 0, 0);
-    if (g_Supervisor.d3dDevice->Present(0, 0, 0, 0) < 0)
+    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
 
     g_AnmManager->ReleaseSurface(0);
@@ -348,28 +335,28 @@ ZunResult Supervisor::SetupDInput(Supervisor *supervisor)
 {
     HINSTANCE hInst;
 
-    hInst = (HINSTANCE)GetWindowLongA(supervisor->hwndGameWindow, GWL_HINSTANCE);
-    if (supervisor->cfg.opts >> GCOS_NO_DIRECTINPUT_PAD & 1)
+    hInst = (HINSTANCE)GetWindowLong(supervisor->hwndGameWindow, GWL_HINSTANCE);
+    if (supervisor->IsDInputDisabled())
     {
         return ZUN_ERROR;
     }
 
-    if (DirectInput8Create(hInst, DIRECTINPUT_VERSION, IID_IDirectInput8A, (LPVOID *)&supervisor->dinputIface, NULL) <
-        0)
+    if (FAILED(DirectInput8Create(hInst, DIRECTINPUT_VERSION, IID_IDirectInput8, (LPVOID *)&supervisor->dinputIface,
+                                  NULL)))
     {
         supervisor->dinputIface = NULL;
         g_GameErrorContext.Log(TH_ERR_DIRECTINPUT_NOT_AVAILABLE);
         return ZUN_ERROR;
     }
 
-    if (supervisor->dinputIface->CreateDevice(GUID_SysKeyboard, &supervisor->keyboard, NULL) < 0)
+    if (FAILED(supervisor->dinputIface->CreateDevice(GUID_SysKeyboard, &supervisor->keyboard, NULL)))
     {
         SAFE_RELEASE(supervisor->dinputIface);
         g_GameErrorContext.Log(TH_ERR_DIRECTINPUT_NOT_AVAILABLE);
         return ZUN_ERROR;
     }
 
-    if (supervisor->keyboard->SetDataFormat(&c_dfDIKeyboard) < 0)
+    if (FAILED(supervisor->keyboard->SetDataFormat(&c_dfDIKeyboard)))
     {
         SAFE_RELEASE(supervisor->keyboard);
 
@@ -379,8 +366,8 @@ ZunResult Supervisor::SetupDInput(Supervisor *supervisor)
         return ZUN_ERROR;
     }
 
-    if (supervisor->keyboard->SetCooperativeLevel(supervisor->hwndGameWindow,
-                                                  DISCL_NONEXCLUSIVE | DISCL_FOREGROUND | DISCL_NOWINKEY) < 0)
+    if (FAILED(supervisor->keyboard->SetCooperativeLevel(supervisor->hwndGameWindow,
+                                                         DISCL_NONEXCLUSIVE | DISCL_FOREGROUND | DISCL_NOWINKEY)))
     {
         SAFE_RELEASE(supervisor->keyboard);
 
@@ -410,14 +397,14 @@ ZunResult Supervisor::SetupDInput(Supervisor *supervisor)
     return ZUN_SUCCESS;
 }
 
-BOOL CALLBACK Supervisor::EnumGameControllersCb(LPCDIDEVICEINSTANCEA pdidInstance, LPVOID pContext)
+BOOL CALLBACK Supervisor::EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext)
 {
     HRESULT result;
 
     if (!g_Supervisor.controller)
     {
         result = g_Supervisor.dinputIface->CreateDevice(pdidInstance->guidInstance, &g_Supervisor.controller, NULL);
-        if (result < 0)
+        if (FAILED(result))
         {
             return TRUE;
         }
@@ -430,7 +417,7 @@ ZunResult Supervisor::DeletedCallback(Supervisor *s)
     i32 pbg3Idx;
 
     g_AnmManager->ReleaseVertexBuffer();
-    for (pbg3Idx = 0; pbg3Idx < ARRAY_SIZE_SIGNED(s->pbg3Archives); pbg3Idx += 1)
+    for (pbg3Idx = 0; pbg3Idx < ARRAY_SIZE_SIGNED(s->pbg3Archives); pbg3Idx++)
     {
         s->ReleasePbg3(pbg3Idx);
     }
@@ -480,7 +467,7 @@ void Supervisor::DrawFpsCounter()
         g_LastTime = curTime;
         g_NumFramesSinceLastTime = 0;
         sprintf(g_FpsCounterBuffer, "%.02ffps", fps);
-        if (g_GameManager.isInMenu != 0)
+        if (g_GameManager.isInMenu)
         {
             framerate = 60.f / g_Supervisor.framerateMultiplier;
             g_Supervisor.unk1b8 = g_Supervisor.unk1b8 + framerate;
@@ -642,8 +629,8 @@ ZunResult Supervisor::LoadConfig(char *path)
     FILE *wavFile2;
 
     memset(&g_Supervisor.cfg, 0, sizeof(GameConfiguration));
-    g_Supervisor.cfg.opts = g_Supervisor.cfg.opts | (1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING);
-    data = (GameConfiguration *)FileSystem::OpenPath(path, 1);
+    g_Supervisor.cfg.opts |= 1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING;
+    data = (GameConfiguration *)FileSystem::OpenPath(path, EXTERNAL_FILE);
     if (data == NULL)
     {
         g_Supervisor.cfg.lifeCount = 2;
@@ -664,7 +651,7 @@ ZunResult Supervisor::LoadConfig(char *path)
             utils::DebugPrint(TH_ERR_NO_WAVE_FILE);
         }
         g_Supervisor.cfg.playSounds = 1;
-        g_Supervisor.cfg.defaultDifficulty = 1;
+        g_Supervisor.cfg.defaultDifficulty = NORMAL;
         g_Supervisor.cfg.windowed = false;
         g_Supervisor.cfg.frameskipConfig = 0;
         g_Supervisor.cfg.controllerMapping = g_ControllerMapping;
@@ -697,63 +684,63 @@ ZunResult Supervisor::LoadConfig(char *path)
                 utils::DebugPrint(TH_ERR_NO_WAVE_FILE);
             }
             g_Supervisor.cfg.playSounds = 1;
-            g_Supervisor.cfg.defaultDifficulty = 1;
+            g_Supervisor.cfg.defaultDifficulty = NORMAL;
             g_Supervisor.cfg.windowed = false;
             g_Supervisor.cfg.frameskipConfig = 0;
             g_Supervisor.cfg.controllerMapping = g_ControllerMapping;
             memset(&g_Supervisor.cfg.opts, 0, sizeof(GameConfigOptsShifts));
-            g_Supervisor.cfg.opts |= (1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING);
+            g_Supervisor.cfg.opts |= 1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING;
             g_GameErrorContext.Log(TH_ERR_CONFIG_CORRUPTED);
         }
         g_ControllerMapping = g_Supervisor.cfg.controllerMapping;
         ZUN_FREE(data);
     }
-    if (((this->cfg.opts >> GCOS_DONT_USE_VERTEX_BUF) & 1) != 0)
+    if (this->IsVertexBufferDisabled())
     {
         g_GameErrorContext.Log(TH_ERR_NO_VERTEX_BUFFER);
     }
-    if (((this->cfg.opts >> GCOS_DONT_USE_FOG) & 1) != 0)
+    if (this->IsFogDisabled())
     {
         g_GameErrorContext.Log(TH_ERR_NO_FOG);
     }
-    if (((this->cfg.opts >> GCOS_FORCE_16BIT_COLOR_MODE) & 1) != 0)
+    if (this->Is16bitColorMode())
     {
         g_GameErrorContext.Log(TH_ERR_USE_16BIT_TEXTURES);
     }
-    if (this->IsUnknown())
+    if (this->ShouldForceBackbufferClear())
     {
         g_GameErrorContext.Log(TH_ERR_FORCE_BACKBUFFER_CLEAR);
     }
-    if (((this->cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS) & 1) != 0)
+    if (this->IsMinimumGraphicsMode())
     {
         g_GameErrorContext.Log(TH_ERR_DONT_RENDER_ITEMS);
     }
-    if (((this->cfg.opts >> GCOS_SUPPRESS_USE_OF_GOROUD_SHADING) & 1) != 0)
+    if (this->IsShadingDisabled())
     {
         g_GameErrorContext.Log(TH_ERR_NO_GOURAUD_SHADING);
     }
-    if (((this->cfg.opts >> GCOS_TURN_OFF_DEPTH_TEST) & 1) != 0)
+    if (this->IsDepthTestDisabled())
     {
         g_GameErrorContext.Log(TH_ERR_NO_DEPTH_TESTING);
     }
-    if (((this->cfg.opts >> GCOS_FORCE_60FPS) & 1) != 0)
+    if (this->IsForced60Fps())
     {
         g_GameErrorContext.Log(TH_ERR_FORCE_60FPS_MODE);
-        this->vsyncEnabled = 0;
+        this->vsyncEnabled = false;
     }
-    if (((this->cfg.opts >> GCOS_NO_COLOR_COMP) & 1) != 0)
+    if (this->IsColorCompositingDisabled())
     {
         g_GameErrorContext.Log(TH_ERR_NO_TEXTURE_COLOR_COMPOSITING);
     }
-    if (((this->cfg.opts >> GCOS_NO_COLOR_COMP) & 1) != 0)
+    if (this->IsColorCompositingDisabled())
     {
         g_GameErrorContext.Log(TH_ERR_LAUNCH_WINDOWED);
     }
-    if (((this->cfg.opts >> GCOS_REFERENCE_RASTERIZER_MODE) & 1) != 0)
+    if (this->IsReferenceRasterizerMode())
     {
         g_GameErrorContext.Log(TH_ERR_FORCE_REFERENCE_RASTERIZER);
     }
-    if (((this->cfg.opts >> GCOS_NO_DIRECTINPUT_PAD) & 1) != 0)
+    if (this->IsDInputDisabled())
     {
         g_GameErrorContext.Log(TH_ERR_DO_NOT_USE_DIRECTINPUT);
     }

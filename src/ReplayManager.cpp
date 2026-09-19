@@ -177,14 +177,14 @@ ChainCallbackResult ReplayManager::OnUpdateDemoHighPrio(ReplayManager *mgr)
         mgr->replayInputs += 1;
     }
     g_CurFrameInput = IS_PRESSED(0xFFFFFFFF & ~TH_BUTTON_REPLAY_CAPTURE) | mgr->replayInputs->inputKey;
-    g_IsEigthFrameOfHeldInput = 0;
+    g_IsEigthFrameOfHeldInput = false;
     if (g_LastFrameInput == g_CurFrameInput)
     {
         if (30 <= g_NumOfFramesInputsWereHeld)
         {
             if (g_NumOfFramesInputsWereHeld % 8 == 0)
             {
-                g_IsEigthFrameOfHeldInput = 1;
+                g_IsEigthFrameOfHeldInput = true;
             }
             if (38 <= g_NumOfFramesInputsWereHeld)
             {
@@ -264,7 +264,7 @@ ZunResult ReplayManager::AddedCallbackDemo(ReplayManager *mgr)
     mgr->frameId = 0;
     if (mgr->replayData == NULL)
     {
-        mgr->replayData = (ReplayData *)FileSystem::OpenPath(mgr->replayFile, g_GameManager.demoMode == 0);
+        mgr->replayData = (ReplayData *)FileSystem::OpenPath(mgr->replayFile, !g_GameManager.demoMode);
         if (ValidateReplayData(mgr->replayData, g_LastFileSize) != ZUN_SUCCESS)
         {
             return ZUN_ERROR;

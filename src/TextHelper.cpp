@@ -207,7 +207,7 @@ bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
 #pragma function(memcpy)
 #pragma var_order(dstBuf, dstWidthBytes, rectToLock, curHeight, srcWidthBytes, outSurfaceDesc, srcBuf, lockedRect,     \
                   width, height, thisFormat, thisHeight)
-bool TextHelper::CopyTextToSurface(IDirect3DSurface8 *outSurface)
+bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
 {
     D3DLOCKED_RECT lockedRect;
     u8 *srcBuf;
@@ -269,7 +269,7 @@ void TextHelper::ReleaseTextBuffer()
 #pragma var_order(hdc, font, textSurfaceDesc, h, textHelper, hdc, srcRect, destRect, destSurface)
 void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontHeight,
                                      i32 fontWidth, ZunColor textColor, ZunColor shadowColor, char *string,
-                                     IDirect3DTexture8 *outTexture)
+                                     LPDIRECT3DTEXTURE8 outTexture)
 {
     HGDIOBJ h;
     LPDIRECT3DSURFACE8 destSurface;
@@ -279,8 +279,8 @@ void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 sp
     HFONT font;
     HDC hdc;
 
-    font = CreateFontA(fontHeight * 2, 0, 0, 0, FW_BOLD, false, false, false, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS,
-                       CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_ROMAN | FIXED_PITCH, TH_FONT_NAME);
+    font = CreateFont(fontHeight * 2, 0, 0, 0, FW_BOLD, false, false, false, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS,
+                      CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_ROMAN | FIXED_PITCH, TH_FONT_NAME);
     TextHelper textHelper;
     g_TextBufferSurface->GetDesc(&textSurfaceDesc);
     textHelper.AllocateBufferWithFallback(textSurfaceDesc.Width, textSurfaceDesc.Height, textSurfaceDesc.Format);
@@ -293,11 +293,11 @@ void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 sp
     {
         // Render shadow.
         SetTextColor(hdc, shadowColor);
-        TextOutA(hdc, xPos * 2 + 3, 2, string, strlen(string));
+        TextOut(hdc, xPos * 2 + 3, 2, string, strlen(string));
     }
     // Render main text.
     SetTextColor(hdc, textColor);
-    TextOutA(hdc, xPos * 2, 0, string, strlen(string));
+    TextOut(hdc, xPos * 2, 0, string, strlen(string));
 
     SelectObject(hdc, h);
     textHelper.InvertAlpha(0, 0, spriteWidth * 2, fontHeight * 2 + 6);

@@ -99,7 +99,7 @@ void Ending::FadingEffect()
         this->endingFadeColor = 0x00000000;
         break;
     }
-    if ((this->endingFadeColor & COLOR_BLACK) != 0)
+    if ((this->endingFadeColor & COLOR_ALPHA_MASK) != 0)
     {
         ScreenEffect::DrawSquare(&endingRect, this->endingFadeColor);
     }
@@ -428,7 +428,7 @@ ZunResult Ending::LoadEnding(char *endFilePath)
     u8 *endFileDat;
 
     endFileDat = this->endFileData;
-    this->endFileData = FileSystem::OpenPath(endFilePath, false);
+    this->endFileData = FileSystem::OpenPath(endFilePath);
     if (this->endFileData == NULL)
     {
         g_GameErrorContext.Log(TH_ERR_ENDING_END_FILE_CORRUPTED);

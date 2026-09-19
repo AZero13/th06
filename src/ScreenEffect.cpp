@@ -11,12 +11,12 @@ namespace th06
 void ScreenEffect::Clear(D3DCOLOR color)
 {
     g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0, 0);
-    if (g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL) < 0)
+    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
     {
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
     }
     g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0, 0);
-    if (g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL) < 0)
+    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
     {
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
     }
@@ -60,23 +60,21 @@ void ScreenEffect::DrawSquare(ZunRect *rect, D3DCOLOR rectColor)
 {
     VertexDiffuseXyzrwh vertices[4];
 
-    // In the original code, VertexDiffuseXyzrwh almost certainly is a vec3 with a trailing w, which would make these
-    // simple vec3 assigns
-    memcpy(&vertices[0].position, &D3DXVECTOR3(rect->left, rect->top, 0.0f), sizeof(D3DXVECTOR3));
-    memcpy(&vertices[1].position, &D3DXVECTOR3(rect->right, rect->top, 0.0f), sizeof(D3DXVECTOR3));
-    memcpy(&vertices[2].position, &D3DXVECTOR3(rect->left, rect->bottom, 0.0f), sizeof(D3DXVECTOR3));
-    memcpy(&vertices[3].position, &D3DXVECTOR3(rect->right, rect->bottom, 0.0f), sizeof(D3DXVECTOR3));
-    vertices[0].position.w = vertices[1].position.w = vertices[2].position.w = vertices[3].position.w = 1.00f;
+    vertices[0].position = D3DXVECTOR3(rect->left, rect->top, 0.0f);
+    vertices[1].position = D3DXVECTOR3(rect->right, rect->top, 0.0f);
+    vertices[2].position = D3DXVECTOR3(rect->left, rect->bottom, 0.0f);
+    vertices[3].position = D3DXVECTOR3(rect->right, rect->bottom, 0.0f);
+    vertices[0].position_w = vertices[1].position_w = vertices[2].position_w = vertices[3].position_w = 1.0f;
     vertices[0].diffuse = vertices[1].diffuse = vertices[2].diffuse = vertices[3].diffuse = rectColor;
 
-    if (((g_Supervisor.cfg.opts >> GCOS_NO_COLOR_COMP) & 0x01) == 0)
+    if (!g_Supervisor.IsColorCompositingDisabled())
     {
         g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
         g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
     }
     g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_DIFFUSE);
     g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
-    if (((g_Supervisor.cfg.opts >> GCOS_TURN_OFF_DEPTH_TEST) & 0x01) == 0)
+    if (!g_Supervisor.IsDepthTestDisabled())
     {
         g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
         g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
@@ -92,7 +90,7 @@ void ScreenEffect::DrawSquare(ZunRect *rect, D3DCOLOR rectColor)
     g_AnmManager->SetCurrentBlendMode(0xff);
     g_AnmManager->SetCurrentZWriteDisable(0xff);
 
-    if (((g_Supervisor.cfg.opts >> GCOS_NO_COLOR_COMP) & 0x01) == 0)
+    if (!g_Supervisor.IsColorCompositingDisabled())
     {
         g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
         g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);

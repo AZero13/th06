@@ -123,8 +123,8 @@ struct GameManager
     i8 unk_1826;
     i8 unk_1827;
     i32 demoFrames;
-    i8 replayFile[256];
-    i8 unk_192c[256];
+    char replayFile[256];
+    char unk_192c[256];
     u16 randomSeed;
     u32 gameFrames;
     i32 currentStage;

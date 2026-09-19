@@ -28,7 +28,7 @@ void BombData::BombReimuACalc(Player *player)
     if (player->bombInfo.timer >= player->bombInfo.duration)
     {
         g_Gui.EndPlayerSpellcard();
-        player->bombInfo.isInUse = 0;
+        player->bombInfo.isInUse = false;
         return;
     }
     if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer == 0)
@@ -259,7 +259,7 @@ void BombData::BombReimuBCalc(Player *player)
     if (player->bombInfo.timer >= player->bombInfo.duration)
     {
         g_Gui.EndPlayerSpellcard();
-        player->bombInfo.isInUse = 0;
+        player->bombInfo.isInUse = false;
         return;
     }
 
@@ -359,7 +359,7 @@ void BombData::BombMarisaACalc(Player *player)
     if (player->bombInfo.timer >= player->bombInfo.duration)
     {
         g_Gui.EndPlayerSpellcard();
-        player->bombInfo.isInUse = 0;
+        player->bombInfo.isInUse = false;
         return;
     }
 
@@ -468,7 +468,7 @@ void BombData::BombMarisaBCalc(Player *player)
     if (player->bombInfo.timer >= player->bombInfo.duration)
     {
         g_Gui.EndPlayerSpellcard();
-        player->bombInfo.isInUse = 0;
+        player->bombInfo.isInUse = false;
         player->verticalMovementSpeedMultiplierDuringBomb = 1.0f;
         player->horizontalMovementSpeedMultiplierDuringBomb = 1.0f;
         return;

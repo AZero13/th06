@@ -50,7 +50,7 @@ ScoreDat *ResultScreen::OpenScore(char *path)
     u8 xorValue;
     ScoreDat *scoreData;
 
-    scoreData = (ScoreDat *)FileSystem::OpenPath(path, true);
+    scoreData = (ScoreDat *)FileSystem::OpenPath(path, EXTERNAL_FILE);
     if (scoreData == NULL)
     {
     FAILED_TO_READ:
@@ -566,7 +566,7 @@ i32 ResultScreen::HandleResultKeyboard()
         this->hscr.base.version = 16;
         this->hscr.base.magic = *(i32 *)"HSCR";
 
-        if (g_GameManager.isGameCompleted == 0)
+        if (!g_GameManager.isGameCompleted)
         {
             this->hscr.stage = g_GameManager.currentStage;
         }
@@ -855,7 +855,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
             for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->replays); idx++)
             {
                 sprintf(replayToReadPath, "./replay/th6_%.2d.rpy", idx + 1);
-                replayLoaded = (ReplayData *)FileSystem::OpenPath(replayToReadPath, 1);
+                replayLoaded = (ReplayData *)FileSystem::OpenPath(replayToReadPath, EXTERNAL_FILE);
                 if (replayLoaded == NULL)
                 {
                     continue;
@@ -1380,7 +1380,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
             {
                 vm->pendingInterrupt = 1;
                 vm->flags.colorOp = 1;
-                if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                if (!g_Supervisor.IsHardwareBlendingDisabled())
                 {
                     vm->color &= COLOR_BLACK;
                 }
@@ -1395,7 +1395,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
             {
                 if (i == resultScreen->cursor)
                 {
-                    if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                    if (!g_Supervisor.IsHardwareBlendingDisabled())
                     {
                         vm->color = COLOR_DARK_GREY;
                     }
@@ -1408,7 +1408,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
                 }
                 else
                 {
-                    if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                    if (!g_Supervisor.IsHardwareBlendingDisabled())
                     {
                         vm->color = COLOR_SET_ALPHA(COLOR_BLACK, 176);
                     }
@@ -1438,7 +1438,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
         {
             if (i == resultScreen->cursor)
             {
-                if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                if (!g_Supervisor.IsHardwareBlendingDisabled())
                 {
                     vm->color = COLOR_DARK_GREY;
                 }
@@ -1450,7 +1450,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
             }
             else
             {
-                if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                if (!g_Supervisor.IsHardwareBlendingDisabled())
                 {
                     vm->color = COLOR_SET_ALPHA(COLOR_BLACK, 176);
                 }

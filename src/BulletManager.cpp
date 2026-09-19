@@ -120,7 +120,7 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
     {
     case FAN_AIMED:
     case FAN:
-        if ((bulletProps->count1 & 1) != 0)
+        if (bulletProps->count1 & 1)
         {
             bulletAngle = ((bulletIdx1 + 1) / 2) * bulletProps->angle2 + bulletAngle;
         }
@@ -129,7 +129,7 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
             bulletAngle = (bulletIdx1 / 2) * bulletProps->angle2 + bulletProps->angle2 * 0.5f + bulletAngle;
         }
 
-        if ((bulletIdx1 & 1) != 0)
+        if (bulletIdx1 & 1)
         {
             bulletAngle *= -1.0f;
         }
@@ -548,7 +548,7 @@ ZunResult BulletManager::SpawnBulletPattern(EnemyBulletShooter *bulletProps)
     }
 
 out:
-    if ((bulletProps->flags & 0x200) != 0)
+    if (bulletProps->flags & 0x200)
     {
         g_SoundPlayer.PlaySoundByIdx(bulletProps->sfx, 0);
     }
@@ -616,7 +616,7 @@ ZunResult BulletManager::RegisterChain(char *bulletAnmPath)
 {
     BulletManager *mgr = &g_BulletManager;
 
-    if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+    if (!g_Supervisor.IsHardwareBlendingDisabled())
     {
         g_EffectsColor = g_EffectsColorWithTextureBlending;
     }
@@ -910,7 +910,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 curBullet->unk_5c0 = 0;
             }
 
-            if (curBullet->isGrazed == 0)
+            if (!curBullet->isGrazed)
             {
                 grazeState = g_Player.CheckGraze(&curBullet->pos, &curBullet->sprites.grazeSize);
 
@@ -1041,7 +1041,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
 
             if (curLaser->despawnDuration == 0)
             {
-                curLaser->inUse = 0;
+                curLaser->inUse = false;
                 continue;
             }
         case 2:
@@ -1082,13 +1082,13 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 break;
             }
 
-            curLaser->inUse = 0;
+            curLaser->inUse = false;
             continue;
         }
 
         if (curLaser->startOffset >= 640.0f)
         {
-            curLaser->inUse = 0;
+            curLaser->inUse = false;
         }
 
         curLaser->timer++;
