@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AnmVm.hpp"
+#include "Global.hpp"
 #include "ReplayData.hpp"
 #include "ZunResult.hpp"
 #include "inttypes.hpp"
@@ -8,13 +9,13 @@
 namespace th06
 {
 
+#define DEFAULT_MAGIC "DMYS"
 #define TH6K_MAGIC 'K6HT'
 #define HSCR_MAGIC 'RCSH'
 #define CLRD_MAGIC 'DRLC'
 #define PSCR_MAGIC 'RCSP'
 #define CATK_MAGIC 'KTAC'
 
-#define HSCR_NUM_CHARS_SHOTTYPES 4
 #define HSCR_NUM_DIFFICULTIES 5
 #define HSCR_NUM_SCORES_SLOTS 10
 
@@ -142,9 +143,14 @@ struct ScoreDat
 };
 ZUN_ASSERT_SIZE(ScoreDat, 0x14);
 
+#pragma function(memset)
 struct ResultScreen
 {
-    ResultScreen();
+    ResultScreen()
+    {
+        memset(this, 0, sizeof(ResultScreen));
+        this->cursor = 1;
+    }
     ~ResultScreen()
     {
         ZUN_FREE(this->scoreDat);
@@ -197,8 +203,8 @@ struct ResultScreen
     AnmVm unk_40[38];
     AnmVm unk_28a0[16];
     AnmVm unk_39a0;
-    ScoreListNode scores[HSCR_NUM_DIFFICULTIES][HSCR_NUM_CHARS_SHOTTYPES];
-    Hscr defaultScore[HSCR_NUM_DIFFICULTIES][HSCR_NUM_CHARS_SHOTTYPES][HSCR_NUM_SCORES_SLOTS];
+    ScoreListNode scores[HSCR_NUM_DIFFICULTIES][SHOTTYPE_COUNT];
+    Hscr defaultScore[HSCR_NUM_DIFFICULTIES][SHOTTYPE_COUNT][HSCR_NUM_SCORES_SLOTS];
     Hscr hscr;
     Th6k fileHeader;
     ChainElem *calcChain;
@@ -207,4 +213,5 @@ struct ResultScreen
     ReplayData defaultReplay;
 };
 ZUN_ASSERT_SIZE(ResultScreen, 0x56b0);
+#pragma intrinsic(memset)
 }; // namespace th06

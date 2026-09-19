@@ -71,7 +71,7 @@ struct AnmRawInstr
 enum AnmVmFlagsEnum
 {
     AnmVmFlags_Visible = 1 << 0,
-    AnmVmFlags_1 = 1 << 1,
+    AnmVmFlags_VisibleOverride = 1 << 1,
     AnmVmFlags_BlendMode = 1 << 2,
     AnmVmFlags_ColorOp = 1 << 3,
     AnmVmFlags_4 = 1 << 4,
@@ -84,8 +84,6 @@ enum AnmVmFlagsEnum
     AnmVmFlags_ZWriteDisable = 1 << 12,
     AnmVmFlags_IsStopped = 1 << 13,
 };
-
-#define ANM_VM_INITIAL_FLAGS 0x3
 
 enum AnmVmBlendMode
 {
@@ -112,7 +110,7 @@ union AnmVmFlags {
     struct
     {
         u32 isVisible : 1;
-        u32 flag1 : 1;
+        u32 isVisibleOverride : 1; // Intended for the engine to override visibility set by scripts
         u32 blendMode : 1;
         u32 colorOp : 1;
         u32 flag4 : 1;
@@ -166,7 +164,7 @@ struct AnmVm : AnmVmBase
         this->alphaInterpEndTime = 0;
         this->color = D3DCOLOR_RGBA(0xff, 0xff, 0xff, 0xff);
         D3DXMatrixIdentity(&this->matrix);
-        this->flags.flags = AnmVmFlags_Visible | AnmVmFlags_1;
+        this->flags.flags = AnmVmFlags_Visible | AnmVmFlags_VisibleOverride;
         this->autoRotate = 0;
         this->pendingInterrupt = 0;
         this->posInterpEndTime = 0;

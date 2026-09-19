@@ -41,8 +41,8 @@ RenderResult GameWindow::Render()
             {
                 viewport.X = 0;
                 viewport.Y = 0;
-                viewport.Width = 640;
-                viewport.Height = 480;
+                viewport.Width = GAME_WINDOW_WIDTH;
+                viewport.Height = GAME_WINDOW_HEIGHT;
                 viewport.MinZ = 0.0;
                 viewport.MaxZ = 1.0;
                 g_Supervisor.d3dDevice->SetViewport(&viewport);
@@ -58,8 +58,8 @@ RenderResult GameWindow::Render()
 
         g_Supervisor.viewport.X = 0;
         g_Supervisor.viewport.Y = 0;
-        g_Supervisor.viewport.Width = 640;
-        g_Supervisor.viewport.Height = 480;
+        g_Supervisor.viewport.Width = GAME_WINDOW_WIDTH;
+        g_Supervisor.viewport.Height = GAME_WINDOW_HEIGHT;
         g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
         res = g_Chain.RunCalcChain();
         g_SoundPlayer.PlaySounds();
@@ -346,7 +346,7 @@ i32 GameWindow::InitD3dRendering(void)
     present_params.AutoDepthStencilFormat = D3DFMT_D16;
     present_params.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
     g_Supervisor.lockableBackbuffer = true;
-    memcpy(&g_Supervisor.presentParameters, &present_params, sizeof(D3DPRESENT_PARAMETERS));
+    g_Supervisor.presentParameters = present_params;
     for (;;)
     {
         if (g_Supervisor.IsReferenceRasterizerMode())

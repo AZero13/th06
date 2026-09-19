@@ -7,6 +7,7 @@
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
+#include "GameWindow.hpp"
 #include "Global.hpp"
 #include "Player.hpp"
 #include "SoundPlayer.hpp"
@@ -423,10 +424,10 @@ ZunResult Gui::ActualAddedCallback()
     this->impl->bombSpellcardName.currentInstruction = NULL;
     this->impl->enemySpellcardPortrait.currentInstruction = NULL;
     this->impl->enemySpellcardName.currentInstruction = NULL;
-    this->impl->playerSpellcardPortrait.flags.isVisible = 0;
-    this->impl->bombSpellcardName.flags.isVisible = 0;
-    this->impl->enemySpellcardPortrait.flags.isVisible = 0;
-    this->impl->enemySpellcardName.flags.isVisible = 0;
+    this->impl->playerSpellcardPortrait.flags.isVisible = false;
+    this->impl->bombSpellcardName.flags.isVisible = false;
+    this->impl->enemySpellcardPortrait.flags.isVisible = false;
+    this->impl->enemySpellcardName.flags.isVisible = false;
     this->impl->bombSpellcardName.fontWidth = 15;
     this->impl->bombSpellcardName.fontHeight = 15;
     this->impl->enemySpellcardName.fontWidth = 15;
@@ -439,7 +440,7 @@ ZunResult Gui::ActualAddedCallback()
     this->impl->songNameSprite.fontHeight = 16;
     g_AnmManager->DrawStringFormat(&this->impl->songNameSprite, COLOR_RGB(COLOR_LIGHTCYAN), COLOR_RGB(COLOR_BLACK),
                                    TH_SONG_NAME, g_Stage.stdData->songNames[0]);
-    this->impl->msg.currentMsgIdx = 0xffffffff;
+    this->impl->msg.currentMsgIdx = -1;
     this->impl->finishedStage = 0;
     this->impl->bonusScore.isShown = 0;
     this->impl->fullPowerMode.isShown = 0;
@@ -463,7 +464,7 @@ ZunResult Gui::LoadMsg(char *path)
         g_GameErrorContext.Log(TH_ERR_GUI_MSG_FILE_CORRUPTED, path);
         return ZUN_ERROR;
     }
-    this->impl->msg.currentMsgIdx = 0xffffffff;
+    this->impl->msg.currentMsgIdx = -1;
     this->impl->msg.currentInstr = NULL;
     for (idx = 0; idx < this->impl->msg.msgFile->numInstrs; idx++)
     {
@@ -539,7 +540,7 @@ ZunResult GuiImpl::RunMsg()
         switch (this->msg.currentInstr->opcode)
         {
         case MSG_OPCODE_MSGDELETE:
-            this->msg.currentMsgIdx = 0xffffffff;
+            this->msg.currentMsgIdx = -1;
             return ZUN_ERROR;
         case MSG_OPCODE_PORTRAITANMSCRIPT:
             args = &this->msg.currentInstr->args;
@@ -1021,8 +1022,8 @@ void Gui::DrawGameScene()
     }
     g_Supervisor.viewport.X = 0;
     g_Supervisor.viewport.Y = 0;
-    g_Supervisor.viewport.Width = 640;
-    g_Supervisor.viewport.Height = 480;
+    g_Supervisor.viewport.Width = GAME_WINDOW_WIDTH;
+    g_Supervisor.viewport.Height = GAME_WINDOW_HEIGHT;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     vm = &this->impl->vms[6];
     if (!g_Supervisor.IsMinimumGraphicsMode() &&
@@ -1080,27 +1081,27 @@ void Gui::DrawGameScene()
         g_AnmManager->DrawNoRotation(vm);
         vm->pos = D3DXVECTOR3(xPos, 82.0f, 0.49f);
         g_AnmManager->DrawNoRotation(vm);
-        if (this->flags.flag0)
+        if (this->flags.flag0 != 0)
         {
             vm->pos = D3DXVECTOR3(xPos, 122.0f, 0.49f);
             g_AnmManager->DrawNoRotation(vm);
         }
-        if (this->flags.flag1)
+        if (this->flags.flag1 != 0)
         {
             vm->pos = D3DXVECTOR3(xPos, 146.0f, 0.49f);
             g_AnmManager->DrawNoRotation(vm);
         }
-        if (this->flags.flag2)
+        if (this->flags.flag2 != 0)
         {
             vm->pos = D3DXVECTOR3(xPos, 186.0f, 0.49f);
             g_AnmManager->DrawNoRotation(vm);
         }
-        if (this->flags.flag3)
+        if (this->flags.flag3 != 0)
         {
             vm->pos = D3DXVECTOR3(xPos, 206.0f, 0.49f);
             g_AnmManager->DrawNoRotation(vm);
         }
-        if (this->flags.flag4)
+        if (this->flags.flag4 != 0)
         {
             vm->pos = D3DXVECTOR3(xPos, 226.0f, 0.49f);
             g_AnmManager->DrawNoRotation(vm);
@@ -1110,7 +1111,7 @@ void Gui::DrawGameScene()
         vm->pos = D3DXVECTOR3(0.0, 464.0f, 0.49f);
         g_AnmManager->DrawNoRotation(vm);
     }
-    if (this->flags.flag0 || g_Supervisor.IsMinimumGraphicsMode())
+    if (this->flags.flag0 != 0 || g_Supervisor.IsMinimumGraphicsMode())
     {
         vm = &this->impl->vms[16];
         for (idx = 0, xPos = 496.0f; idx < g_GameManager.livesRemaining; idx++, xPos += 16.0f)
@@ -1119,7 +1120,7 @@ void Gui::DrawGameScene()
             g_AnmManager->DrawNoRotation(vm);
         }
     }
-    if (this->flags.flag1 || g_Supervisor.IsMinimumGraphicsMode())
+    if (this->flags.flag1 != 0 || g_Supervisor.IsMinimumGraphicsMode())
     {
         vm = &this->impl->vms[17];
         for (idx = 0, xPos = 496.0f; idx < g_GameManager.bombsRemaining; idx++, xPos += 16.0f)
@@ -1128,7 +1129,7 @@ void Gui::DrawGameScene()
             g_AnmManager->DrawNoRotation(vm);
         }
     }
-    if (this->flags.flag2 || g_Supervisor.IsMinimumGraphicsMode())
+    if (this->flags.flag2 != 0 || g_Supervisor.IsMinimumGraphicsMode())
     {
         VertexDiffuseXyzrwh vertices[4];
         if (g_GameManager.currentPower > 0)
@@ -1196,23 +1197,23 @@ void Gui::DrawGameScene()
             g_AsciiManager.AddFormatText(&elemPos, "%d", g_GameManager.pointItemsCollectedInStage);
         }
     }
-    if (this->flags.flag0)
+    if (this->flags.flag0 != 0)
     {
         this->flags.flag0--;
     }
-    if (this->flags.flag2)
+    if (this->flags.flag2 != 0)
     {
         this->flags.flag2--;
     }
-    if (this->flags.flag1)
+    if (this->flags.flag1 != 0)
     {
         this->flags.flag1--;
     }
-    if (this->flags.flag3)
+    if (this->flags.flag3 != 0)
     {
         this->flags.flag3--;
     }
-    if (this->flags.flag4)
+    if (this->flags.flag4 != 0)
     {
         this->flags.flag4--;
     }

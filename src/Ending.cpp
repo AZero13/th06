@@ -4,6 +4,7 @@
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
+#include "GameWindow.hpp"
 #include "Global.hpp"
 #include "Player.hpp"
 #include "ScreenEffect.hpp"
@@ -17,11 +18,11 @@ i32 Ending::ReadEndFileParameter()
     i32 readResult;
 
     readResult = atoi(this->endFileDataPtr);
-    while (this->endFileDataPtr[0] != '\0')
+    while (*this->endFileDataPtr != '\0')
     {
         this->endFileDataPtr++;
     }
-    while (this->endFileDataPtr[0] == '\0')
+    while (*this->endFileDataPtr == '\0')
     {
         this->endFileDataPtr++;
     }
@@ -36,8 +37,8 @@ void Ending::FadingEffect()
 
     endingRect.left = 0.0;
     endingRect.top = 0.0;
-    endingRect.right = 640.0;
-    endingRect.bottom = 480.0;
+    endingRect.right = GAME_WINDOW_WIDTH;
+    endingRect.bottom = GAME_WINDOW_HEIGHT;
 
     switch (this->fadeType)
     {
@@ -502,7 +503,7 @@ ChainCallbackResult Ending::OnDraw(Ending *ending)
 {
     i32 idx;
 
-    g_AnmManager->DrawEndingRect(0, 0, 0, ending->backgroundPos.x, ending->backgroundPos.y, 640, 480);
+    g_AnmManager->DrawEndingRect(0, 0, 0, ending->backgroundPos.x, ending->backgroundPos.y, GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(ending->sprites); idx++)
     {
         if (ending->sprites[idx].anmFileIndex != 0)
@@ -520,7 +521,7 @@ ZunResult Ending::AddedCallback(Ending *ending)
     i32 shotTypeAndCharacter;
     i32 unused;
 
-    unused = g_GameManager.character * 2 + g_GameManager.shotType;
+    unused = g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType;
 
     g_GameManager.isGameCompleted = true;
     g_Supervisor.isInEnding = true;
@@ -534,7 +535,7 @@ ZunResult Ending::AddedCallback(Ending *ending)
     g_AnmManager->SetCurrentBlendMode(0xff);
     g_AnmManager->SetCurrentVertexShader(0xff);
 
-    shotTypeAndCharacter = g_GameManager.character * 2 + g_GameManager.shotType;
+    shotTypeAndCharacter = g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType;
     ending->hasSeenEnding = false;
     if (g_GameManager.numRetries == 0)
     {

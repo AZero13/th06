@@ -830,13 +830,13 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                                                  curBullet->sprites.spriteBullet.sprite->widthPx,
                                                  curBullet->sprites.spriteBullet.sprite->heightPx) == 0)
                     {
-                        if (curBullet->pos.x < 0.0f || curBullet->pos.x >= 384.0f)
+                        if (curBullet->pos.x < 0.0f || curBullet->pos.x >= GAME_REGION_WIDTH)
                         {
                             curBullet->angle = -curBullet->angle - ZUN_PI;
                             curBullet->angle = utils::AddNormalizeAngle(curBullet->angle, 0.0);
                         }
 
-                        if (curBullet->pos.y < 0.0f || curBullet->pos.y >= 448.0f)
+                        if (curBullet->pos.y < 0.0f || curBullet->pos.y >= GAME_REGION_HEIGHT)
                         {
                             curBullet->angle = -curBullet->angle;
                         }

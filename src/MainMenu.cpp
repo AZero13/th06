@@ -9,6 +9,7 @@
 #include "AsciiManager.hpp"
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
+#include "GameWindow.hpp"
 #include "Global.hpp"
 #include "ReplayData.hpp"
 #include "ReplayManager.hpp"
@@ -154,26 +155,26 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         vmList = &menu->vm[34];
         for (i = 0; i < 11; i++, vmList++)
         {
-            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, 0x73);
+            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, 115);
         }
         for (i = 0; i < 9; i++, vmList++)
         {
             if (menu->controlMapping[i] < 0)
             {
-                vmList->flags.flag1 = 0;
+                vmList->flags.isVisibleOverride = false;
                 continue;
             }
-            vmList->flags.flag1 = 1;
-            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, 0x73);
+            vmList->flags.isVisibleOverride = true;
+            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, 115);
         }
         for (i = 0; i < 18; i++, vmList++)
         {
             if (menu->controlMapping[i / 2] < 0)
             {
-                vmList->flags.flag1 = 0;
+                vmList->flags.isVisibleOverride = false;
                 continue;
             }
-            vmList->flags.flag1 = 1;
+            vmList->flags.isVisibleOverride = true;
             mapping = menu->controlMapping[i / 2];
             if (i % 2 == 0)
             {
@@ -184,7 +185,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 g_AnmManager->SetActiveSprite(vmList, mapping % 10 + ANM_SPRITE_TITLE01_START);
             }
             vmList->baseSpriteIndex = vmList->activeSpriteIndex;
-            DrawMenuItem(vmList, i / 2, menu->cursor, menu->color2, menu->color1, 0x7a);
+            DrawMenuItem(vmList, i / 2, menu->cursor, menu->color2, menu->color1, 122);
         }
         if (32 <= menu->stateTimer)
         {
@@ -349,13 +350,13 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     memcpy(vmList->posOffset, &pos2, sizeof(D3DXVECTOR3));
                 }
             }
-            vmList->flags.flag1 = false;
+            vmList->flags.isVisibleOverride = false;
         }
         else
         {
             for (i = 0; i < 4; i++, vmList++)
             {
-                vmList->flags.flag1 = false;
+                vmList->flags.isVisibleOverride = false;
             }
             for (i = 4; i < 5; i++, vmList++)
             {
@@ -602,7 +603,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         {
             vmList[1].flags.colorOp = AnmVmColorOp_Add;
         }
-        vmList = &menu->vm[92 + g_GameManager.character * 2];
+        vmList = &menu->vm[92 + g_GameManager.character * SHOTTYPES_PER_CHARACTER];
         for (i = 0; i < 2; i++, vmList++)
         {
             vmList->flags.colorOp = AnmVmColorOp_Add;
@@ -630,7 +631,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 }
                 else
                 {
-                    vmList->color = 0xffffffff;
+                    vmList->color = COLOR_WHITE;
                 }
                 pos5.x = -6.f;
                 pos5.y = -6.f;
@@ -1925,8 +1926,8 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
     curVm = menu->vm;
     window.left = 0.0;
     window.top = 0.0;
-    window.right = 640.0;
-    window.bottom = 480.0;
+    window.right = GAME_WINDOW_WIDTH;
+    window.bottom = GAME_WINDOW_HEIGHT;
     if (menu->gameState == STATE_STARTUP)
     {
         return CHAIN_CALLBACK_RESULT_CONTINUE;
@@ -2136,7 +2137,7 @@ ZunResult MainMenu::LoadReplayMenu(MainMenu *menu)
     for (fileIdx = ANM_SCRIPT_REPLAY_START; fileIdx <= ANM_SCRIPT_REPLAY_END; fileIdx++, vm++)
     {
         g_AnmManager->ExecuteAnmIdx(vm, fileIdx);
-        vm->flags.isVisible = 0;
+        vm->flags.isVisible = false;
         vm->flags.colorOp = AnmVmColorOp_Add;
 
         if (!g_Supervisor.IsHardwareBlendingDisabled())
@@ -2149,7 +2150,7 @@ ZunResult MainMenu::LoadReplayMenu(MainMenu *menu)
         }
         vm->posOffset = D3DXVECTOR3(0, 0, 0);
         vm->baseSpriteIndex = vm->activeSpriteIndex;
-        vm->flags.zWriteDisable = 1;
+        vm->flags.zWriteDisable = true;
     }
     return ZUN_SUCCESS;
 }
@@ -2236,7 +2237,7 @@ ZunResult MainMenu::AddedCallback(MainMenu *m)
     else
     {
         m->color1 = 0x80ffffff;
-        m->color2 = 0xffffffff;
+        m->color2 = COLOR_WHITE;
     }
     m->minimumOpacity = 0;
     m->menuTextColor = 0x40000000;

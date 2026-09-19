@@ -218,8 +218,8 @@ ZunResult ReplayManager::AddedCallback(ReplayManager *mgr)
     {
         mgr->replayData = ZUN_NEW(ReplayData); // BUG: allocated with new, cleaned up with free
         memcpy(&mgr->replayData->magic[0], "T6RP", 4);
-        mgr->replayData->shottypeChara = g_GameManager.character * 2 + g_GameManager.shotType;
-        mgr->replayData->version = 0x102;
+        mgr->replayData->shottypeChara = g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType;
+        mgr->replayData->version = GAME_VERSION;
         mgr->replayData->difficulty = g_GameManager.difficulty;
         memcpy(&mgr->replayData->name, "NO NAME", 4);
         for (idx = 0; idx < ARRAY_SIZE_SIGNED(mgr->replayData->stageReplayData); idx += 1)

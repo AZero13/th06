@@ -41,11 +41,11 @@ void EnemyManager::Initialize()
     {
         enemy->vms[i].anmFileIndex = -1;
     }
-    enemy->flags.isSlotOccupied = 1;
+    enemy->flags.isSlotOccupied = true;
     enemy->bossTimer = 0;
-    enemy->flags.isInteractable = 1;
-    enemy->flags.isCollidable = 1;
-    enemy->flags.hasBeenInBounds = 0;
+    enemy->flags.isInteractable = true;
+    enemy->flags.isCollidable = true;
+    enemy->flags.hasBeenInBounds = false;
     enemy->hitboxDimensions = D3DXVECTOR3(12.0f, 12.0f, 12.0f);
     enemy->axisSpeed = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
     enemy->angularVelocity = 0.0f;
@@ -53,9 +53,9 @@ void EnemyManager::Initialize()
     enemy->acceleration = 0.0f;
     enemy->speed = 0.0f;
     enemy->flags.movementMode = 0;
-    enemy->flags.shootingDisabled = 0;
-    enemy->flags.invertX = 0;
-    enemy->flags.isBoss = 0;
+    enemy->flags.shootingDisabled = false;
+    enemy->flags.invertX = false;
+    enemy->flags.isBoss = false;
     enemy->stackDepth = 0;
     enemy->life = 1;
     enemy->score = 100;
@@ -68,10 +68,10 @@ void EnemyManager::Initialize()
     enemy->anmExLeft = -1;
     enemy->anmExRight = -1;
     enemy->anmExDefaults = -1;
-    enemy->flags.isDamageable = 1;
+    enemy->flags.isDamageable = true;
     enemy->flags.deathMode = 0;
     enemy->deathCallbackSub = -1;
-    enemy->flags.shouldClampPos = 0;
+    enemy->flags.shouldClampPos = false;
     enemy->effectIdx = 0;
     enemy->runInterrupt = -1;
     enemy->lifeCallbackThreshold = -1;
@@ -175,7 +175,7 @@ void EnemyManager::RunEclTimeline()
         {
             switch (this->timelineInstr->opCode)
             {
-            case 0:
+            case TIMELINE_OPCODE_ENEMY_CREATE:
                 if (!g_Gui.BossPresent())
                 {
                     args1 = &this->timelineInstr->args;
@@ -183,31 +183,31 @@ void EnemyManager::RunEclTimeline()
                                      args1->ushortVar2, args1->uintVar4);
                 }
                 break;
-            case 1:
+            case TIMELINE_OPCODE_DUMMY_CREATE:
                 if (!g_Gui.BossPresent())
                 {
                     this->SpawnEnemy(this->timelineInstr->arg0, this->timelineInstr->args.Var1AsVec(), -1,
                                      ITEM_RANDOM_ITEM, -1);
                 }
                 break;
-            case 2:
+            case TIMELINE_OPCODE_ENEMY_CREATE_MIRROR:
                 if (!g_Gui.BossPresent())
                 {
                     args2 = &this->timelineInstr->args;
                     spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, args2->Var1AsVec(), args2->ushortVar1,
                                                     args2->ushortVar2, args2->uintVar4);
-                    spawnedEnemy->flags.invertX = 1;
+                    spawnedEnemy->flags.invertX = true;
                 }
                 break;
-            case 3:
+            case TIMELINE_OPCODE_DUMMY_CREATE_MIRROR:
                 if (!g_Gui.BossPresent())
                 {
                     spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, this->timelineInstr->args.Var1AsVec(),
                                                     -1, ITEM_RANDOM_ITEM, -1);
-                    spawnedEnemy->flags.invertX = 1;
+                    spawnedEnemy->flags.invertX = true;
                 }
                 break;
-            case 4:
+            case TIMELINE_OPCODE_ENEMY_CREATE_RANDOM:
                 if (!g_Gui.BossPresent())
                 {
                     args3 = &this->timelineInstr->args;
@@ -228,7 +228,7 @@ void EnemyManager::RunEclTimeline()
                                      args3->uintVar4);
                 }
                 break;
-            case 5:
+            case TIMELINE_OPCODE_DUMMY_CREATE_RANDOM:
                 if (!g_Gui.BossPresent())
                 {
                     pos2 = *this->timelineInstr->args.Var1AsVec();
@@ -247,7 +247,7 @@ void EnemyManager::RunEclTimeline()
                     this->SpawnEnemy(this->timelineInstr->arg0, &pos2, -1, ITEM_RANDOM_ITEM, -1);
                 }
                 break;
-            case 6:
+            case TIMELINE_OPCODE_ENEMY_CREATE_MIRROR_RANDOM:
                 if (!g_Gui.BossPresent())
                 {
                     args4 = &this->timelineInstr->args;
@@ -266,10 +266,10 @@ void EnemyManager::RunEclTimeline()
                     }
                     spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, &pos3, args4->ushortVar1,
                                                     args4->ushortVar2, args4->uintVar4);
-                    spawnedEnemy->flags.invertX = 1;
+                    spawnedEnemy->flags.invertX = true;
                 }
                 break;
-            case 7:
+            case TIMELINE_OPCODE_DUMMY_CREATE_MIRROR_RANDOM:
                 if (!g_Gui.BossPresent())
                 {
                     pos4 = *this->timelineInstr->args.Var1AsVec();
@@ -286,10 +286,10 @@ void EnemyManager::RunEclTimeline()
                         pos4.z = g_Rng.GetRandomF32InRange(800.0f);
                     }
                     spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, &pos4, -1, ITEM_RANDOM_ITEM, -1);
-                    spawnedEnemy->flags.invertX = 1;
+                    spawnedEnemy->flags.invertX = true;
                 }
                 break;
-            case 8:
+            case TIMELINE_OPCODE_MSG_READ:
                 if (g_GameManager.difficulty == EASY && g_GameManager.currentStage == 5 &&
                     this->timelineInstr->arg0 == 1)
                 {
@@ -300,20 +300,20 @@ void EnemyManager::RunEclTimeline()
                     g_Gui.MsgRead(this->timelineInstr->arg0 + g_GameManager.character * 10);
                 }
                 break;
-            case 9:
+            case TIMELINE_OPCODE_MSG_WAIT:
                 if (g_Gui.MsgWait())
                 {
                     this->timelineTime--;
                     return;
                 }
                 break;
-            case 10:
+            case TIMELINE_OPCODE_BOSS_INTERRUPT:
                 this->bosses[this->timelineInstr->args.uintVar1]->runInterrupt = this->timelineInstr->args.uintVar2;
                 break;
-            case 0xb:
+            case TIMELINE_OPCODE_PLAYER_POWER:
                 g_GameManager.currentPower = this->timelineInstr->arg0;
                 break;
-            case 0xc:
+            case TIMELINE_OPCODE_BOSS_WAIT:
                 if (this->bosses[this->timelineInstr->arg0] != NULL &&
                     this->bosses[this->timelineInstr->arg0]->flags.isSlotOccupied)
                 {
@@ -449,11 +449,11 @@ void Enemy::Despawn()
 {
     if (!this->flags.deathMode)
     {
-        this->flags.isSlotOccupied = 0;
+        this->flags.isSlotOccupied = false;
     }
     else
     {
-        this->flags.isInteractable = 0;
+        this->flags.isInteractable = false;
     }
     if (this->flags.isBoss)
     {
@@ -668,7 +668,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                 case 2:
                     if (curEnemy->itemDrop >= 0)
                     {
-                        g_EffectManager.SpawnParticles(curEnemy->deathAnm2 + 4, &curEnemy->position, 3, 0xffffffff);
+                        g_EffectManager.SpawnParticles(curEnemy->deathAnm2 + 4, &curEnemy->position, 3, COLOR_WHITE);
                         g_ItemManager.SpawnItem(&curEnemy->position, (ItemType)curEnemy->itemDrop, local_8);
                     }
                     else if (curEnemy->itemDrop == ITEM_RANDOM_ITEM)
@@ -695,8 +695,8 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                     break;
                 }
                 g_SoundPlayer.PlaySoundByIdx((SoundIdx)((enemyIdx % 2) + SOUND_2), 0);
-                g_EffectManager.SpawnParticles(curEnemy->deathAnm1, &curEnemy->position, 1, 0xffffffff);
-                g_EffectManager.SpawnParticles(curEnemy->deathAnm2 + 4, &curEnemy->position, 4, 0xffffffff);
+                g_EffectManager.SpawnParticles(curEnemy->deathAnm1, &curEnemy->position, 1, COLOR_WHITE);
+                g_EffectManager.SpawnParticles(curEnemy->deathAnm2 + 4, &curEnemy->position, 4, COLOR_WHITE);
                 if (0 <= curEnemy->deathCallbackSub)
                 {
                     curEnemy->bulletRankSpeedLow = -0.5;
@@ -797,7 +797,7 @@ ChainCallbackResult EnemyManager::OnDraw(EnemyManager *mgr)
                 g_AnmManager->Draw2(curEnemyVm);
             }
         }
-        if (curEnemy->flags.rotateAnm != 0)
+        if (curEnemy->flags.rotateAnm)
         {
             curEnemy->primaryVm.rotation.z = curEnemy->angle;
         }

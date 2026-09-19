@@ -639,7 +639,7 @@ ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (!vm->flags.flag1)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
@@ -701,7 +701,7 @@ ZunResult AnmManager::Draw(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (!vm->flags.flag1)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
@@ -751,7 +751,7 @@ ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (!vm->flags.flag1)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
@@ -800,7 +800,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (!vm->flags.flag1)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
@@ -913,7 +913,7 @@ ZunResult AnmManager::Draw2(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (!vm->flags.flag1)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
@@ -1017,17 +1017,17 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
         switch (curInstr->opcode)
         {
         case AnmOpcode_Exit:
-            vm->flags.isVisible = 0;
+            vm->flags.isVisible = false;
         case AnmOpcode_ExitHide:
             vm->currentInstruction = NULL;
             return 1;
         case AnmOpcode_SetActiveSprite:
-            vm->flags.isVisible = 1;
+            vm->flags.isVisible = true;
             this->SetActiveSprite(vm, curInstr->args[0] + this->spriteIndices[vm->anmFileIndex]);
             vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
         case AnmOpcode_SetRandomSprite:
-            vm->flags.isVisible = 1;
+            vm->flags.isVisible = true;
             local_c = &curInstr->args[0];
             this->SetActiveSprite(vm, local_c[0] + g_Rng.GetRandomU16InRange(local_c[1]) +
                                           this->spriteIndices[vm->anmFileIndex]);
@@ -1121,11 +1121,11 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
         PosTimeDoStuff:
             if (!vm->flags.usePosOffset)
             {
-                memcpy(vm->posInterpInitial, vm->pos, sizeof(D3DXVECTOR3));
+                vm->posInterpInitial = vm->pos;
             }
             else
             {
-                memcpy(vm->posInterpInitial, vm->posOffset, sizeof(D3DXVECTOR3));
+                vm->posInterpInitial = vm->posOffset;
             }
             vm->posInterpFinal =
                 D3DXVECTOR3(*(f32 *)&curInstr->args[0], *(f32 *)&curInstr->args[1], *(f32 *)&curInstr->args[2]);
@@ -1133,11 +1133,11 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             vm->posInterpTime = 0;
             break;
         case AnmOpcode_StopHide:
-            vm->flags.isVisible = 0;
+            vm->flags.isVisible = false;
         case AnmOpcode_Stop:
             if (vm->pendingInterrupt == 0)
             {
-                vm->flags.isStopped = 1;
+                vm->flags.isStopped = true;
                 vm->currentTimeInScript--;
                 goto stop;
             }
@@ -1155,7 +1155,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             }
 
             vm->pendingInterrupt = 0;
-            vm->flags.isStopped = 0;
+            vm->flags.isStopped = false;
             if (curInstr->opcode != AnmOpcode_InterruptLabel)
             {
                 if (nextInstr == NULL)
@@ -1169,7 +1169,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             curInstr = (AnmRawInstr *)((i32)curInstr->args + curInstr->argsCount);
             vm->currentInstruction = curInstr;
             vm->currentTimeInScript = vm->currentInstruction->time;
-            vm->flags.isVisible = 1;
+            vm->flags.isVisible = true;
             continue;
         case AnmOpcode_SetVisibility:
             vm->flags.isVisible = curInstr->args[0];
