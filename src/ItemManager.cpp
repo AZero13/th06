@@ -12,6 +12,8 @@
 namespace th06
 {
 DIFFABLE_STATIC(ItemManager, g_ItemManager);
+DIFFABLE_STATIC(ChainElem, g_ItemManagerCalcChain); // unused
+DIFFABLE_STATIC(ChainElem, g_ItemManagerDrawChain); // unused
 
 ItemManager::ItemManager() {
 

@@ -36,11 +36,6 @@ DIFFABLE_STATIC(EffectManager, g_EffectManager);
 DIFFABLE_STATIC(ChainElem, g_EffectManagerCalcChain);
 DIFFABLE_STATIC(ChainElem, g_EffectManagerDrawChain);
 
-EffectManager::EffectManager()
-{
-    this->Reset();
-}
-
 void EffectManager::Reset()
 {
     memset(this, 0, sizeof(*this));

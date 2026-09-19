@@ -87,7 +87,7 @@ struct PlayerBullet
     AnmVm sprite;
     D3DXVECTOR3 position;
     D3DXVECTOR3 size;
-    D3DXVECTOR2 velocity;
+    ZunVec2 velocity;
     f32 sidewaysMotion;
     D3DXVECTOR3 unk_134;
     ZunTimer unk_140;
@@ -168,8 +168,6 @@ ZUN_ASSERT_SIZE(CharacterPowerData, 0xc);
 
 struct Player
 {
-    Player();
-
     static ZunResult RegisterChain(u8 unk);
     static void CutChain();
     static ChainCallbackResult OnUpdate(Player *p);

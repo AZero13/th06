@@ -29,16 +29,15 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 26, g_SFXList) = {
     "data/wav/kira01.wav", "data/wav/kira02.wav",   "data/wav/extend.wav",   "data/wav/timeout.wav",
     "data/wav/graze.wav",  "data/wav/powerup.wav",
 };
-DIFFABLE_STATIC(SoundPlayer, g_SoundPlayer)
 
-SoundPlayer::SoundPlayer()
+struct UnknownSoundThing
 {
-    memset(this, 0, sizeof(SoundPlayer));
-    for (i32 i = 0; i < ARRAY_SIZE_SIGNED(this->unk408); i++)
-    {
-        this->unk408[i] = -1;
-    }
-}
+    unsigned char unknownA[0x24];
+    ZunTimer idk;
+};
+
+DIFFABLE_STATIC(UnknownSoundThing, g_UnknownSoundThing)
+DIFFABLE_STATIC(SoundPlayer, g_SoundPlayer)
 
 #pragma var_order(bufDesc, audioBuffer2Start, audioBuffer2Len, audioBuffer1Len, audioBuffer1Start, wavFormat)
 ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)

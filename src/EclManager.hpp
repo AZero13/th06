@@ -503,6 +503,14 @@ enum TimelineOpcode
     TIMELINE_OPCODE_BOSS_WAIT,
 };
 
+struct EclManagerExtraData
+{
+    unsigned char unknownA[0x80];
+    f32 starAngleTable[6];
+    unsigned char unknownB[0x68];
+    D3DXVECTOR3 coords[8];
+};
+
 struct EclManager
 {
     ZunResult Load(char *ecl);
@@ -513,8 +521,9 @@ struct EclManager
     EclRawHeader *eclFile;
     EclRawInstr **subTable;
     EclTimelineInstr *timeline;
+    EclManagerExtraData extra;
 };
-ZUN_ASSERT_SIZE(EclManager, 0xc);
+ZUN_ASSERT_SIZE(EclManager, 0x16c);
 
 DIFFABLE_EXTERN(EclManager, g_EclManager);
 }; // namespace th06
