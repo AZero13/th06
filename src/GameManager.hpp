@@ -66,8 +66,8 @@ struct GameManager
 
     i32 HasReachedMaxClears(i32 character, i32 shottype)
     {
-        return (this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[1] ==
-                    MAX_CLEARS ||
+        return (
+            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[1] == MAX_CLEARS ||
             this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[2] == MAX_CLEARS ||
             this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[3] == MAX_CLEARS);
     }

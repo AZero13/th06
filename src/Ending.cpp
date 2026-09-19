@@ -503,7 +503,8 @@ ChainCallbackResult Ending::OnDraw(Ending *ending)
 {
     i32 idx;
 
-    g_AnmManager->DrawEndingRect(0, 0, 0, ending->backgroundPos.x, ending->backgroundPos.y, GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
+    g_AnmManager->DrawEndingRect(0, 0, 0, ending->backgroundPos.x, ending->backgroundPos.y, GAME_WINDOW_WIDTH,
+                                 GAME_WINDOW_HEIGHT);
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(ending->sprites); idx++)
     {
         if (ending->sprites[idx].anmFileIndex != 0)

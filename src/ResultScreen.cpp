@@ -1891,8 +1891,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
 
                 spritePos[0] += 368.0f;
 
-                g_AsciiManager.AddFormatText(&spritePos, "%3d/%3d",
-                                             g_GameManager.catk[spellcardIdx].numSuccess,
+                g_AsciiManager.AddFormatText(&spritePos, "%3d/%3d", g_GameManager.catk[spellcardIdx].numSuccess,
                                              g_GameManager.catk[spellcardIdx].numAttempts);
                 spritePos[0] -= 368.0f;
                 spritePos[1] += 30.0f;
@@ -1986,8 +1985,8 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
             }
             if (resultScreen->resultScreenState == RESULT_SCREEN_STATE_WRITING_REPLAY_NAME)
             {
-                g_AsciiManager.AddFormatText(&spritePos, "No.%.2d %8s %8s %7s %9d", row + 1,
-                                             resultScreen->replayName, resultScreen->defaultReplay.date,
+                g_AsciiManager.AddFormatText(&spritePos, "No.%.2d %8s %8s %7s %9d", row + 1, resultScreen->replayName,
+                                             resultScreen->defaultReplay.date,
                                              g_ShortCharacterList2[g_GameManager.CharacterShotType()],
                                              resultScreen->defaultReplay.score);
                 g_AsciiManager.color = 0xfff0f0ff;
@@ -2002,8 +2001,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
             else if (*(i32 *)&resultScreen->replays[row].magic != *(i32 *)"T6RP" ||
                      resultScreen->replays[row].version != GAME_VERSION)
             {
-                g_AsciiManager.AddFormatText(&spritePos, "No.%.2d -------- --/--/-- -------         0",
-                                             row + 1);
+                g_AsciiManager.AddFormatText(&spritePos, "No.%.2d -------- --/--/-- -------         0", row + 1);
             }
             else
             {
