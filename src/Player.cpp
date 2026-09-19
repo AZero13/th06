@@ -126,7 +126,7 @@ ZunResult Player::AddedCallback(Player *p)
     p->fireBulletTimer = -1;
     p->bombInfo.calc = g_BombData[g_GameManager.CharacterShotType()].calc;
     p->bombInfo.draw = g_BombData[g_GameManager.CharacterShotType()].draw;
-    p->bombInfo.isInUse = 0;
+    p->bombInfo.isInUse = false;
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(p->laserTimer); idx++)
     {
         p->laserTimer[idx] = 0;
@@ -146,12 +146,11 @@ ZunResult Player::DeletedCallback(Player *p)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(idx, scaleFactor1, scaleFactor2, lastEnemyHit)
+#pragma var_order(idx, scaleFactor1, scaleFactor2)
 ChainCallbackResult Player::OnUpdate(Player *p)
 {
     f32 scaleFactor1, scaleFactor2;
     i32 idx;
-    D3DXVECTOR3 lastEnemyHit;
 
     if (g_GameManager.isTimeStopped)
     {
@@ -175,7 +174,7 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         g_GameManager.bombsUsed++;
         g_GameManager.bombsRemaining--;
         g_Gui.flags.flag1 = 2;
-        p->bombInfo.isInUse = 1;
+        p->bombInfo.isInUse = true;
         p->bombInfo.timer = 0;
         p->bombInfo.duration = 999;
         p->bombInfo.calc(p);
@@ -245,13 +244,13 @@ ChainCallbackResult Player::OnUpdate(Player *p)
                 g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_PLAYER_IDLE);
                 if (g_GameManager.livesRemaining <= 0)
                 {
-                    g_GameManager.isInRetryMenu = 1;
+                    g_GameManager.isInRetryMenu = true;
                 }
                 else
                 {
                     g_GameManager.livesRemaining--;
                     g_Gui.flags.flag0 = 2;
-                    if (g_GameManager.difficulty < 4 && g_GameManager.isInPracticeMode == 0)
+                    if (g_GameManager.difficulty < EXTRA && !g_GameManager.isInPracticeMode)
                     {
                         g_GameManager.bombsRemaining = g_Supervisor.defaultConfig.bombCount;
                     }
@@ -329,10 +328,7 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         g_AnmManager->ExecuteScript(&p->orbsSprite[0]);
         g_AnmManager->ExecuteScript(&p->orbsSprite[1]);
     }
-    lastEnemyHit.x = -999.0;
-    lastEnemyHit.y = -999.0;
-    lastEnemyHit.z = 0.0;
-    p->positionOfLastEnemyHit = lastEnemyHit;
+    p->positionOfLastEnemyHit = D3DXVECTOR3(-999.0, -999.0, 0.0);
     Player::UpdateFireBulletsTimer(p);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
@@ -589,7 +585,7 @@ void Player::UpdatePlayerBullets(Player *player)
 ChainCallbackResult Player::OnDrawHighPrio(Player *p)
 {
     Player::DrawBullets(p);
-    if (p->bombInfo.isInUse != 0 && p->bombInfo.draw != NULL)
+    if (p->bombInfo.isInUse && p->bombInfo.draw != NULL)
     {
         p->bombInfo.draw(p);
     }
@@ -1313,7 +1309,7 @@ i32 Player::CalcLaserHitbox(D3DXVECTOR3 *laserCenter, D3DXVECTOR3 *laserSize, D3
     {
         goto LASER_COLLISION;
     }
-    if (canGraze == 0)
+    if (!canGraze)
     {
         return 0;
     }
@@ -1373,7 +1369,7 @@ void Player::ScoreGraze(D3DXVECTOR3 *center)
 {
     D3DXVECTOR3 particlePosition;
 
-    if (g_Player.bombInfo.isInUse == 0)
+    if (!g_Player.bombInfo.isInUse)
     {
         if (g_GameManager.grazeInStage < 9999)
         {
@@ -1393,12 +1389,11 @@ void Player::ScoreGraze(D3DXVECTOR3 *center)
     g_SoundPlayer.PlaySoundByIdx(SOUND_GRAZE, 0);
 }
 
-#pragma var_order(curLaserTimerIdx)
 void Player::Die()
 {
     int curLaserTimerIdx;
 
-    g_EnemyManager.spellcardInfo.isCapturing = 0;
+    g_EnemyManager.spellcardInfo.isCapturing = false;
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &this->positionCenter, 1, COLOR_NEONBLUE);
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_6, &this->positionCenter, 16, COLOR_WHITE);
     this->playerState = PLAYER_STATE_DEAD;

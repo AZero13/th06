@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ZunBool.hpp"
 #include "diffbuild.hpp"
 #include "inttypes.hpp"
 #include <windows.h>
@@ -25,16 +26,16 @@ struct GameWindow
     static void CreateGameWindow(HINSTANCE hInstance);
     static i32 InitD3dRendering();
     static void InitD3dDevice();
-    static LRESULT __stdcall WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     HWND window;
-    i32 isAppClosing;
-    i32 lastActiveAppValue;
-    i32 isAppActive;
+    ZunBool isAppClosing;
+    ZunBool isAppActive;
+    ZunBool showCursor;
     u8 curFrame;
-    i32 screenSaveActive;
-    i32 lowPowerActive;
-    i32 powerOffActive;
+    BOOL screenSaveActive;
+    BOOL lowPowerActive;
+    BOOL powerOffActive;
 };
 
 DIFFABLE_EXTERN(GameWindow, g_GameWindow)

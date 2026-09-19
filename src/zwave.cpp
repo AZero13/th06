@@ -537,7 +537,7 @@ HRESULT CStreamingSound::HandleWaveStreamNotification(BOOL bLoopedPlay)
     BOOL bRestored;
     if (FAILED(hr = RestoreBuffer(m_apDSBuffer[0], &bRestored)))
     {
-        utils::DebugPrint2("error : RetoreBuffer in HandleWaveStreamNotification\n");
+        utils::DebugPrint2("error : RestoreBuffer in HandleWaveStreamNotification\n");
         return DXTRACE_ERR(TEXT("RestoreBuffer"), hr);
     }
 

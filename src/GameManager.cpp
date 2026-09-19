@@ -334,7 +334,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         ResultScreen::ParseCatk(scoredat, mgr->catk);
         ResultScreen::ParseClrd(scoredat, mgr->clrd);
         ResultScreen::ParsePscr(scoredat, (Pscr *)mgr->pscr);
-        if (mgr->isInPracticeMode != 0)
+        if (mgr->isInPracticeMode)
         {
             g_GameManager.highScore =
                 mgr->pscr[g_GameManager.CharacterShotType()][g_GameManager.currentStage][g_GameManager.difficulty]
@@ -357,8 +357,8 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     mgr->pointItemsCollectedInStage = 0;
     mgr->grazeInStage = 0;
     mgr->isInGameMenu = 0;
-    mgr->currentStage = mgr->currentStage + 1;
-    if (g_GameManager.isInReplay == 0)
+    mgr->currentStage++;
+    if (!g_GameManager.isInReplay)
     {
         clrdIdx = g_GameManager.CharacterShotType();
         if (mgr->numRetries == 0 &&
@@ -371,7 +371,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
             mgr->clrd[clrdIdx].difficultyClearedWithoutRetries[g_GameManager.difficulty] = mgr->currentStage - 1;
         }
     }
-    if (mgr->isInPracticeMode != 0)
+    if (mgr->isInPracticeMode)
     {
         switch (mgr->currentStage)
         {
@@ -386,7 +386,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     }
     g_Supervisor.LoadPbg3(CM_PBG3_INDEX, TH_CM_DAT_FILE);
     g_Supervisor.LoadPbg3(ST_PBG3_INDEX, TH_ST_DAT_FILE);
-    if (g_GameManager.isInReplay == 1)
+    if (g_GameManager.isInReplay == TRUE)
     {
         if (ReplayManager::RegisterChain(1, g_GameManager.replayFile) != ZUN_SUCCESS)
         {
@@ -438,19 +438,19 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_GUI);
         return ZUN_ERROR;
     }
-    if (g_GameManager.isInReplay == 0)
+    if (!g_GameManager.isInReplay)
     {
         ReplayManager::RegisterChain(0, "replay/th6_00.rpy");
     }
-    if (g_GameManager.demoMode == 0)
+    if (!g_GameManager.demoMode)
     {
         // Read boss battle, and store it for use when boss is started.
         g_Supervisor.ReadMidiFile(1, g_Stage.stdData->songPaths[1]);
         // Immediately start playing this level's theme.
         g_Supervisor.PlayAudio(g_Stage.stdData->songPaths[0]);
     }
-    mgr->isInRetryMenu = 0;
-    mgr->isInMenu = 1;
+    mgr->isInRetryMenu = false;
+    mgr->isInMenu = true;
     if (g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT)
     {
         g_Supervisor.unk1b4 = 0.0;
@@ -458,7 +458,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     }
     mgr->isTimeStopped = false;
     mgr->score = 0;
-    mgr->isGameCompleted = 0;
+    mgr->isGameCompleted = false;
     g_AsciiManager.InitializeVms();
     if (failedToLoadReplay)
     {
@@ -485,7 +485,7 @@ ZunResult GameManager::DeletedCallback(GameManager *mgr)
     EffectManager::CutChain();
     Gui::CutChain();
     ReplayManager::StopRecording();
-    mgr->isInMenu = 0;
+    mgr->isInMenu = false;
     g_AsciiManager.InitializeVms();
     return ZUN_SUCCESS;
 }
@@ -576,7 +576,7 @@ void GameManager::SetupCamera(f32 extraRenderDistance)
 
 void GameManager::IncreaseSubrank(i32 amount)
 {
-    this->subRank = this->subRank + amount;
+    this->subRank += amount;
     while (this->subRank >= 100)
     {
         this->rank++;
@@ -590,7 +590,7 @@ void GameManager::IncreaseSubrank(i32 amount)
 
 void GameManager::DecreaseSubrank(i32 amount)
 {
-    this->subRank = this->subRank - amount;
+    this->subRank -= amount;
     while (this->subRank < 0)
     {
         this->rank--;
@@ -604,12 +604,11 @@ void GameManager::DecreaseSubrank(i32 amount)
 
 GameManager::GameManager()
 {
-
     memset(this, 0, sizeof(GameManager));
 
-    (this->arcadeRegionTopLeftPos).x = GAME_REGION_LEFT;
-    (this->arcadeRegionTopLeftPos).y = GAME_REGION_TOP;
-    (this->arcadeRegionSize).x = GAME_REGION_WIDTH;
-    (this->arcadeRegionSize).y = GAME_REGION_HEIGHT;
+    this->arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
+    this->arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
+    this->arcadeRegionSize.x = GAME_REGION_WIDTH;
+    this->arcadeRegionSize.y = GAME_REGION_HEIGHT;
 }
 }; // namespace th06

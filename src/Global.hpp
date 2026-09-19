@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <windows.h>
 
+#include "ZunBool.hpp"
 #include "ZunMath.hpp"
 #include "ZunResult.hpp"
 #include "diffbuild.hpp"
@@ -22,9 +23,9 @@
 #define ZUN_CLEAR_BITS(a, keep_mask) (a & ~keep_mask)
 
 #define IS_PRESSED(key) (g_CurFrameInput & (key))
-#define WAS_PRESSED(key) (((g_CurFrameInput & (key)) != 0) && (g_CurFrameInput & (key)) != (g_LastFrameInput & (key)))
+#define WAS_PRESSED(key) (IS_PRESSED(key) && (g_CurFrameInput & (key)) != (g_LastFrameInput & (key)))
 #define WAS_PRESSED_WEIRD(key)                                                                                         \
-    (WAS_PRESSED(key) || (((g_CurFrameInput & (key)) != 0) && (g_IsEigthFrameOfHeldInput != 0)))
+    (WAS_PRESSED(key) || (IS_PRESSED(key) && g_IsEigthFrameOfHeldInput))
 
 #define ZUN_ALLOC(size) (u8 *)g_ZunMemory.Alloc(size)
 #define ZUN_ALLOC_TYPE(type) (type *)ZUN_ALLOC(sizeof(type))
@@ -155,7 +156,7 @@ class ZunMemory
   public:
     ZunMemory()
     {
-        this->bRegistryInUse = FALSE;
+        this->bRegistryInUse = false;
     }
     ~ZunMemory()
     {
@@ -177,14 +178,16 @@ class ZunMemory
     }
 
   private:
-    BOOL bRegistryInUse;
+    ZunBool bRegistryInUse;
 };
 DIFFABLE_EXTERN(ZunMemory, g_ZunMemory);
 
 // From FileSystem.hpp
 namespace FileSystem
 {
-u8 *OpenPath(char *filepath, int isExternalResource);
+// This documents intent better than just true
+#define EXTERNAL_FILE true
+u8 *OpenPath(char *filepath, ZunBool isExternalResource = false);
 int WriteDataToFile(char *path, void *data, size_t size);
 } // namespace FileSystem
 DIFFABLE_EXTERN(u32, g_LastFileSize)
@@ -267,7 +270,7 @@ class GameErrorContext
 
             if (m_ShowMessageBox)
             {
-                MessageBoxA(NULL, m_Buffer, "log", MB_ICONERROR);
+                MessageBox(NULL, m_Buffer, "log", MB_ICONERROR);
             }
 
             logFile = fopen("./log.txt", "wt");

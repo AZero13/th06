@@ -157,7 +157,7 @@ void EnemyManager::RunEclTimeline()
     {
         this->timelineInstr = g_EclManager.timeline;
     }
-    if (g_Gui.HasCurrentMsgIdx() == 0)
+    if (!g_Gui.HasCurrentMsgIdx())
     {
         // Unclear what this is? It looks like it increases the subrank at
         // regular intervals, where the interval is made shorter based on the
@@ -539,17 +539,17 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
         mgr->enemyCount++;
         curEnemy->Move();
         curEnemy->ClampPos();
-        if (curEnemy->flags.hasBeenInBounds == 0 &&
+        if (curEnemy->flags.hasBeenInBounds == FALSE &&
             g_GameManager.IsInBounds(curEnemy->position.x, curEnemy->position.y, curEnemy->primaryVm.sprite->widthPx,
                                      curEnemy->primaryVm.sprite->heightPx))
         {
-            curEnemy->flags.hasBeenInBounds = 1;
+            curEnemy->flags.hasBeenInBounds = TRUE;
         }
-        if (curEnemy->flags.hasBeenInBounds == 1 &&
+        if (curEnemy->flags.hasBeenInBounds == TRUE &&
             !g_GameManager.IsInBounds(curEnemy->position.x, curEnemy->position.y, curEnemy->primaryVm.sprite->widthPx,
                                       curEnemy->primaryVm.sprite->heightPx))
         {
-            curEnemy->flags.isSlotOccupied = 0;
+            curEnemy->flags.isSlotOccupied = false;
             curEnemy->Despawn();
             continue;
         }
@@ -563,7 +563,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
         }
         if (g_EclManager.RunEcl(curEnemy) == ZUN_ERROR)
         {
-            curEnemy->flags.isSlotOccupied = 0;
+            curEnemy->flags.isSlotOccupied = false;
             curEnemy->Despawn();
             continue;
         }
@@ -579,7 +579,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
             }
         }
         local_8 = 0;
-        if (curEnemy->flags.hasBeenInBounds != 0 && !curEnemy->flags.isInvisible)
+        if (curEnemy->flags.hasBeenInBounds && !curEnemy->flags.isInvisible)
         {
             enemyLifeBeforeDmg = curEnemy->life;
             if (curEnemy->flags.isCollidable && curEnemy->flags.isInteractable)
@@ -591,7 +591,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                     curEnemy->life -= 10;
                 }
             }
-            if (curEnemy->flags.isInteractable != 0)
+            if (curEnemy->flags.isInteractable)
             {
                 damage = g_Player.CalcDamageToEnemy(&curEnemy->position, &curEnemy->hitboxDimensions, &local_8);
                 if (70 <= damage)
@@ -599,7 +599,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                     damage = 70;
                 }
                 g_GameManager.score = (damage / 5) * 10 + g_GameManager.score;
-                if (mgr->spellcardInfo.isActive != 0)
+                if (mgr->spellcardInfo.isActive)
                 {
                     if (local_8 == 0)
                     {
@@ -612,7 +612,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                             damage = 1;
                         }
                     }
-                    else if (mgr->spellcardInfo.usedBomb != 0)
+                    else if (mgr->spellcardInfo.usedBomb)
                     {
                         if (damage > 3)
                         {
@@ -628,7 +628,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                         damage = 0;
                     }
                 }
-                if (curEnemy->flags.isDamageable != 0)
+                if (curEnemy->flags.isDamageable)
                 {
                     curEnemy->life -= damage;
                 }
@@ -637,7 +637,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                     g_Player.positionOfLastEnemyHit = curEnemy->position;
                 }
             }
-            if (0 >= curEnemy->life && curEnemy->flags.isInteractable != 0)
+            if (0 >= curEnemy->life && curEnemy->flags.isInteractable)
             {
                 curEnemy->lifeCallbackThreshold = -1;
                 curEnemy->timerCallbackThreshold = -1;
@@ -645,24 +645,24 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                 {
                 case 3:
                     curEnemy->life = 1;
-                    curEnemy->flags.isDamageable = 0;
+                    curEnemy->flags.isDamageable = false;
                     curEnemy->flags.deathMode = 0;
-                    g_Gui.bossPresent = 0;
+                    g_Gui.bossPresent = false;
                     g_EffectManager.SpawnParticles(curEnemy->deathAnm1, &curEnemy->position, 1, COLOR_WHITE);
                     g_EffectManager.SpawnParticles(curEnemy->deathAnm1, &curEnemy->position, 1, COLOR_WHITE);
                     g_EffectManager.SpawnParticles(curEnemy->deathAnm1, &curEnemy->position, 1, COLOR_WHITE);
                     break;
                 case 1:
                     g_GameManager.AddScore(curEnemy->score);
-                    curEnemy->flags.isInteractable = 0;
+                    curEnemy->flags.isInteractable = false;
                     goto LAB_00412a4d;
                 case 0:
                     g_GameManager.AddScore(curEnemy->score);
-                    curEnemy->flags.isSlotOccupied = 0;
+                    curEnemy->flags.isSlotOccupied = false;
                 LAB_00412a4d:
                     if (curEnemy->flags.isBoss)
                     {
-                        g_Gui.bossPresent = 0;
+                        g_Gui.bossPresent = false;
                         Enemy::ResetEffectArray(curEnemy);
                     }
                 case 2:
@@ -710,7 +710,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                     curEnemy->deathCallbackSub = -1;
                 }
             }
-            if (curEnemy->flags.isBoss != 0 && !g_Gui.HasCurrentMsgIdx())
+            if (curEnemy->flags.isBoss && !g_Gui.HasCurrentMsgIdx())
             {
                 g_Gui.SetBossHealthBar(curEnemy->LifePercent());
             }
@@ -731,7 +731,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
             }
         }
         Enemy::UpdateEffects(curEnemy);
-        if (g_GameManager.isTimeStopped == 0)
+        if (!g_GameManager.isTimeStopped)
         {
             curEnemy->bossTimer++;
         }

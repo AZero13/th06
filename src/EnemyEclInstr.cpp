@@ -687,7 +687,7 @@ void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
         matrixOutSeed = 0.5f - patternPosition * 0.5f / 9.0f;
         matrixOut = g_Player.positionCenter - enemy->position;
         D3DXVec3Normalize(&matrixIn, &matrixOut);
-        if ((patternPosition & 1) != 0)
+        if (patternPosition & 1)
         {
             matrixInSeed = -256.0f;
         }
@@ -720,7 +720,7 @@ void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
 
             bulletProps.position = matrixIn + enemy->position + bpPositionOffset;
             bulletProps.speed1 = 2.0;
-            if ((patternPosition & 1) != 0 && g_GameManager.difficulty <= NORMAL)
+            if ((patternPosition & 1) && g_GameManager.difficulty <= NORMAL)
             {
                 bulletProps.angle1 = bulletAngle;
             }
@@ -741,7 +741,7 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
     f32 finalAngle;
     D3DXVECTOR3 particlePos;
 
-    if (enemy->flags.isInvisible != 0)
+    if (enemy->flags.isInvisible)
     {
         Enemy::ResetEffectArray(enemy);
         return;
@@ -1039,7 +1039,7 @@ void ExInsHandleBatTransformation(Enemy *enemy, EclRawInstr *instr)
     }
 
     ExInsBatWingEffect(enemy, instr);
-    if (g_Player.bombInfo.isInUse != 0)
+    if (g_Player.bombInfo.isInUse)
     {
         if (enemy->anmExLeft >= 0)
         {
@@ -1047,7 +1047,7 @@ void ExInsHandleBatTransformation(Enemy *enemy, EclRawInstr *instr)
             enemy->anmExLeft = -1;
         }
 
-        enemy->flags.isInteractable = 0;
+        enemy->flags.isInteractable = false;
         enemy->exInsFunc10Timer = 60;
     }
     else
@@ -1056,11 +1056,11 @@ void ExInsHandleBatTransformation(Enemy *enemy, EclRawInstr *instr)
         {
             if (enemy->anmExLeft < 0)
             {
-                g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm, ANM_OFFSET_ENEMY + 0xa0);
-                enemy->anmExLeft = 0xa1;
+                g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm, ANM_OFFSET_ENEMY + 160);
+                enemy->anmExLeft = 161;
             }
 
-            enemy->flags.isInteractable = 1;
+            enemy->flags.isInteractable = true;
         }
     }
 }
@@ -1071,7 +1071,7 @@ void ExInsStage4Func12(Enemy *enemy, EclRawInstr *instr)
 
     for (i = 0; i < 8; i++)
     {
-        if (enemy->lasers[i] != NULL && enemy->lasers[i]->inUse != 0)
+        if (enemy->lasers[i] != NULL && enemy->lasers[i]->inUse)
         {
             enemy->bulletProps.position = D3DXVECTOR3(64.0, 0.0, 0.0);
             utils::Rotate(&enemy->bulletProps.position, &enemy->bulletProps.position, enemy->lasers[i]->angle);
@@ -1118,7 +1118,7 @@ void ExInsStageXFunc14(Enemy *enemy, EclRawInstr *instr)
     enemy->currentContext.var3 = 0;
     for (i = 0; i < 8; i++)
     {
-        if (enemy->lasers[i] != NULL && enemy->lasers[i]->inUse != 0)
+        if (enemy->lasers[i] != NULL && enemy->lasers[i]->inUse)
         {
             currentLaser = enemy->lasers[i];
             positionMultiplier = currentLaser->startOffset;

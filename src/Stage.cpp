@@ -97,8 +97,8 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
                 if (stage->skyFogInterpDuration == 0)
                 {
                     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
-                    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&stage->skyFog.nearPlane);
-                    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&stage->skyFog.farPlane);
+                    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&stage->skyFog.nearPlane);
+                    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&stage->skyFog.farPlane);
                 }
                 stage->instructionIndex++;
                 stage->skyFogInterpFinal = stage->skyFog;
@@ -137,7 +137,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
             if (stage->unpauseFlag)
             {
                 stage->instructionIndex++;
-                stage->unpauseFlag = '\0';
+                stage->unpauseFlag = 0;
                 continue;
             }
             break;
@@ -193,8 +193,8 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
                 (stage->skyFogInterpFinal.farPlane - stage->skyFogInterpInitial.farPlane) * skyFogInterpRatio +
                 stage->skyFogInterpInitial.farPlane;
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
-            g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&stage->skyFog.nearPlane);
-            g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&stage->skyFog.farPlane);
+            g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&stage->skyFog.nearPlane);
+            g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&stage->skyFog.farPlane);
             if (stage->skyFogInterpTimer >= stage->skyFogInterpDuration)
             {
                 stage->skyFogInterpDuration = 0;
@@ -225,8 +225,8 @@ ChainCallbackResult Stage::OnDrawHighPrio(Stage *stage)
         stage->skyFogNeedsSetup = 0;
         g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
     }
-    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&stage->skyFog.nearPlane);
-    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&stage->skyFog.farPlane);
+    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&stage->skyFog.nearPlane);
+    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&stage->skyFog.farPlane);
     if (stage->spellcardState <= RUNNING)
     {
         if (!g_Gui.IsStageFinished())
@@ -275,9 +275,9 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
     GameManager::SetupCameraStageBackground(0);
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     val = 1000.0f;
-    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&val);
+    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&val);
     val = 2000.0f;
-    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&val);
+    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&val);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
@@ -375,7 +375,7 @@ ZunResult Stage::LoadStageData(char *anmpath, char *stdpath)
     {
         return ZUN_ERROR;
     }
-    this->stdData = (RawStageHeader *)FileSystem::OpenPath(stdpath, false);
+    this->stdData = (RawStageHeader *)FileSystem::OpenPath(stdpath);
     if (this->stdData == NULL)
     {
         g_GameErrorContext.Log(TH_ERR_STAGE_DATA_CORRUPTED);
@@ -419,7 +419,7 @@ ZunResult Stage::UpdateObjects()
     for (objIdx = 0; objIdx < this->objectsCount; objIdx++)
     {
         obj = this->objects[objIdx];
-        if (obj->flags & 1 != 0)
+        if (obj->flags & 1)
         {
             vmsNotFinished = 0;
             objQuad = &obj->firstQuad;
@@ -447,7 +447,7 @@ ZunResult Stage::UpdateObjects()
             }
             if (vmsNotFinished == 0)
             {
-                obj->flags = obj->flags & ~1;
+                obj->flags &= ~1;
             }
         }
     }

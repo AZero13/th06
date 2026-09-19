@@ -16,7 +16,7 @@ i32 FileAbstraction::Open(char *filename, char *mode)
     this->Close();
 
     char *curMode;
-    for (curMode = mode; *curMode != '\0'; curMode += 1)
+    for (curMode = mode; *curMode != '\0'; curMode++)
     {
         if (*curMode == 'r')
         {
@@ -26,7 +26,7 @@ i32 FileAbstraction::Open(char *filename, char *mode)
         }
         else if (*curMode == 'w')
         {
-            DeleteFileA(filename);
+            DeleteFile(filename);
             this->access = GENERIC_WRITE;
             creationDisposition = OPEN_ALWAYS;
             break;
@@ -44,7 +44,7 @@ i32 FileAbstraction::Open(char *filename, char *mode)
     {
         return 0;
     }
-    this->handle = CreateFileA(filename, this->access, FILE_SHARE_READ, NULL, creationDisposition,
+    this->handle = CreateFile(filename, this->access, FILE_SHARE_READ, NULL, creationDisposition,
                                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
     if (this->handle == INVALID_HANDLE_VALUE)

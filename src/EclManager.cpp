@@ -42,7 +42,7 @@ ZunResult EclManager::Load(char *eclPath)
 {
     i32 idx;
 
-    this->eclFile = (EclRawHeader *)FileSystem::OpenPath(eclPath, false);
+    this->eclFile = (EclRawHeader *)FileSystem::OpenPath(eclPath);
     if (this->eclFile == NULL)
     {
         g_GameErrorContext.Log(TH_ERR_ECLMANAGER_ENEMY_DATA_CORRUPT);
@@ -244,13 +244,13 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
             HANDLE_CALL:
                 local_14 = instruction->args.call.eclSub;
                 enemy->currentContext.currentInstr = (EclRawInstr *)((u8 *)instruction + instruction->offsetToNext);
-                if (enemy->flags.disableCallStack == 0)
+                if (!enemy->flags.disableCallStack)
                 {
                     memcpy(&enemy->savedContextStack[enemy->stackDepth], &enemy->currentContext,
                            sizeof(EnemyEclContext));
                 }
                 g_EclManager.CallEclSub(&enemy->currentContext, (u16)local_14);
-                if (enemy->flags.disableCallStack == 0 && enemy->stackDepth < 7)
+                if (!enemy->flags.disableCallStack && enemy->stackDepth < 7)
                 {
                     enemy->stackDepth++;
                 }
@@ -398,7 +398,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 local_14 = local_54->color;
                 // TODO: Strict aliasing rule be like.
                 local_58->spriteOffset = *EnemyEclInstr::GetVar(enemy, (EclVarId *)&local_14, NULL);
-                if (enemy->flags.shootingDisabled == 0)
+                if (!enemy->flags.shootingDisabled)
                 {
                     g_BulletManager.SpawnBulletPattern(local_58);
                 }
@@ -686,7 +686,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 enemy->runInterrupt = instruction->args.setInt;
             HANDLE_INTERRUPT:
                 enemy->currentContext.currentInstr = (EclRawInstr *)((u8 *)instruction + instruction->offsetToNext);
-                if (enemy->flags.disableCallStack == 0)
+                if (!enemy->flags.disableCallStack)
                 {
                     memcpy(&enemy->savedContextStack[enemy->stackDepth], &enemy->currentContext,
                            sizeof(EnemyEclContext));
@@ -866,7 +866,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                     }
 
                     local_b4->life = 0;
-                    if (local_b4->flags.isInteractable == 0 && 0 <= local_b4->deathCallbackSub)
+                    if (!local_b4->flags.isInteractable && 0 <= local_b4->deathCallbackSub)
                     {
                         g_EclManager.CallEclSub(&local_b4->currentContext, local_b4->deathCallbackSub);
                         local_b4->deathCallbackSub = -1;

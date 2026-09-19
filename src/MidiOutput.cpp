@@ -224,9 +224,9 @@ ZunResult MidiOutput::ReadFileData(u32 idx, char *path)
     this->StopPlayback();
     this->ReleaseFileData(idx);
 
-    this->midiFileData[idx] = FileSystem::OpenPath(path, false);
+    this->midiFileData[idx] = FileSystem::OpenPath(path);
 
-    if (this->midiFileData[idx] == (byte *)0x0)
+    if (this->midiFileData[idx] == NULL)
     {
         g_GameErrorContext.Log(TH_ERR_MIDI_FAILED_TO_READ_FILE, path);
         return ZUN_ERROR;

@@ -72,11 +72,6 @@ struct GameConfiguration
     i8 unk[16];
     // GameConfigOpts bitfield.
     u32 opts;
-
-    u32 IsSoftwareTexturing()
-    {
-        return this->opts >> GCOS_NO_COLOR_COMP & 1 | this->opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING & 1;
-    }
 };
 
 #define IN_PBG3_INDEX 0
@@ -119,8 +114,8 @@ struct Supervisor
     ZunResult FadeOutMusic(f32 fadeOutSeconds);
 
     static ZunResult SetupDInput(Supervisor *s);
-    static BOOL CALLBACK ControllerCallback(LPCDIDEVICEOBJECTINSTANCEA lpddoi, LPVOID pvRef);
-    static BOOL CALLBACK EnumGameControllersCb(LPCDIDEVICEINSTANCEA pdidInstance, LPVOID pContext);
+    static BOOL CALLBACK ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef);
+    static BOOL CALLBACK EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext);
 
     i32 LoadPbg3(i32 pbg3FileIdx, char *filename);
     void ReleasePbg3(i32 pbg3FileIdx);
@@ -134,15 +129,74 @@ struct Supervisor
         return this->effectiveFramerateMultiplier;
     }
 
-    ZunBool IsUnknown()
+    ZunBool IsHardwareBlendingDisabled()
     {
-        return this->cfg.opts >> GCOS_CLEAR_BACKBUFFER_ON_REFRESH & 1 |
-               this->cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1;
+        return this->cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING & 1;
+    }
+
+    ZunBool IsVertexBufferDisabled()
+    {
+        return this->cfg.opts >> GCOS_DONT_USE_VERTEX_BUF & 1;
+    }
+
+    ZunBool Is16bitColorMode()
+    {
+        return this->cfg.opts >> GCOS_FORCE_16BIT_COLOR_MODE & 1;
+    }
+
+    ZunBool IsMinimumGraphicsMode()
+    {
+        return this->cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1;
+    }
+
+    ZunBool IsShadingDisabled()
+    {
+        return this->cfg.opts >> GCOS_SUPPRESS_USE_OF_GOROUD_SHADING & 1;
+    }
+
+    ZunBool IsDepthTestDisabled()
+    {
+        return this->cfg.opts >> GCOS_TURN_OFF_DEPTH_TEST & 1;
+    }
+
+    ZunBool IsForced60Fps()
+    {
+        return this->cfg.opts >> GCOS_FORCE_60FPS & 1;
+    }
+
+    ZunBool IsColorCompositingDisabled()
+    {
+        return this->cfg.opts >> GCOS_NO_COLOR_COMP & 1;
+    }
+
+    ZunBool IsReferenceRasterizerMode()
+    {
+        return this->cfg.opts >> GCOS_REFERENCE_RASTERIZER_MODE & 1;
+    }
+
+    ZunBool IsFogDisabled()
+    {
+        return this->cfg.opts >> GCOS_DONT_USE_FOG & 1;
+    }
+
+    ZunBool IsDInputDisabled()
+    {
+        return this->cfg.opts >> GCOS_NO_DIRECTINPUT_PAD & 1;
+    }
+
+    ZunBool ShouldForceBackbufferClear()
+    {
+        return this->cfg.opts >> GCOS_CLEAR_BACKBUFFER_ON_REFRESH & 1 | this->IsMinimumGraphicsMode();
+    }
+
+    u32 IsSoftwareTexturing()
+    {
+        return this->IsColorCompositingDisabled() | this->IsHardwareBlendingDisabled();
     }
 
     ZunBool ShouldRunAt60Fps()
     {
-        return (this->cfg.opts >> GCOS_FORCE_60FPS & 1) && this->vsyncEnabled;
+        return this->IsForced60Fps() && this->vsyncEnabled;
     }
 
     ZunBool IsWindowed()
@@ -151,11 +205,11 @@ struct Supervisor
     }
 
     HINSTANCE hInstance;
-    PDIRECT3D8 d3dIface;
-    PDIRECT3DDEVICE8 d3dDevice;
+    LPDIRECT3D8 d3dIface;
+    LPDIRECT3DDEVICE8 d3dDevice;
     LPDIRECTINPUT8 dinputIface;
-    LPDIRECTINPUTDEVICE8A keyboard;
-    LPDIRECTINPUTDEVICE8A controller;
+    LPDIRECTINPUTDEVICE8 keyboard;
+    LPDIRECTINPUTDEVICE8 controller;
     DIDEVCAPS controllerCaps;
     HWND hwndGameWindow;
     D3DXMATRIX viewMatrix;
@@ -173,7 +227,7 @@ struct Supervisor
     i32 unk198;
     ZunBool isInEnding;
 
-    i32 vsyncEnabled;
+    ZunBool vsyncEnabled;
     i32 lastFrameTime;
     f32 effectiveFramerateMultiplier;
     f32 framerateMultiplier;
@@ -197,7 +251,7 @@ ZUN_ASSERT_SIZE(Supervisor, 0x4d8);
 
 DIFFABLE_EXTERN(ControllerMapping, g_ControllerMapping)
 DIFFABLE_EXTERN(Supervisor, g_Supervisor)
-DIFFABLE_EXTERN(IDirect3DSurface8 *, g_TextBufferSurface)
+DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface)
 
 struct ZunTimer
 {

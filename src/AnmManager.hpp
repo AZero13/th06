@@ -15,7 +15,8 @@ namespace th06
 // structure of a vertex with SetVertexShade FVF set to D3DFVF_DIFFUSE | D3DFVF_XYZRHW
 struct VertexDiffuseXyzrwh
 {
-    D3DXVECTOR4 position;
+    D3DXVECTOR3 position;
+    float position_w;
     D3DCOLOR diffuse;
 };
 
@@ -132,7 +133,7 @@ struct AnmManager
     {
         this->currentZWriteDisable = zwriteDisable;
     }
-    void SetCurrentTexture(IDirect3DTexture8 *texture)
+    void SetCurrentTexture(LPDIRECT3DTEXTURE8 texture)
     {
         this->currentTexture = texture;
     }
@@ -192,24 +193,24 @@ struct AnmManager
 
     AnmLoadedSprite sprites[2048];
     AnmVm virtualMachine;
-    IDirect3DTexture8 *textures[264];
+    LPDIRECT3DTEXTURE8 textures[264];
     void *imageDataArray[256];
     i32 maybeLoadedSpriteCount;
     AnmRawInstr *scripts[2048];
     i32 spriteIndices[2048];
     AnmRawEntry *anmFiles[128];
     u32 anmFilesSpriteIndexOffsets[128];
-    IDirect3DSurface8 *surfaces[32];
-    IDirect3DSurface8 *surfacesBis[32];
+    LPDIRECT3DSURFACE8 surfaces[32];
+    LPDIRECT3DSURFACE8 surfacesBis[32];
     D3DXIMAGE_INFO surfaceSourceInfo[32];
     D3DCOLOR currentTextureFactor;
-    IDirect3DTexture8 *currentTexture;
+    LPDIRECT3DTEXTURE8 currentTexture;
     u8 currentBlendMode;
     u8 currentColorOp;
     u8 currentVertexShader;
     u8 currentZWriteDisable;
     AnmLoadedSprite *currentSprite;
-    IDirect3DVertexBuffer8 *vertexBuffer;
+    LPDIRECT3DVERTEXBUFFER8 vertexBuffer;
     RenderVertexInfo vertexBufferContents[4];
     i32 screenshotTextureId;
     i32 screenshotLeft;

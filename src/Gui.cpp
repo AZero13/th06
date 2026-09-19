@@ -457,7 +457,7 @@ ZunResult Gui::LoadMsg(char *path)
     i32 idx;
 
     this->FreeMsgFile();
-    this->impl->msg.msgFile = (MsgRawHeader *)FileSystem::OpenPath(path, 0);
+    this->impl->msg.msgFile = (MsgRawHeader *)FileSystem::OpenPath(path);
     if (this->impl->msg.msgFile == NULL)
     {
         g_GameErrorContext.Log(TH_ERR_GUI_MSG_FILE_CORRUPTED, path);
@@ -711,49 +711,41 @@ ZunResult GuiImpl::DrawDialogue()
         dialogueBoxHeight = 48.0f;
     }
     VertexDiffuseXyzrwh vertices[4];
-    // Probably not what Zun wrote, but I don't like Zun's design. My guess is
-    // Zun made a separate vertex structure with a D3DXVECTOR3 for the xyz, a
-    // separate f32 for the w, and a D3DCOLOR for the diffuse. This kinda makes
-    // no sense though - the position is a D3DXVECTOR4.
-    memcpy(&vertices[0].position,
-           &D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f -
+    vertices[0].position =
+            D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f -
                             16.0f,
-                        384.0f, 0.0f),
-           sizeof(D3DXVECTOR3));
+                        384.0f, 0.0f);
 
-    memcpy(&vertices[1].position,
-           &D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f +
+    vertices[1].position =
+            D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f +
                             256.0f + 16.0f,
-                        384.0f, 0.0f),
-           sizeof(D3DXVECTOR3));
+                        384.0f, 0.0f);
 
-    memcpy(&vertices[2].position,
-           &D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f -
+    vertices[2].position =
+            D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f -
                             16.0f,
-                        384.0f + dialogueBoxHeight, 0.0f),
-           sizeof(D3DXVECTOR3));
+                        384.0f + dialogueBoxHeight, 0.0f);
 
-    memcpy(&vertices[3].position,
-           &D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f +
+    vertices[3].position =
+            D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f +
                             256.0f + 16.0f,
-                        384.0f + dialogueBoxHeight, 0.0f),
-           sizeof(D3DXVECTOR3));
+                        384.0f + dialogueBoxHeight, 0.0f);
 
     vertices[0].diffuse = vertices[1].diffuse = 0xd0000000;
     vertices[2].diffuse = vertices[3].diffuse = 0x90000000;
-    vertices[0].position.w = vertices[1].position.w = vertices[2].position.w = vertices[3].position.w = 1.0f;
+    vertices[0].position_w = vertices[1].position_w = vertices[2].position_w = vertices[3].position_w = 1.0f;
     g_AnmManager->DrawNoRotation(&this->msg.portraits[0]);
     g_AnmManager->DrawNoRotation(&this->msg.portraits[1]);
-    if (((g_Supervisor.cfg.opts >> GCOS_NO_COLOR_COMP) & 1) == 0)
+    if (!g_Supervisor.IsColorCompositingDisabled())
     {
         g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
         g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
     }
     g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_DIFFUSE);
     g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
-    if (((g_Supervisor.cfg.opts >> GCOS_TURN_OFF_DEPTH_TEST) & 1) == 0)
+    if (!g_Supervisor.IsDepthTestDisabled())
     {
-        g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, 0);
+        g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
     }
     g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_DIFFUSE | D3DFVF_XYZRHW);
     g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertices, sizeof(vertices[0]));
@@ -761,13 +753,13 @@ ZunResult GuiImpl::DrawDialogue()
     g_AnmManager->SetCurrentColorOp(0xff);
     g_AnmManager->SetCurrentBlendMode(0xff);
     g_AnmManager->SetCurrentZWriteDisable(0xff);
-    if (((g_Supervisor.cfg.opts >> GCOS_NO_COLOR_COMP) & 1) == 0)
+    if (!g_Supervisor.IsColorCompositingDisabled())
     {
-        g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, 4);
-        g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, 4);
+        g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
     }
-    g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, 2);
-    g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, 2);
+    g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+    g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
     g_AnmManager->DrawNoRotation(&this->msg.dialogueLines[0]);
     g_AnmManager->DrawNoRotation(&this->msg.dialogueLines[1]);
     g_AnmManager->DrawNoRotation(&this->msg.introLines[0]);
@@ -1037,8 +1029,8 @@ void Gui::DrawGameScene()
     g_Supervisor.viewport.Height = 480;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     vm = &this->impl->vms[6];
-    if (((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS) & 1) == 0 &&
-        (vm->currentInstruction != NULL || g_Supervisor.unk198 != 0 || g_Supervisor.IsUnknown()))
+    if (!g_Supervisor.IsMinimumGraphicsMode() &&
+        (vm->currentInstruction != NULL || g_Supervisor.unk198 != 0 || g_Supervisor.ShouldForceBackbufferClear()))
     {
         for (yPos = 0.0f; yPos < 464.0f; yPos += 32.0f)
         {
@@ -1084,7 +1076,7 @@ void Gui::DrawGameScene()
         this->flags.flag4 = 2;
         this->flags.flag2 = 2;
     }
-    if ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) == 0)
+    if (!g_Supervisor.IsMinimumGraphicsMode())
     {
         vm = &this->impl->vms[22];
         xPos = 496.0f;
@@ -1122,7 +1114,7 @@ void Gui::DrawGameScene()
         vm->pos = D3DXVECTOR3(0.0, 464.0f, 0.49f);
         g_AnmManager->DrawNoRotation(vm);
     }
-    if (this->flags.flag0 || ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) != 0))
+    if (this->flags.flag0 || g_Supervisor.IsMinimumGraphicsMode())
     {
         vm = &this->impl->vms[16];
         for (idx = 0, xPos = 496.0f; idx < g_GameManager.livesRemaining; idx++, xPos += 16.0f)
@@ -1131,7 +1123,7 @@ void Gui::DrawGameScene()
             g_AnmManager->DrawNoRotation(vm);
         }
     }
-    if (this->flags.flag1 || ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) != 0))
+    if (this->flags.flag1 || g_Supervisor.IsMinimumGraphicsMode())
     {
         vm = &this->impl->vms[17];
         for (idx = 0, xPos = 496.0f; idx < g_GameManager.bombsRemaining; idx++, xPos += 16.0f)
@@ -1140,31 +1132,29 @@ void Gui::DrawGameScene()
             g_AnmManager->DrawNoRotation(vm);
         }
     }
-    if (this->flags.flag2 || ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) != 0))
+    if (this->flags.flag2 || g_Supervisor.IsMinimumGraphicsMode())
     {
         VertexDiffuseXyzrwh vertices[4];
         if (g_GameManager.currentPower > 0)
         {
-            memcpy(&vertices[0].position, &D3DXVECTOR3(496.0f, 186.0f, 0.1f), sizeof(D3DXVECTOR3));
-            memcpy(&vertices[1].position, &D3DXVECTOR3(g_GameManager.currentPower + 496 + 0.0f, 186.0f, 0.1f),
-                   sizeof(D3DXVECTOR3));
-            memcpy(&vertices[2].position, &D3DXVECTOR3(496.0f, 202.0f, 0.1f), sizeof(D3DXVECTOR3));
-            memcpy(&vertices[3].position, &D3DXVECTOR3(g_GameManager.currentPower + 496 + 0.0f, 202.0f, 0.1f),
-                   sizeof(D3DXVECTOR3));
+            vertices[0].position = D3DXVECTOR3(496.0f, 186.0f, 0.1f);
+            vertices[1].position = D3DXVECTOR3(g_GameManager.currentPower + 496 + 0.0f, 186.0f, 0.1f);
+            vertices[2].position = D3DXVECTOR3(496.0f, 202.0f, 0.1f);
+            vertices[3].position = D3DXVECTOR3(g_GameManager.currentPower + 496 + 0.0f, 202.0f, 0.1f);
 
             vertices[0].diffuse = vertices[2].diffuse = 0xe0e0e0ff;
             vertices[1].diffuse = vertices[3].diffuse = 0x80e0e0ff;
 
-            vertices[0].position.w = vertices[1].position.w = vertices[2].position.w = vertices[3].position.w = 1.0;
+            vertices[0].position_w = vertices[1].position_w = vertices[2].position_w = vertices[3].position_w = 1.0;
 
-            if ((g_Supervisor.cfg.opts >> 8 & 1) == 0)
+            if (!g_Supervisor.IsColorCompositingDisabled())
             {
                 g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
                 g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
             }
             g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_DIFFUSE);
             g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
-            if ((g_Supervisor.cfg.opts >> GCOS_TURN_OFF_DEPTH_TEST & 1) == 0)
+            if (!g_Supervisor.IsDepthTestDisabled())
             {
                 g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
                 g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
@@ -1175,7 +1165,7 @@ void Gui::DrawGameScene()
             g_AnmManager->SetCurrentColorOp(0xff);
             g_AnmManager->SetCurrentBlendMode(0xff);
             g_AnmManager->SetCurrentZWriteDisable(0xff);
-            if ((g_Supervisor.cfg.opts >> GCOS_NO_COLOR_COMP & 1) == 0)
+            if (!g_Supervisor.IsColorCompositingDisabled())
             {
                 g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
                 g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
@@ -1199,12 +1189,12 @@ void Gui::DrawGameScene()
         g_AsciiManager.AddFormatText(&elemPos, "%.9d", g_GameManager.guiScore);
         elemPos = D3DXVECTOR3(496.0f, 58.0f, 0.0f);
         g_AsciiManager.AddFormatText(&elemPos, "%.9d", g_GameManager.highScore);
-        if (this->flags.flag3 || ((g_Supervisor.cfg.opts >> 4 & 1) != 0))
+        if (this->flags.flag3 || g_Supervisor.IsMinimumGraphicsMode())
         {
             elemPos = D3DXVECTOR3(496.0f, 206.0f, 0.0f);
             g_AsciiManager.AddFormatText(&elemPos, "%d", g_GameManager.grazeInStage);
         }
-        if (this->flags.flag4 || ((g_Supervisor.cfg.opts >> 4 & 1) != 0))
+        if (this->flags.flag4 || g_Supervisor.IsMinimumGraphicsMode())
         {
             elemPos = D3DXVECTOR3(496.0f, 226.0f, 0.0f);
             g_AsciiManager.AddFormatText(&elemPos, "%d", g_GameManager.pointItemsCollectedInStage);
@@ -1326,12 +1316,10 @@ void Gui::DrawStageElements()
     }
 }
 
-#pragma optimize("s", on)
 ZunResult Gui::AddedCallback(Gui *gui)
 {
     return gui->ActualAddedCallback();
 }
-#pragma optimize("", on)
 
 ZunResult Gui::DeletedCallback(Gui *gui)
 {
@@ -1381,12 +1369,10 @@ GuiImpl::GuiImpl() {
 
 };
 
-#pragma optimize("s", on)
 void Gui::CutChain()
 {
     g_Chain.Cut(&g_GuiCalcChain);
     g_Chain.Cut(&g_GuiDrawChain);
     return;
 }
-#pragma optimize("", on)
 }; // namespace th06

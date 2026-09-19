@@ -134,7 +134,7 @@ void AsciiManager::InitializeVms()
 {
     memset(this, 0, sizeof(AsciiManager));
 
-    this->color = 0xffffffff;
+    this->color = COLOR_WHITE;
     this->scale.x = 1.0;
     this->scale.y = 1.0;
 
@@ -185,13 +185,13 @@ void AsciiManager::AddString(D3DXVECTOR3 *position, const char *text)
     curString->scale.x = this->scale.x;
     curString->scale.y = this->scale.y;
     curString->isGui = this->isGui;
-    if (g_Supervisor.cfg.IsSoftwareTexturing())
+    if (g_Supervisor.IsSoftwareTexturing())
     {
         curString->isSelected = this->isSelected;
     }
     else
     {
-        curString->isSelected = 0;
+        curString->isSelected = false;
     }
 }
 
@@ -221,7 +221,7 @@ void AsciiManager::DrawStrings(void)
 
     guiString = TRUE;
     string = this->strings;
-    this->vm0.flags.isVisible = 1;
+    this->vm0.flags.isVisible = true;
     this->vm0.flags.anchor = AnmVmAnchor_TopLeft;
     for (i = 0; i < this->numStrings; i++, string++)
     {
@@ -292,7 +292,7 @@ void AsciiManager::CreatePopup1(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
     }
 
     popup = &this->popups[this->nextPopupIndex1];
-    popup->inUse = 1;
+    popup->inUse = true;
     characterCount = 0;
 
     if (value >= 0)
@@ -333,7 +333,7 @@ void AsciiManager::CreatePopup2(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
     }
 
     popup = &this->popups[0x200 + this->nextPopupIndex2];
-    popup->inUse = 1;
+    popup->inUse = true;
     characterCount = 0;
 
     if (value >= 0)
@@ -601,7 +601,7 @@ void StageMenu::OnDrawGameMenu()
         if (g_Supervisor.lockableBackbuffer && this->curState != GAME_MENU_PAUSE_OPENING)
         {
             AnmVm menuBackground = this->menuBackground;
-            menuBackground.flags.zWriteDisable = 1;
+            menuBackground.flags.zWriteDisable = true;
             g_AnmManager->DrawNoRotation(&menuBackground);
         }
         for (vmIdx = 0; vmIdx < ARRAY_SIZE_SIGNED(this->menuSprites); vmIdx++)
@@ -640,21 +640,21 @@ i32 StageMenu::OnUpdateRetryMenu()
 
     if (g_GameManager.isInPracticeMode)
     {
-        g_GameManager.isInRetryMenu = 0;
+        g_GameManager.isInRetryMenu = false;
         g_GameManager.guiScore = g_GameManager.score;
         g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
         return 1;
     }
     if (g_GameManager.isInReplay)
     {
-        g_GameManager.isInRetryMenu = 0;
+        g_GameManager.isInRetryMenu = false;
         g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
         g_GameManager.guiScore = g_GameManager.score;
         return 1;
     }
     if (g_GameManager.numRetries >= 3 || g_GameManager.difficulty >= EXTRA)
     {
-        g_GameManager.isInRetryMenu = 0;
+        g_GameManager.isInRetryMenu = false;
         g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
         g_GameManager.guiScore = g_GameManager.score;
         return 1;
@@ -747,7 +747,7 @@ i32 StageMenu::OnUpdateRetryMenu()
         {
             this->curState = 0;
             this->numFrames = 0;
-            g_GameManager.isInRetryMenu = 0;
+            g_GameManager.isInRetryMenu = false;
             g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
             for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
             {
@@ -762,7 +762,7 @@ i32 StageMenu::OnUpdateRetryMenu()
         {
             this->curState = 0;
             this->numFrames = 0;
-            g_GameManager.isInRetryMenu = 0;
+            g_GameManager.isInRetryMenu = false;
             for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
             {
                 this->menuSprites[idx].SetInvisible();
@@ -851,7 +851,7 @@ void AsciiManager::DrawPopupsWithHwVertexProcessing()
 
     for (i = 0; i < ARRAY_SIZE_SIGNED(this->popups); i++, currentPopup++)
     {
-        if (currentPopup->inUse == 0)
+        if (!currentPopup->inUse)
         {
             continue;
         }
@@ -903,7 +903,7 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
 
     for (i = 0; i < ARRAY_SIZE_SIGNED(this->popups); i++, currentPopup++)
     {
-        if (currentPopup->inUse == 0)
+        if (!currentPopup->inUse)
         {
             continue;
         }

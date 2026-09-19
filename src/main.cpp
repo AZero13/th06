@@ -111,7 +111,7 @@ restart:
                 {
                     g_AnmManager->ReleaseSurfaces();
                     testResetRes = g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
-                    if (testResetRes != 0)
+                    if (testResetRes != D3D_OK)
                     {
                         break;
                     }

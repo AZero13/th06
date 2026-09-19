@@ -153,8 +153,8 @@ struct MidiOutput : MidiTimer
     i32 divisions;
     i32 tempo;
     u32 unk124;
-    unsigned __int64 volume;
-    __int64 unk130;
+    ULONGLONG volume;
+    LONGLONG unk130;
     MidiTrack *tracks;
     MidiDevice midiOutDev;
     u8 unk144[16];

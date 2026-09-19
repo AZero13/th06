@@ -71,7 +71,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         }
         time = timeGetTime();
         timeEndPeriod(1);
-        menu->frameCountForRefreshRateCalc = menu->frameCountForRefreshRateCalc + 1;
+        menu->frameCountForRefreshRateCalc++;
         deltaTime = time - menu->lastFrameTime;
         if (deltaTime >= 700)
         {
@@ -87,7 +87,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 if (deltaTimeAsFrames >= 57.f)
                 {
                     menu->timeRelatedArr[menu->timeRelatedArrSize] = deltaTimeAsFrames;
-                    menu->timeRelatedArrSize = menu->timeRelatedArrSize + 1;
+                    menu->timeRelatedArrSize++;
                 }
                 menu->lastFrameTime = time;
                 menu->frameCountForRefreshRateCalc = 0;
@@ -103,7 +103,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
         }
     case STATE_PRE_INPUT:
-        menu->idleFrames = menu->idleFrames + 1;
+        menu->idleFrames++;
         if ((g_CurFrameInput & 0xffff) != 0)
         {
             menu->idleFrames = 0;
@@ -121,12 +121,12 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         {
             menu->idleFrames = 0;
         }
-        menu->idleFrames = menu->idleFrames + 1;
+        menu->idleFrames++;
         if (720 <= menu->idleFrames)
         {
         load_menu_rpy:
-            g_GameManager.isInReplay = 1;
-            g_GameManager.demoMode = 1;
+            g_GameManager.isInReplay = true;
+            g_GameManager.demoMode = true;
             g_GameManager.demoFrames = 0;
             g_Supervisor.framerateMultiplier = 1.0;
             strcpy(g_GameManager.replayFile, "data/demo/demo00.rpy");
@@ -193,7 +193,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             controllerData = Controller::GetControllerState();
             for (sVar1 = 0; sVar1 < 32; sVar1++)
             {
-                if ((controllerData[sVar1] & 0x80) != 0)
+                if (controllerData[sVar1] & 0x80)
                     break;
             }
             if (sVar1 < 32 && g_LastJoystickInput != sVar1)
@@ -284,7 +284,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             menu->minimumOpacity = 0;
             menu->framesInactive = menu->framesActive;
             menu->framesActive = 0;
-            if (g_GameManager.difficulty < 4)
+            if (g_GameManager.difficulty < EXTRA)
             {
                 for (i = 0; i < ARRAY_SIZE_SIGNED(menu->vm); i++)
                 {
@@ -314,14 +314,14 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         break;
     case STATE_DIFFICULTY_SELECT:
         vmList = &menu->vm[81];
-        if (g_GameManager.difficulty < 4)
+        if (g_GameManager.difficulty < EXTRA)
         {
             MoveCursor(menu, 4);
             for (i = 0; i < 4; i++, vmList++)
             {
                 if (i != menu->cursor)
                 {
-                    if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                    if (!g_Supervisor.IsHardwareBlendingDisabled())
                     {
                         vmList->color = 0x60000000;
                     }
@@ -337,7 +337,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 }
                 else
                 {
-                    if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                    if (!g_Supervisor.IsHardwareBlendingDisabled())
                     {
                         vmList->color = COLOR_BLACK;
                     }
@@ -351,17 +351,17 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     memcpy(vmList->posOffset, &pos2, sizeof(D3DXVECTOR3));
                 }
             }
-            vmList->flags.flag1 = 0;
+            vmList->flags.flag1 = false;
         }
         else
         {
             for (i = 0; i < 4; i++, vmList++)
             {
-                vmList->flags.flag1 = 0;
+                vmList->flags.flag1 = false;
             }
             for (i = 4; i < 5; i++, vmList++)
             {
-                if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                if (!g_Supervisor.IsHardwareBlendingDisabled())
                 {
                     vmList->color = COLOR_BLACK;
                 }
@@ -384,10 +384,10 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 menu->vm[i].pendingInterrupt = 4;
             }
             g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
-            if (g_GameManager.difficulty < 4)
+            if (g_GameManager.difficulty < EXTRA)
             {
                 g_Supervisor.cfg.defaultDifficulty = menu->cursor;
-                if (g_GameManager.isInPracticeMode == 0)
+                if (!g_GameManager.isInPracticeMode)
                 {
                     menu->cursor = 0;
                 }
@@ -411,7 +411,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 menu->vm[i].pendingInterrupt = 7;
             }
             g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT, 0);
-            if (g_GameManager.difficulty < 4)
+            if (g_GameManager.difficulty < EXTRA)
             {
                 vmList = &menu->vm[81 + menu->cursor];
                 vmList->pendingInterrupt = 8;
@@ -451,18 +451,18 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             break;
         if (WAS_PRESSED_WEIRD(TH_BUTTON_LEFT))
         {
-            menu->cursor = menu->cursor + 1;
+            menu->cursor++;
             if (2 <= menu->cursor)
             {
-                menu->cursor = menu->cursor - 2;
+                menu->cursor -= 2;
             }
-            if (g_GameManager.difficulty == EXTRA && g_GameManager.HasReachedMaxClears(menu->cursor, 0) == 0 &&
-                g_GameManager.HasReachedMaxClears(menu->cursor, 1) == 0)
+            if (g_GameManager.difficulty == EXTRA && !g_GameManager.HasReachedMaxClears(menu->cursor, 0) &&
+                !g_GameManager.HasReachedMaxClears(menu->cursor, 1))
             {
-                menu->cursor = menu->cursor - 1;
+                menu->cursor--;
                 if (menu->cursor < 0)
                 {
-                    menu->cursor = menu->cursor + 2;
+                    menu->cursor += 2;
                 }
                 goto here;
             }
@@ -486,18 +486,18 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         }
         if (WAS_PRESSED_WEIRD(TH_BUTTON_RIGHT))
         {
-            menu->cursor = menu->cursor - 1;
+            menu->cursor--;
             if (menu->cursor < 0)
             {
-                menu->cursor = menu->cursor + 2;
+                menu->cursor += 2;
             }
-            if (g_GameManager.difficulty == EXTRA && g_GameManager.HasReachedMaxClears(menu->cursor, 0) == 0 &&
-                g_GameManager.HasReachedMaxClears(menu->cursor, 1) == 0)
+            if (g_GameManager.difficulty == EXTRA && !g_GameManager.HasReachedMaxClears(menu->cursor, 0) &&
+                !g_GameManager.HasReachedMaxClears(menu->cursor, 1))
             {
-                menu->cursor = menu->cursor + 1;
+                menu->cursor++;
                 if (2 <= menu->cursor)
                 {
-                    menu->cursor = menu->cursor - 2;
+                    menu->cursor -= 2;
                 }
             }
             else
@@ -526,7 +526,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         {
             menu->gameState = STATE_DIFFICULTY_SELECT;
             menu->stateTimer = 0;
-            if (g_GameManager.difficulty < 4)
+            if (g_GameManager.difficulty < EXTRA)
             {
                 for (i = 0; i < ARRAY_SIZE_SIGNED(menu->vm); i++)
                 {
@@ -574,7 +574,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 }
             }
             g_GameManager.character = menu->cursor;
-            if (g_GameManager.difficulty < 4)
+            if (g_GameManager.difficulty < EXTRA)
             {
                 menu->cursor = g_GameManager.shotType;
             }
@@ -595,7 +595,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
     case STATE_SHOT_SELECT:
         MoveCursor(menu, 2);
         if (g_GameManager.difficulty == EXTRA &&
-            g_GameManager.HasReachedMaxClears(g_GameManager.character, menu->cursor) == 0)
+            !g_GameManager.HasReachedMaxClears(g_GameManager.character, menu->cursor))
         {
             menu->cursor = 1 - menu->cursor;
         }
@@ -608,10 +608,10 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         for (i = 0; i < 2; i++, vmList++)
         {
             vmList->flags.colorOp = AnmVmColorOp_Add;
-            vmList->flags.isVisible = 1;
+            vmList->flags.isVisible = true;
             if (i != menu->cursor)
             {
-                if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                if (!g_Supervisor.IsHardwareBlendingDisabled())
                 {
                     vmList->color = 0xa0000000;
                 }
@@ -626,7 +626,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             }
             else
             {
-                if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+                if (!g_Supervisor.IsHardwareBlendingDisabled())
                 {
                     vmList->color = 0xff202020;
                 }
@@ -680,9 +680,9 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         else if (WAS_PRESSED(TH_BUTTON_SELECTMENU))
         {
             g_GameManager.shotType = menu->cursor;
-            if (g_GameManager.isInPracticeMode == 0)
+            if (!g_GameManager.isInPracticeMode)
             {
-                if (g_GameManager.difficulty < 4)
+                if (g_GameManager.difficulty < EXTRA)
                 {
                     g_GameManager.currentStage = 0;
                 }
@@ -693,14 +693,14 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             something:
                 g_GameManager.livesRemaining = g_Supervisor.cfg.lifeCount;
                 g_GameManager.bombsRemaining = g_Supervisor.cfg.bombCount;
-                if ((g_GameManager.difficulty == EXTRA) || (g_GameManager.isInPracticeMode != 0))
+                if (g_GameManager.difficulty == EXTRA || g_GameManager.isInPracticeMode)
                 {
                     g_GameManager.livesRemaining = 2;
                     g_GameManager.bombsRemaining = 3;
                 }
                 g_Supervisor.curState = 2;
                 g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT, 0);
-                g_GameManager.isInReplay = 0;
+                g_GameManager.isInReplay = false;
                 local_48 = 0.0f;
                 if (menu->timeRelatedArrSize >= 2)
                 {
@@ -858,7 +858,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         }
         break;
     }
-    menu->stateTimer = menu->stateTimer + 1;
+    menu->stateTimer++;
     for (i = 0; i < ARRAY_SIZE_SIGNED(menu->vm); i++)
     {
         vm = &menu->vm[i];
@@ -961,12 +961,9 @@ void MainMenu::SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBo
 void MainMenu::DrawMenuItem(AnmVm *vm, int itemNumber, int cursor, D3DCOLOR currentItemColor, D3DCOLOR otherItemColor,
                             int vm_amount)
 {
-    D3DXVECTOR3 otherItemPos;
-    D3DXVECTOR3 currentItemPos;
-
     if (itemNumber == cursor)
     {
-        if (!g_Supervisor.cfg.IsSoftwareTexturing())
+        if (!g_Supervisor.IsSoftwareTexturing())
         {
             vm->color = currentItemColor;
         }
@@ -976,36 +973,27 @@ void MainMenu::DrawMenuItem(AnmVm *vm, int itemNumber, int cursor, D3DCOLOR curr
             vm->color = currentItemColor & D3DCOLOR_RGBA(0x00, 0x00, 0x00, 0xff) |
                         D3DCOLOR_RGBA(0xff, 0xff, 0xff, 0x00); // just... why?
         }
-
-        currentItemPos.x = -4.0f;
-        currentItemPos.y = -4.0f;
-        currentItemPos.z = 0.0f;
-        vm->posOffset = currentItemPos;
+        vm->posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
     }
     else
     {
-        if (!g_Supervisor.cfg.IsSoftwareTexturing())
+        if (!g_Supervisor.IsSoftwareTexturing())
         {
             vm->color = otherItemColor;
         }
-
         else
         {
             g_AnmManager->SetActiveSprite(vm, vm->baseSpriteIndex);
             vm->color = otherItemColor & D3DCOLOR_RGBA(0x00, 0x00, 0x00, 0xff) |
                         D3DCOLOR_RGBA(0xff, 0xff, 0xff, 0x00); // again, why?
         }
-        otherItemPos.x = 0.0f;
-        otherItemPos.y = 0.0f;
-        otherItemPos.z = 0.0f;
-        vm->posOffset = otherItemPos;
+        vm->posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
     }
 }
 
-#pragma var_order(time, i, vector3Ptr)
+#pragma var_order(time, i)
 ZunResult MainMenu::BeginStartup()
 {
-    D3DXVECTOR3 vector3Ptr;
     DWORD time;
     int i;
 
@@ -1029,7 +1017,7 @@ ZunResult MainMenu::BeginStartup()
     {
         this->vm[i].pendingInterrupt = 1;
         this->vm[i].flags.colorOp = AnmVmColorOp_Add;
-        if ((g_Supervisor.cfg.opts & (1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING)) == 0)
+        if (!g_Supervisor.IsHardwareBlendingDisabled())
         {
             this->vm[i].color = COLOR_BLACK;
         }
@@ -1037,20 +1025,15 @@ ZunResult MainMenu::BeginStartup()
         {
             this->vm[i].color = COLOR_WHITE;
         }
-        vector3Ptr.x = 0.0;
-        vector3Ptr.y = 0.0;
-        vector3Ptr.z = 0.0;
-        this->vm[i].posOffset = vector3Ptr;
+        this->vm[i].posOffset = D3DXVECTOR3(0.0, 0.0, 0.0);
     }
     this->gameState = STATE_PRE_INPUT;
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(vm, d3dVec)
 ZunBool MainMenu::WeirdSecondInputCheck()
 {
     i32 vm;
-    D3DXVECTOR3 d3dVec;
 
     if (this->stateTimer < 0x1e)
     {
@@ -1068,7 +1051,7 @@ ZunBool MainMenu::WeirdSecondInputCheck()
     {
         this->vm[vm].pendingInterrupt = 2;
     }
-    if (!((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1))
+    if (!g_Supervisor.IsHardwareBlendingDisabled())
     {
         this->vm[this->cursor].color = COLOR_RED;
     }
@@ -1076,10 +1059,7 @@ ZunBool MainMenu::WeirdSecondInputCheck()
     {
         this->vm[this->cursor].color = COLOR_PINK;
     }
-    d3dVec.x = -6.0;
-    d3dVec.y = -6.0;
-    d3dVec.z = 0.0;
-    this->vm[this->cursor].posOffset = d3dVec;
+    this->vm[this->cursor].posOffset = D3DXVECTOR3(-6.0, -6.0, 0.0);
 
     this->minimumOpacity = 0;
     this->menuTextColor = COLOR_MENU_ACTIVE_BACKGROUND;
@@ -1103,7 +1083,7 @@ ZunResult MainMenu::DrawStartMenu(void)
     {
         DrawMenuItem(drawVm, i, this->cursor, COLOR_RED, COLOR_START_MENU_ITEM_INACTIVE, 122);
     }
-    if (this->stateTimer >= 0x14)
+    if (this->stateTimer >= 20)
     {
         if (WAS_PRESSED(TH_BUTTON_SELECTMENU))
         {
@@ -1115,7 +1095,7 @@ ZunResult MainMenu::DrawStartMenu(void)
                     this->vm[i].pendingInterrupt = 4;
                 }
                 this->gameState = STATE_DIFFICULTY_LOAD;
-                g_GameManager.isInPracticeMode = 0;
+                g_GameManager.isInPracticeMode = false;
                 if (EXTRA <= g_GameManager.difficulty)
                 {
                     g_GameManager.difficulty = NORMAL;
@@ -1140,7 +1120,7 @@ ZunResult MainMenu::DrawStartMenu(void)
                         this->vm[i].pendingInterrupt = 4;
                     }
                     this->gameState = STATE_DIFFICULTY_LOAD;
-                    g_GameManager.isInPracticeMode = 0;
+                    g_GameManager.isInPracticeMode = false;
                     g_GameManager.difficulty = EXTRA;
                     this->stateTimer = 0;
                     this->minimumOpacity = 0x40000000;
@@ -1155,7 +1135,7 @@ ZunResult MainMenu::DrawStartMenu(void)
                 }
                 break;
             case 2:
-                g_GameManager.isInPracticeMode = 1;
+                g_GameManager.isInPracticeMode = true;
                 for (i = 0; i < ARRAY_SIZE_SIGNED(this->vm); i++)
                 {
                     this->vm[i].pendingInterrupt = 4;
@@ -1182,7 +1162,7 @@ ZunResult MainMenu::DrawStartMenu(void)
                     this->vm[i].pendingInterrupt = 4;
                 }
                 this->gameState = STATE_REPLAY_LOAD;
-                g_GameManager.isInPracticeMode = 0;
+                g_GameManager.isInPracticeMode = false;
                 this->stateTimer = 0;
                 this->minimumOpacity = 0x40000000;
                 this->menuTextColor = COLOR_BLACK;
@@ -1282,10 +1262,10 @@ i32 MainMenu::ReplayHandling()
             else
             {
                 replayFileIdx = 0;
-                for (cur = 0; cur < 15; cur++)
+                for (cur = 0; cur < REPLAYS_PER_PAGE; cur++)
                 {
                     sprintf(replayFilePath, "./replay/th6_%.2d.rpy", cur + 1);
-                    replayData = (ReplayData *)FileSystem::OpenPath(replayFilePath, 1);
+                    replayData = (ReplayData *)FileSystem::OpenPath(replayFilePath, EXTERNAL_FILE);
                     if (replayData == NULL)
                     {
                         continue;
@@ -1301,12 +1281,12 @@ i32 MainMenu::ReplayHandling()
                 }
                 _mkdir("./replay");
                 _chdir("./replay");
-                replayFileHandle = FindFirstFileA("th6_ud????.rpy", &replayFileInfo);
+                replayFileHandle = FindFirstFile("th6_ud????.rpy", &replayFileInfo);
                 if (replayFileHandle != INVALID_HANDLE_VALUE)
                 {
-                    for (cur = 0; cur < 0x2d; cur++)
+                    for (cur = 0; cur < USER_REPLAY_COUNT; cur++)
                     {
-                        replayData = (ReplayData *)FileSystem::OpenPath(replayFileInfo.cFileName, 1);
+                        replayData = (ReplayData *)FileSystem::OpenPath(replayFileInfo.cFileName, EXTERNAL_FILE);
                         if (replayData == NULL)
                         {
                             continue;
@@ -1319,7 +1299,7 @@ i32 MainMenu::ReplayHandling()
                             replayFileIdx++;
                         }
                         ZUN_FREE(replayData);
-                        if (!FindNextFileA(replayFileHandle, &replayFileInfo))
+                        if (!FindNextFile(replayFileHandle, &replayFileInfo))
                             break;
                     }
                 }
@@ -1341,14 +1321,14 @@ i32 MainMenu::ReplayHandling()
         }
         break;
     case STATE_REPLAY_UNLOAD:
-        if (this->stateTimer == 0x24)
+        if (this->stateTimer == 36)
         {
             this->gameState = STATE_STARTUP;
             this->stateTimer = 0;
         }
         break;
     case STATE_REPLAY_ANIM:
-        if (this->stateTimer < 0x28)
+        if (this->stateTimer < 40)
         {
             break;
         }
@@ -1360,16 +1340,16 @@ i32 MainMenu::ReplayHandling()
             {
                 this->gameState = STATE_REPLAY_SELECT;
                 anmVm = &(this->vm[97]);
-                for (cur = 0; cur < 0x19; cur += 1, anmVm++)
+                for (cur = 0; cur < 25; cur += 1, anmVm++)
                 {
-                    anmVm->pendingInterrupt = 0x11;
+                    anmVm->pendingInterrupt = 17;
                 }
                 anmVm = &this->vm[99 + this->chosenReplay];
-                anmVm->pendingInterrupt = 0x10;
+                anmVm->pendingInterrupt = 16;
                 this->stateTimer = 0;
                 this->cursor = 0;
                 g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT, 0);
-                this->currentReplay = (ReplayData *)FileSystem::OpenPath(this->replayFilePaths[this->chosenReplay], 1);
+                this->currentReplay = (ReplayData *)FileSystem::OpenPath(this->replayFilePaths[this->chosenReplay], EXTERNAL_FILE);
                 ReplayManager::ValidateReplayData(this->currentReplay, g_LastFileSize);
                 for (cur = 0; cur < ARRAY_SIZE_SIGNED(this->currentReplay->stageReplayData); cur++)
                 {
@@ -1383,7 +1363,7 @@ i32 MainMenu::ReplayHandling()
 
                 while (this->replayFileData[this->chosenReplay].stageReplayData[this->cursor] == NULL)
                 {
-                    this->cursor = this->cursor + 1;
+                    this->cursor++;
 
                     if (this->cursor >= ARRAY_SIZE_SIGNED(this->currentReplay->stageReplayData))
                     {
@@ -1406,7 +1386,7 @@ i32 MainMenu::ReplayHandling()
         }
         break;
     case STATE_REPLAY_SELECT:
-        if (this->stateTimer < 0x28)
+        if (this->stateTimer < 40)
         {
             break;
         }
@@ -1435,7 +1415,7 @@ i32 MainMenu::ReplayHandling()
         }
         if (WAS_PRESSED(TH_BUTTON_SELECTMENU) && this->currentReplay[this->cursor].stageReplayData)
         {
-            g_GameManager.isInReplay = 1;
+            g_GameManager.isInReplay = true;
             g_Supervisor.framerateMultiplier = 1.0;
             strcpy(g_GameManager.replayFile, this->replayFilePaths[this->chosenReplay]);
             g_GameManager.difficulty = (Difficulty)this->currentReplay->difficulty;
@@ -1467,9 +1447,9 @@ i32 MainMenu::ReplayHandling()
             g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
             this->gameState = STATE_REPLAY_ANIM;
             anmVm = this->vm;
-            for (cur = 0; cur < ARRAY_SIZE_SIGNED(this->vm); cur += 1, anmVm++)
+            for (cur = 0; cur < ARRAY_SIZE_SIGNED(this->vm); cur++, anmVm++)
             {
-                anmVm->pendingInterrupt = 0xf;
+                anmVm->pendingInterrupt = 15;
             }
             this->cursor = this->chosenReplay;
         }
@@ -1490,14 +1470,15 @@ ZunResult MainMenu::DrawReplayMenu()
     vmRef = &this->vm[98];
     g_AsciiManager.AddFormatText(&vmRef->pos, "No.   Name      Date     Player   Rank");
 
-    for (i = this->chosenReplay - this->chosenReplay % 15, replayAmount = i; i < replayAmount + 15; i++)
+    for (i = this->chosenReplay - this->chosenReplay % REPLAYS_PER_PAGE, replayAmount = i;
+         i < replayAmount + REPLAYS_PER_PAGE; i++)
     {
         if (i >= this->replayFilesNum)
         {
             break;
         }
         vmRef++;
-        if (!g_Supervisor.cfg.IsSoftwareTexturing())
+        if (!g_Supervisor.IsSoftwareTexturing())
         {
             if (i == this->chosenReplay)
             {
@@ -1542,7 +1523,7 @@ ZunResult MainMenu::DrawReplayMenu()
         for (i = 0; i < 7; i++)
         {
             vmRef++;
-            if (!g_Supervisor.cfg.IsSoftwareTexturing())
+            if (!g_Supervisor.IsSoftwareTexturing())
             {
                 if (i == this->cursor)
                 {
@@ -1586,7 +1567,7 @@ void MainMenu::ColorMenuItem(AnmVm *vm, i32 item, i32 subItem, i32 subItemSelect
 {
     if (subItem != subItemSelected)
     {
-        if (!g_Supervisor.cfg.IsSoftwareTexturing())
+        if (!g_Supervisor.IsSoftwareTexturing())
         {
             vm->color = COLOR_MENU_ITEM_DEFAULT;
         }
@@ -1600,7 +1581,7 @@ void MainMenu::ColorMenuItem(AnmVm *vm, i32 item, i32 subItem, i32 subItemSelect
     }
     else
     {
-        if (!g_Supervisor.cfg.IsSoftwareTexturing())
+        if (!g_Supervisor.IsSoftwareTexturing())
         {
             vm->color = COLOR_MENU_ITEM_HIGHLIGHT;
         }
@@ -1617,7 +1598,7 @@ void MainMenu::ColorMenuItem(AnmVm *vm, i32 item, i32 subItem, i32 subItemSelect
 
     if (item != this->cursor)
     {
-        if ((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING & 1) == 0)
+        if (!g_Supervisor.IsHardwareBlendingDisabled())
         {
             vm->color = COLOR_SET_ALPHA2(vm->color, 128);
         }
@@ -1630,7 +1611,7 @@ void MainMenu::ColorMenuItem(AnmVm *vm, i32 item, i32 subItem, i32 subItemSelect
     }
     else
     {
-        if ((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING & 1) == 0)
+        if (!g_Supervisor.IsHardwareBlendingDisabled())
         {
             vm->color = COLOR_SET_ALPHA2(vm->color, 255);
         }
@@ -1926,17 +1907,15 @@ ZunResult MainMenu::ChoosePracticeLevel()
                                          g_GameManager.pscr[charShotType][stageNum][g_GameManager.difficulty].score);
             textPos.y += 24;
         }
-        g_AsciiManager.color = 0xFFFFFFFF;
+        g_AsciiManager.color = COLOR_WHITE;
     }
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(targetOpacity, window, vmIdx, curVm, posBackup, mgr, shouldDraw, offset, pos)
+#pragma var_order(targetOpacity, window, vmIdx, curVm, posBackup, mgr, shouldDraw)
 ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
 {
     D3DXVECTOR3 posBackup;
-    D3DXVECTOR3 *pos;
-    D3DXVECTOR3 *offset;
     BOOL shouldDraw;
     AnmVm *curVm;
     i32 vmIdx;
@@ -1963,7 +1942,7 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
         // Why?
         if (menu->numFramesSinceActive < (i32)menu->framesActive)
         {
-            menu->numFramesSinceActive += 1;
+            menu->numFramesSinceActive++;
         }
         targetOpacity = COLOR_ALPHA(menu->menuTextColor) - COLOR_ALPHA(menu->minimumOpacity);
         ScreenEffect::DrawSquare(
@@ -1973,7 +1952,7 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
     }
     else if (menu->numFramesSinceActive != 0)
     {
-        menu->numFramesSinceActive -= 1;
+        menu->numFramesSinceActive--;
         targetOpacity = COLOR_ALPHA(menu->menuTextColor) - COLOR_ALPHA(menu->minimumOpacity);
         ScreenEffect::DrawSquare(
             &window,
@@ -1996,14 +1975,10 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
         }
         if (shouldDraw)
         {
-            memcpy(posBackup, curVm->pos, sizeof(D3DXVECTOR3));
-            offset = &curVm->posOffset;
-            pos = &curVm->pos;
-            pos->x += offset->x;
-            pos->y += offset->y;
-            pos->z += offset->z;
+            posBackup = curVm->pos;
+            curVm->pos += curVm->posOffset;
             g_AnmManager->Draw(curVm);
-            memcpy(curVm->pos, posBackup, sizeof(D3DXVECTOR3));
+            curVm->pos = posBackup;
         }
     }
     switch (menu->gameState)
@@ -2055,9 +2030,9 @@ ZunResult MainMenu::LoadTitleAnm(MainMenu *menu)
     for (i = 0; i < 80; i++)
     {
         g_AnmManager->ExecuteAnmIdx(&menu->vm[i], ANM_SCRIPT_TITLE01_START + i);
-        menu->vm[i].flags.isVisible = 0;
+        menu->vm[i].flags.isVisible = false;
         menu->vm[i].baseSpriteIndex = menu->vm[i].activeSpriteIndex;
-        menu->vm[i].flags.zWriteDisable = 1;
+        menu->vm[i].flags.zWriteDisable = true;
     }
 
     if (g_AnmManager->LoadSurface(0, "data/title/title00.jpg"))
@@ -2117,12 +2092,12 @@ ZunResult MainMenu::LoadDiffCharSelect(MainMenu *menu)
     {
         return ZUN_ERROR;
     }
-    for (vm = &menu->vm[0x50], i = ANM_SCRIPT_SELECT01_START; i <= ANM_SCRIPT_SELECT01_END; i++, vm++)
+    for (vm = &menu->vm[80], i = ANM_SCRIPT_SELECT01_START; i <= ANM_SCRIPT_SELECT01_END; i++, vm++)
     {
         g_AnmManager->ExecuteAnmIdx(vm, i);
-        vm->flags.isVisible = 0;
+        vm->flags.isVisible = false;
         vm->flags.colorOp = AnmVmColorOp_Add;
-        if (((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0)
+        if (!g_Supervisor.IsHardwareBlendingDisabled())
         {
             vm->color = COLOR_BLACK;
         }
@@ -2132,7 +2107,7 @@ ZunResult MainMenu::LoadDiffCharSelect(MainMenu *menu)
         }
         vm->posOffset = D3DXVECTOR3(0, 0, 0);
         vm->baseSpriteIndex = vm->activeSpriteIndex;
-        vm->flags.zWriteDisable = 1;
+        vm->flags.zWriteDisable = true;
     }
     return ZUN_SUCCESS;
 }
@@ -2165,7 +2140,7 @@ ZunResult MainMenu::LoadReplayMenu(MainMenu *menu)
         vm->flags.isVisible = 0;
         vm->flags.colorOp = AnmVmColorOp_Add;
 
-        if ((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING & 1) == 0)
+        if (!g_Supervisor.IsHardwareBlendingDisabled())
         {
             vm->color = COLOR_BLACK;
         }
@@ -2216,7 +2191,7 @@ ZunResult MainMenu::AddedCallback(MainMenu *m)
     ScoreDat *scoredat;
     AnmManager *anmmgr;
 
-    if (g_GameManager.demoMode == 0)
+    if (!g_GameManager.demoMode)
     {
         g_Supervisor.SetupMidiPlayback("bgm/th06_01.mid");
     }
@@ -2248,13 +2223,13 @@ ZunResult MainMenu::AddedCallback(MainMenu *m)
         m->cursor = 0;
     }
 
-    if (g_GameManager.isInPracticeMode != 0)
+    if (g_GameManager.isInPracticeMode)
     {
         m->cursor = 2;
     }
 
-    g_GameManager.isInPracticeMode = 0;
-    if ((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING & 1) == 0)
+    g_GameManager.isInPracticeMode = false;
+    if (!g_Supervisor.IsHardwareBlendingDisabled())
     {
         m->color1 = 0x80004000;
         m->color2 = 0xff008000;
@@ -2274,7 +2249,7 @@ ZunResult MainMenu::AddedCallback(MainMenu *m)
     ResultScreen::ParseClrd(scoredat, g_GameManager.clrd);
     ResultScreen::ParsePscr(scoredat, (Pscr *)g_GameManager.pscr);
     ResultScreen::ReleaseScoreDat(scoredat);
-    if (g_GameManager.demoMode == 0)
+    if (!g_GameManager.demoMode)
     {
         if (g_Supervisor.startupTimeBeforeMenuMusic == 0)
         {
@@ -2286,7 +2261,7 @@ ZunResult MainMenu::AddedCallback(MainMenu *m)
             ScreenEffect::RegisterChain(SCREEN_EFFECT_FADE_IN, 200, 0xffffff, 0, 0);
         }
     }
-    g_GameManager.demoMode = 0;
+    g_GameManager.demoMode = false;
     g_GameManager.demoFrames = 0;
     return ZUN_SUCCESS;
 }
