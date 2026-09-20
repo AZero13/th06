@@ -21,7 +21,6 @@
 
 namespace th06
 {
-DIFFABLE_STATIC(ControllerMapping, g_ControllerMapping)
 DIFFABLE_STATIC(LPDIRECT3DSURFACE8, g_TextBufferSurface)
 DIFFABLE_STATIC(Supervisor, g_Supervisor)
 

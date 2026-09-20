@@ -101,7 +101,18 @@ struct AnmManager
     ZunResult LoadTexture(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey);
     ZunResult LoadTextureAlphaChannel(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey);
     void ReleaseTexture(i32 textureIdx);
-    void TakeScreenshotIfRequested();
+
+    void TakeScreenshotIfRequested()
+    {
+        if (this->screenshotTextureId >= 0)
+        {
+            this->TakeScreenshot(this->screenshotTextureId, this->screenshotLeft, this->screenshotTop,
+                                 this->screenshotWidth, this->screenshotHeight);
+            this->screenshotTextureId = -1;
+        }
+        return;
+    }
+
     void TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32 height);
 
     void SetAndExecuteScript(AnmVm *vm, AnmRawInstr *beginingOfScript);
@@ -158,7 +169,14 @@ struct AnmManager
     void LoadSprite(u32 spriteIdx, AnmLoadedSprite *sprite);
     ZunResult SetActiveSprite(AnmVm *vm, u32 spriteIdx);
 
-    void ReleaseSurfaces(void);
+    void ReleaseSurfaces(void)
+    {
+        for (i32 idx = 0; idx < ARRAY_SIZE_SIGNED(this->surfaces); idx++)
+        {
+            SAFE_RELEASE(this->surfaces[idx]);
+        }
+    }
+
     ZunResult LoadSurface(i32 surfaceIdx, char *path);
     void ReleaseSurface(i32 surfaceIdx);
     void CopySurfaceToBackBuffer(i32 surfaceIdx, i32 left, i32 top, i32 x, i32 y);

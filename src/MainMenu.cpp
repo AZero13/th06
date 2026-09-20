@@ -22,12 +22,13 @@
 
 namespace th06
 {
+// TODO: Convince this to actually link here...
+DIFFABLE_STATIC(i16, g_LastJoystickInput);
+
 DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 4, g_ShortCharacterList) = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
 DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 5, g_DifficultyList) = {"Easy   ", "Normal ", "Hard   ", "Lunatic", "Extra  "};
 DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 7, g_StageList) = {"Stage1", "Stage2", "Stage3", "Stage4",
                                                         "Stage5", "Stage6", "Extra "};
-
-DIFFABLE_STATIC(i16, g_LastJoystickInput)
 
 #pragma function(strcpy)
 #pragma var_order(i, vmList, time, deltaTime, deltaTimeAsFrames, deltaTimeAsMs, mapping, startedUp, sVar1,             \

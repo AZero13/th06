@@ -8,13 +8,6 @@
 
 namespace th06
 {
-DIFFABLE_STATIC_ARRAY_ASSIGN(BombData, 4, g_BombData) = {
-    /* ReimuA  */ {BombData::BombReimuACalc, BombData::BombReimuADraw},
-    /* ReimuB  */ {BombData::BombReimuBCalc, BombData::BombReimuBDraw},
-    /* MarisaA */ {BombData::BombMarisaACalc, BombData::BombMarisaADraw},
-    /* MarisaB */ {BombData::BombMarisaBCalc, BombData::BombMarisaBDraw},
-};
-
 #pragma var_order(angle, i, bombSprite, vecLength, bombPivot, bombIdx)
 void BombData::BombReimuACalc(Player *player)
 {
