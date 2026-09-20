@@ -522,7 +522,7 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 
         baseTargetPosition =
             (g_EclManager.extra.coords[PLAYER_POS] - g_EclManager.extra.coords[ENEMY_POS]) * targetDistance +
-                             g_EclManager.extra.coords[ENEMY_POS];
+            g_EclManager.extra.coords[ENEMY_POS];
         baseTargetPosition.z = 0.0f;
 
         patternPosition += 0.5f;
