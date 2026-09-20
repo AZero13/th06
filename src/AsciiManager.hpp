@@ -38,17 +38,6 @@ struct AsciiManagerPopup
 };
 ZUN_ASSERT_SIZE(AsciiManagerPopup, 0x28);
 
-struct WeirdPadding
-{
-    WeirdPadding()
-    {
-        i32 pad11, pad12, pad13, pad14, pad15, pad16, pad17, pad18;
-        i32 pad21, pad22, pad23, pad24, pad25, pad26, pad27, pad28;
-        i32 pad31, pad32;
-    }
-    u32 unk;
-};
-
 // The AsciiManager is responsible for drawing various textual elements on the
 // screen:
 //
@@ -57,8 +46,6 @@ struct WeirdPadding
 // - Various text elements such as the "Stage clear" prompt.
 struct AsciiManager
 {
-    AsciiManager();
-
     static ZunResult RegisterChain();
     static void CutChain();
 
@@ -98,7 +85,7 @@ struct AsciiManager
     i32 nextPopupIndex1;
     i32 nextPopupIndex2;
     // Seems unused
-    WeirdPadding unk3;
+    u32 unk3;
     // Menu that shows up when the player presses the menu button while in-game.
     StageMenu gameMenu;
     // Menu that shows up when the player dies after losing their last life.

@@ -32,9 +32,6 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(PatchouliShottypeVars, 2, g_PatchouliShottypeVars) 
 DIFFABLE_STATIC(i32, g_PlayerShot);
 DIFFABLE_STATIC(f32, g_PlayerDistance);
 DIFFABLE_STATIC(f32, g_PlayerAngle);
-DIFFABLE_STATIC_ARRAY(f32, 6, g_StarAngleTable);
-DIFFABLE_STATIC(D3DXVECTOR3, g_EnemyPosVector);
-DIFFABLE_STATIC(D3DXVECTOR3, g_PlayerPosVector);
 
 #pragma var_order(alu, angle)
 void MoveDirTime(Enemy *enemy, EclRawInstr *instr)
@@ -478,6 +475,9 @@ void ExInsShootAtRandomArea(Enemy *enemy, EclRawInstr *instr)
                   baseTargetPosition)
 void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 {
+#define ENEMY_POS 0
+#define PLAYER_POS 1
+
     // Variable names are more quick guesses at functionality than anything else, they should not be trusted
     D3DXVECTOR3 baseTargetPosition;
     i32 i;
@@ -495,26 +495,34 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 
     if (enemy->currentContext.var2 == 0)
     {
-        g_EnemyPosVector = enemy->position;
-        g_PlayerPosVector = g_Player.positionCenter;
-        g_StarAngleTable[0] = g_Rng.GetRandomF32ZeroToOne() * (ZUN_PI * 2) - ZUN_PI;
-        g_StarAngleTable[1] = utils::AddNormalizeAngle(g_StarAngleTable[0], 4 * ZUN_PI / 5);
+        g_EclManager.extra.coords[ENEMY_POS] = enemy->position;
+        g_EclManager.extra.coords[PLAYER_POS] = g_Player.positionCenter;
+        g_EclManager.extra.starAngleTable[0] = g_Rng.GetRandomF32ZeroToOne() * (ZUN_PI * 2) - ZUN_PI;
+        g_EclManager.extra.starAngleTable[1] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
     }
     if (enemy->currentContext.var2 % 30 == 0)
     {
-        g_StarAngleTable[0] = g_StarAngleTable[1];
-        g_StarAngleTable[1] = utils::AddNormalizeAngle(g_StarAngleTable[0], 4 * ZUN_PI / 5);
-        g_StarAngleTable[2] = utils::AddNormalizeAngle(g_StarAngleTable[1], 4 * ZUN_PI / 5);
-        g_StarAngleTable[3] = utils::AddNormalizeAngle(g_StarAngleTable[2], 4 * ZUN_PI / 5);
-        g_StarAngleTable[4] = utils::AddNormalizeAngle(g_StarAngleTable[3], 4 * ZUN_PI / 5);
-        g_StarAngleTable[5] = utils::AddNormalizeAngle(g_StarAngleTable[4], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[0] = g_EclManager.extra.starAngleTable[1];
+        g_EclManager.extra.starAngleTable[1] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[2] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[1], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[3] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[2], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[4] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[3], 4 * ZUN_PI / 5);
+        g_EclManager.extra.starAngleTable[5] =
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[4], 4 * ZUN_PI / 5);
     }
     if (enemy->currentContext.var2 % 6 == 0)
     {
         patternPosition = (f32)enemy->currentContext.var2 / (f32)enemy->currentContext.var3;
         targetDistance = patternPosition * 0.1f;
 
-        baseTargetPosition = (g_PlayerPosVector - g_EnemyPosVector) * targetDistance + g_EnemyPosVector;
+        baseTargetPosition =
+            (g_EclManager.extra.coords[PLAYER_POS] - g_EclManager.extra.coords[ENEMY_POS]) * targetDistance +
+            g_EclManager.extra.coords[ENEMY_POS];
         baseTargetPosition.z = 0.0f;
 
         patternPosition += 0.5f;
@@ -523,8 +531,8 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         for (i = 0; i < 5; i++)
         {
             targetDistance = (enemy->currentContext.var2 % 30) / 30.0f;
-            sincosmul(&starPatternTarget0, g_StarAngleTable[i], enemy->currentContext.float3);
-            sincosmul(&starPatterTarget1, g_StarAngleTable[i + 1], enemy->currentContext.float3);
+            sincosmul(&starPatternTarget0, g_EclManager.extra.starAngleTable[i], enemy->currentContext.float3);
+            sincosmul(&starPatterTarget1, g_EclManager.extra.starAngleTable[i + 1], enemy->currentContext.float3);
             starPatternTarget0 = (starPatterTarget1 - starPatternTarget0) * targetDistance + starPatternTarget0;
             starPatternTarget0.z = 0;
             enemy->bulletProps.position = baseTargetPosition + starPatternTarget0;
@@ -538,6 +546,8 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         g_SoundPlayer.PlaySoundByIdx(SOUND_16, 0);
     }
     enemy->currentContext.var2++;
+#undef ENEMY_POS
+#undef PLAYER_POS
 }
 
 void ExInsPatchouliShottypeSetVars(Enemy *enemy, EclRawInstr *instr)

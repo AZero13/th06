@@ -29,10 +29,6 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 4, g_CharData) = {
 };
 DIFFABLE_STATIC(Player, g_Player);
 
-Player::Player()
-{
-}
-
 ZunResult Player::RegisterChain(u8 unk)
 {
     Player *p = &g_Player;

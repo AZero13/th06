@@ -7,8 +7,6 @@ namespace th06
 {
 struct StageMenu
 {
-    StageMenu();
-
     i32 OnUpdateGameMenu();
     i32 OnUpdateRetryMenu();
 
