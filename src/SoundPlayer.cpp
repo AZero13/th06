@@ -32,7 +32,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 26, g_SFXList) = {
 
 struct UnknownSoundThing
 {
-    unsigned char unknownA[0x24];
+    u8 unknownA[0x24];
     ZunTimer idk;
 };
 

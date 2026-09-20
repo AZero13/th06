@@ -475,6 +475,9 @@ void ExInsShootAtRandomArea(Enemy *enemy, EclRawInstr *instr)
                   baseTargetPosition)
 void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 {
+#define ENEMY_POS 0
+#define PLAYER_POS 1
+
     // Variable names are more quick guesses at functionality than anything else, they should not be trusted
     D3DXVECTOR3 baseTargetPosition;
     i32 i;
@@ -492,8 +495,8 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 
     if (enemy->currentContext.var2 == 0)
     {
-        g_EclManager.extra.coords[0] = enemy->position;
-        g_EclManager.extra.coords[1] = g_Player.positionCenter;
+        g_EclManager.extra.coords[ENEMY_POS] = enemy->position;
+        g_EclManager.extra.coords[PLAYER_POS] = g_Player.positionCenter;
         g_EclManager.extra.starAngleTable[0] = g_Rng.GetRandomF32ZeroToOne() * (ZUN_PI * 2) - ZUN_PI;
         g_EclManager.extra.starAngleTable[1] =
             utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
@@ -517,8 +520,9 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         patternPosition = (f32)enemy->currentContext.var2 / (f32)enemy->currentContext.var3;
         targetDistance = patternPosition * 0.1f;
 
-        baseTargetPosition = (g_EclManager.extra.coords[1] - g_EclManager.extra.coords[0]) * targetDistance +
-                             g_EclManager.extra.coords[0];
+        baseTargetPosition =
+            (g_EclManager.extra.coords[PLAYER_POS] - g_EclManager.extra.coords[ENEMY_POS]) * targetDistance +
+                             g_EclManager.extra.coords[ENEMY_POS];
         baseTargetPosition.z = 0.0f;
 
         patternPosition += 0.5f;
@@ -542,6 +546,8 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         g_SoundPlayer.PlaySoundByIdx(SOUND_16, 0);
     }
     enemy->currentContext.var2++;
+#undef ENEMY_POS
+#undef PLAYER_POS
 }
 
 void ExInsPatchouliShottypeSetVars(Enemy *enemy, EclRawInstr *instr)

@@ -505,9 +505,9 @@ enum TimelineOpcode
 
 struct EclManagerExtraData
 {
-    unsigned char unknownA[0x80];
+    u8 unknownA[0x80];
     f32 starAngleTable[6];
-    unsigned char unknownB[0x68];
+    u8 unknownB[0x68];
     D3DXVECTOR3 coords[8];
 };
 
