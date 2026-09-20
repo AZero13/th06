@@ -1,6 +1,6 @@
 #define _WIN32_WINNT 0x0500
-#include "GameWindow.hpp"
 #include "AnmManager.hpp"
+#include "GameWindow.hpp"
 #include "Global.hpp"
 #include "ScreenEffect.hpp"
 #include "SoundPlayer.hpp"
@@ -16,7 +16,7 @@ DIFFABLE_STATIC(GameWindow, g_GameWindow)
 DIFFABLE_STATIC(i32, g_TickCountToEffectiveFramerate)
 DIFFABLE_STATIC(f64, g_LastFrameTime)
 DIFFABLE_STATIC(HANDLE, g_ExclusiveMutex)
-}
+} // namespace th06
 
 #pragma var_order(renderResult, testCoopLevelRes, msg, testResetRes)
 extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)

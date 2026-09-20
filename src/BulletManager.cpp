@@ -32,7 +32,6 @@ DIFFABLE_STATIC_ASSIGN(u32 *, g_EffectsColor) = g_EffectsColorWithTextureBlendin
 DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 16, g_BulletSpriteOffset16Px) = {0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 0};
 DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 8, g_BulletSpriteOffset32Px) = {0, 1, 1, 2, 2, 3, 4, 0};
 
-
 struct BulletTypeInfo
 {
     u32 bulletAnmScriptIdx;
