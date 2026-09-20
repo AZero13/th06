@@ -1,0 +1,488 @@
+
+Dump of file build/zwave.obj
+
+File Type: COFF OBJECT
+
+COFF SYMBOL TABLE
+000 0000000B DEBUG  notype       Filename     | .file
+    src/zwave.cpp
+002 001D24FA ABS    notype       Static       | @comp.id
+003 00000000 SECT1  notype       Static       | .drectve
+    Section length   70, #relocs    0, #linenums    0, checksum        0
+005 00000000 SECT2  notype       Static       | .debug$S
+    Section length 29B28, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT3  notype       Static       | .text
+    Section length   17, #relocs    0, #linenums    3, checksum DCB33672, selection    1 (pick no duplicates)
+009 00000000 SECT4  notype       Static       | .debug$S
+    Section length   97, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x3)
+00B 000001CD DEBUG  notype       Filename     | .file
+    z:\users\main\untitled\src\zwave.cpp
+00F 00000000 SECT3  notype ()    External     | ??0CSoundManager@th06@@QAE@XZ (public: __thiscall th06::CSoundManager::CSoundManager(void))
+    tag index 00000011 size 00000017 lines 0002AAD7 next function 00000000
+011 00000000 SECT3  notype       BeginFunction | .bf
+    line# 001b end 00000000
+013 00000003 SECT3  notype       .bf or.ef    | .lf
+014 00000017 SECT3  notype       EndFunction  | .ef
+    line# 001d
+016 00000000 SECT5  notype       Static       | .text
+    Section length   2C, #relocs    0, #linenums    3, checksum  B1A40DC, selection    1 (pick no duplicates)
+018 00000000 SECT6  notype       Static       | .debug$S
+    Section length   98, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x5)
+01A 00000000 SECT5  notype ()    External     | ??1CSoundManager@th06@@QAE@XZ (public: __thiscall th06::CSoundManager::~CSoundManager(void))
+    tag index 0000001C size 0000002C lines 0002ABCA next function 00000000
+01C 00000000 SECT5  notype       BeginFunction | .bf
+    line# 0024 end 00000000
+01E 00000003 SECT5  notype       .bf or.ef    | .lf
+01F 0000002C SECT5  notype       EndFunction  | .ef
+    line# 0026
+021 00000000 SECT7  notype       Static       | .text
+    Section length   8E, #relocs    2, #linenums    A, checksum   DAA05A, selection    1 (pick no duplicates)
+023 00000000 SECT8  notype       Static       | .debug$S
+    Section length  139, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x7)
+025 00000000 SECT7  notype ()    External     | ?Initialize@CSoundManager@th06@@QAEJPAUHWND__@@KKKK@Z (public: long __thiscall th06::CSoundManager::Initialize(struct HWND__ *,unsigned long,unsigned long,unsigned long,unsigned long))
+    tag index 00000028 size 0000008E lines 0002AD34 next function 00000000
+027 00000000 UNDEF  notype ()    External     | _DirectSoundCreate8@12
+028 00000000 SECT7  notype       BeginFunction | .bf
+    line# 002f end 00000000
+02A 0000000A SECT7  notype       .bf or.ef    | .lf
+02B 0000008E SECT7  notype       EndFunction  | .ef
+    line# 0041
+02D 00000000 SECT9  notype       Static       | .text
+    Section length  12D, #relocs    2, #linenums   17, checksum BBD8894B, selection    1 (pick no duplicates)
+02F 00000000 SECTA  notype       Static       | .debug$S
+    Section length  13D, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x9)
+031 00000000 SECT9  notype ()    External     | ?SetPrimaryBufferFormat@CSoundManager@th06@@QAEJKKK@Z (public: long __thiscall th06::CSoundManager::SetPrimaryBufferFormat(unsigned long,unsigned long,unsigned long))
+    tag index 00000035 size 0000012D lines 0002B008 next function 00000000
+033 00000000 UNDEF  notype       External     | ___security_cookie
+034 00000000 UNDEF  notype ()    External     | @__security_check_cookie@4
+035 00000000 SECT9  notype       BeginFunction | .bf
+    line# 004c end 00000000
+037 00000017 SECT9  notype       .bf or.ef    | .lf
+038 0000012D SECT9  notype       EndFunction  | .ef
+    line# 006d
+03A 00000000 SECTB  notype       Static       | .text
+    Section length  2CB, #relocs    F, #linenums   24, checksum 92CCD22E, selection    1 (pick no duplicates)
+03C 00000000 SECTC  notype       Static       | .debug$S
+    Section length  24C, #relocs    B, #linenums    0, checksum        0, selection    5 (pick associative Section 0xB)
+03E 00000000 SECTB  notype ()    External     | ?CreateStreaming@CSoundManager@th06@@QAEJPAPAVCStreamingSound@2@PADKU_GUID@@KKPAX@Z (public: long __thiscall th06::CSoundManager::CreateStreaming(class th06::CStreamingSound * *,char *,unsigned long,struct _GUID,unsigned long,unsigned long,void *))
+    tag index 0000004E size 000002CB lines 0002B54E next function 00000000
+040 00000000 SECTD  notype       Static       | .text$x
+    Section length   20, #relocs    4, #linenums    0, checksum C5F149F7, selection    5 (pick associative Section 0xB)
+042 0000000B SECTD  notype       Label        | $L63578
+043 00000000 SECTD  notype       Label        | $L63577
+044 00000000 UNDEF  notype ()    External     | ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+045 00000000 UNDEF  notype       External     | _IID_IDirectSoundNotify
+046 00000000 UNDEF  notype ()    External     | ??2@YAPAXI@Z (void * __cdecl operator new(unsigned int))
+047 00000016 SECTD  notype       Label        | $L63583
+048 00000000 UNDEF  notype ()    External     | ___CxxFrameHandler
+049 00000000 SECTE  notype       Static       | .xdata$x
+    Section length   2C, #relocs    3, #linenums    0, checksum D28C9132, selection    5 (pick associative Section 0xB)
+04B 00000010 SECTE  notype       Static       | $T63582
+04C 00000000 SECTE  notype       Static       | $T63586
+04D 00000000 UNDEF  notype       External     | __except_list
+04E 00000000 SECTB  notype       BeginFunction | .bf
+    line# 0076 end 00000000
+050 00000024 SECTB  notype       .bf or.ef    | .lf
+051 000002CB SECTB  notype       EndFunction  | .ef
+    line# 00ba
+053 00000000 SECTF  notype       Static       | .text
+    Section length   D3, #relocs    3, #linenums    B, checksum B7279E24, selection    1 (pick no duplicates)
+055 00000000 SECT10 notype       Static       | .debug$S
+    Section length   F8, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0xF)
+057 00000000 SECTF  notype ()    External     | ??0CSound@th06@@QAE@PAPAUIDirectSoundBuffer@@KKPAVCWaveFile@1@@Z (public: __thiscall th06::CSound::CSound(struct IDirectSoundBuffer * *,unsigned long,unsigned long,class th06::CWaveFile *))
+    tag index 0000005F size 000000D3 lines 0002BA63 next function 00000000
+059 00000000 UNDEF  notype ()    External     | ??_GCSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CSound::`scalar deleting destructor'(unsigned int))
+05A 00000000 UNDEF  notype ()    WeakExternal | ??_ECSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CSound::`vector deleting destructor'(unsigned int))
+    Default index       59 library search
+05C 00000000 SECT11 notype       Static       | .rdata
+    Section length    4, #relocs    1, #linenums    0, checksum        0, selection    2 (pick any)
+05E 00000000 SECT11 notype       External     | ??_7CSound@th06@@6B@ (const th06::CSound::`vftable')
+05F 00000000 SECTF  notype       BeginFunction | .bf
+    line# 00c1 end 00000000
+061 0000000B SECTF  notype       .bf or.ef    | .lf
+062 000000D3 SECTF  notype       EndFunction  | .ef
+    line# 00d1
+064 00000000 SECT12 notype       Static       | .text
+    Section length   2E, #relocs    2, #linenums    0, checksum CBC78BEA, selection    2 (pick any)
+066 00000000 SECT13 notype       Static       | .debug$S
+    Section length   9F, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x12)
+068 00000000 SECT12 notype ()    External     | ??_GCSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CSound::`scalar deleting destructor'(unsigned int))
+069 00000000 SECT14 notype       Static       | .text
+    Section length   F1, #relocs    4, #linenums    7, checksum  8201996, selection    1 (pick no duplicates)
+06B 00000000 SECT15 notype       Static       | .debug$S
+    Section length   B3, #relocs    5, #linenums    0, checksum        0, selection    5 (pick associative Section 0x14)
+06D 00000000 SECT14 notype ()    External     | ??1CSound@th06@@UAE@XZ (public: virtual __thiscall th06::CSound::~CSound(void))
+    tag index 0000006F size 000000F1 lines 0002BDE1 next function 00000000
+06F 00000000 SECT14 notype       BeginFunction | .bf
+    line# 00d8 end 00000000
+071 00000007 SECT14 notype       .bf or.ef    | .lf
+072 000000F1 SECT14 notype       EndFunction  | .ef
+    line# 00e0
+074 00000000 SECT16 notype       Static       | .text
+    Section length  1E5, #relocs    5, #linenums   1F, checksum FAFF67FC, selection    1 (pick no duplicates)
+076 00000000 SECT17 notype       Static       | .debug$S
+    Section length  165, #relocs    5, #linenums    0, checksum        0, selection    5 (pick associative Section 0x16)
+078 00000000 SECT16 notype ()    External     | ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+    tag index 0000007A size 000001E5 lines 0002C107 next function 00000000
+07A 00000000 SECT16 notype       BeginFunction | .bf
+    line# 00e7 end 00000000
+07C 0000001F SECT16 notype       .bf or.ef    | .lf
+07D 000001E5 SECT16 notype       EndFunction  | .ef
+    line# 0128
+07F 00000000 SECT18 notype       Static       | .text
+    Section length   A3, #relocs    1, #linenums   11, checksum C2B90549, selection    1 (pick no duplicates)
+081 00000000 SECT19 notype       Static       | .debug$S
+    Section length   DF, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x18)
+083 00000000 SECT18 notype ()    External     | ?RestoreBuffer@CSound@th06@@IAEJPAUIDirectSoundBuffer@@PAH@Z (protected: long __thiscall th06::CSound::RestoreBuffer(struct IDirectSoundBuffer *,int *))
+    tag index 00000086 size 000000A3 lines 0002C405 next function 00000000
+085 00000000 UNDEF  notype       External     | __imp__Sleep@4
+086 00000000 SECT18 notype       BeginFunction | .bf
+    line# 0130 end 00000000
+088 00000011 SECT18 notype       .bf or.ef    | .lf
+089 000000A3 SECT18 notype       EndFunction  | .ef
+    line# 0152
+08B 00000000 SECT1A notype       Static       | .text
+    Section length   B6, #relocs    1, #linenums    F, checksum 137C95A5, selection    1 (pick no duplicates)
+08D 00000000 SECT1B notype       Static       | .debug$S
+    Section length   E5, #relocs    5, #linenums    0, checksum        0, selection    5 (pick associative Section 0x1A)
+08F 00000000 SECT1A notype ()    External     | ?GetFreeBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@XZ (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetFreeBuffer(void))
+    tag index 00000092 size 000000B6 lines 0002C628 next function 00000000
+091 00000000 UNDEF  notype ()    External     | _rand
+092 00000000 SECT1A notype       BeginFunction | .bf
+    line# 015a end 00000000
+094 0000000F SECT1A notype       .bf or.ef    | .lf
+095 000000B6 SECT1A notype       EndFunction  | .ef
+    line# 0170
+097 00000000 SECT1C notype       Static       | .text
+    Section length   35, #relocs    0, #linenums    7, checksum 3B455E0C, selection    1 (pick no duplicates)
+099 00000000 SECT1D notype       Static       | .debug$S
+    Section length   A0, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x1C)
+09B 00000000 SECT1C notype ()    External     | ?GetBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@K@Z (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetBuffer(unsigned long))
+    tag index 0000009D size 00000035 lines 0002C7CE next function 00000000
+09D 00000000 SECT1C notype       BeginFunction | .bf
+    line# 0177 end 00000000
+09F 00000007 SECT1C notype       .bf or.ef    | .lf
+0A0 00000035 SECT1C notype       EndFunction  | .ef
+    line# 017e
+0A2 00000000 SECT1E notype       Static       | .text
+    Section length   B6, #relocs    4, #linenums   11, checksum 6164A117, selection    1 (pick no duplicates)
+0A4 00000000 SECT1F notype       Static       | .debug$S
+    Section length   E8, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x1E)
+0A6 00000000 SECT1E notype ()    External     | ?Play@CSound@th06@@QAEJKK@Z (public: long __thiscall th06::CSound::Play(unsigned long,unsigned long))
+    tag index 000000A8 size 000000B6 lines 0002C994 next function 00000000
+0A8 00000000 SECT1E notype       BeginFunction | .bf
+    line# 0186 end 00000000
+0AA 00000011 SECT1E notype       .bf or.ef    | .lf
+0AB 000000B6 SECT1E notype       EndFunction  | .ef
+    line# 01a5
+0AD 00000000 SECT20 notype       Static       | .text
+    Section length   A4, #relocs    6, #linenums    D, checksum 88909044, selection    1 (pick no duplicates)
+0AF 00000000 SECT21 notype       Static       | .debug$S
+    Section length   BF, #relocs    5, #linenums    0, checksum        0, selection    5 (pick associative Section 0x20)
+0B1 00000000 SECT20 notype ()    External     | ?Stop@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Stop(void))
+    tag index 000000BC size 000000A4 lines 0002CBE0 next function 00000000
+0B3 00000000 SECT22 notype       Static       | .rdata
+    Section length    2, #relocs    0, #linenums    0, checksum FAEFE88A, selection    2 (pick any)
+0B5 00000000 SECT22 notype       External     | ??_C@_01EEMJAFIK@?6?$AA@ (`string')
+0B6 00000000 SECT23 notype       Static       | .rdata
+    Section length    4, #relocs    0, #linenums    0, checksum 4DB61852, selection    2 (pick any)
+0B8 00000000 SECT23 notype       External     | ??_C@_03JDANDILB@?$CFd?5?$AA@ (`string')
+0B9 00000000 SECT24 notype       Static       | .rdata
+    Section length    E, #relocs    0, #linenums    0, checksum AEEC426E, selection    2 (pick any)
+0BB 00000000 SECT24 notype       External     | ??_C@_0O@IAKIMEFG@CSound?3?3Stop?5?$AA@ (`string')
+0BC 00000000 SECT20 notype       BeginFunction | .bf
+    line# 01ac end 00000000
+0BE 0000000D SECT20 notype       .bf or.ef    | .lf
+0BF 000000A4 SECT20 notype       EndFunction  | .ef
+    line# 01bf
+0C1 00000000 SECT25 notype       Static       | .text
+    Section length   6E, #relocs    0, #linenums    8, checksum F1CA4818, selection    1 (pick no duplicates)
+0C3 00000000 SECT26 notype       Static       | .debug$S
+    Section length   C0, #relocs    5, #linenums    0, checksum        0, selection    5 (pick associative Section 0x25)
+0C5 00000000 SECT25 notype ()    External     | ?Reset@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Reset(void))
+    tag index 000000C7 size 0000006E lines 0002CDA1 next function 00000000
+0C7 00000000 SECT25 notype       BeginFunction | .bf
+    line# 01c6 end 00000000
+0C9 00000008 SECT25 notype       .bf or.ef    | .lf
+0CA 0000006E SECT25 notype       EndFunction  | .ef
+    line# 01d0
+0CC 00000000 SECT27 notype       Static       | .text
+    Section length   60, #relocs    2, #linenums    7, checksum E8DA899A, selection    1 (pick no duplicates)
+0CE 00000000 SECT28 notype       Static       | .debug$S
+    Section length   FB, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x27)
+0D0 00000000 SECT27 notype ()    External     | ??0CStreamingSound@th06@@QAE@PAUIDirectSoundBuffer@@KPAVCWaveFile@1@K@Z (public: __thiscall th06::CStreamingSound::CStreamingSound(struct IDirectSoundBuffer *,unsigned long,class th06::CWaveFile *,unsigned long))
+    tag index 000000D8 size 00000060 lines 0002CF37 next function 00000000
+0D2 00000000 UNDEF  notype ()    External     | ??_GCStreamingSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CStreamingSound::`scalar deleting destructor'(unsigned int))
+0D3 00000000 UNDEF  notype ()    WeakExternal | ??_ECStreamingSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CStreamingSound::`vector deleting destructor'(unsigned int))
+    Default index       D2 library search
+0D5 00000000 SECT29 notype       Static       | .rdata
+    Section length    4, #relocs    1, #linenums    0, checksum        0, selection    2 (pick any)
+0D7 00000000 SECT29 notype       External     | ??_7CStreamingSound@th06@@6B@ (const th06::CStreamingSound::`vftable')
+0D8 00000000 SECT27 notype       BeginFunction | .bf
+    line# 01dd end 00000000
+0DA 00000007 SECT27 notype       .bf or.ef    | .lf
+0DB 00000060 SECT27 notype       EndFunction  | .ef
+    line# 01e3
+0DD 00000000 SECT2A notype       Static       | .text
+    Section length   2E, #relocs    2, #linenums    0, checksum CBC78BEA, selection    2 (pick any)
+0DF 00000000 SECT2B notype       Static       | .debug$S
+    Section length   A8, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x2A)
+0E1 00000000 SECT2A notype ()    External     | ??_GCStreamingSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CStreamingSound::`scalar deleting destructor'(unsigned int))
+0E2 00000000 SECT2C notype       Static       | .text
+    Section length   1C, #relocs    2, #linenums    2, checksum E5ADDEA6, selection    1 (pick no duplicates)
+0E4 00000000 SECT2D notype       Static       | .debug$S
+    Section length   9C, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x2C)
+0E6 00000000 SECT2C notype ()    External     | ??1CStreamingSound@th06@@UAE@XZ (public: virtual __thiscall th06::CStreamingSound::~CStreamingSound(void))
+    tag index 000000E8 size 0000001C lines 0002D1C0 next function 00000000
+0E8 00000000 SECT2C notype       BeginFunction | .bf
+    line# 01ea end 00000000
+0EA 00000002 SECT2C notype       .bf or.ef    | .lf
+0EB 0000001C SECT2C notype       EndFunction  | .ef
+    line# 01eb
+0ED 00000000 SECT2E notype       Static       | .text
+    Section length   8F, #relocs    0, #linenums    B, checksum 71D59291, selection    1 (pick no duplicates)
+0EF 00000000 SECT2F notype       Static       | .debug$S
+    Section length   D4, #relocs    5, #linenums    0, checksum        0, selection    5 (pick associative Section 0x2E)
+0F1 00000000 SECT2E notype ()    External     | ?UpdateFadeOut@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::UpdateFadeOut(void))
+    tag index 000000F3 size 0000008F lines 0002D315 next function 00000000
+0F3 00000000 SECT2E notype       BeginFunction | .bf
+    line# 01f3 end 00000000
+0F5 0000000B SECT2E notype       .bf or.ef    | .lf
+0F6 0000008F SECT2E notype       EndFunction  | .ef
+    line# 0201
+0F8 00000000 SECT30 notype       Static       | .text
+    Section length  377, #relocs   14, #linenums   39, checksum  3B53DFE, selection    1 (pick no duplicates)
+0FA 00000000 SECT31 notype       Static       | .debug$S
+    Section length  1EC, #relocs    5, #linenums    0, checksum        0, selection    5 (pick associative Section 0x30)
+0FC 00000000 SECT30 notype ()    External     | ?HandleWaveStreamNotification@CStreamingSound@th06@@QAEJH@Z (public: long __thiscall th06::CStreamingSound::HandleWaveStreamNotification(int))
+    tag index 00000113 size 00000377 lines 0002D89C next function 00000000
+0FE 00000000 SECT32 notype       Static       | .rdata
+    Section length   4D, #relocs    0, #linenums    0, checksum 13A1746A, selection    2 (pick any)
+100 00000000 SECT32 notype       External     | ??_C@_0EN@LHGPHHFJ@error?5?3?5m_apDSBuffer?$FL0?$FN?9?$DOGetCurr@ (`string')
+101 00000000 SECT33 notype       Static       | .rdata
+    Section length   3E, #relocs    0, #linenums    0, checksum 86AC8B79, selection    2 (pick any)
+103 00000000 SECT33 notype       External     | ??_C@_0DO@GEDHNDOH@error?5?3?5m_pWaveFile?9?$DORead?$CI?$CL?$CJ?5in?5@ (`string')
+104 00000000 SECT34 notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum F20CB005, selection    2 (pick any)
+106 00000000 SECT34 notype       External     | ??_C@_0EA@HIHOCMMM@error?5?3?5m_pWaveFile?9?$DOResetFile?5i@ (`string')
+107 00000000 SECT35 notype       Static       | .rdata
+    Section length   3B, #relocs    0, #linenums    0, checksum   1BBE98, selection    2 (pick any)
+109 00000000 SECT35 notype       External     | ??_C@_0DL@DJCBCMMH@error?5?3?5m_pWaveFile?9?$DORead?5in?5Han@ (`string')
+10A 00000000 SECT36 notype       Static       | .rdata
+    Section length   36, #relocs    0, #linenums    0, checksum B934CA3E, selection    2 (pick any)
+10C 00000000 SECT36 notype       External     | ??_C@_0DG@HDGIFIDM@error?5?3?5Buffer?9?$DOLock?5in?5HandleWa@ (`string')
+10D 00000000 SECT37 notype       Static       | .rdata
+    Section length   3D, #relocs    0, #linenums    0, checksum C06273A5, selection    2 (pick any)
+10F 00000000 SECT37 notype       External     | ??_C@_0DN@ODEAPJGM@error?5?3?5FillBufferWithSound?5in?5H@ (`string')
+110 00000000 SECT38 notype       Static       | .rdata
+    Section length   37, #relocs    0, #linenums    0, checksum BBC0DDBD, selection    2 (pick any)
+112 00000000 SECT38 notype       External     | ??_C@_0DH@FFAEOAAD@error?5?3?5RestoreBuffer?5in?5HandleW@ (`string')
+113 00000000 SECT30 notype       BeginFunction | .bf
+    line# 020b end 00000000
+115 00000039 SECT30 notype       .bf or.ef    | .lf
+116 00000377 SECT30 notype       EndFunction  | .ef
+    line# 0296
+118 00000000 SECT39 notype       Static       | .text
+    Section length   C2, #relocs    3, #linenums    F, checksum B9A4FEAB, selection    1 (pick no duplicates)
+11A 00000000 SECT3A notype       Static       | .debug$S
+    Section length   B6, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x39)
+11C 00000000 SECT39 notype ()    External     | ?Reset@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::Reset(void))
+    tag index 0000011E size 000000C2 lines 0002DEA0 next function 00000000
+11E 00000000 SECT39 notype       BeginFunction | .bf
+    line# 029d end 00000000
+120 0000000F SECT39 notype       .bf or.ef    | .lf
+121 000000C2 SECT39 notype       EndFunction  | .ef
+    line# 02b7
+123 00000000 SECT3B notype       Static       | .text
+    Section length   52, #relocs    0, #linenums    8, checksum E6AAFA25, selection    1 (pick no duplicates)
+125 00000000 SECT3C notype       Static       | .debug$S
+    Section length   8F, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x3B)
+127 00000000 SECT3B notype ()    External     | ??0CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::CWaveFile(void))
+    tag index 00000129 size 00000052 lines 0002E020 next function 00000000
+129 00000000 SECT3B notype       BeginFunction | .bf
+    line# 02c0 end 00000000
+12B 00000008 SECT3B notype       .bf or.ef    | .lf
+12C 00000052 SECT3B notype       EndFunction  | .ef
+    line# 02c7
+12E 00000000 SECT3D notype       Static       | .text
+    Section length   46, #relocs    2, #linenums    5, checksum CFB1075B, selection    1 (pick no duplicates)
+130 00000000 SECT3E notype       Static       | .debug$S
+    Section length   90, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x3D)
+132 00000000 SECT3D notype ()    External     | ??1CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::~CWaveFile(void))
+    tag index 00000134 size 00000046 lines 0002E157 next function 00000000
+134 00000000 SECT3D notype       BeginFunction | .bf
+    line# 02ce end 00000000
+136 00000005 SECT3D notype       .bf or.ef    | .lf
+137 00000046 SECT3D notype       EndFunction  | .ef
+    line# 02d3
+139 00000000 SECT3F notype       Static       | .text
+    Section length  198, #relocs   1C, #linenums   20, checksum D90BE994, selection    1 (pick no duplicates)
+13B 00000000 SECT40 notype       Static       | .debug$S
+    Section length  174, #relocs   11, #linenums    0, checksum        0, selection    5 (pick associative Section 0x3F)
+13D 00000000 SECT3F notype ()    External     | ?Open@CWaveFile@th06@@QAEJPADPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::Open(char *,struct tWAVEFORMATEX *,unsigned long))
+    tag index 00000160 size 00000198 lines 0002E4D3 next function 00000000
+13F 000000FB SECT3F notype       Label        | $L63248
+140 00000000 SECT41 notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum A6E7DCFC, selection    2 (pick any)
+142 00000000 SECT41 notype       External     | ??_C@_0CI@LAPEBOLC@error?5?3?5ResetFile?5in?5CWaveFile?3?3@ (`string')
+143 00000000 SECT42 notype       Static       | .rdata
+    Section length   27, #relocs    0, #linenums    0, checksum EE3CD6B4, selection    2 (pick any)
+145 00000000 SECT42 notype       External     | ??_C@_0CH@JBDBNNGL@error?5?3?5ReadOpen?5in?5CWaveFile?3?3O@ (`string')
+146 00000000 UNDEF  notype       External     | __imp__mmioClose@8
+147 00000000 SECT43 notype       Static       | .rdata
+    Section length   27, #relocs    0, #linenums    0, checksum C19DAF16, selection    2 (pick any)
+149 00000000 SECT43 notype       External     | ??_C@_0CH@LOJAKEMJ@error?5?3?5mmioOpen?5in?5CWaveFile?3?3O@ (`string')
+14A 00000000 SECT44 notype       Static       | .rdata
+    Section length   5A, #relocs    0, #linenums    0, checksum A62D420E, selection    2 (pick any)
+14C 00000000 SECT44 notype       External     | ??_C@_0FK@DIGMLMMC@Another?5failure?5condition?5occurr@ (`string')
+14D 000000EE SECT3F notype       Label        | $L63259
+14E 00000000 SECT45 notype       Static       | .rdata
+    Section length   16, #relocs    0, #linenums    0, checksum 31BBAE7C, selection    2 (pick any)
+150 00000000 SECT45 notype       External     | ??_C@_0BG@GGGNOAGD@too?5Meny?5Open?5Files?5?6?$AA@ (`string')
+151 000000DF SECT3F notype       Label        | $L63257
+152 00000000 SECT46 notype       Static       | .rdata
+    Section length   44, #relocs    0, #linenums    0, checksum 7F58E08A, selection    2 (pick any)
+154 00000000 SECT46 notype       External     | ??_C@_0EE@JAHAHBNI@The?5file?5is?5being?5used?5by?5anothe@ (`string')
+155 000000D0 SECT3F notype       Label        | $L63255
+156 00000000 SECT47 notype       Static       | .rdata
+    Section length   2E, #relocs    0, #linenums    0, checksum 7734DE6A, selection    2 (pick any)
+158 00000000 SECT47 notype       External     | ??_C@_0CO@ILLECJHO@The?5file?5is?5protected?5and?5cannot@ (`string')
+159 000000C1 SECT3F notype       Label        | $L63253
+15A 00000000 SECT48 notype       Static       | .rdata
+    Section length   2C, #relocs    0, #linenums    0, checksum 3153F9D9, selection    2 (pick any)
+15C 00000000 SECT48 notype       External     | ??_C@_0CM@ENIIGADK@The?5directory?5specification?5is?5i@ (`string')
+15D 000000B2 SECT3F notype       Label        | $L63251
+15E 00000180 SECT3F notype       Static       | $L63642
+15F 00000000 UNDEF  notype       External     | __imp__mmioOpenA@12
+160 00000000 SECT3F notype       BeginFunction | .bf
+    line# 02da end 00000000
+162 00000020 SECT3F notype       .bf or.ef    | .lf
+163 00000198 SECT3F notype       EndFunction  | .ef
+    line# 0315
+165 00000000 SECT49 notype       Static       | .text
+    Section length   5B, #relocs    0, #linenums    A, checksum 7092E915, selection    1 (pick no duplicates)
+167 00000000 SECT4A notype       Static       | .debug$S
+    Section length   E3, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x49)
+169 00000000 SECT49 notype ()    External     | ?OpenFromMemory@CWaveFile@th06@@QAEJPAEKPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::OpenFromMemory(unsigned char *,unsigned long,struct tWAVEFORMATEX *,unsigned long))
+    tag index 0000016B size 0000005B lines 0002E990 next function 00000000
+16B 00000000 SECT49 notype       BeginFunction | .bf
+    line# 031c end 00000000
+16D 0000000A SECT49 notype       .bf or.ef    | .lf
+16E 0000005B SECT49 notype       EndFunction  | .ef
+    line# 0327
+170 00000000 SECT4B notype       Static       | .text
+    Section length  241, #relocs    A, #linenums   24, checksum 7106A36A, selection    1 (pick no duplicates)
+172 00000000 SECT4C notype       Static       | .debug$S
+    Section length   ED, #relocs    5, #linenums    0, checksum        0, selection    5 (pick associative Section 0x4B)
+174 00000000 SECT4B notype ()    External     | ?ReadMMIO@CWaveFile@th06@@IAEJXZ (protected: long __thiscall th06::CWaveFile::ReadMMIO(void))
+    tag index 00000179 size 00000241 lines 0002ED72 next function 00000000
+176 00000000 UNDEF  notype       External     | __imp__mmioAscend@12
+177 00000000 UNDEF  notype       External     | __imp__mmioRead@12
+178 00000000 UNDEF  notype       External     | __imp__mmioDescend@16
+179 00000000 SECT4B notype       BeginFunction | .bf
+    line# 0330 end 00000000
+17B 00000024 SECT4B notype       .bf or.ef    | .lf
+17C 00000241 SECT4B notype       EndFunction  | .ef
+    line# 0376
+17E 00000000 SECT4D notype       Static       | .text
+    Section length   11, #relocs    0, #linenums    3, checksum DF78A66A, selection    1 (pick no duplicates)
+180 00000000 SECT4E notype       Static       | .debug$S
+    Section length   8D, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x4D)
+182 00000000 SECT4D notype ()    External     | ?GetSize@CWaveFile@th06@@QAEKXZ (public: unsigned long __thiscall th06::CWaveFile::GetSize(void))
+    tag index 00000184 size 00000011 lines 0002EF7A next function 00000000
+184 00000000 SECT4D notype       BeginFunction | .bf
+    line# 037d end 00000000
+186 00000003 SECT4D notype       .bf or.ef    | .lf
+187 00000011 SECT4D notype       EndFunction  | .ef
+    line# 037f
+189 00000000 SECT4F notype       Static       | .text
+    Section length  201, #relocs   13, #linenums   26, checksum F03F9F85, selection    1 (pick no duplicates)
+18B 00000000 SECT50 notype       Static       | .debug$S
+    Section length  126, #relocs    9, #linenums    0, checksum        0, selection    5 (pick associative Section 0x4F)
+18D 00000000 SECT4F notype ()    External     | ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+    tag index 000001A8 size 00000201 lines 0002F2F6 next function 00000000
+18F 00000000 SECT51 notype       Static       | .rdata
+    Section length   2D, #relocs    0, #linenums    0, checksum  136B17C, selection    2 (pick any)
+191 00000000 SECT51 notype       External     | ??_C@_0CN@DIEJNJCH@error?5?3?5mmioSetInfo?5in?5CWaveFile@ (`string')
+192 00000000 UNDEF  notype       External     | __imp__mmioSetInfo@12
+193 00000000 SECT52 notype       Static       | .rdata
+    Section length   4D, #relocs    0, #linenums    0, checksum 49FCC398, selection    2 (pick any)
+195 00000000 SECT52 notype       External     | ??_C@_0EN@ONDCMAKL@error?5?3?5mmioinfoIn?4pchNext?5?$DN?$DN?5mm@ (`string')
+196 00000000 SECT53 notype       Static       | .rdata
+    Section length   2D, #relocs    0, #linenums    0, checksum 985BC844, selection    2 (pick any)
+198 00000000 SECT53 notype       External     | ??_C@_0CN@KBCEKABP@error?5?3?5mmioAdvance?5in?5CWaveFile@ (`string')
+199 00000000 UNDEF  notype       External     | __imp__mmioAdvance@12
+19A 00000000 SECT54 notype       Static       | .rdata
+    Section length   2D, #relocs    0, #linenums    0, checksum  337F102, selection    2 (pick any)
+19C 00000000 SECT54 notype       External     | ??_C@_0CN@DKEIJJFJ@error?5?3?5mmioGetInfo?5in?5CWaveFile@ (`string')
+19D 00000000 UNDEF  notype       External     | __imp__mmioGetInfo@12
+19E 00000000 SECT55 notype       Static       | .rdata
+    Section length   2D, #relocs    0, #linenums    0, checksum A695C75A, selection    2 (pick any)
+1A0 00000000 SECT55 notype       External     | ??_C@_0CN@JPOKKPAB@error?5?3?5mmioDescend?5in?5CWaveFile@ (`string')
+1A1 00000000 SECT56 notype       Static       | .rdata
+    Section length   2A, #relocs    0, #linenums    0, checksum 9BEC06ED, selection    2 (pick any)
+1A3 00000000 SECT56 notype       External     | ??_C@_0CK@IAHMNBOJ@error?5?3?5mmioSeek?5in?5CWaveFile?3?3R@ (`string')
+1A4 00000000 UNDEF  notype       External     | __imp__mmioSeek@12
+1A5 00000000 SECT57 notype       Static       | .rdata
+    Section length   31, #relocs    0, #linenums    0, checksum 60F8C13B, selection    2 (pick any)
+1A7 00000000 SECT57 notype       External     | ??_C@_0DB@MNJCDODB@error?5?3?5m_hmmio?7?$DN?$DN?5NULL?5in?5CWave@ (`string')
+1A8 00000000 SECT4F notype       BeginFunction | .bf
+    line# 0387 end 00000000
+1AA 00000026 SECT4F notype       .bf or.ef    | .lf
+1AB 00000201 SECT4F notype       EndFunction  | .ef
+    line# 03cf
+1AD 00000000 SECT58 notype       Static       | .text
+    Section length  239, #relocs    F, #linenums   2B, checksum C1E014CA, selection    1 (pick no duplicates)
+1AF 00000000 SECT59 notype       Static       | .debug$S
+    Section length  140, #relocs    7, #linenums    0, checksum        0, selection    5 (pick associative Section 0x58)
+1B1 00000000 SECT58 notype ()    External     | ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+    tag index 000001B9 size 00000239 lines 0002F985 next function 00000000
+1B3 00000000 SECT5A notype       Static       | .rdata
+    Section length   10, #relocs    0, #linenums    0, checksum 68EE6C05, selection    2 (pick any)
+1B5 00000000 SECT5A notype       External     | ??_C@_0BA@HLKKNIKP@error?5?3?7?$CFs?$CI?$CFs?$CJ?6?$AA@ (`string')
+1B6 00000000 SECT5B notype       Static       | .rdata
+    Section length    E, #relocs    0, #linenums    0, checksum 94CB2206, selection    2 (pick any)
+1B8 00000000 SECT5B notype       External     | ??_C@_0O@LKIPKEDO@src?1zwave?4cpp?$AA@ (`string')
+1B9 00000000 SECT58 notype       BeginFunction | .bf
+    line# 03da end 00000000
+1BB 0000002B SECT58 notype       .bf or.ef    | .lf
+1BC 00000239 SECT58 notype       EndFunction  | .ef
+    line# 042c
+1BE 00000000 SECT5C notype       Static       | .text
+    Section length   2F, #relocs    1, #linenums    6, checksum 85279F94, selection    1 (pick no duplicates)
+1C0 00000000 SECT5D notype       Static       | .debug$S
+    Section length   8B, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x5C)
+1C2 00000000 SECT5C notype ()    External     | ?Close@CWaveFile@th06@@QAEJXZ (public: long __thiscall th06::CWaveFile::Close(void))
+    tag index 000001C4 size 0000002F lines 0002FC64 next function 00000000
+1C4 00000000 SECT5C notype       BeginFunction | .bf
+    line# 0433 end 00000000
+1C6 00000006 SECT5C notype       .bf or.ef    | .lf
+1C7 0000002F SECT5C notype       EndFunction  | .ef
+    line# 043a
+1C9 00000000 SECT5E notype       Static       | .text
+    Section length    5, #relocs    0, #linenums    2, checksum 672BE856, selection    1 (pick no duplicates)
+1CB 00000000 SECT5F notype       Static       | .debug$S
+    Section length   8C, #relocs    3, #linenums    0, checksum        0, selection    5 (pick associative Section 0x5E)
+1CD 00000000 DEBUG  notype       Filename     | .file
+    z:\users\main\untitled\src\global.hpp
+1D1 00000000 SECT5E notype ()    Static       | ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+    tag index 000001D3 size 00000005 lines 0002FD36 next function 00000000
+1D3 00000000 SECT5E notype       BeginFunction | .bf
+    line# 004d end 00000000
+1D5 00000002 SECT5E notype       .bf or.ef    | .lf
+1D6 00000005 SECT5E notype       EndFunction  | .ef
+    line# 0058
+1D8 00000000 SECT60 notype       Static       | .debug$T
+    Section length   48, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD31 bytes
+
+  Summary
+
+       2B7B5 .debug$S
+          48 .debug$T
+          70 .drectve
+         4CA .rdata
+        1AB3 .text
+          20 .text$x
+          2C .xdata$x

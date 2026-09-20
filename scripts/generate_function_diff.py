@@ -120,7 +120,7 @@ def generate_function_diff_satsuki(fn_name):
             check=True,
         ).stdout
     except subprocess.CalledProcessError as e:
-        e.stderr = b"original: " + e.stderr
+        e.stderr = "original: " + str(e.stderr)
         raise
 
     try:
@@ -142,7 +142,7 @@ def generate_function_diff_satsuki(fn_name):
             check=True,
         ).stdout
     except subprocess.CalledProcessError as e:
-        e.stderr = b"reimpl: " + e.stderr
+        e.stderr = "reimpl: " + str(e.stderr)
         raise
 
     diff = "\n".join(

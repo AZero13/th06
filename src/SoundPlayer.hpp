@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 
+#include "Global.hpp"
 #include "ZunResult.hpp"
 #include "diffbuild.hpp"
 #include "inttypes.hpp"
@@ -56,7 +57,14 @@ ZUN_ASSERT_SIZE(SoundBufferIdxVolume, 0x8);
 
 struct SoundPlayer
 {
-    SoundPlayer();
+    SoundPlayer()
+    {
+        memset(this, 0, sizeof(SoundPlayer));
+        for (i32 i = 0; i < ARRAY_SIZE_SIGNED(this->unk408); i++)
+        {
+            this->unk408[i] = -1;
+        }
+    }
 
     ZunResult InitializeDSound(HWND window);
     ZunResult InitSoundBuffers();

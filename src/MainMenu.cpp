@@ -28,9 +28,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 7, g_StageList) = {"Stage1", "Stage2", "Sta
                                                         "Stage5", "Stage6", "Extra "};
 
 DIFFABLE_STATIC(i16, g_LastJoystickInput)
-MainMenu::MainMenu()
-{
-}
+
 
 #pragma function(strcpy)
 #pragma var_order(i, vmList, time, deltaTime, deltaTimeAsFrames, deltaTimeAsMs, mapping, startedUp, sVar1,             \

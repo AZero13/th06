@@ -503,9 +503,23 @@ enum TimelineOpcode
     TIMELINE_OPCODE_BOSS_WAIT,
 };
 
+enum EclExtraCoord
+{
+    ECL_EXTRA_COORD_ENEMY = 0,
+    ECL_EXTRA_COORD_PLAYER = 1,
+};
+
+struct EclManagerExtraData
+{
+    u8 unk_00[0x80];
+    f32 starAngleTable[6];
+    u8 unk_98[0x68];
+    D3DXVECTOR3 coords[8];
+};
+
 struct EclManager
 {
-    ZunResult Load(char *ecl);
+    ZunResult Load(char *eclPath);
     void Unload();
     ZunResult RunEcl(Enemy *enemy);
     ZunResult CallEclSub(EnemyEclContext *enemyEcl, i16 subId);
@@ -513,8 +527,13 @@ struct EclManager
     EclRawHeader *eclFile;
     EclRawInstr **subTable;
     EclTimelineInstr *timeline;
+    EclManagerExtraData extra;
 };
-ZUN_ASSERT_SIZE(EclManager, 0xc);
+ZUN_ASSERT_SIZE(EclManager, 0x16c);
 
 DIFFABLE_EXTERN(EclManager, g_EclManager);
+DIFFABLE_EXTERN(i32, g_PlayerShot);
+DIFFABLE_EXTERN(f32, g_PlayerDistance);
+DIFFABLE_EXTERN(f32, g_PlayerAngle);
+
 }; // namespace th06

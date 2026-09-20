@@ -25,6 +25,7 @@ DIFFABLE_STATIC(ControllerMapping, g_ControllerMapping)
 DIFFABLE_STATIC(LPDIRECT3DSURFACE8, g_TextBufferSurface)
 DIFFABLE_STATIC(Supervisor, g_Supervisor)
 
+
 ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
 {
 
@@ -455,7 +456,10 @@ void Supervisor::DrawFpsCounter()
     D3DXVECTOR3 fpsCounterPos;
 
     static u32 g_NumFramesSinceLastTime = 0;
-    static DWORD g_LastTime = timeGetTime();
+    static DWORD g_LastTime = 0;
+    if (g_LastTime == 0) {
+        g_LastTime = timeGetTime();
+    }
     static char g_FpsCounterBuffer[256];
 
     curTime = timeGetTime();
@@ -549,6 +553,13 @@ void ZunTimer::Decrement(i32 value)
         this->current -= 1;
         this->subFrame += 1.0f;
     }
+}
+
+i32 ZunTimer::NextTick()
+{
+    this->previous = this->current;
+    g_Supervisor.TickTimer(&this->current, &this->subFrame);
+    return this->current;
 }
 
 void Supervisor::TickTimer(i32 *frames, f32 *subframes)

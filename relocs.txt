@@ -1,0 +1,605 @@
+
+Dump of file build/zwave.obj
+
+File Type: COFF OBJECT
+
+RELOCATIONS #2
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000106D  SECREL                     00000000        45  _IID_IDirectSoundNotify
+ 00001071  SECTION                        0000        45  _IID_IDirectSoundNotify
+
+RELOCATIONS #4
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000         F  ??0CSoundManager@th06@@QAE@XZ (public: __thiscall th06::CSoundManager::CSoundManager(void))
+ 00000058  SECREL                     00000000         F  ??0CSoundManager@th06@@QAE@XZ (public: __thiscall th06::CSoundManager::CSoundManager(void))
+ 0000005C  SECTION                        0000         F  ??0CSoundManager@th06@@QAE@XZ (public: __thiscall th06::CSoundManager::CSoundManager(void))
+
+RELOCATIONS #6
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        1A  ??1CSoundManager@th06@@QAE@XZ (public: __thiscall th06::CSoundManager::~CSoundManager(void))
+ 00000058  SECREL                     00000000        1A  ??1CSoundManager@th06@@QAE@XZ (public: __thiscall th06::CSoundManager::~CSoundManager(void))
+ 0000005C  SECTION                        0000        1A  ??1CSoundManager@th06@@QAE@XZ (public: __thiscall th06::CSoundManager::~CSoundManager(void))
+
+RELOCATIONS #7
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000003A  REL32                      00000000        27  _DirectSoundCreate8@12
+ 00000082  REL32                      00000000        31  ?SetPrimaryBufferFormat@CSoundManager@th06@@QAEJKKK@Z (public: long __thiscall th06::CSoundManager::SetPrimaryBufferFormat(unsigned long,unsigned long,unsigned long))
+
+RELOCATIONS #8
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        25  ?Initialize@CSoundManager@th06@@QAEJPAUHWND__@@KKKK@Z (public: long __thiscall th06::CSoundManager::Initialize(struct HWND__ *,unsigned long,unsigned long,unsigned long,unsigned long))
+ 00000058  SECREL                     00000000        25  ?Initialize@CSoundManager@th06@@QAEJPAUHWND__@@KKKK@Z (public: long __thiscall th06::CSoundManager::Initialize(struct HWND__ *,unsigned long,unsigned long,unsigned long,unsigned long))
+ 0000005C  SECTION                        0000        25  ?Initialize@CSoundManager@th06@@QAEJPAUHWND__@@KKKK@Z (public: long __thiscall th06::CSoundManager::Initialize(struct HWND__ *,unsigned long,unsigned long,unsigned long,unsigned long))
+
+RELOCATIONS #9
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000007  DIR32                      00000000        33  ___security_cookie
+ 00000122  REL32                      00000000        34  @__security_check_cookie@4
+
+RELOCATIONS #A
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        31  ?SetPrimaryBufferFormat@CSoundManager@th06@@QAEJKKK@Z (public: long __thiscall th06::CSoundManager::SetPrimaryBufferFormat(unsigned long,unsigned long,unsigned long))
+ 00000058  SECREL                     00000000        31  ?SetPrimaryBufferFormat@CSoundManager@th06@@QAEJKKK@Z (public: long __thiscall th06::CSoundManager::SetPrimaryBufferFormat(unsigned long,unsigned long,unsigned long))
+ 0000005C  SECTION                        0000        31  ?SetPrimaryBufferFormat@CSoundManager@th06@@QAEJKKK@Z (public: long __thiscall th06::CSoundManager::SetPrimaryBufferFormat(unsigned long,unsigned long,unsigned long))
+
+RELOCATIONS #B
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000006  DIR32                      00000000        47  $L63581
+ 0000000C  DIR32                      00000000        4D  __except_list
+ 00000014  DIR32                      00000000        4D  __except_list
+ 0000001C  DIR32                      00000000        33  ___security_cookie
+ 0000005E  REL32                      00000000        46  ??2@YAPAXI@Z (void * __cdecl operator new(unsigned int))
+ 00000079  REL32                      00000000       127  ??0CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::CWaveFile(void))
+ 000000A8  REL32                      00000000       13D  ?Open@CWaveFile@th06@@QAEJPADPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::Open(char *,struct tWAVEFORMATEX *,unsigned long))
+ 00000139  DIR32                      00000000        45  _IID_IDirectSoundNotify
+ 00000163  REL32                      00000000        46  ??2@YAPAXI@Z (void * __cdecl operator new(unsigned int))
+ 0000020A  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+ 0000024C  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+ 0000025D  REL32                      00000000        46  ??2@YAPAXI@Z (void * __cdecl operator new(unsigned int))
+ 00000288  REL32                      00000000        D0  ??0CStreamingSound@th06@@QAE@PAUIDirectSoundBuffer@@KPAVCWaveFile@1@K@Z (public: __thiscall th06::CStreamingSound::CStreamingSound(struct IDirectSoundBuffer *,unsigned long,class th06::CWaveFile *,unsigned long))
+ 000002B5  DIR32                      00000000        4D  __except_list
+ 000002C0  REL32                      00000000        34  @__security_check_cookie@4
+
+RELOCATIONS #C
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        3E  ?CreateStreaming@CSoundManager@th06@@QAEJPAPAVCStreamingSound@2@PADKU_GUID@@KKPAX@Z (public: long __thiscall th06::CSoundManager::CreateStreaming(class th06::CStreamingSound * *,char *,unsigned long,struct _GUID,unsigned long,unsigned long,void *))
+ 0000003C  SECREL                     00000000        47  $L63581
+ 00000040  SECTION                        0000        47  $L63581
+ 0000004F  SECREL                     00000000        42  $L63576
+ 00000053  SECTION                        0000        42  $L63576
+ 00000062  SECREL                     00000000        43  $L63575
+ 00000066  SECTION                        0000        43  $L63575
+ 00000091  SECREL                     00000000        3E  ?CreateStreaming@CSoundManager@th06@@QAEJPAPAVCStreamingSound@2@PADKU_GUID@@KKPAX@Z (public: long __thiscall th06::CSoundManager::CreateStreaming(class th06::CStreamingSound * *,char *,unsigned long,struct _GUID,unsigned long,unsigned long,void *))
+ 00000095  SECTION                        0000        3E  ?CreateStreaming@CSoundManager@th06@@QAEJPAPAVCStreamingSound@2@PADKU_GUID@@KKPAX@Z (public: long __thiscall th06::CSoundManager::CreateStreaming(class th06::CStreamingSound * *,char *,unsigned long,struct _GUID,unsigned long,unsigned long,void *))
+ 0000022F  SECREL                     00000183        3E  ?CreateStreaming@CSoundManager@th06@@QAEJPAPAVCStreamingSound@2@PADKU_GUID@@KKPAX@Z (public: long __thiscall th06::CSoundManager::CreateStreaming(class th06::CStreamingSound * *,char *,unsigned long,struct _GUID,unsigned long,unsigned long,void *))
+ 00000233  SECTION                        0000        3E  ?CreateStreaming@CSoundManager@th06@@QAEJPAPAVCStreamingSound@2@PADKU_GUID@@KKPAX@Z (public: long __thiscall th06::CSoundManager::CreateStreaming(class th06::CStreamingSound * *,char *,unsigned long,struct _GUID,unsigned long,unsigned long,void *))
+
+RELOCATIONS #D
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000005  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+ 00000010  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+ 00000017  DIR32                      00000000        4B  $T63580
+ 0000001C  REL32                      00000000        48  ___CxxFrameHandler
+
+RELOCATIONS #E
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000004  DIR32                      00000000        43  $L63575
+ 0000000C  DIR32                      00000000        42  $L63576
+ 00000018  DIR32                      00000000        4C  $T63584
+
+RELOCATIONS #F
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000F  DIR32                      00000000        5E  ??_7CSound@th06@@6B@ (const th06::CSound::`vftable')
+ 0000001B  REL32                      00000000        46  ??2@YAPAXI@Z (void * __cdecl operator new(unsigned int))
+ 00000089  REL32                      00000000        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+
+RELOCATIONS #10
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        57  ??0CSound@th06@@QAE@PAPAUIDirectSoundBuffer@@KKPAVCWaveFile@1@@Z (public: __thiscall th06::CSound::CSound(struct IDirectSoundBuffer * *,unsigned long,unsigned long,class th06::CWaveFile *))
+ 00000058  SECREL                     00000000        57  ??0CSound@th06@@QAE@PAPAUIDirectSoundBuffer@@KKPAVCWaveFile@1@@Z (public: __thiscall th06::CSound::CSound(struct IDirectSoundBuffer * *,unsigned long,unsigned long,class th06::CWaveFile *))
+ 0000005C  SECTION                        0000        57  ??0CSound@th06@@QAE@PAPAUIDirectSoundBuffer@@KKPAVCWaveFile@1@@Z (public: __thiscall th06::CSound::CSound(struct IDirectSoundBuffer * *,unsigned long,unsigned long,class th06::CWaveFile *))
+
+RELOCATIONS #11
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000000  DIR32                      00000000        5A  ??_ECSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CSound::`vector deleting destructor'(unsigned int))
+
+RELOCATIONS #12
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000B  REL32                      00000000        6D  ??1CSound@th06@@UAE@XZ (public: virtual __thiscall th06::CSound::~CSound(void))
+ 0000001E  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+
+RELOCATIONS #13
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        59  ??_GCSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CSound::`scalar deleting destructor'(unsigned int))
+ 00000058  SECREL                     00000000        59  ??_GCSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CSound::`scalar deleting destructor'(unsigned int))
+ 0000005C  SECTION                        0000        59  ??_GCSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CSound::`scalar deleting destructor'(unsigned int))
+
+RELOCATIONS #14
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000E  DIR32                      00000000        5E  ??_7CSound@th06@@6B@ (const th06::CSound::`vftable')
+ 00000085  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+ 000000B8  REL32                      00000000       132  ??1CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::~CWaveFile(void))
+ 000000CD  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+
+RELOCATIONS #15
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        6D  ??1CSound@th06@@UAE@XZ (public: virtual __thiscall th06::CSound::~CSound(void))
+ 00000058  SECREL                     00000000        6D  ??1CSound@th06@@UAE@XZ (public: virtual __thiscall th06::CSound::~CSound(void))
+ 0000005C  SECTION                        0000        6D  ??1CSound@th06@@UAE@XZ (public: virtual __thiscall th06::CSound::~CSound(void))
+ 00000096  SECREL                     00000012        6D  ??1CSound@th06@@UAE@XZ (public: virtual __thiscall th06::CSound::~CSound(void))
+ 0000009A  SECTION                        0000        6D  ??1CSound@th06@@UAE@XZ (public: virtual __thiscall th06::CSound::~CSound(void))
+
+RELOCATIONS #16
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000003A  REL32                      00000000        83  ?RestoreBuffer@CSound@th06@@IAEJPAUIDirectSoundBuffer@@PAH@Z (protected: long __thiscall th06::CSound::RestoreBuffer(struct IDirectSoundBuffer *,int *))
+ 0000008C  REL32                      00000000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 000000A3  REL32                      00000000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 0000012D  REL32                      00000000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 0000015B  REL32                      00000000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+
+RELOCATIONS #17
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+ 00000058  SECREL                     00000000        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+ 0000005C  SECTION                        0000        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+ 0000013E  SECREL                     00000116        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+ 00000142  SECTION                        0000        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+
+RELOCATIONS #18
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000006C  DIR32                      00000000        85  __imp__Sleep@4
+
+RELOCATIONS #19
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        83  ?RestoreBuffer@CSound@th06@@IAEJPAUIDirectSoundBuffer@@PAH@Z (protected: long __thiscall th06::CSound::RestoreBuffer(struct IDirectSoundBuffer *,int *))
+ 00000058  SECREL                     00000000        83  ?RestoreBuffer@CSound@th06@@IAEJPAUIDirectSoundBuffer@@PAH@Z (protected: long __thiscall th06::CSound::RestoreBuffer(struct IDirectSoundBuffer *,int *))
+ 0000005C  SECTION                        0000        83  ?RestoreBuffer@CSound@th06@@IAEJPAUIDirectSoundBuffer@@PAH@Z (protected: long __thiscall th06::CSound::RestoreBuffer(struct IDirectSoundBuffer *,int *))
+
+RELOCATIONS #1A
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000009D  REL32                      00000000        91  _rand
+
+RELOCATIONS #1B
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        8F  ?GetFreeBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@XZ (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetFreeBuffer(void))
+ 00000058  SECREL                     00000000        8F  ?GetFreeBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@XZ (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetFreeBuffer(void))
+ 0000005C  SECTION                        0000        8F  ?GetFreeBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@XZ (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetFreeBuffer(void))
+ 000000C1  SECREL                     0000004C        8F  ?GetFreeBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@XZ (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetFreeBuffer(void))
+ 000000C5  SECTION                        0000        8F  ?GetFreeBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@XZ (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetFreeBuffer(void))
+
+RELOCATIONS #1D
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        9B  ?GetBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@K@Z (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetBuffer(unsigned long))
+ 00000058  SECREL                     00000000        9B  ?GetBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@K@Z (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetBuffer(unsigned long))
+ 0000005C  SECTION                        0000        9B  ?GetBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@K@Z (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetBuffer(unsigned long))
+
+RELOCATIONS #1E
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000020  REL32                      00000000        8F  ?GetFreeBuffer@CSound@th06@@QAEPAUIDirectSoundBuffer@@XZ (public: struct IDirectSoundBuffer * __thiscall th06::CSound::GetFreeBuffer(void))
+ 00000040  REL32                      00000000        83  ?RestoreBuffer@CSound@th06@@IAEJPAUIDirectSoundBuffer@@PAH@Z (protected: long __thiscall th06::CSound::RestoreBuffer(struct IDirectSoundBuffer *,int *))
+ 00000062  REL32                      00000000        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+ 00000078  REL32                      00000000        C5  ?Reset@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Reset(void))
+
+RELOCATIONS #1F
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        A6  ?Play@CSound@th06@@QAEJKK@Z (public: long __thiscall th06::CSound::Play(unsigned long,unsigned long))
+ 00000058  SECREL                     00000000        A6  ?Play@CSound@th06@@QAEJKK@Z (public: long __thiscall th06::CSound::Play(unsigned long,unsigned long))
+ 0000005C  SECTION                        0000        A6  ?Play@CSound@th06@@QAEJKK@Z (public: long __thiscall th06::CSound::Play(unsigned long,unsigned long))
+
+RELOCATIONS #20
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000024  DIR32                      00000000        BB  ??_C@_0O@IAKIMEFG@CSound?3?3Stop?5?$AA@ (`string')
+ 00000029  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000052  DIR32                      00000000        B8  ??_C@_03JDANDILB@?$CFd?5?$AA@ (`string')
+ 00000057  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000087  DIR32                      00000000        B5  ??_C@_01EEMJAFIK@?6?$AA@ (`string')
+ 0000008C  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+
+RELOCATIONS #21
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        B1  ?Stop@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Stop(void))
+ 00000058  SECREL                     00000000        B1  ?Stop@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Stop(void))
+ 0000005C  SECTION                        0000        B1  ?Stop@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Stop(void))
+ 000000A2  SECREL                     00000030        B1  ?Stop@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Stop(void))
+ 000000A6  SECTION                        0000        B1  ?Stop@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Stop(void))
+
+RELOCATIONS #26
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        C5  ?Reset@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Reset(void))
+ 00000058  SECREL                     00000000        C5  ?Reset@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Reset(void))
+ 0000005C  SECTION                        0000        C5  ?Reset@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Reset(void))
+ 000000A3  SECREL                     00000020        C5  ?Reset@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Reset(void))
+ 000000A7  SECTION                        0000        C5  ?Reset@CSound@th06@@QAEJXZ (public: long __thiscall th06::CSound::Reset(void))
+
+RELOCATIONS #27
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000019  REL32                      00000000        57  ??0CSound@th06@@QAE@PAPAUIDirectSoundBuffer@@KKPAVCWaveFile@1@@Z (public: __thiscall th06::CSound::CSound(struct IDirectSoundBuffer * *,unsigned long,unsigned long,class th06::CWaveFile *))
+ 00000022  DIR32                      00000000        D7  ??_7CStreamingSound@th06@@6B@ (const th06::CStreamingSound::`vftable')
+
+RELOCATIONS #28
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        D0  ??0CStreamingSound@th06@@QAE@PAUIDirectSoundBuffer@@KPAVCWaveFile@1@K@Z (public: __thiscall th06::CStreamingSound::CStreamingSound(struct IDirectSoundBuffer *,unsigned long,class th06::CWaveFile *,unsigned long))
+ 00000058  SECREL                     00000000        D0  ??0CStreamingSound@th06@@QAE@PAUIDirectSoundBuffer@@KPAVCWaveFile@1@K@Z (public: __thiscall th06::CStreamingSound::CStreamingSound(struct IDirectSoundBuffer *,unsigned long,class th06::CWaveFile *,unsigned long))
+ 0000005C  SECTION                        0000        D0  ??0CStreamingSound@th06@@QAE@PAUIDirectSoundBuffer@@KPAVCWaveFile@1@K@Z (public: __thiscall th06::CStreamingSound::CStreamingSound(struct IDirectSoundBuffer *,unsigned long,class th06::CWaveFile *,unsigned long))
+
+RELOCATIONS #29
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000000  DIR32                      00000000        D3  ??_ECStreamingSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CStreamingSound::`vector deleting destructor'(unsigned int))
+
+RELOCATIONS #2A
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000B  REL32                      00000000        E6  ??1CStreamingSound@th06@@UAE@XZ (public: virtual __thiscall th06::CStreamingSound::~CStreamingSound(void))
+ 0000001E  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+
+RELOCATIONS #2B
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        D2  ??_GCStreamingSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CStreamingSound::`scalar deleting destructor'(unsigned int))
+ 00000058  SECREL                     00000000        D2  ??_GCStreamingSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CStreamingSound::`scalar deleting destructor'(unsigned int))
+ 0000005C  SECTION                        0000        D2  ??_GCStreamingSound@th06@@UAEPAXI@Z (public: virtual void * __thiscall th06::CStreamingSound::`scalar deleting destructor'(unsigned int))
+
+RELOCATIONS #2C
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32                      00000000        D7  ??_7CStreamingSound@th06@@6B@ (const th06::CStreamingSound::`vftable')
+ 00000014  REL32                      00000000        6D  ??1CSound@th06@@UAE@XZ (public: virtual __thiscall th06::CSound::~CSound(void))
+
+RELOCATIONS #2D
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        E6  ??1CStreamingSound@th06@@UAE@XZ (public: virtual __thiscall th06::CStreamingSound::~CStreamingSound(void))
+ 00000058  SECREL                     00000000        E6  ??1CStreamingSound@th06@@UAE@XZ (public: virtual __thiscall th06::CStreamingSound::~CStreamingSound(void))
+ 0000005C  SECTION                        0000        E6  ??1CStreamingSound@th06@@UAE@XZ (public: virtual __thiscall th06::CStreamingSound::~CStreamingSound(void))
+
+RELOCATIONS #2F
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        F1  ?UpdateFadeOut@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::UpdateFadeOut(void))
+ 00000058  SECREL                     00000000        F1  ?UpdateFadeOut@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::UpdateFadeOut(void))
+ 0000005C  SECTION                        0000        F1  ?UpdateFadeOut@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::UpdateFadeOut(void))
+ 000000A5  SECREL                     00000012        F1  ?UpdateFadeOut@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::UpdateFadeOut(void))
+ 000000A9  SECTION                        0000        F1  ?UpdateFadeOut@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::UpdateFadeOut(void))
+
+RELOCATIONS #30
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000039  REL32                      00000000        83  ?RestoreBuffer@CSound@th06@@IAEJPAUIDirectSoundBuffer@@PAH@Z (protected: long __thiscall th06::CSound::RestoreBuffer(struct IDirectSoundBuffer *,int *))
+ 00000047  DIR32                      00000000       112  ??_C@_0DH@FFAEOAAD@error?5?3?5RestoreBuffer?5in?5HandleW@ (`string')
+ 0000004C  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000070  REL32                      00000000        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+ 0000007E  DIR32                      00000000       10F  ??_C@_0DN@ODEAPJGM@error?5?3?5FillBufferWithSound?5in?5H@ (`string')
+ 00000083  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000000E7  DIR32                      00000000       10C  ??_C@_0DG@HDGIFIDM@error?5?3?5Buffer?9?$DOLock?5in?5HandleWa@ (`string')
+ 000000EC  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000127  REL32                      00000000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 00000135  DIR32                      00000000       109  ??_C@_0DL@DJCBCMMH@error?5?3?5m_pWaveFile?9?$DORead?5in?5Han@ (`string')
+ 0000013A  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000210  REL32                      00000000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 0000021E  DIR32                      00000000       106  ??_C@_0EA@HIHOCMMM@error?5?3?5m_pWaveFile?9?$DOResetFile?5i@ (`string')
+ 00000223  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 0000024B  REL32                      00000000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 00000259  DIR32                      00000000       103  ??_C@_0DO@GEDHNDOH@error?5?3?5m_pWaveFile?9?$DORead?$CI?$CL?$CJ?5in?5@ (`string')
+ 0000025E  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000002C0  DIR32                      00000000       100  ??_C@_0EN@LHGPHHFJ@error?5?3?5m_apDSBuffer?$FL0?$FN?9?$DOGetCurr@ (`string')
+ 000002C5  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000327  REL32                      00000000       182  ?GetSize@CWaveFile@th06@@QAEKXZ (public: unsigned long __thiscall th06::CWaveFile::GetSize(void))
+
+RELOCATIONS #31
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000        FC  ?HandleWaveStreamNotification@CStreamingSound@th06@@QAEJH@Z (public: long __thiscall th06::CStreamingSound::HandleWaveStreamNotification(int))
+ 00000058  SECREL                     00000000        FC  ?HandleWaveStreamNotification@CStreamingSound@th06@@QAEJH@Z (public: long __thiscall th06::CStreamingSound::HandleWaveStreamNotification(int))
+ 0000005C  SECTION                        0000        FC  ?HandleWaveStreamNotification@CStreamingSound@th06@@QAEJH@Z (public: long __thiscall th06::CStreamingSound::HandleWaveStreamNotification(int))
+ 000001C5  SECREL                     000001F9        FC  ?HandleWaveStreamNotification@CStreamingSound@th06@@QAEJH@Z (public: long __thiscall th06::CStreamingSound::HandleWaveStreamNotification(int))
+ 000001C9  SECTION                        0000        FC  ?HandleWaveStreamNotification@CStreamingSound@th06@@QAEJH@Z (public: long __thiscall th06::CStreamingSound::HandleWaveStreamNotification(int))
+
+RELOCATIONS #39
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000060  REL32                      00000000        83  ?RestoreBuffer@CSound@th06@@IAEJPAUIDirectSoundBuffer@@PAH@Z (protected: long __thiscall th06::CSound::RestoreBuffer(struct IDirectSoundBuffer *,int *))
+ 00000087  REL32                      00000000        78  ?FillBufferWithSound@CSound@th06@@QAEJPAUIDirectSoundBuffer@@H@Z (public: long __thiscall th06::CSound::FillBufferWithSound(struct IDirectSoundBuffer *,int))
+ 000000A2  REL32                      00000000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+
+RELOCATIONS #3A
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       11C  ?Reset@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::Reset(void))
+ 00000058  SECREL                     00000000       11C  ?Reset@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::Reset(void))
+ 0000005C  SECTION                        0000       11C  ?Reset@CStreamingSound@th06@@QAEJXZ (public: long __thiscall th06::CStreamingSound::Reset(void))
+
+RELOCATIONS #3C
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       127  ??0CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::CWaveFile(void))
+ 00000058  SECREL                     00000000       127  ??0CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::CWaveFile(void))
+ 0000005C  SECTION                        0000       127  ??0CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::CWaveFile(void))
+
+RELOCATIONS #3D
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000D  REL32                      00000000       1C2  ?Close@CWaveFile@th06@@QAEJXZ (public: long __thiscall th06::CWaveFile::Close(void))
+ 00000032  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+
+RELOCATIONS #3E
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       132  ??1CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::~CWaveFile(void))
+ 00000058  SECREL                     00000000       132  ??1CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::~CWaveFile(void))
+ 0000005C  SECTION                        0000       132  ??1CWaveFile@th06@@QAE@XZ (public: __thiscall th06::CWaveFile::~CWaveFile(void))
+
+RELOCATIONS #3F
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000052  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+ 0000007D  DIR32                      00000000       15F  __imp__mmioOpenA@12
+ 000000AE  DIR32                      00000000       15E  $L63640
+ 000000B3  DIR32                      00000000       15C  ??_C@_0CM@ENIIGADK@The?5directory?5specification?5is?5i@ (`string')
+ 000000B8  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000000C2  DIR32                      00000000       158  ??_C@_0CO@ILLECJHO@The?5file?5is?5protected?5and?5cannot@ (`string')
+ 000000C7  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000000D1  DIR32                      00000000       154  ??_C@_0EE@JAHAHBNI@The?5file?5is?5being?5used?5by?5anothe@ (`string')
+ 000000D6  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000000E0  DIR32                      00000000       150  ??_C@_0BG@GGGNOAGD@too?5Meny?5Open?5Files?5?6?$AA@ (`string')
+ 000000E5  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000000EF  DIR32                      00000000       14C  ??_C@_0FK@DIGMLMMC@Another?5failure?5condition?5occurr@ (`string')
+ 000000F4  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000000FC  DIR32                      00000000       149  ??_C@_0CH@LOJAKEMJ@error?5?3?5mmioOpen?5in?5CWaveFile?3?3O@ (`string')
+ 00000101  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000113  REL32                      00000000       174  ?ReadMMIO@CWaveFile@th06@@IAEJXZ (protected: long __thiscall th06::CWaveFile::ReadMMIO(void))
+ 0000012B  DIR32                      00000000       146  __imp__mmioClose@8
+ 00000130  DIR32                      00000000       145  ??_C@_0CH@JBDBNNGL@error?5?3?5ReadOpen?5in?5CWaveFile?3?3O@ (`string')
+ 00000135  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000149  REL32                      00000000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 00000157  DIR32                      00000000       142  ??_C@_0CI@LAPEBOLC@error?5?3?5ResetFile?5in?5CWaveFile?3?3@ (`string')
+ 0000015C  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000180  DIR32                      00000000       15D  $L63249
+ 00000184  DIR32                      00000000       159  $L63251
+ 00000188  DIR32                      00000000       155  $L63253
+ 0000018C  DIR32                      00000000       13F  $L63246
+ 00000190  DIR32                      00000000       151  $L63255
+ 00000194  DIR32                      00000000       14D  $L63257
+
+RELOCATIONS #40
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       13D  ?Open@CWaveFile@th06@@QAEJPADPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::Open(char *,struct tWAVEFORMATEX *,unsigned long))
+ 00000058  SECREL                     00000000       13D  ?Open@CWaveFile@th06@@QAEJPADPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::Open(char *,struct tWAVEFORMATEX *,unsigned long))
+ 0000005C  SECTION                        0000       13D  ?Open@CWaveFile@th06@@QAEJPADPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::Open(char *,struct tWAVEFORMATEX *,unsigned long))
+ 0000007D  SECREL                     00000000       15E  $L63640
+ 00000081  SECTION                        0000       15E  $L63640
+ 00000088  SECREL                     00000000       15D  $L63249
+ 0000008C  SECTION                        0000       15D  $L63249
+ 0000009B  SECREL                     00000000       159  $L63251
+ 0000009F  SECTION                        0000       159  $L63251
+ 000000AE  SECREL                     00000000       155  $L63253
+ 000000B2  SECTION                        0000       155  $L63253
+ 000000C1  SECREL                     00000000       151  $L63255
+ 000000C5  SECTION                        0000       151  $L63255
+ 000000D4  SECREL                     00000000       14D  $L63257
+ 000000D8  SECTION                        0000       14D  $L63257
+ 00000150  SECREL                     0000002D       13D  ?Open@CWaveFile@th06@@QAEJPADPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::Open(char *,struct tWAVEFORMATEX *,unsigned long))
+ 00000154  SECTION                        0000       13D  ?Open@CWaveFile@th06@@QAEJPADPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::Open(char *,struct tWAVEFORMATEX *,unsigned long))
+
+RELOCATIONS #4A
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       169  ?OpenFromMemory@CWaveFile@th06@@QAEJPAEKPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::OpenFromMemory(unsigned char *,unsigned long,struct tWAVEFORMATEX *,unsigned long))
+ 00000058  SECREL                     00000000       169  ?OpenFromMemory@CWaveFile@th06@@QAEJPAEKPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::OpenFromMemory(unsigned char *,unsigned long,struct tWAVEFORMATEX *,unsigned long))
+ 0000005C  SECTION                        0000       169  ?OpenFromMemory@CWaveFile@th06@@QAEJPAEKPAUtWAVEFORMATEX@@K@Z (public: long __thiscall th06::CWaveFile::OpenFromMemory(unsigned char *,unsigned long,struct tWAVEFORMATEX *,unsigned long))
+
+RELOCATIONS #4B
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000026  DIR32                      00000000       178  __imp__mmioDescend@16
+ 00000077  DIR32                      00000000       178  __imp__mmioDescend@16
+ 000000A8  DIR32                      00000000       177  __imp__mmioRead@12
+ 000000CC  REL32                      00000000        46  ??2@YAPAXI@Z (void * __cdecl operator new(unsigned int))
+ 00000131  DIR32                      00000000       177  __imp__mmioRead@12
+ 00000152  REL32                      00000000        46  ??2@YAPAXI@Z (void * __cdecl operator new(unsigned int))
+ 000001BB  DIR32                      00000000       177  __imp__mmioRead@12
+ 000001E1  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+ 00000207  DIR32                      00000000       176  __imp__mmioAscend@12
+ 00000224  REL32                      00000000        44  ??3@YAXPAX@Z (void __cdecl operator delete(void *))
+
+RELOCATIONS #4C
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       174  ?ReadMMIO@CWaveFile@th06@@IAEJXZ (protected: long __thiscall th06::CWaveFile::ReadMMIO(void))
+ 00000058  SECREL                     00000000       174  ?ReadMMIO@CWaveFile@th06@@IAEJXZ (protected: long __thiscall th06::CWaveFile::ReadMMIO(void))
+ 0000005C  SECTION                        0000       174  ?ReadMMIO@CWaveFile@th06@@IAEJXZ (protected: long __thiscall th06::CWaveFile::ReadMMIO(void))
+ 000000C5  SECREL                     0000011C       174  ?ReadMMIO@CWaveFile@th06@@IAEJXZ (protected: long __thiscall th06::CWaveFile::ReadMMIO(void))
+ 000000C9  SECTION                        0000       174  ?ReadMMIO@CWaveFile@th06@@IAEJXZ (protected: long __thiscall th06::CWaveFile::ReadMMIO(void))
+
+RELOCATIONS #4E
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       182  ?GetSize@CWaveFile@th06@@QAEKXZ (public: unsigned long __thiscall th06::CWaveFile::GetSize(void))
+ 00000058  SECREL                     00000000       182  ?GetSize@CWaveFile@th06@@QAEKXZ (public: unsigned long __thiscall th06::CWaveFile::GetSize(void))
+ 0000005C  SECTION                        0000       182  ?GetSize@CWaveFile@th06@@QAEKXZ (public: unsigned long __thiscall th06::CWaveFile::GetSize(void))
+
+RELOCATIONS #4F
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 00000036  DIR32                      00000000       1A7  ??_C@_0DB@MNJCDODB@error?5?3?5m_hmmio?7?$DN?$DN?5NULL?5in?5CWave@ (`string')
+ 0000003B  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 0000006E  DIR32                      00000000       1A4  __imp__mmioSeek@12
+ 00000078  DIR32                      00000000       1A3  ??_C@_0CK@IAHMNBOJ@error?5?3?5mmioSeek?5in?5CWaveFile?3?3R@ (`string')
+ 0000007D  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000000B1  DIR32                      00000000       178  __imp__mmioDescend@16
+ 000000BF  DIR32                      00000000       1A0  ??_C@_0CN@JPOKKPAB@error?5?3?5mmioDescend?5in?5CWaveFile@ (`string')
+ 000000C4  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000120  DIR32                      00000000       19D  __imp__mmioGetInfo@12
+ 00000129  DIR32                      00000000       19C  ??_C@_0CN@DKEIJJFJ@error?5?3?5mmioGetInfo?5in?5CWaveFile@ (`string')
+ 0000012E  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000176  DIR32                      00000000       199  __imp__mmioAdvance@12
+ 0000017F  DIR32                      00000000       198  ??_C@_0CN@KBCEKABP@error?5?3?5mmioAdvance?5in?5CWaveFile@ (`string')
+ 00000184  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 0000019B  DIR32                      00000000       195  ??_C@_0EN@ONDCMAKL@error?5?3?5mmioinfoIn?4pchNext?5?$DN?$DN?5mm@ (`string')
+ 000001A0  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000001DD  DIR32                      00000000       192  __imp__mmioSetInfo@12
+ 000001E6  DIR32                      00000000       191  ??_C@_0CN@DIEJNJCH@error?5?3?5mmioSetInfo?5in?5CWaveFile@ (`string')
+ 000001EB  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+
+RELOCATIONS #50
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 00000058  SECREL                     00000000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 0000005C  SECTION                        0000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 000000AC  SECREL                     00000059       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 000000B0  SECTION                        0000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 000000D3  SECREL                     00000111       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 000000D7  SECTION                        0000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 00000101  SECREL                     0000013F       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+ 00000105  SECTION                        0000       18D  ?ResetFile@CWaveFile@th06@@QAEJ_N@Z (public: long __thiscall th06::CWaveFile::ResetFile(bool))
+
+RELOCATIONS #58
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 000000FB  DIR32                      00000000       19D  __imp__mmioGetInfo@12
+ 00000109  DIR32                      00000000       1B8  ??_C@_0O@LKIPKEDO@src?1zwave?4cpp?$AA@ (`string')
+ 0000010E  DIR32                      00000000       1B5  ??_C@_0BA@HLKKNIKP@error?5?3?7?$CFs?$CI?$CFs?$CJ?6?$AA@ (`string')
+ 00000113  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000182  DIR32                      00000000       199  __imp__mmioAdvance@12
+ 00000190  DIR32                      00000000       1B8  ??_C@_0O@LKIPKEDO@src?1zwave?4cpp?$AA@ (`string')
+ 00000195  DIR32                      00000000       1B5  ??_C@_0BA@HLKKNIKP@error?5?3?7?$CFs?$CI?$CFs?$CJ?6?$AA@ (`string')
+ 0000019A  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000001B9  DIR32                      00000000       1B8  ??_C@_0O@LKIPKEDO@src?1zwave?4cpp?$AA@ (`string')
+ 000001BE  DIR32                      00000000       1B5  ??_C@_0BA@HLKKNIKP@error?5?3?7?$CFs?$CI?$CFs?$CJ?6?$AA@ (`string')
+ 000001C3  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 000001FB  DIR32                      00000000       192  __imp__mmioSetInfo@12
+ 00000209  DIR32                      00000000       1B8  ??_C@_0O@LKIPKEDO@src?1zwave?4cpp?$AA@ (`string')
+ 0000020E  DIR32                      00000000       1B5  ??_C@_0BA@HLKKNIKP@error?5?3?7?$CFs?$CI?$CFs?$CJ?6?$AA@ (`string')
+ 00000213  REL32                      00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+
+RELOCATIONS #59
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 00000058  SECREL                     00000000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 0000005C  SECTION                        0000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 000000DB  SECREL                     000000B4       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 000000DF  SECTION                        0000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 0000011E  SECREL                     0000014D       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+ 00000122  SECTION                        0000       1B1  ?Read@CWaveFile@th06@@QAEJPAEKPAK@Z (public: long __thiscall th06::CWaveFile::Read(unsigned char *,unsigned long,unsigned long *))
+
+RELOCATIONS #5C
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000001B  DIR32                      00000000       146  __imp__mmioClose@8
+
+RELOCATIONS #5D
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       1C2  ?Close@CWaveFile@th06@@QAEJXZ (public: long __thiscall th06::CWaveFile::Close(void))
+ 00000058  SECREL                     00000000       1C2  ?Close@CWaveFile@th06@@QAEJXZ (public: long __thiscall th06::CWaveFile::Close(void))
+ 0000005C  SECTION                        0000       1C2  ?Close@CWaveFile@th06@@QAEJXZ (public: long __thiscall th06::CWaveFile::Close(void))
+
+RELOCATIONS #5F
+                                                Symbol    Symbol
+ Offset    Type              Applied To         Index     Name
+ --------  ----------------  -----------------  --------  ------
+ 0000000C  DIR32NB                    00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 00000058  SECREL                     00000000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+ 0000005C  SECTION                        0000       1D1  ?DebugPrint2@utils@th06@@YAXPBDZZ (void __cdecl th06::utils::DebugPrint2(char const *,...))
+
+  Summary
+
+       2B7B5 .debug$S
+          48 .debug$T
+          70 .drectve
+         4CA .rdata
+        1AB3 .text
+          20 .text$x
+          2C .xdata$x

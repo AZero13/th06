@@ -87,8 +87,7 @@ struct PlayerBullet
     AnmVm sprite;
     D3DXVECTOR3 position;
     D3DXVECTOR3 size;
-    D3DXVECTOR2 velocity;
-    f32 sidewaysMotion;
+    D3DXVECTOR3 velocity;
     D3DXVECTOR3 unk_134;
     ZunTimer unk_140;
     i16 damage;
@@ -113,6 +112,7 @@ ZUN_ASSERT_SIZE(PlayerBullet, 0x158);
 
 struct PlayerBombInfo
 {
+    PlayerBombInfo();
     u32 isInUse;
     i32 duration;
     ZunTimer timer;
@@ -168,8 +168,6 @@ ZUN_ASSERT_SIZE(CharacterPowerData, 0xc);
 
 struct Player
 {
-    Player();
-
     static ZunResult RegisterChain(u8 unk);
     static void CutChain();
     static ChainCallbackResult OnUpdate(Player *p);

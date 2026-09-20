@@ -23,10 +23,10 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(StageFile, 8, g_StageFiles) = {
     {"data/stg6bg.anm", "data/stage6.std"},
     {"data/stg7bg.anm", "data/stage7.std"},
 };
-DIFFABLE_STATIC(ChainElem, g_StageOnDrawHighPrioChain)
 DIFFABLE_STATIC(Stage, g_Stage)
-DIFFABLE_STATIC(ChainElem, g_StageOnDrawLowPrioChain)
 DIFFABLE_STATIC(ChainElem, g_StageCalcChain)
+DIFFABLE_STATIC(ChainElem, g_StageOnDrawHighPrioChain)
+DIFFABLE_STATIC(ChainElem, g_StageOnDrawLowPrioChain)
 
 Stage::Stage()
 {

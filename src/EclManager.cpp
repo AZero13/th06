@@ -36,6 +36,10 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(ExInsn, 17, g_EclExInsn) = {EnemyEclInstr::ExInsCir
                                                          EnemyEclInstr::ExInsStageXFunc14,
                                                          EnemyEclInstr::ExInsStageXFunc15,
                                                          EnemyEclInstr::ExInsFlandreFinalContextUpdate};
+DIFFABLE_STATIC(i32, g_PlayerShot);
+DIFFABLE_STATIC(f32, g_PlayerDistance);
+DIFFABLE_STATIC(f32, g_PlayerAngle);
+DIFFABLE_STATIC(ChainElem, g_EclManagerCalcChain); // unused
 DIFFABLE_STATIC(EclManager, g_EclManager);
 
 ZunResult EclManager::Load(char *eclPath)

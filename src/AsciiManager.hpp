@@ -106,5 +106,7 @@ struct AsciiManager
     AsciiManagerPopup popups[515];
 };
 ZUN_ASSERT_SIZE(AsciiManager, 0xc1ac);
+DIFFABLE_EXTERN(ChainElem, g_AsciiManagerCalcChain);
+DIFFABLE_EXTERN(ChainElem, g_AsciiManagerOnDrawPopupsChain);
 DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);
 }; // namespace th06

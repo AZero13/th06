@@ -53,7 +53,7 @@ def main():
                 success = False
                 if e.stderr is not None:
                     vals.append(
-                        {"name": row[0], "error": str(e.stderr, "utf8").strip()}
+                        {"name": row[0], "error": str(e.stderr).strip()}
                     )
                 else:
                     vals.append({"name": row[0], "error": "failed"})

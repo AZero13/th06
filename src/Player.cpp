@@ -29,7 +29,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 4, g_CharData) = {
 };
 DIFFABLE_STATIC(Player, g_Player);
 
-Player::Player()
+PlayerBombInfo::PlayerBombInfo()
 {
 }
 
@@ -552,7 +552,7 @@ void Player::UpdatePlayerBullets(Player *player)
 
             bullet->position = player->orbsPosition[bullet->spawnPositionIdx - 1];
 
-            bullet->position.x += bullet->sidewaysMotion;
+            bullet->position.x += bullet->velocity.z;
             bullet->position.y /= 2.0f;
             bullet->position.z = 0.44f;
 
@@ -1107,7 +1107,7 @@ FireBulletResult Player::FireSingleBullet(Player *player, PlayerBullet *bullet, 
 
             bullet->unk_152 = bulletFrame;
             bullet->spawnPositionIdx = bulletData->spawnPositionIdx;
-            bullet->sidewaysMotion = bulletData->motion.x;
+            bullet->velocity.z = bulletData->motion.x;
             bullet->unk_134.x = bulletData->motion.y;
             goto SHOOT_BULLET;
         }

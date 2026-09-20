@@ -99,6 +99,10 @@ enum SupervisorState
 
 struct Supervisor
 {
+    Supervisor()
+    {
+        memset(this, 0, sizeof(Supervisor));
+    }
     static ZunResult RegisterChain();
     static ChainCallbackResult OnUpdate(Supervisor *s);
     static ChainCallbackResult OnDraw(Supervisor *s);
@@ -320,6 +324,8 @@ struct ZunTimer
     {
         SetCurrent(value);
     }
+
+    i32 NextTick();
 
     i32 Tick()
     {
