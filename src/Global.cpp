@@ -63,7 +63,7 @@ int Chain::AddToCalcChain(ChainElem *elem, int priority)
     ChainElem *cur;
 
     cur = &this->calcChain;
-    utils::DebugPrint2("add calc chain (pri = %d)\n", priority);
+    DebugPrint("add calc chain (pri = %d)\n", priority);
     elem->priority = priority;
 
     while (cur->next != NULL)
@@ -113,7 +113,7 @@ int Chain::AddToDrawChain(ChainElem *elem, int priority)
     ChainElem *cur;
 
     cur = &this->drawChain;
-    utils::DebugPrint2("add draw chain (pri = %d)\n", priority);
+    DebugPrint("add draw chain (pri = %d)\n", priority);
     elem->priority = priority;
 
     while (cur->next != NULL)
@@ -362,11 +362,11 @@ void Chain::Cut(ChainElem *to_remove)
 destroy_elem:
     if (!isDrawChain)
     {
-        utils::DebugPrint2("calc cut Chain (Pri = %d)\n", to_remove->priority);
+        DebugPrint("calc cut Chain (Pri = %d)\n", to_remove->priority);
     }
     else
     {
-        utils::DebugPrint2("draw cut Chain (Pri = %d)\n", to_remove->priority);
+        DebugPrint("draw cut Chain (Pri = %d)\n", to_remove->priority);
     }
 
     if (to_remove->prev != NULL)
@@ -540,13 +540,13 @@ u16 Controller::GetControllerInput(u16 buttons)
         {
             i32 retryCount = 0;
 
-            utils::DebugPrint2("error : DIERR_INPUTLOST\n");
+            DebugPrint("error : DIERR_INPUTLOST\n");
             aaa = g_Supervisor.controller->Acquire();
 
             while (aaa == DIERR_INPUTLOST)
             {
                 aaa = g_Supervisor.controller->Acquire();
-                utils::DebugPrint2("error : DIERR_INPUTLOST %d\n", retryCount);
+                DebugPrint("error : DIERR_INPUTLOST %d\n", retryCount);
 
                 retryCount++;
 
@@ -697,12 +697,12 @@ u8 *th06::Controller::GetControllerState()
         if (FAILED(dires))
         {
             diRetryCount = 0;
-            utils::DebugPrint2("error : DIERR_INPUTLOST\n");
+            DebugPrint("error : DIERR_INPUTLOST\n");
             dires = g_Supervisor.controller->Acquire();
             while (dires == DIERR_INPUTLOST)
             {
                 dires = g_Supervisor.controller->Acquire();
-                utils::DebugPrint2("error : DIERR_INPUTLOST %d\n", diRetryCount);
+                DebugPrint("error : DIERR_INPUTLOST %d\n", diRetryCount);
                 diRetryCount++;
                 if (diRetryCount >= 400)
                 {
@@ -912,17 +912,17 @@ u8 *FileSystem::OpenPath(char *filepath, ZunBool isExternalResource)
     }
     if (entryIdx >= 0)
     {
-        utils::DebugPrint2("%s Decode ... \n", entryname);
+        DebugPrint("%s Decode ... \n", entryname);
         data = g_Pbg3Archives[pbg3Idx]->ReadDecompressEntry(entryIdx, entryname);
         g_LastFileSize = g_Pbg3Archives[pbg3Idx]->GetEntrySize(entryIdx);
     }
     else
     {
-        utils::DebugPrint2("%s Load ... \n", filepath);
+        DebugPrint("%s Load ... \n", filepath);
         file = fopen(filepath, "rb");
         if (file == NULL)
         {
-            utils::DebugPrint2("error : %s is not found.\n", filepath);
+            DebugPrint("error : %s is not found.\n", filepath);
             return NULL;
         }
         else
@@ -1070,7 +1070,9 @@ void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle)
     outVector->y = cosOut * point->y - sinOut * point->x;
 }
 
-void DebugPrint2(const char *fmt, ...)
+}; // namespace utils
+
+void DebugPrint(const char *fmt, ...)
 {
 #ifdef DEBUG
     char tmpBuffer[512];
@@ -1084,5 +1086,4 @@ void DebugPrint2(const char *fmt, ...)
 #endif
 }
 
-}; // namespace utils
 }; // namespace th06

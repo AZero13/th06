@@ -593,7 +593,7 @@ i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, char *filename)
     {
         this->ReleasePbg3(pbg3FileIdx);
         this->pbg3Archives[pbg3FileIdx] = ZUN_NEW(Pbg3Archive);
-        utils::DebugPrint("%s open ...\n", filename);
+        DebugPrint("%s open ...\n", filename);
         if (this->pbg3Archives[pbg3FileIdx]->Load(filename) != 0)
         {
             strcpy(this->pbg3ArchiveNames[pbg3FileIdx], filename);
@@ -647,7 +647,7 @@ ZunResult Supervisor::LoadConfig(char *path)
         else
         {
             g_Supervisor.cfg.musicMode = MIDI;
-            utils::DebugPrint(TH_ERR_NO_WAVE_FILE);
+            DebugPrint(TH_ERR_NO_WAVE_FILE);
         }
         g_Supervisor.cfg.playSounds = 1;
         g_Supervisor.cfg.defaultDifficulty = NORMAL;
@@ -680,7 +680,7 @@ ZunResult Supervisor::LoadConfig(char *path)
             else
             {
                 g_Supervisor.cfg.musicMode = MIDI;
-                utils::DebugPrint(TH_ERR_NO_WAVE_FILE);
+                DebugPrint(TH_ERR_NO_WAVE_FILE);
             }
             g_Supervisor.cfg.playSounds = 1;
             g_Supervisor.cfg.defaultDifficulty = NORMAL;

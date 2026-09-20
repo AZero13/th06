@@ -1316,7 +1316,7 @@ ZunResult ResultScreen::RegisterChain(i32 unk)
     ResultScreen *resultScreen;
     resultScreen = ZUN_NEW(ResultScreen);
 
-    utils::DebugPrint(TH_DBG_RESULTSCREEN_COUNAT, g_GameManager.counat);
+    DebugPrint(TH_DBG_RESULTSCREEN_COUNAT, g_GameManager.counat);
 
     resultScreen->calcChain = g_Chain.CreateElem((ChainCallback)ResultScreen::OnUpdate);
     resultScreen->calcChain->addedCallback = (ChainAddedCallback)ResultScreen::AddedCallback;

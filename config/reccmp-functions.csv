@@ -211,7 +211,7 @@ th06::Rng::GetRandomU32,0x41e7f0,function
 th06::Rng::GetRandomF32ZeroToOne,0x41e820,function
 th06::utils::AddNormalizeAngle,0x41e850,function
 th06::utils::Rotate,0x41e8d0,function
-th06::utils::DebugPrint2,0x41e940,function
+th06::DebugPrint,0x41e940,function
 th06::TextHelper::TextHelper,0x41e945,function
 th06::TextHelper::~TextHelper,0x41e981,function
 th06::TextHelper::ReleaseBuffer,0x41e992,function
@@ -365,7 +365,6 @@ th06::ResultScreen::OnUpdate,0x42d98e,function
 th06::ResultScreen::OnDraw,0x42e446,function
 th06::ResultScreen::AddedCallback,0x42f060,function
 th06::ResultScreen::DeletedCallback,0x42f5bc,function
-th06::utils::DebugPrint,0x42f6c4,function
 th06::ScreenEffect::Clear,0x42f6d0,function
 th06::ScreenEffect::SetViewport,0x42f790,function
 th06::ScreenEffect::CalcFadeIn,0x42f800,function

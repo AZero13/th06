@@ -263,7 +263,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
             case ECL_OPCODE_RET:
                 if (enemy->flags.disableCallStack)
                 {
-                    utils::DebugPrint2("error : no Stack Ret\n");
+                    DebugPrint("error : no Stack Ret\n");
                 }
                 enemy->stackDepth--;
                 enemy->currentContext = enemy->savedContextStack[enemy->stackDepth];
@@ -305,7 +305,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
             case ECL_OPCODE_ANMSETSLOT:
                 if (ARRAY_SIZE_SIGNED(enemy->vms) <= instruction->args.anmSetSlot.vmIdx)
                 {
-                    utils::DebugPrint2("error : sub anim overflow\n");
+                    DebugPrint("error : sub anim overflow\n");
                 }
                 g_AnmManager->SetAndExecuteScriptIdx(&enemy->vms[instruction->args.anmSetSlot.vmIdx],
                                                      args->anmSetSlot.scriptIdx + ANM_SCRIPT_ENEMY_START);

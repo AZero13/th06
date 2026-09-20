@@ -51,6 +51,7 @@
 
 namespace th06
 {
+void DebugPrint(const char *fmt, ...);
 
 #define CHARACTER_COUNT 2
 #define SHOTTYPES_PER_CHARACTER 2
@@ -59,21 +60,6 @@ namespace th06
 namespace utils
 {
 ZunResult CheckForRunningGameInstance(void);
-static void DebugPrint(const char *fmt, ...)
-{
-#ifdef DEBUG
-    char tmpBuffer[512];
-    std::va_list args;
-
-    va_start(args, fmt);
-    vsprintf(tmpBuffer, fmt, args);
-    va_end(args);
-
-    printf("DEBUG2: %s\n", tmpBuffer);
-#endif
-}
-
-void DebugPrint2(const char *fmt, ...);
 
 f32 AddNormalizeAngle(f32 a, f32 b);
 void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle);

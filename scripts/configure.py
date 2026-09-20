@@ -149,6 +149,12 @@ def configure(build_type):
             variables = {}
             if rule in small_codegen_sources:
                 variables = {"cl_flags": "$cl_flags_small_codegen"}
+
+            # Disable precompiled headers for specific files
+            if rule in ("EffectManager", "Ending", "Supervisor"):
+                base_flags = variables.get("cl_flags", "$cl_flags")
+                variables["cl_flags"] = base_flags + " /Y-"
+
             writer.build(
                 "$builddir/" + rule + ".obj",
                 "cc",

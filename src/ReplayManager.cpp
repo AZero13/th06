@@ -238,7 +238,7 @@ ZunResult ReplayManager::AddedCallback(ReplayManager *mgr)
     }
     if (mgr->replayData->stageReplayData[g_GameManager.currentStage - 1] != NULL)
     {
-        utils::DebugPrint2("error : replay.cpp");
+        DebugPrint("error : replay.cpp");
     }
     mgr->replayData->stageReplayData[g_GameManager.currentStage - 1] = ZUN_ALLOC_TYPE(StageReplayData);
     stageReplayData = mgr->replayData->stageReplayData[g_GameManager.currentStage - 1];
@@ -369,7 +369,7 @@ void ReplayManager::SaveReplay(char *replayPath, char *replayName)
                                           (size_t)mgr->replayData->stageReplayData[stageIdx];
                     }
                 }
-                utils::DebugPrint2("%s write ...\n", replayPath);
+                DebugPrint("%s write ...\n", replayPath);
                 replayCopy.score = g_GameManager.guiScore;
                 slowDown = (g_Supervisor.unk1b4 / g_Supervisor.unk1b8 - 0.5f) * 2.0f;
                 if (slowDown < 0.0f)
@@ -457,8 +457,8 @@ void ReplayManager::SaveReplay(char *replayPath, char *replayName)
             {
                 if (g_ReplayManager->replayData->stageReplayData[stageIdx] != NULL)
                 {
-                    utils::DebugPrint2("Replay Size %d\n", (i32)mgr->replayInputStageBookmarks[stageIdx] -
-                                                               (i32)mgr->replayData->stageReplayData[stageIdx]);
+                    DebugPrint("Replay Size %d\n", (i32)mgr->replayInputStageBookmarks[stageIdx] -
+                                                       (i32)mgr->replayData->stageReplayData[stageIdx]);
                     ZUN_FREE(g_ReplayManager->replayData->stageReplayData[stageIdx]);
                 }
             }

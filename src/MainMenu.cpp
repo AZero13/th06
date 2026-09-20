@@ -731,7 +731,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     refreshRate = 60.0f / 70.0f;
                 else
                     refreshRate = 1.0;
-                utils::DebugPrint("Reflesh Rate = %f\n", 60.0f / refreshRate);
+                DebugPrint("Reflesh Rate = %f\n", 60.0f / refreshRate);
                 g_Supervisor.framerateMultiplier = refreshRate;
                 g_Supervisor.StopAudio();
                 return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
@@ -2159,7 +2159,7 @@ ZunResult MainMenu::RegisterChain(u32 isDemo)
 
     memset(menu, 0, sizeof(MainMenu));
     g_GameManager.isInGameMenu = 0;
-    utils::DebugPrint(TH_DBG_MAINMENU_VRAM, g_Supervisor.d3dDevice->GetAvailableTextureMem());
+    DebugPrint(TH_DBG_MAINMENU_VRAM, g_Supervisor.d3dDevice->GetAvailableTextureMem());
     menu->gameState = isDemo ? STATE_REPLAY_LOAD : STATE_STARTUP;
     g_Supervisor.framerateMultiplier = 0.0;
     menu->chainCalc = g_Chain.CreateElem((ChainCallback)MainMenu::OnUpdate);

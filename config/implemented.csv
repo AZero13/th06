@@ -502,8 +502,7 @@ th06::IPbg3Parser::`scalar_deleting_destructor'
 th06::Pbg3Parser::`scalar_deleting_destructor'
 D3DXMatrixIdentity
 D3DXVec3Length
-th06::utils::DebugPrint
-th06::utils::DebugPrint2
+th06::DebugPrint
 th06::AnmManager::~AnmManager
 th06::IPbg3Parser::~IPbg3Parser
 th06::Pbg3Archive::~Pbg3Archive
