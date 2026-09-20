@@ -41,11 +41,14 @@ def configure(build_type):
         )
 
         writer.variable("msvc_deps_prefix", "Note: including file:")
+        
+        writer.pool("single_thread_pool", 1)
+        
         writer.rule(
             "cc",
             "$cl /nologo /showIncludes $cl_flags /c $in /Fd$out.pdb /Fo$out",
             deps="msvc",
-            pool="single_thread_pool",  # Needed for YX
+            pool="single_thread_pool",  # Needed for /YX
         )
         writer.rule("genglobals", "python scripts/generate_globals.py $in $out")
         writer.rule("rc", "$rc /fo $out $in")
