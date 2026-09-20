@@ -9,7 +9,6 @@ EnemyEclInstr,th06::EnemyEclInstr
 EnemyManager,th06::EnemyManager,th06::Enemy
 FileAbstraction,th06::FileAbstraction
 GameManager,th06::GameManager
-GameWindow,th06::GameWindow
 Global,th06::Chain,th06::ChainElem,th06::CMyFont,th06::Controller,th06::FileSystem,th06::GameErrorContext,th06::Rng,th06::utils
 Gui,th06::Gui,th06::GuiImpl
 IPbg3Parser,th06::IPbg3Parser
@@ -27,5 +26,5 @@ SoundPlayer,th06::SoundPlayer
 Stage,th06::Stage,th06::AnmManager::ExecuteAnmIdx
 Supervisor,th06::Supervisor
 TextHelper,th06::TextHelper
-main,WinMain
+main,WinMain,th06::GameWindow
 zwave,th06::CSound,th06::CSoundManager,th06::CStreamingSound,th06::CWaveFile

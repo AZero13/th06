@@ -75,6 +75,8 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(DifficultyInfo, 5, g_DifficultyInfo) = {
     /* EXTRA   */ {16, 14, 18},
 };
 
+DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {0, 1, 2, 4, -1, -1, -1, -1, 3};
+
 // These are either on Supervisor.cpp or somewhere else
 DIFFABLE_STATIC(GameManager, g_GameManager);
 

@@ -19,5 +19,4 @@ struct BombData
     static void BombMarisaBDraw(Player *);
     static void DarkenViewport(Player *player);
 };
-DIFFABLE_EXTERN_ARRAY(BombData, 4, g_BombData);
 }; // namespace th06

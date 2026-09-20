@@ -94,11 +94,11 @@ def configure(build_type):
             "TextHelper",
             "ItemManager",
             "main",
-            "GameWindow",
             "MidiOutput",
             "Supervisor",
             "MusicRoom",
             "Player",
+            "BulletData",
             "ReplayManager",
             "ResultScreen",
             "ScreenEffect",
@@ -106,7 +106,6 @@ def configure(build_type):
             "AnmManager",
             "MainMenu",
             "zwave",
-            "BulletData",
         ]
 
         small_codegen_sources = set(

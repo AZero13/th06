@@ -1070,5 +1070,19 @@ void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle)
     outVector->y = cosOut * point->y - sinOut * point->x;
 }
 
+void DebugPrint2(const char *fmt, ...)
+{
+#ifdef DEBUG
+    char tmpBuffer[512];
+    std::va_list args;
+
+    va_start(args, fmt);
+    vsprintf(tmpBuffer, fmt, args);
+    va_end(args);
+
+    printf("DEBUG2: %s\n", tmpBuffer);
+#endif
+}
+
 }; // namespace utils
 }; // namespace th06

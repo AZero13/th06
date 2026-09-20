@@ -21,6 +21,12 @@
 
 namespace th06
 {
+DIFFABLE_STATIC_ARRAY_ASSIGN(BombData, 4, g_BombData) = {
+    /* ReimuA  */ {BombData::BombReimuACalc, BombData::BombReimuADraw},
+    /* ReimuB  */ {BombData::BombReimuBCalc, BombData::BombReimuBDraw},
+    /* MarisaA */ {BombData::BombMarisaACalc, BombData::BombMarisaADraw},
+    /* MarisaB */ {BombData::BombMarisaBCalc, BombData::BombMarisaBDraw},
+};
 DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 4, g_CharData) = {
     /* ReimuA  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuA, Player::FireBulletReimuA},
     /* ReimuB  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuB, Player::FireBulletReimuB},
