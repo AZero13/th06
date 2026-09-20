@@ -17,14 +17,6 @@ DIFFABLE_STATIC(ChainElem, g_AsciiManagerCalcChain)
 DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawMenusChain)
 DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawPopupsChain)
 
-AsciiManager::AsciiManager()
-{
-}
-
-StageMenu::StageMenu()
-{
-}
-
 ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
 {
     if (!g_GameManager.isInGameMenu && !g_GameManager.isInRetryMenu)
