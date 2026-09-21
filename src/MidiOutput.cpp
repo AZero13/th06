@@ -3,7 +3,6 @@
 #include <mmreg.h>
 #include <mmsystem.h>
 
-#include "AnmManager.hpp"
 #include "Global.hpp"
 #include "MidiOutput.hpp"
 #include "Supervisor.hpp"
@@ -145,7 +144,7 @@ i32 MidiTimer::StopTimer()
     return 1;
 }
 
-void CALLBACK MidiTimer::DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+void CALLBACK MidiTimer::DefaultTimerCallback(u32 uTimerID, u32 uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
     MidiTimer *timer = (MidiTimer *)dwUser;
 
@@ -717,10 +716,4 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
     return;
 }
 
-AnmManager::~AnmManager()
-{
-}
-void MidiTimer::OnTimerElapsed()
-{
-}
 }; // namespace th06
