@@ -858,18 +858,4 @@ void EnemyManager::CutChain()
     g_Chain.Cut(&g_EnemyManagerDrawChain);
     return;
 }
-
-void Enemy::Move()
-{
-    if (!this->flags.invertX)
-    {
-        this->position.x += g_Supervisor.effectiveFramerateMultiplier * this->axisSpeed.x;
-    }
-    else
-    {
-        this->position.x -= g_Supervisor.effectiveFramerateMultiplier * this->axisSpeed.x;
-    }
-    this->position.y += g_Supervisor.effectiveFramerateMultiplier * this->axisSpeed.y;
-    this->position.z += g_Supervisor.effectiveFramerateMultiplier * this->axisSpeed.z;
-}
 }; // namespace th06

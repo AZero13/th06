@@ -6,6 +6,7 @@
 #include "SoundPlayer.hpp"
 #include "Stage.hpp"
 #include "Supervisor.hpp"
+#include "ZunTimer.hpp"
 #include "diffbuild.hpp"
 #include "i18n.hpp"
 #include <stdio.h>
@@ -73,10 +74,6 @@ restart:
 
     if (Supervisor::RegisterChain() != ZUN_SUCCESS)
     {
-        // this is the most likely place an inlined function
-        // with an unused variable would be, since the branch
-        // is empty otherwise...
-        FAKE_INLINE_DWORD_STACK_PADDING<1>();
     }
     else
     {
@@ -298,7 +295,6 @@ RenderResult GameWindow::Render()
 
 void GameWindow::Present()
 {
-    i32 unused;
     if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
     {
         g_AnmManager->ReleaseSurfaces();

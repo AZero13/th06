@@ -176,22 +176,12 @@ struct Player
     static ZunResult AddedCallback(Player *p);
     static ZunResult DeletedCallback(Player *p);
 
-    static FireBulletResult FireSingleBullet(Player *, PlayerBullet *bullet, i32 bullet_idx, i32 framesSinceLastBullet,
-                                             CharacterPowerData *powerData);
-
     static FireBulletResult FireBulletReimuA(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FireBulletReimuB(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FireBulletMarisaA(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FireBulletMarisaB(Player *, PlayerBullet *, u32, u32);
 
-    static void StartFireBulletTimer(Player *);
     ZunResult HandlePlayerInputs();
-    static void UpdatePlayerBullets(Player *);
-    static ZunResult UpdateFireBulletsTimer(Player *);
-
-    static void SpawnBullets(Player *, u32 timer);
-    static void DrawBullets(Player *p);
-    static void DrawBulletExplosions(Player *p);
 
     f32 AngleFromPlayer(D3DXVECTOR3 *pos);
     f32 AngleToPlayer(D3DXVECTOR3 *pos);

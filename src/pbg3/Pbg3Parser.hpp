@@ -11,15 +11,14 @@ class Pbg3Parser : public IPbg3Parser, public FileAbstraction
   public:
     Pbg3Parser();
     i32 OpenArchive(char *path);
-    i32 ReadBit();
-    u32 ReadInt(u32 numBitsAsPowersOf2);
-    i32 ReadByte();
-    i32 SeekToOffset(u32 fileOffset);
-    i32 SeekToNextByte();
-    i32 ReadByteAlignedData(u8 *data, u32 bytesToRead);
-    i32 GetLastWriteTime(LPFILETIME lastWriteTime);
-
     void Close();
+    virtual i32 ReadBit();
+    virtual u32 ReadInt(u32 numBitsAsPowersOf2);
+    virtual i32 ReadByte();
+    virtual i32 SeekToOffset(u32 fileOffset);
+    virtual i32 SeekToNextByte();
+    virtual i32 ReadByteAlignedData(u8 *data, u32 bytesToRead);
+    virtual i32 GetLastWriteTime(LPFILETIME lastWriteTime);
 
     ~Pbg3Parser();
 };

@@ -6,6 +6,7 @@
 #include "Global.hpp"
 #include "MidiOutput.hpp"
 #include "Supervisor.hpp"
+#include "ZunTimer.hpp"
 #include "i18n.hpp"
 
 namespace th06

@@ -14,6 +14,7 @@
 #include "SoundPlayer.hpp"
 #include "Stage.hpp"
 #include "Supervisor.hpp"
+#include "ZunTimer.hpp"
 
 #include <d3d8types.h>
 #include <d3dx8math.h>
@@ -330,19 +331,19 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
             catk->numAttempts = 0;
             catk->numSuccess = 0;
         }
-        scoredat = ResultScreen::OpenScore("score.dat");
+        scoredat = OpenScore("score.dat");
         g_GameManager.highScore =
-            ResultScreen::GetHighScore(scoredat, NULL, g_GameManager.CharacterShotType(), g_GameManager.difficulty);
-        ResultScreen::ParseCatk(scoredat, mgr->catk);
-        ResultScreen::ParseClrd(scoredat, mgr->clrd);
-        ResultScreen::ParsePscr(scoredat, (Pscr *)mgr->pscr);
+            GetHighScore(scoredat, NULL, g_GameManager.CharacterShotType(), g_GameManager.difficulty);
+        ParseCatk(scoredat, mgr->catk);
+        ParseClrd(scoredat, mgr->clrd);
+        ParsePscr(scoredat, (Pscr *)mgr->pscr);
         if (mgr->isInPracticeMode)
         {
             g_GameManager.highScore =
                 mgr->pscr[g_GameManager.CharacterShotType()][g_GameManager.currentStage][g_GameManager.difficulty]
                     .score;
         }
-        ResultScreen::ReleaseScoreDat(scoredat);
+        ReleaseScoreDat(scoredat);
         mgr->rank = g_DifficultyInfo[g_GameManager.difficulty].rank;
         mgr->minRank = g_DifficultyInfo[g_GameManager.difficulty].minRank;
         mgr->maxRank = g_DifficultyInfo[g_GameManager.difficulty].maxRank;
