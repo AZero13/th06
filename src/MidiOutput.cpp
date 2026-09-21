@@ -717,6 +717,8 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
     return;
 }
 
+// TODO: HORRIBLE FAKE LINKER HACK
+// Figure out comdat folding to fix
 AnmManager::~AnmManager()
 {
 }
