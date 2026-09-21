@@ -9,6 +9,7 @@
 #include "ScreenEffect.hpp"
 #include "Supervisor.hpp"
 #include "ZunColor.hpp"
+#include "ZunTimer.hpp"
 #include <d3d8.h>
 
 namespace th06

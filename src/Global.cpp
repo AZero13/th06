@@ -12,6 +12,7 @@
 #include "Global.hpp"
 #include "Supervisor.hpp"
 #include "ZunMath.hpp"
+#include "ZunTimer.hpp"
 #include "i18n.hpp"
 #include "pbg3/Pbg3Archive.hpp"
 #include <dinput.h>
@@ -1083,6 +1084,5 @@ void DebugPrint2(const char *fmt, ...)
     printf("DEBUG2: %s\n", tmpBuffer);
 #endif
 }
-
 }; // namespace utils
 }; // namespace th06

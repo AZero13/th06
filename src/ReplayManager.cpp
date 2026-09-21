@@ -7,6 +7,7 @@
 #include "Gui.hpp"
 #include "ReplayManager.hpp"
 #include "Supervisor.hpp"
+#include "ZunTimer.hpp"
 
 namespace th06
 {

@@ -18,6 +18,70 @@
 
 namespace th06
 {
+#pragma function(memset)
+struct ResultScreen
+{
+    ResultScreen()
+    {
+        memset(this, 0, sizeof(ResultScreen));
+        this->cursor = 1;
+    }
+    ~ResultScreen()
+    {
+        ZUN_FREE(this->scoreDat);
+    };
+
+    static ZunResult RegisterChain(i32 unk);
+    static ChainCallbackResult OnUpdate(ResultScreen *r);
+    static ChainCallbackResult OnDraw(ResultScreen *r);
+    static ZunResult AddedCallback(ResultScreen *r);
+    static ZunResult DeletedCallback(ResultScreen *r);
+
+    static void WriteScore(ResultScreen *r);
+    void FreeScore(i32 difficulty, i32 character);
+
+    static void MoveCursor(ResultScreen *r, i32 len);
+    static ZunBool MoveCursorHorizontally(ResultScreen *r, i32 len);
+
+    static void FreeAllScores(ScoreListNode *scores);
+
+    i32 HandleResultKeyboard();
+    i32 HandleReplaySaveKeyboard();
+    ZunResult CheckConfirmButton();
+
+    static i32 LinkScore(ScoreListNode *, Hscr *);
+    i32 LinkScoreEx(Hscr *out, i32 difficulty, i32 character);
+    u32 DrawFinalStats();
+
+    ScoreDat *scoreDat;
+    i32 frameTimer;
+    i32 resultScreenState;
+    i32 lastResultScreenState;
+    i32 cursor;
+    i32 lastBestScoresCursor;
+    i32 previousCursor;
+    i32 replayNumber;
+    i32 selectedCharacter;
+    i32 charUsed;
+    i32 lastSpellcardSelected;
+    i32 diffSelected;
+    i32 cheatCodeStep;
+    char replayName[8];
+    i32 unk_3c;
+    AnmVm unk_40[38];
+    AnmVm unk_28a0[16];
+    AnmVm unk_39a0;
+    ScoreListNode scores[HSCR_NUM_DIFFICULTIES][SHOTTYPE_COUNT];
+    Hscr defaultScore[HSCR_NUM_DIFFICULTIES][SHOTTYPE_COUNT][HSCR_NUM_SCORES_SLOTS];
+    Hscr hscr;
+    Th6k fileHeader;
+    ChainElem *calcChain;
+    ChainElem *drawChain;
+    ReplayData replays[15];
+    ReplayData defaultReplay;
+};
+ZUN_ASSERT_SIZE(ResultScreen, 0x56b0);
+#pragma intrinsic(memset)
 
 DIFFABLE_STATIC_ARRAY_ASSIGN(f32, 5, g_DifficultyWeightsList) = {-30.0f, -10.0f, 20.0f, 30.0f, 30.0f};
 
@@ -38,7 +102,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 4, g_ShortCharacterList2) = {"ReimuA ", "Re
 #define DEFAULT_HIGH_SCORE_NAME "Nanashi "
 
 #pragma var_order(scoreData, bytesShifted, xorValue, checksum, bytes, remainingData, decryptedFilePointer, fileLen)
-ScoreDat *ResultScreen::OpenScore(char *path)
+ScoreDat *OpenScore(char *path)
 {
     u8 *bytes;
     i32 bytesShifted;
@@ -117,7 +181,7 @@ ScoreDat *ResultScreen::OpenScore(char *path)
 }
 
 #pragma var_order(highScore, remainingSize, scoreData, dataScore, score)
-u32 ResultScreen::GetHighScore(ScoreDat *scoreDat, ScoreListNode *node, u32 character, u32 difficulty)
+u32 GetHighScore(ScoreDat *scoreDat, ScoreListNode *node, u32 character, u32 difficulty)
 {
     u32 score;
     u32 dataScore;
@@ -215,9 +279,8 @@ void ResultScreen::FreeAllScores(ScoreListNode *scores)
 }
 
 #pragma var_order(parsedCatk, cursor, sd)
-ZunResult ResultScreen::ParseCatk(ScoreDat *scoreDat, Catk *outCatk)
+ZunResult ParseCatk(ScoreDat *scoreDat, Catk *outCatk)
 {
-
     i32 cursor;
     Catk *parsedCatk;
     ScoreDat *sd;
@@ -247,7 +310,7 @@ ZunResult ResultScreen::ParseCatk(ScoreDat *scoreDat, Catk *outCatk)
 
 #pragma var_order(parsedClrd, characterShotType, cursor, difficulty, sd)
 #pragma function(memset)
-ZunResult ResultScreen::ParseClrd(ScoreDat *scoreDat, Clrd *outClrd)
+ZunResult ParseClrd(ScoreDat *scoreDat, Clrd *outClrd)
 {
     i32 cursor;
     Clrd *parsedClrd;
@@ -298,7 +361,7 @@ ZunResult ResultScreen::ParseClrd(ScoreDat *scoreDat, Clrd *outClrd)
 
 #pragma var_order(pscr, parsedPscr, character, stage, cursor, difficulty, sd)
 #pragma function(memset)
-ZunResult ResultScreen::ParsePscr(ScoreDat *scoreDat, Pscr *outClrd)
+ZunResult ParsePscr(ScoreDat *scoreDat, Pscr *outClrd)
 {
     i32 cursor;
     Pscr *parsedPscr;
@@ -355,7 +418,7 @@ ZunResult ResultScreen::ParsePscr(ScoreDat *scoreDat, Pscr *outClrd)
 }
 #pragma intrinsic(memset)
 
-void ResultScreen::ReleaseScoreDat(ScoreDat *scoreDat)
+void ReleaseScoreDat(ScoreDat *scoreDat)
 {
     ResultScreen::FreeAllScores(scoreDat->scores);
     ZUN_FREE(scoreDat->scores);
@@ -1311,7 +1374,7 @@ u32 ResultScreen::DrawFinalStats()
     return 0;
 }
 
-ZunResult ResultScreen::RegisterChain(i32 unk)
+ZunResult ResultScreen_RegisterChain(i32 unk)
 {
     ResultScreen *resultScreen;
     resultScreen = ZUN_NEW(ResultScreen);
@@ -2104,14 +2167,13 @@ ZunResult ResultScreen::AddedCallback(ResultScreen *resultScreen)
     }
 
     resultScreen->lastBestScoresCursor = 0;
-    resultScreen->scoreDat = ResultScreen::OpenScore("score.dat");
+    resultScreen->scoreDat = OpenScore("score.dat");
 
     for (i = 0; i < HSCR_NUM_DIFFICULTIES; i++)
     {
         for (characterShot = 0; characterShot < SHOTTYPE_COUNT; characterShot++)
         {
-            ResultScreen::GetHighScore(resultScreen->scoreDat, &resultScreen->scores[i][characterShot], characterShot,
-                                       i);
+            GetHighScore(resultScreen->scoreDat, &resultScreen->scores[i][characterShot], characterShot, i);
         }
     }
 
@@ -2146,7 +2208,7 @@ ZunResult ResultScreen::DeletedCallback(ResultScreen *resultScreen)
     if (resultScreen->scoreDat != NULL)
     {
         ResultScreen::WriteScore(resultScreen);
-        ResultScreen::ReleaseScoreDat(resultScreen->scoreDat);
+        ReleaseScoreDat(resultScreen->scoreDat);
     }
 
     resultScreen->scoreDat = NULL;
@@ -2172,4 +2234,20 @@ ZunResult ResultScreen::DeletedCallback(ResultScreen *resultScreen)
     return ZUN_SUCCESS;
 }
 
+namespace utils
+{
+void DebugPrint(const char *fmt, ...)
+{
+#ifdef DEBUG
+    char tmpBuffer[512];
+    std::va_list args;
+
+    va_start(args, fmt);
+    vsprintf(tmpBuffer, fmt, args);
+    va_end(args);
+
+    printf("DEBUG2: %s\n", tmpBuffer);
+#endif
+}
+}
 }; // namespace th06

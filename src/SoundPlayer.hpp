@@ -71,8 +71,6 @@ struct SoundPlayer
     ZunResult Release(void);
 
     ZunResult LoadSound(i32 idx, char *path);
-    static WAVEFORMATEX *GetWavFormatData(u8 *soundData, char *formatString, i32 *formatSize,
-                                          u32 fileSizeExcludingFormat);
     void PlaySounds();
     void PlaySoundByIdx(SoundIdx idx, i32 unused);
     ZunResult PlayBGM(BOOL isLooping);
@@ -90,7 +88,7 @@ struct SoundPlayer
         }
     }
 
-    static DWORD __stdcall BackgroundMusicPlayerThread(LPVOID lpThreadParameter);
+    static DWORD WINAPI BackgroundMusicPlayerThread(LPVOID lpThreadParameter);
 
     ZunResult LoadWav(char *path);
     ZunResult LoadPos(char *path);

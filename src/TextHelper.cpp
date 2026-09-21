@@ -1,6 +1,7 @@
 #include "TextHelper.hpp"
 #include "GameWindow.hpp"
 #include "Supervisor.hpp"
+#include "ZunTimer.hpp"
 #include "i18n.hpp"
 
 namespace th06

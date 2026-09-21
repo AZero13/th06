@@ -18,10 +18,127 @@
 #include "SoundPlayer.hpp"
 #include "Supervisor.hpp"
 #include "ZunColor.hpp"
+#include "ZunTimer.hpp"
 #include "i18n.hpp"
 
 namespace th06
 {
+enum GameState
+{
+    STATE_STARTUP,
+    STATE_PRE_INPUT,
+    STATE_MAIN_MENU,
+    STATE_OPTIONS,
+    STATE_QUIT,
+    STATE_KEYCONFIG,
+    STATE_DIFFICULTY_LOAD,
+    STATE_DIFFICULTY_SELECT,
+    STATE_CHARACTER_LOAD,
+    STATE_CHARACTER_SELECT,
+    STATE_SCORE,
+    STATE_SHOT_SELECT,
+    STATE_REPLAY_LOAD,
+    STATE_REPLAY_ANIM,
+    STATE_REPLAY_UNLOAD,
+    STATE_REPLAY_SELECT,
+    STATE_MUSIC_ROOM,
+    STATE_PRACTICE_LVL_SELECT,
+};
+
+enum CursorMovement
+{
+    CURSOR_MOVE_UP = -1,
+    CURSOR_DONT_MOVE = 0,
+    CURSOR_MOVE_DOWN = 1,
+};
+
+enum OptionsCursorPosition
+{
+    CURSOR_OPTIONS_POS_LIFECOUNT,
+    CURSOR_OPTIONS_POS_BOMBCOUNT,
+    CURSOR_OPTIONS_POS_COLORMODE,
+    CURSOR_OPTIONS_POS_MUSICMODE,
+    CURSOR_OPTIONS_POS_PLAYSOUNDS,
+    CURSOR_OPTIONS_POS_SCREENMODE,
+    CURSOR_OPTIONS_POS_SETDEFAULT,
+    CURSOR_OPTIONS_POS_KEYCONFIG,
+    CURSOR_OPTIONS_POS_EXIT,
+};
+
+#define REPLAYS_PER_PAGE 15
+#define NORMAL_REPLAY_COUNT REPLAYS_PER_PAGE
+#define USER_REPLAY_PAGES 3
+#define USER_REPLAY_COUNT (USER_REPLAY_PAGES * REPLAYS_PER_PAGE)
+#define TOTAL_REPLAY_COUNT (NORMAL_REPLAY_COUNT + USER_REPLAY_COUNT)
+
+struct MainMenu
+{
+    ZunResult BeginStartup();
+    ZunResult DrawStartMenu();
+    u32 OnUpdateOptionsMenu();
+    ZunResult DrawReplayMenu();
+    ZunResult ChoosePracticeLevel();
+    ZunBool WeirdSecondInputCheck();
+    void ColorMenuItem(AnmVm *, i32, i32, i32);
+
+    static ZunResult LoadTitleAnm(MainMenu *menu);
+    static CursorMovement MoveCursor(MainMenu *menu, i32 menuLength);
+    static void DrawMenuItem(AnmVm *vm, i32 itemNumber, i32 cursor, D3DCOLOR activeItemColor,
+                             D3DCOLOR inactiveItemColor, i32 spriteIdx /* I think*/);
+    static void SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBool unk);
+
+    i32 ReplayHandling();
+    static ZunResult LoadReplayMenu(MainMenu *menu);
+
+    static ZunResult RegisterChain(u32 isDemo);
+    static ChainCallbackResult OnUpdate(MainMenu *s);
+    static ChainCallbackResult OnDraw(MainMenu *s);
+    static ZunResult AddedCallback(MainMenu *s);
+    static ZunResult DeletedCallback(MainMenu *s);
+    static ZunResult LoadDiffCharSelect(MainMenu *s);
+
+    static void ReleaseTitleAnm();
+
+    AnmVm vm[122];
+    i32 cursor;
+    i8 padding[0x40];
+    u32 unk_81e4;
+    i32 chosenReplay;
+    i32 replayFilesNum;
+    GameState gameState;
+    i32 stateTimer;
+    i32 idleFrames;
+    D3DCOLOR minimumOpacity;
+    D3DCOLOR menuTextColor;
+    D3DCOLOR color2;
+    D3DCOLOR color1;
+    i32 numFramesSinceActive;
+    u32 framesActive;
+    u32 framesInactive;
+    i8 padding2[4];
+    i16 controlMapping[9];
+    i8 padding3[2];
+    u8 colorMode16bit;
+    u8 windowed;
+    u8 frameskipConfig;
+    // one padding byte
+    ChainElem *chainCalc;
+    ChainElem *chainDraw;
+    char replayFilePaths[TOTAL_REPLAY_COUNT][512];
+    char replayFileName[TOTAL_REPLAY_COUNT][8];
+    ReplayData replayFileData[TOTAL_REPLAY_COUNT];
+    ReplayData *currentReplay;
+    i32 timeRelatedArrSize;
+    f32 timeRelatedArr[16];
+    u32 unk_10f24;
+    u32 unk_10f28;
+    i32 frameCountForRefreshRateCalc;
+    u32 lastFrameTime;
+};
+ZUN_ASSERT_SIZE(MainMenu, 0x10f34);
+
+DIFFABLE_STATIC(MainMenu, g_MainMenu);
+
 DIFFABLE_STATIC_ASSIGN(i16, g_LastJoystickInput) = TH_BUTTON_DOWN; // why???
 
 DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 7, g_StageList) = {"Stage1", "Stage2", "Stage3", "Stage4",
@@ -2153,7 +2270,7 @@ ZunResult MainMenu::LoadReplayMenu(MainMenu *menu)
 }
 
 #pragma function(memset)
-ZunResult MainMenu::RegisterChain(u32 isDemo)
+ZunResult MainMenu_RegisterChain(u32 isDemo)
 {
     MainMenu *menu = &g_MainMenu;
 
@@ -2242,10 +2359,10 @@ ZunResult MainMenu::AddedCallback(MainMenu *m)
     m->framesActive = 0;
     m->unk_10f28 = 0x10;
     m->currentReplay = NULL;
-    scoredat = ResultScreen::OpenScore("score.dat");
-    ResultScreen::ParseClrd(scoredat, g_GameManager.clrd);
-    ResultScreen::ParsePscr(scoredat, (Pscr *)g_GameManager.pscr);
-    ResultScreen::ReleaseScoreDat(scoredat);
+    scoredat = OpenScore("score.dat");
+    ParseClrd(scoredat, g_GameManager.clrd);
+    ParsePscr(scoredat, (Pscr *)g_GameManager.pscr);
+    ReleaseScoreDat(scoredat);
     if (!g_GameManager.demoMode)
     {
         if (g_Supervisor.startupTimeBeforeMenuMusic == 0)
@@ -2301,6 +2418,4 @@ void MainMenu::ReleaseTitleAnm()
         g_AnmManager->ReleaseAnm(i);
     }
 }
-
-DIFFABLE_STATIC(MainMenu, g_MainMenu);
 }; // namespace th06

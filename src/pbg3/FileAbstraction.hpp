@@ -6,30 +6,10 @@
 
 namespace th06
 {
-class IFileAbstraction
+
+class FileAbstraction
 {
   public:
-    IFileAbstraction()
-    {
-    }
-    virtual i32 Open(char *filename, char *mode) = 0;
-    virtual void Close() = 0;
-    virtual i32 Read(u8 *data, u32 dataLen, u32 *numBytesRead) = 0;
-    virtual i32 Write(u8 *data, u32 dataLen, u32 *outWritten) = 0;
-    virtual i32 ReadByte() = 0;
-    virtual i32 WriteByte(u32 b) = 0;
-    virtual i32 Seek(u32 amount, u32 seekFrom) = 0;
-    virtual u32 Tell() = 0;
-    virtual u32 GetSize() = 0;
-    virtual u8 *ReadWholeFile(u32 maxSize) = 0;
-};
-
-class FileAbstraction : public IFileAbstraction
-{
-  public:
-    FileAbstraction();
-    ~FileAbstraction();
-
     virtual i32 Open(char *filename, char *mode);
     virtual void Close();
     virtual i32 Read(u8 *data, u32 dataLen, u32 *numBytesRead);
@@ -40,6 +20,9 @@ class FileAbstraction : public IFileAbstraction
     virtual u32 Tell();
     virtual u32 GetSize();
     virtual u8 *ReadWholeFile(u32 maxSize);
+
+    FileAbstraction();
+    ~FileAbstraction();
 
     BOOL HasNonNullHandle()
     {

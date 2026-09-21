@@ -4,6 +4,7 @@
 #include "GameWindow.hpp"
 #include "Global.hpp"
 #include "Supervisor.hpp"
+#include "ZunTimer.hpp"
 
 namespace th06
 {

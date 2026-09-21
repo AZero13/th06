@@ -8,6 +8,7 @@
 #include "Global.hpp"
 #include "Gui.hpp"
 #include "Supervisor.hpp"
+#include "ZunTimer.hpp"
 #include <stdio.h>
 
 namespace th06

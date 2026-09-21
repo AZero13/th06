@@ -3,6 +3,7 @@
 #include "Supervisor.hpp"
 #include "TextHelper.hpp"
 #include "ZunMath.hpp"
+#include "ZunTimer.hpp"
 #include "i18n.hpp"
 
 #include <stdio.h>
@@ -522,7 +523,6 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
 {
     if (param_3 != 0)
     {
-        // TODO: It'd be nice to find a way to match this without inline assembly.
         __asm {
             fld g_PrimitivesToDrawVertexBuf[0 * TYPE g_PrimitivesToDrawVertexBuf].position.x
             frndint
