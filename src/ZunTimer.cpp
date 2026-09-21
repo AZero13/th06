@@ -1,4 +1,3 @@
-#include "Supervisor.hpp"
 #include "AnmManager.hpp"
 #include "AsciiManager.hpp"
 #include "Chain.hpp"
@@ -12,6 +11,7 @@
 #include "ReplayManager.hpp"
 #include "ResultScreen.hpp"
 #include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 #include "TextHelper.hpp"
 #include "i18n.hpp"
 #include "inttypes.hpp"
