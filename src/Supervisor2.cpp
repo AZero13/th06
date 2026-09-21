@@ -1,4 +1,3 @@
-#include "Supervisor.hpp"
 #include "AnmManager.hpp"
 #include "AsciiManager.hpp"
 #include "Chain.hpp"
@@ -12,6 +11,7 @@
 #include "ReplayManager.hpp"
 #include "ResultScreen.hpp"
 #include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 #include "TextHelper.hpp"
 #include "ZunTimer.hpp"
 #include "i18n.hpp"
@@ -20,9 +20,9 @@
 #include <stdio.h>
 #include <string.h>
 
-namespace th06 
+namespace th06
 {
-	void Supervisor::ReleasePbg3(i32 pbg3FileIdx)
+void Supervisor::ReleasePbg3(i32 pbg3FileIdx)
 {
     if (this->pbg3Archives[pbg3FileIdx] == NULL)
     {

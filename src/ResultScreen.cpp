@@ -2249,5 +2249,5 @@ void DebugPrint(const char *fmt, ...)
     printf("DEBUG2: %s\n", tmpBuffer);
 #endif
 }
-}
+} // namespace utils
 }; // namespace th06

@@ -29,7 +29,10 @@ def configure(build_type):
         if build_type == BuildType.BINARY_MATCHBUILD:
             cl_common_flags += " /DDBINARYMATCHBUILD"
         writer.variable("cl_common_flags", cl_common_flags)
-        writer.variable("cl_flags", "$cl_common_flags /Fp$builddir/pch.pch /YX /Od /Oi /Ob1 /Op /Gy /GF")
+        writer.variable(
+            "cl_flags",
+            "$cl_common_flags /Fp$builddir/pch.pch /YX /Od /Oi /Ob1 /Op /Gy /GF",
+        )
         writer.variable("cl_flags_small_codegen", "$cl_flags /Os")
         writer.variable("cl_flags_pbg3", "$cl_common_flags /O2")
 
@@ -92,8 +95,8 @@ def configure(build_type):
             "main",
             "MidiOutput",
             "Supervisor",
-			"ZunTimer",
-			"Supervisor2",
+            "ZunTimer",
+            "Supervisor2",
             "MusicRoom",
             "Player",
             "BulletData",
@@ -113,8 +116,8 @@ def configure(build_type):
                 "MainMenu",
                 "MusicRoom",
                 "Supervisor",
-				"ZunTimer",
-				"Supervisor2",
+                "ZunTimer",
+                "Supervisor2",
                 "TextHelper",
                 "ResultScreen",
             ]
@@ -150,7 +153,7 @@ def configure(build_type):
             if rule in small_codegen_sources:
                 variables = {"cl_flags": "$cl_flags_small_codegen"}
 
-			# Disable precompiled headers for specific files
+            # Disable precompiled headers for specific files
             if rule in ("EffectManager"):
                 base_flags = variables.get("cl_flags", "$cl_flags")
                 variables["cl_flags"] = base_flags + " /Y-"
@@ -224,10 +227,7 @@ def configure(build_type):
         writer.build(
             "$builddir/th06.def",
             "gendef",
-            inputs=[
-                "$builddir/" + x + ".obj"
-                for x in (cxx_sources + pbg3_sources)
-            ],
+            inputs=["$builddir/" + x + ".obj" for x in (cxx_sources + pbg3_sources)],
             implicit=["scripts/gendef.py"],
         )
         objfiles = (

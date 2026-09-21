@@ -37,8 +37,8 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 4, g_CharData) = {
 DIFFABLE_STATIC(Player, g_Player);
 
 #pragma var_order(bulletData, bulletFrame, unused3, unused, unused2)
-static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i32 bulletIdx,
-                                          i32 framesSinceLastBullet, CharacterPowerData *powerData)
+static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i32 bulletIdx, i32 framesSinceLastBullet,
+                                         CharacterPowerData *powerData)
 {
     CharacterPowerBulletData *bulletData;
     i32 bulletFrame;

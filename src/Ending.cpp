@@ -13,7 +13,8 @@
 #include "i18n.hpp"
 
 namespace th06
-{enum EndingFadeType
+{
+enum EndingFadeType
 {
     ENDING_FADE_TYPE_NO_FADE,
     ENDING_FADE_TYPE_FADE_IN_BLACK,
