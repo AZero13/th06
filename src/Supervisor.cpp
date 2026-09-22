@@ -277,61 +277,7 @@ ZunResult Supervisor::RegisterChain()
     return ZUN_SUCCESS;
 }
 
-ZunResult Supervisor::AddedCallback(Supervisor *s)
-{
-    i32 i;
-
-    for (i = 0; i < (i32)(sizeof(s->pbg3Archives) / sizeof(s->pbg3Archives[0])); i++)
-    {
-        s->pbg3Archives[i] = NULL;
-    }
-
-    g_Pbg3Archives = s->pbg3Archives;
-    if (s->LoadPbg3(IN_PBG3_INDEX, TH_IN_DAT_FILE))
-    {
-        return ZUN_ERROR;
-    }
-    g_AnmManager->LoadSurface(0, "data/title/th06logo.jpg");
-    g_AnmManager->CopySurfaceToBackBuffer(0, 0, 0, 0, 0);
-    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
-        g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
-
-    g_AnmManager->CopySurfaceToBackBuffer(0, 0, 0, 0, 0);
-    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
-        g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
-
-    g_AnmManager->ReleaseSurface(0);
-
-    s->startupTimeBeforeMenuMusic = timeGetTime();
-    Supervisor::SetupDInput(s);
-
-    s->midiOutput = ZUN_NEW(MidiOutput);
-
-    g_Rng.Initialize(timeGetTime());
-
-    g_SoundPlayer.InitSoundBuffers();
-    if (g_AnmManager->LoadAnm(ANM_FILE_TEXT, "data/text.anm", ANM_OFFSET_TEXT) != 0)
-    {
-        return ZUN_ERROR;
-    }
-
-    if (AsciiManager::RegisterChain() != 0)
-    {
-        g_GameErrorContext.Log(TH_ERR_ASCIIMANAGER_INIT_FAILED);
-        return ZUN_ERROR;
-    }
-
-    s->unk198 = 0;
-    g_AnmManager->SetupVertexBuffer();
-    TextHelper::CreateTextBuffer();
-    s->ReleasePbg3(IN_PBG3_INDEX);
-    if (g_Supervisor.LoadPbg3(MD_PBG3_INDEX, TH_MD_DAT_FILE) != 0)
-        return ZUN_ERROR;
-
-    return ZUN_SUCCESS;
-}
-
-ZunResult Supervisor::SetupDInput(Supervisor *supervisor)
+static ZunResult SetupDInput(Supervisor *supervisor)
 {
     HINSTANCE hInst;
 
@@ -394,6 +340,60 @@ ZunResult Supervisor::SetupDInput(Supervisor *supervisor)
 
         g_GameErrorContext.Log(TH_ERR_PAD_FOUND);
     }
+    return ZUN_SUCCESS;
+}
+
+ZunResult Supervisor::AddedCallback(Supervisor *s)
+{
+    i32 i;
+
+    for (i = 0; i < (i32)(sizeof(s->pbg3Archives) / sizeof(s->pbg3Archives[0])); i++)
+    {
+        s->pbg3Archives[i] = NULL;
+    }
+
+    g_Pbg3Archives = s->pbg3Archives;
+    if (s->LoadPbg3(IN_PBG3_INDEX, TH_IN_DAT_FILE))
+    {
+        return ZUN_ERROR;
+    }
+    g_AnmManager->LoadSurface(0, "data/title/th06logo.jpg");
+    g_AnmManager->CopySurfaceToBackBuffer(0, 0, 0, 0, 0);
+    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
+        g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
+
+    g_AnmManager->CopySurfaceToBackBuffer(0, 0, 0, 0, 0);
+    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
+        g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
+
+    g_AnmManager->ReleaseSurface(0);
+
+    s->startupTimeBeforeMenuMusic = timeGetTime();
+    SetupDInput(s);
+
+    s->midiOutput = ZUN_NEW(MidiOutput);
+
+    g_Rng.Initialize(timeGetTime());
+
+    g_SoundPlayer.InitSoundBuffers();
+    if (g_AnmManager->LoadAnm(ANM_FILE_TEXT, "data/text.anm", ANM_OFFSET_TEXT) != 0)
+    {
+        return ZUN_ERROR;
+    }
+
+    if (AsciiManager::RegisterChain() != 0)
+    {
+        g_GameErrorContext.Log(TH_ERR_ASCIIMANAGER_INIT_FAILED);
+        return ZUN_ERROR;
+    }
+
+    s->unk198 = 0;
+    g_AnmManager->SetupVertexBuffer();
+    TextHelper::CreateTextBuffer();
+    s->ReleasePbg3(IN_PBG3_INDEX);
+    if (g_Supervisor.LoadPbg3(MD_PBG3_INDEX, TH_MD_DAT_FILE) != 0)
+        return ZUN_ERROR;
+
     return ZUN_SUCCESS;
 }
 

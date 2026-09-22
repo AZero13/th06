@@ -140,7 +140,7 @@ void ItemManager::OnUpdate()
             }
         }
         curItem->currentPosition += curItem->startPosition * g_Supervisor.effectiveFramerateMultiplier;
-        if (g_GameManager.arcadeRegionSize.y + (f32)GAME_REGION_TOP <= curItem->currentPosition.y)
+        if (g_GameManager.arcadeRegionSize.y + GAME_REGION_TOP <= curItem->currentPosition.y)
         {
             curItem->isInUse = false;
             g_GameManager.DecreaseSubrank(3);

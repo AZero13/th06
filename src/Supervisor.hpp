@@ -117,7 +117,6 @@ struct Supervisor
     ZunResult SetupMidiPlayback(char *path);
     ZunResult FadeOutMusic(f32 fadeOutSeconds);
 
-    static ZunResult SetupDInput(Supervisor *s);
     static BOOL CALLBACK ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef);
     static BOOL CALLBACK EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext);
 

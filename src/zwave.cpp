@@ -747,21 +747,21 @@ HRESULT CWaveFile::Open(LPTSTR strFileName, WAVEFORMATEX *pwfx, DWORD dwFlags)
         {
             switch (mmioInfo.wErrorRet)
             {
-            case MMIOERR_PATHNOTFOUND:
-                utils::DebugPrint2("The directory specification is incorrect. \n");
-                break;
             case MMIOERR_ACCESSDENIED:
                 utils::DebugPrint2("The file is protected and cannot be opened. \n");
+                break;
+            case MMIOERR_INVALIDFILE:
+                utils::DebugPrint2(
+                    "Another failure condition occurred. This is the default error for an open-file failure. \n");
+                break;
+            case MMIOERR_PATHNOTFOUND:
+                utils::DebugPrint2("The directory specification is incorrect. \n");
                 break;
             case MMIOERR_SHARINGVIOLATION:
                 utils::DebugPrint2("The file is being used by another application and is unavailable. \n");
                 break;
             case MMIOERR_TOOMANYOPENFILES:
                 utils::DebugPrint2("too Meny Open Files \n");
-                break;
-            case MMIOERR_INVALIDFILE:
-                utils::DebugPrint2(
-                    "Another failure condition occurred. This is the default error for an open-file failure. \n");
                 break;
             }
             utils::DebugPrint2("error : mmioOpen in CWaveFile::Open()\n");
@@ -1017,7 +1017,7 @@ HRESULT CWaveFile::Read(BYTE *pBuffer, DWORD dwSizeToRead, DWORD *pdwSizeRead)
 
         if (0 != mmioGetInfo(m_hmmio, &mmioinfoIn, 0))
         {
-            utils::DebugPrint2("error :\t%s(%s)\n", __FILE__, 1060);
+            utils::DebugPrint2("error :\t%s(%s)\n", "zwave.cpp", 1060);
             return DXTRACE_ERR(TEXT("mmioGetInfo"), E_FAIL);
         }
 
@@ -1036,15 +1036,15 @@ HRESULT CWaveFile::Read(BYTE *pBuffer, DWORD dwSizeToRead, DWORD *pdwSizeRead)
                 {
                     // Note: 1075 here is _probably_ the line number. I'm not
                     // using __LINE__ to avoid mismatches due to reformatting.
-                    utils::DebugPrint2("error :\t%s(%s)\n", __FILE__, 1075);
+                    utils::DebugPrint2("error :\t%s(%s)\n", "zwave.cpp", 1075);
                     return DXTRACE_ERR(TEXT("mmioAdvance"), E_FAIL);
                 }
 
                 if (mmioinfoIn.pchNext == mmioinfoIn.pchEndRead)
                 {
-                    // Note: 1075 here is _probably_ the line number. I'm not
+                    // Note: 1079 here is _probably_ the line number. I'm not
                     // using __LINE__ to avoid mismatches due to reformatting.
-                    utils::DebugPrint2("error :\t%s(%s)\n", __FILE__, 1079);
+                    utils::DebugPrint2("error :\t%s(%s)\n", "zwave.cpp", 1079);
                     return DXTRACE_ERR(TEXT("mmioinfoIn.pchNext"), E_FAIL);
                 }
             }
@@ -1056,7 +1056,7 @@ HRESULT CWaveFile::Read(BYTE *pBuffer, DWORD dwSizeToRead, DWORD *pdwSizeRead)
 
         if (0 != mmioSetInfo(m_hmmio, &mmioinfoIn, 0))
         {
-            utils::DebugPrint2("error :\t%s(%s)\n", __FILE__, 1088);
+            utils::DebugPrint2("error :\t%s(%s)\n", "zwave.cpp", 1088);
             return DXTRACE_ERR(TEXT("mmioSetInfo"), E_FAIL);
         }
 
