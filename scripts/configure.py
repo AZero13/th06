@@ -40,7 +40,7 @@ def configure(build_type):
         writer.variable("link", "link.exe")
         writer.variable(
             "th06_link_flags",
-            "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /map /mapinfo:exports /mapinfo:lines /nodefaultlib:libcpmt.lib",
+            "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /opt:noicf /map /mapinfo:exports /mapinfo:lines /nodefaultlib:libcpmt.lib",
         )
 
         writer.variable("msvc_deps_prefix", "Note: including file:")
@@ -57,7 +57,7 @@ def configure(build_type):
         writer.rule("rc", "$rc /fo $out $in")
         writer.rule(
             "link",
-            "$link $link_flags /nologo /out:$out $link_libs $in",
+            "$link $link_flags /nologo /out:$out $in $link_libs",
         )
         writer.rule(
             "copyicon",
