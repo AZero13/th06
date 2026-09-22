@@ -12,12 +12,14 @@ struct MidiTimer
     MidiTimer();
     ~MidiTimer();
 
-    virtual void OnTimerElapsed();
+    virtual void OnTimerElapsed()
+    {
+    }
 
     i32 StopTimer();
     u32 StartTimer(u32 delay, LPTIMECALLBACK cb, DWORD_PTR data);
 
-    static void CALLBACK DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
+    static void CALLBACK DefaultTimerCallback(u32 uTimerID, u32 uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
     u32 timerId;
     TIMECAPS timeCaps;
@@ -111,7 +113,7 @@ struct MidiOutput : MidiTimer
     MidiOutput();
     ~MidiOutput();
 
-    virtual void OnTimerElapsed();
+    void OnTimerElapsed();
 
     ZunResult UnprepareHeader(LPMIDIHDR pmh);
 
