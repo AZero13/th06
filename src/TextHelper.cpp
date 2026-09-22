@@ -43,9 +43,9 @@ bool TextHelper::ReleaseBuffer()
         this->format = (D3DFORMAT)-1;
         this->width = 0;
         this->height = 0;
-        this->hdc = 0;
-        this->gdiObj2 = 0;
-        this->gdiObj = 0;
+        this->hdc = NULL;
+        this->gdiObj2 = NULL;
+        this->gdiObj = NULL;
         this->buffer = NULL;
         return true;
     }
@@ -78,6 +78,13 @@ struct THBITMAPINFO
     BITMAPINFOHEADER bmiHeader;
     RGBQUAD bmiColors[17];
 };
+
+#pragma function(strlen)
+void strlen_dummy(const char *a)
+{
+    strlen(a);
+}
+#pragma intrinsic(strlen)
 
 #pragma function(memset)
 #pragma var_order(imageWidthInBytes, deviceContext, originalBitmapObj, bitmapInfo, formatInfo, bitmapObj, bitmapData)
@@ -135,16 +142,16 @@ bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
 
 FormatInfo *TextHelper::GetFormatInfo(D3DFORMAT format)
 {
-    i32 local_8;
+    i32 i;
 
-    for (local_8 = 0; g_FormatInfoArray[local_8].format != -1 && g_FormatInfoArray[local_8].format != format; local_8++)
+    for (i = 0; g_FormatInfoArray[i].format != -1 && g_FormatInfoArray[i].format != format; i++)
     {
     }
     if (format == -1)
     {
         return NULL;
     }
-    return &g_FormatInfoArray[local_8];
+    return &g_FormatInfoArray[i];
 }
 
 struct A1R5G5B5
@@ -254,6 +261,11 @@ bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
     return true;
 }
 
+void memmove_dummy(void *a, void *b, size_t c)
+{
+    memmove(a, b, c);
+}
+
 #define TEXT_BUFFER_HEIGHT 64
 void TextHelper::CreateTextBuffer()
 {
@@ -264,6 +276,13 @@ void TextHelper::CreateTextBuffer()
 void TextHelper::ReleaseTextBuffer()
 {
     SAFE_RELEASE(g_TextBufferSurface);
+}
+
+void Fake_TextOutA_SetBkMode_SetTextColor()
+{
+    void *painA = (void *)&TextOut;
+    void *painB = (void *)&SetBkMode;
+    void *painC = (void *)&SetTextColor;
 }
 
 #pragma function(strlen)
@@ -288,6 +307,7 @@ void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 sp
     hdc = textHelper.hdc;
     h = SelectObject(hdc, font);
     textHelper.InvertAlpha(0, 0, spriteWidth * 2, fontHeight * 2 + 6);
+
     SetBkMode(hdc, TRANSPARENT);
 
     if (shadowColor != COLOR_WHITE)

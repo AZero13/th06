@@ -305,14 +305,14 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
         g_AsciiManager.color = COLOR_RED;
 
         gui->impl->spellCardBonus.pos.x =
-            ((f32)GAME_REGION_WIDTH - (f32)strlen("Spell Card Bonus!") * 16.0f) / 2.0f + (f32)GAME_REGION_LEFT;
+            (GAME_REGION_WIDTH - (f32)strlen("Spell Card Bonus!") * 16.0f) / 2.0f + GAME_REGION_LEFT;
         gui->impl->spellCardBonus.pos.y = GAME_REGION_TOP + 64.0f;
         g_AsciiManager.AddFormatText(&gui->impl->spellCardBonus.pos, "Spell Card Bonus!");
 
         gui->impl->spellCardBonus.pos.y += 16.0f;
         sprintf(spellCardBonusStr, "+%d", gui->impl->spellCardBonus.fmtArg);
         gui->impl->spellCardBonus.pos.x =
-            ((f32)GAME_REGION_WIDTH - (f32)strlen(spellCardBonusStr) * 32.0f) / 2.0f + (f32)GAME_REGION_LEFT;
+            (GAME_REGION_WIDTH - (f32)strlen(spellCardBonusStr) * 32.0f) / 2.0f + GAME_REGION_LEFT;
         g_AsciiManager.scale.x = 2.0f;
         g_AsciiManager.scale.y = 2.0f;
         g_AsciiManager.color = COLOR_LIGHT_RED;
@@ -986,7 +986,7 @@ void Gui::UpdateStageElements()
         if (this->impl->bonusScore.timer < 30)
         {
             this->impl->bonusScore.pos.x =
-                (this->impl->bonusScore.timer.AsFramesFloat() * -312.0f / 30.0f) + (f32)GAME_REGION_RIGHT;
+                (this->impl->bonusScore.timer.AsFramesFloat() * -312.0f / 30.0f) + GAME_REGION_RIGHT;
         }
         else
         {
@@ -1003,7 +1003,7 @@ void Gui::UpdateStageElements()
         if (this->impl->fullPowerMode.timer < 30)
         {
             this->impl->fullPowerMode.pos.x =
-                (this->impl->fullPowerMode.timer.AsFramesFloat() * -312.0f / 30.0f) + (f32)GAME_REGION_RIGHT;
+                (this->impl->fullPowerMode.timer.AsFramesFloat() * -312.0f / 30.0f) + GAME_REGION_RIGHT;
         }
         else
         {

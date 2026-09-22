@@ -44,14 +44,14 @@ DIFFABLE_STATIC(SoundPlayer, g_SoundPlayer)
 ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)
 {
     DSBUFFERDESC bufDesc;
-    tWAVEFORMATEX wavFormat;
+    WAVEFORMATEX wavFormat;
     LPVOID audioBuffer1Start;
     DWORD audioBuffer1Len;
     LPVOID audioBuffer2Start;
     DWORD audioBuffer2Len;
 
     this->manager = new CSoundManager();
-    if (this->manager->Initialize(gameWindow, 2, 2, 44100, 16) < ZUN_SUCCESS)
+    if (FAILED(this->manager->Initialize(gameWindow, 2, 2, 44100, 16)))
     {
         g_GameErrorContext.Log(TH_ERR_SOUNDPLAYER_FAILED_TO_INITIALIZE_OBJECT);
         if (this->manager != NULL)
@@ -68,7 +68,7 @@ ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)
     bufDesc.dwSize = sizeof(DSBUFFERDESC);
     bufDesc.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_LOCSOFTWARE;
     bufDesc.dwBufferBytes = BACKGROUND_MUSIC_BUFFER_SIZE;
-    memset(&wavFormat, 0, sizeof(tWAVEFORMATEX));
+    memset(&wavFormat, 0, sizeof(WAVEFORMATEX));
     wavFormat.cbSize = 0;
     wavFormat.wFormatTag = WAVE_FORMAT_PCM;
     wavFormat.nChannels = BACKGROUND_MUSIC_WAV_NUM_CHANNELS;
@@ -77,12 +77,12 @@ ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)
     wavFormat.nBlockAlign = BACKGROUND_MUSIC_WAV_BLOCK_ALIGN;
     wavFormat.wBitsPerSample = BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE;
     bufDesc.lpwfxFormat = &wavFormat;
-    if (this->dsoundHdl->CreateSoundBuffer(&bufDesc, &this->initSoundBuffer, NULL) < ZUN_SUCCESS)
+    if (FAILED(this->dsoundHdl->CreateSoundBuffer(&bufDesc, &this->initSoundBuffer, NULL)))
     {
         return ZUN_ERROR;
     }
-    if (this->initSoundBuffer->Lock(0, BACKGROUND_MUSIC_BUFFER_SIZE, &audioBuffer1Start, &audioBuffer1Len,
-                                    &audioBuffer2Start, &audioBuffer2Len, 0) < ZUN_SUCCESS)
+    if (FAILED(this->initSoundBuffer->Lock(0, BACKGROUND_MUSIC_BUFFER_SIZE, &audioBuffer1Start, &audioBuffer1Len,
+                                           &audioBuffer2Start, &audioBuffer2Len, 0)))
     {
         return ZUN_ERROR;
     }
@@ -220,6 +220,12 @@ ZunResult SoundPlayer::LoadSound(i32 idx, char *path)
     soundBuffers[idx]->Unlock((LPVOID *)audioPtr1, audioSize1, (LPVOID *)audioPtr2, audioSize2);
     ZUN_FREE(soundFileData);
     return ZUN_SUCCESS;
+}
+
+void FakeLink_WaitForSingleObject_CloseHandle()
+{
+    void *fakeA = (void *)&WaitForSingleObject;
+    void *fakeB = (void *)&CloseHandle;
 }
 
 #pragma var_order(notifySize, waveFile, res, numSamplesPerSec, blockAlign, curTime, startTime, waitTime, curTime2,     \
@@ -382,6 +388,7 @@ void SoundPlayer::StopBGM()
             CloseHandle(this->backgroundMusicUpdateEvent);
             this->backgroundMusicThreadHandle = NULL;
         }
+        // NOTE: ZUN_DELETE does not match this
         if (this->backgroundMusic != NULL)
         {
             delete this->backgroundMusic;
@@ -389,7 +396,6 @@ void SoundPlayer::StopBGM()
         }
         utils::DebugPrint2("stop BGM\n");
     }
-    return;
 }
 
 ZunResult SoundPlayer::InitSoundBuffers()

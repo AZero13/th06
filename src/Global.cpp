@@ -723,6 +723,11 @@ u8 *th06::Controller::GetControllerState()
     }
 }
 
+void Fake_GetWindowLongA()
+{
+    void *fake = (void *)&GetWindowLong;
+}
+
 u16 Controller::GetInput(void)
 {
     u8 keyboardState[256];
@@ -838,11 +843,15 @@ void CMyFont::Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h)
 
     if (FAILED(D3DXCreateFont(lpD3DDEV, hFont, &m_lpFont)))
     {
-        MessageBox(0, "D3DXCreateFontIndirect FALSE", "ok", MB_OK);
+        MessageBox(NULL, "D3DXCreateFontIndirect FALSE", "ok", MB_OK);
         return;
     }
     SelectObject(hTextDC, hOldFont);
     DeleteObject(hFont);
+}
+void Fake_DrawTextA()
+{
+    void *fake = (void *)&DrawText;
 }
 // ----------------------------------------------------------------------------
 void CMyFont::Print(char *str, int x, int y, D3DCOLOR color)
