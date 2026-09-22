@@ -80,7 +80,7 @@ struct THBITMAPINFO
 };
 
 #pragma function(strlen)
-void strlen_dummy(const char* a)
+void strlen_dummy(const char *a)
 {
     strlen(a);
 }

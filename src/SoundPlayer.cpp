@@ -82,7 +82,7 @@ ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)
         return ZUN_ERROR;
     }
     if (FAILED(this->initSoundBuffer->Lock(0, BACKGROUND_MUSIC_BUFFER_SIZE, &audioBuffer1Start, &audioBuffer1Len,
-                                    &audioBuffer2Start, &audioBuffer2Len, 0)))
+                                           &audioBuffer2Start, &audioBuffer2Len, 0)))
     {
         return ZUN_ERROR;
     }
