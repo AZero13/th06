@@ -79,13 +79,6 @@ struct THBITMAPINFO
     RGBQUAD bmiColors[17];
 };
 
-#pragma function(strlen)
-void strlen_dummy(const char *a)
-{
-    strlen(a);
-}
-#pragma intrinsic(strlen)
-
 #pragma function(memset)
 #pragma var_order(imageWidthInBytes, deviceContext, originalBitmapObj, bitmapInfo, formatInfo, bitmapObj, bitmapData)
 bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
@@ -261,11 +254,6 @@ bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
     return true;
 }
 
-void memmove_dummy(void *a, void *b, size_t c)
-{
-    memmove(a, b, c);
-}
-
 #define TEXT_BUFFER_HEIGHT 64
 void TextHelper::CreateTextBuffer()
 {
@@ -278,17 +266,6 @@ void TextHelper::ReleaseTextBuffer()
     SAFE_RELEASE(g_TextBufferSurface);
 }
 
-void Fake_TextOutA_SetBkMode_SetTextColor_CxxThrowException()
-{
-    void *painA = (void *)&TextOut;
-    void *painB = (void *)&SetBkMode;
-    void *painC = (void *)&SetTextColor;
-    // NOTE: Using throw instead includes TypeInfo/RTTI
-    // objects, which breaks library code order.
-    _CxxThrowException(NULL, NULL);
-}
-
-#pragma function(strlen)
 #pragma var_order(hdc, font, textSurfaceDesc, h, textHelper, hdc, srcRect, destRect, destSurface)
 void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontHeight,
                                      i32 fontWidth, ZunColor textColor, ZunColor shadowColor, const char *string,

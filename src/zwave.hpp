@@ -66,7 +66,6 @@ class CSoundManager
         return m_pDS;
     }
     HRESULT SetPrimaryBufferFormat(DWORD dwPrimaryChannels, DWORD dwPrimaryFreq, DWORD dwPrimaryBitRate);
-
     HRESULT CreateStreaming(CStreamingSound **ppStreamingSound, LPTSTR strWaveFileName, DWORD dwCreationFlags,
                             GUID guid3DAlgorithm, DWORD dwNotifyCount, DWORD dwNotifySize, HANDLE hNotifyEvent);
 };
@@ -103,7 +102,6 @@ class CSound
     HRESULT FillBufferWithSound(LPDIRECTSOUNDBUFFER pDSB, BOOL bRepeatWavIfBufferLarger);
     LPDIRECTSOUNDBUFFER GetFreeBuffer();
     LPDIRECTSOUNDBUFFER GetBuffer(DWORD dwIndex);
-
     HRESULT Play(DWORD dwPriority, DWORD dwFlags);
     HRESULT Stop();
     HRESULT Reset();
@@ -169,7 +167,6 @@ class CWaveFile
     HRESULT Open(LPTSTR strFileName, WAVEFORMATEX *pwfx, DWORD dwFlags);
     HRESULT OpenFromMemory(BYTE *pbData, ULONG ulDataSize, WAVEFORMATEX *pwfx, DWORD dwFlags);
     HRESULT Close();
-
     HRESULT Read(BYTE *pBuffer, DWORD dwSizeToRead, DWORD *pdwSizeRead);
 
     DWORD GetSize();

@@ -37,15 +37,15 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
     g_IsEigthFrameOfHeldInput = false;
     if (g_LastFrameInput == g_CurFrameInput)
     {
-        if (0x1e <= g_NumOfFramesInputsWereHeld)
+        if (30 <= g_NumOfFramesInputsWereHeld)
         {
             if (g_NumOfFramesInputsWereHeld % 8 == 0)
             {
                 g_IsEigthFrameOfHeldInput = true;
             }
-            if (0x26 <= g_NumOfFramesInputsWereHeld)
+            if (38 <= g_NumOfFramesInputsWereHeld)
             {
-                g_NumOfFramesInputsWereHeld = 0x1e;
+                g_NumOfFramesInputsWereHeld = 30;
             }
         }
         g_NumOfFramesInputsWereHeld++;
@@ -445,25 +445,21 @@ ZunResult Supervisor::DeletedCallback(Supervisor *s)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(curTime, framerate, fps, elapsed, fpsCounterPos)
 void Supervisor::DrawFpsCounter()
 {
-    DWORD curTime;
-    float framerate;
-    float elapsed;
-    float fps;
-    D3DXVECTOR3 fpsCounterPos;
-
-    static u32 g_NumFramesSinceLastTime = 0;
     static DWORD g_LastTime = timeGetTime();
-    static char g_FpsCounterBuffer[256];
+    static u32 g_NumFramesSinceLastTime = 0;
+    static char g_FpsCounterBuffer[256] = "";
+    DWORD curTime;
+    D3DXVECTOR3 fpsCounterPos;
 
     curTime = timeGetTime();
     g_NumFramesSinceLastTime = g_NumFramesSinceLastTime + 1 + (u32)g_Supervisor.cfg.frameskipConfig;
     if (500 <= curTime - g_LastTime)
     {
-        elapsed = (curTime - g_LastTime) / 1000.f;
-        fps = g_NumFramesSinceLastTime / elapsed;
+        float elapsed = (float)(curTime - g_LastTime) / 1000.f;
+        float fps = (float)g_NumFramesSinceLastTime / elapsed;
+        float framerate;
         g_LastTime = curTime;
         g_NumFramesSinceLastTime = 0;
         sprintf(g_FpsCounterBuffer, "%.02ffps", fps);

@@ -83,7 +83,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
     FILE *wavFile2;
 
     memset(&g_Supervisor.cfg, 0, sizeof(GameConfiguration));
-    g_Supervisor.cfg.opts |= 1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING;
+    g_Supervisor.cfg.opts.useSwTextureBlending = true;
     data = (GameConfiguration *)FileSystem::OpenPath(path, EXTERNAL_FILE);
     if (data == NULL)
     {
@@ -104,7 +104,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
             g_Supervisor.cfg.musicMode = MIDI;
             utils::DebugPrint(TH_ERR_NO_WAVE_FILE);
         }
-        g_Supervisor.cfg.playSounds = 1;
+        g_Supervisor.cfg.playSounds = true;
         g_Supervisor.cfg.defaultDifficulty = NORMAL;
         g_Supervisor.cfg.windowed = false;
         g_Supervisor.cfg.frameskipConfig = 0;
@@ -118,7 +118,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
             (g_Supervisor.cfg.colorMode16bit >= 2) || (g_Supervisor.cfg.musicMode >= 3) ||
             (g_Supervisor.cfg.defaultDifficulty >= 5) || (g_Supervisor.cfg.playSounds >= 2) ||
             (g_Supervisor.cfg.windowed >= 2) || (g_Supervisor.cfg.frameskipConfig >= 3) ||
-            (g_Supervisor.cfg.version != GAME_VERSION) || (g_LastFileSize != 0x38))
+            (g_Supervisor.cfg.version != GAME_VERSION) || (g_LastFileSize != sizeof(GameConfiguration)))
         {
             g_Supervisor.cfg.lifeCount = 2;
             g_Supervisor.cfg.bombCount = 3;
@@ -137,13 +137,13 @@ ZunResult Supervisor::LoadConfig(const char *path)
                 g_Supervisor.cfg.musicMode = MIDI;
                 utils::DebugPrint(TH_ERR_NO_WAVE_FILE);
             }
-            g_Supervisor.cfg.playSounds = 1;
+            g_Supervisor.cfg.playSounds = true;
             g_Supervisor.cfg.defaultDifficulty = NORMAL;
             g_Supervisor.cfg.windowed = false;
             g_Supervisor.cfg.frameskipConfig = 0;
             g_Supervisor.cfg.controllerMapping = g_ControllerMapping;
-            memset(&g_Supervisor.cfg.opts, 0, sizeof(GameConfigOptsShifts));
-            g_Supervisor.cfg.opts |= 1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING;
+            memset(&g_Supervisor.cfg.opts, 0, sizeof(GameConfigOpts));
+            g_Supervisor.cfg.opts.useSwTextureBlending = true;
             g_GameErrorContext.Log(TH_ERR_CONFIG_CORRUPTED);
         }
         g_ControllerMapping = g_Supervisor.cfg.controllerMapping;

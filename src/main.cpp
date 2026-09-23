@@ -143,8 +143,8 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
 
     i32 renderResult = 0;
     HRESULT testCoopLevelRes;
-    HRESULT testResetRes;
     MSG msg;
+    HRESULT testResetRes;
 
     if (utils::CheckForRunningGameInstance())
     {
@@ -277,11 +277,11 @@ namespace th06
 RenderResult GameWindow::Render()
 {
     i32 res;
-    f64 slowdown;
     D3DVIEWPORT8 viewport;
+    f64 slowdown;
+    f64 local_34;
     f64 delta;
     u32 curtime;
-    f64 local_34;
 
     if (!this->isAppActive)
     {
@@ -525,16 +525,16 @@ LRESULT CALLBACK GameWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 i32 GameWindow::InitD3dRendering(void)
 {
     u8 using_d3d_hal;
-    D3DPRESENT_PARAMETERS present_params;
     D3DDISPLAYMODE display_mode;
-    D3DXVECTOR3 eye;
-    D3DXVECTOR3 at;
-    D3DXVECTOR3 up;
-    float half_width;
+    D3DPRESENT_PARAMETERS present_params;
+    float camera_distance;
     float half_height;
+    float half_width;
     float aspect_ratio;
     float field_of_view_y;
-    float camera_distance;
+    D3DXVECTOR3 up;
+    D3DXVECTOR3 at;
+    D3DXVECTOR3 eye;
 
     using_d3d_hal = true;
     memset(&present_params, 0, sizeof(D3DPRESENT_PARAMETERS));
@@ -694,13 +694,13 @@ i32 GameWindow::InitD3dRendering(void)
     if (!g_Supervisor.IsHardwareBlendingDisabled() && !(g_Supervisor.d3dCaps.TextureOpCaps & D3DTEXOPCAPS_ADD))
     {
         g_GameErrorContext.Log(TH_ERR_NO_SUPPORT_FOR_D3DTEXOPCAPS_ADD);
-        g_Supervisor.cfg.opts |= 1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING;
+        g_Supervisor.cfg.opts.useSwTextureBlending = true;
     }
     if (g_Supervisor.ShouldRunAt60Fps() &&
         !(g_Supervisor.d3dCaps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE))
     {
         g_GameErrorContext.Log(TH_ERR_CANT_FORCE_60FPS_NO_ASYNC_FLIP);
-        g_Supervisor.cfg.opts &= ~(1 << GCOS_FORCE_60FPS);
+        g_Supervisor.cfg.opts.force60Fps = false;
     }
     if (!g_Supervisor.Is16bitColorMode() && using_d3d_hal)
     {
@@ -712,7 +712,7 @@ i32 GameWindow::InitD3dRendering(void)
         else
         {
             g_Supervisor.colorMode16Bits = false;
-            g_Supervisor.cfg.opts |= 1 << GCOS_FORCE_16BIT_COLOR_MODE;
+            g_Supervisor.cfg.opts.force16bitColorMode = true;
             g_GameErrorContext.Log(TH_ERR_D3DFMT_A8R8G8B8_UNSUPPORTED);
         }
     }

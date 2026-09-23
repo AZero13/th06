@@ -129,8 +129,8 @@ void AsciiManager::InitializeVms()
     memset(this, 0, sizeof(AsciiManager));
 
     this->color = COLOR_WHITE;
-    this->scale.x = 1.0;
-    this->scale.y = 1.0;
+    this->scale.x = 1.0f;
+    this->scale.y = 1.0f;
 
     this->vm1.flags.anchor = AnmVmAnchor_TopLeft;
     AnmVm *vm1 = &this->vm1;
@@ -142,7 +142,7 @@ void AsciiManager::InitializeVms()
     this->vm0.Initialize();
     mgr0->SetActiveSprite(&this->vm0, 32);
 
-    this->vm1.pos.z = 0.1;
+    this->vm1.pos.z = 0.1f;
     this->isSelected = false;
 }
 
@@ -923,13 +923,6 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
             currentDigit--;
         }
     }
-}
-
-// NOTE: This moves 1.0f into the AsciiManager section of rdata
-void dummy_float_1()
-{
-    float a = 0.0f;
-    a += 1.0f;
 }
 
 }; // namespace th06

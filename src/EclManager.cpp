@@ -548,7 +548,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
             case ECL_OPCODE_SPELLCARDEFFECT:
                 local_6c = &instruction->args.spellcardEffect;
                 enemy->effectArray[enemy->effectIdx] = g_EffectManager.SpawnParticles(
-                    0xd, &enemy->position, 1, (ZunColor)g_EffectsColor[local_6c->effectColorId]);
+                    13, &enemy->position, 1, (ZunColor)g_EffectsColor[local_6c->effectColorId]);
                 enemy->effectArray[enemy->effectIdx]->pos2 = *local_6c->pos.AsD3dXVec();
                 enemy->effectDistance = local_6c->effectDistance;
                 enemy->effectIdx++;
@@ -705,7 +705,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
             case ECL_OPCODE_SPELLCARDSTART:
                 g_Gui.ShowSpellcard(instruction->args.spellcardStart.spellcardSprite,
                                     instruction->args.spellcardStart.spellcardName);
-                g_EnemyManager.spellcardInfo.isCapturing = 1;
+                g_EnemyManager.spellcardInfo.isCapturing = true;
                 g_EnemyManager.spellcardInfo.isActive = 1;
                 g_EnemyManager.spellcardInfo.idx = instruction->args.spellcardStart.spellcardId;
                 g_EnemyManager.spellcardInfo.captureScore = g_SpellcardScore[g_EnemyManager.spellcardInfo.idx];
