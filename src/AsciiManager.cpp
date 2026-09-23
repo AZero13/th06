@@ -140,10 +140,10 @@ void AsciiManager::InitializeVms()
 
     AnmManager *mgr0 = g_AnmManager;
     this->vm0.Initialize();
-    mgr0->SetActiveSprite(&this->vm0, 0x20);
+    mgr0->SetActiveSprite(&this->vm0, 32);
 
     this->vm1.pos.z = 0.1;
-    this->isSelected = 0;
+    this->isSelected = false;
 }
 
 ZunResult AsciiManager::DeletedCallback(AsciiManager *s)
@@ -208,7 +208,7 @@ void AsciiManager::DrawStrings(void)
     i32 padding_2;
     i32 padding_3;
     i32 i;
-    BOOL guiString;
+    ZunBool guiString;
     f32 charWidth;
     AsciiManagerString *string;
     u8 *text;
@@ -257,14 +257,14 @@ void AsciiManager::DrawStrings(void)
             }
             else
             {
-                if (string->isSelected == FALSE)
+                if (!string->isSelected)
                 {
-                    this->vm0.sprite = &g_AnmManager->sprites[*text - 0x15];
+                    this->vm0.sprite = &g_AnmManager->sprites[*text - 21];
                     this->vm0.color = string->color;
                 }
                 else
                 {
-                    this->vm0.sprite = &g_AnmManager->sprites[*text + 0x61];
+                    this->vm0.sprite = &g_AnmManager->sprites[*text + 97];
                     this->vm0.color = COLOR_WHITE;
                 }
                 g_AnmManager->DrawNoRotation(&this->vm0);
@@ -930,4 +930,12 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
 
     return;
 }
+
+// NOTE: This moves 1.0f into the AsciiManager section of rdata
+void dummy_float_1()
+{
+    float a = 0.0f;
+    a += 1.0f;
+}
+
 }; // namespace th06

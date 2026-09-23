@@ -58,7 +58,7 @@ i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, char *filename)
             i32 res = this->pbg3Archives[pbg3FileIdx]->FindEntry(verPath);
             if (res < 0)
             {
-                g_GameErrorContext.Fatal("error : ??????????????\n");
+                g_GameErrorContext.Fatal(TH_ERR_WRONG_DATA_VERSION);
                 return 1;
             }
         }

@@ -3,7 +3,6 @@
 #include <d3d8.h>
 #include <d3dx8math.h>
 
-#include "Supervisor.hpp"
 #include "ZunColor.hpp"
 #include "ZunMath.hpp"
 #include "ZunResult.hpp"

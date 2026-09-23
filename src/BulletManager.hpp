@@ -91,7 +91,7 @@ struct Laser
     i32 duration;
     i32 despawnDuration;
     i32 hitboxEndDelay;
-    i32 inUse;
+    ZunBool inUse;
     ZunTimer timer;
     u16 flags;
     i16 color;

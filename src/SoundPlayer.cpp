@@ -164,7 +164,7 @@ ZunResult SoundPlayer::LoadSound(i32 idx, char *path)
     }
     if (strncmp((char *)sFDCursor, "RIFF", 4))
     {
-        g_GameErrorContext.Log(TH_ERR_NOT_A_WAV_FILE, path);
+        g_GameErrorContext.Log(TH_ERR_NOT_A_WAV_FILE_A, path);
         ZUN_FREE(soundFileData);
         return ZUN_ERROR;
     }
@@ -175,7 +175,7 @@ ZunResult SoundPlayer::LoadSound(i32 idx, char *path)
 
     if (strncmp((char *)sFDCursor, "WAVE", 4))
     {
-        g_GameErrorContext.Log(TH_ERR_NOT_A_WAV_FILE, path);
+        g_GameErrorContext.Log(TH_ERR_NOT_A_WAV_FILE_B, path);
         ZUN_FREE(soundFileData);
         return ZUN_ERROR;
     }
@@ -183,7 +183,7 @@ ZunResult SoundPlayer::LoadSound(i32 idx, char *path)
     wavDataPtr = GetWavFormatData(sFDCursor, "fmt ", &formatSize, fileSize - 12);
     if (wavDataPtr == NULL)
     {
-        g_GameErrorContext.Log(TH_ERR_NOT_A_WAV_FILE, path);
+        g_GameErrorContext.Log(TH_ERR_NOT_A_WAV_FILE_B, path);
         ZUN_FREE(soundFileData);
         return ZUN_ERROR;
     }
@@ -192,7 +192,7 @@ ZunResult SoundPlayer::LoadSound(i32 idx, char *path)
     wavDataPtr = GetWavFormatData(sFDCursor, "data", &formatSize, fileSize - 12);
     if (wavDataPtr == NULL)
     {
-        g_GameErrorContext.Log(TH_ERR_NOT_A_WAV_FILE, path);
+        g_GameErrorContext.Log(TH_ERR_NOT_A_WAV_FILE_B, path);
         ZUN_FREE(soundFileData);
         return ZUN_ERROR;
     }

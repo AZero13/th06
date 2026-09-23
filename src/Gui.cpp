@@ -95,7 +95,7 @@ struct GuiFormattedText
 {
     D3DXVECTOR3 pos;
     i32 fmtArg;
-    i32 isShown;
+    ZunBool isShown;
     ZunTimer timer;
 };
 ZUN_ASSERT_SIZE(GuiFormattedText, 0x20);
@@ -119,7 +119,7 @@ struct GuiImpl
     AnmVm enemySpellcardBackground;
     AnmVm loadingScreenSprite;
     GuiMsgVm msg;
-    u32 finishedStage;
+    ZunBool finishedStage;
     u32 stageScore;
     GuiFormattedText bonusScore;
     GuiFormattedText fullPowerMode;
@@ -144,7 +144,6 @@ void Gui::EndPlayerSpellcard()
 void Gui::EndEnemySpellcard()
 {
     this->impl->enemySpellcardName.pendingInterrupt = 1;
-    return;
 }
 
 ZunBool Gui::IsDialogueSkippable()
@@ -155,28 +154,25 @@ ZunBool Gui::IsDialogueSkippable()
 void Gui::ShowBonusScore(u32 bonusScore)
 {
     this->impl->bonusScore.pos = D3DXVECTOR3(416.0f, 32.0f, 0.0f);
-    this->impl->bonusScore.isShown = 1;
+    this->impl->bonusScore.isShown = true;
     this->impl->bonusScore.timer = 0;
     this->impl->bonusScore.fmtArg = bonusScore;
-    return;
 }
 
 void Gui::ShowFullPowerMode(i32 fmtArg)
 {
     this->impl->fullPowerMode.pos = D3DXVECTOR3(416.0f, 232.0f, 0.0f);
-    this->impl->fullPowerMode.isShown = 1;
+    this->impl->fullPowerMode.isShown = true;
     this->impl->fullPowerMode.timer = 0;
     this->impl->fullPowerMode.fmtArg = fmtArg;
-    return;
 }
 
 void Gui::ShowSpellcardBonus(u32 spellcardScore)
 {
     this->impl->spellCardBonus.pos = D3DXVECTOR3(224.0f, 16.0f, 0.0f);
-    this->impl->spellCardBonus.isShown = 1;
+    this->impl->spellCardBonus.isShown = true;
     this->impl->spellCardBonus.timer = 0;
     this->impl->spellCardBonus.fmtArg = spellcardScore;
-    return;
 }
 
 ChainCallbackResult Gui::OnUpdate(Gui *gui)
@@ -286,7 +282,7 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
     gui->impl->DrawDialogue();
     gui->DrawStageElements();
     gui->DrawGameScene();
-    g_AsciiManager.isGui = 1;
+    g_AsciiManager.isGui = true;
     if (gui->impl->bonusScore.isShown)
     {
         g_AsciiManager.color = COLOR_LIGHTYELLOW;
@@ -322,7 +318,7 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
         g_AsciiManager.scale.y = 1.0;
         g_AsciiManager.color = COLOR_WHITE;
     }
-    g_AsciiManager.isGui = 0;
+    g_AsciiManager.isGui = false;
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
@@ -346,7 +342,6 @@ void Gui::ShowSpellcard(i32 spellcardSprite, char *spellcardName)
     g_AnmManager->DrawStringFormat(&this->impl->enemySpellcardName, 0xfff0f0, COLOR_RGB(COLOR_BLACK), spellcardName);
     this->blueSpellcardBarLength = strlen(spellcardName) * 15 / 2.0f + 16.0f;
     g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB, 0);
-    return;
 }
 
 ZunResult Gui::ActualAddedCallback()
@@ -552,10 +547,10 @@ ZunResult Gui::ActualAddedCallback()
     g_AnmManager->DrawStringFormat(&this->impl->songNameSprite, COLOR_RGB(COLOR_LIGHTCYAN), COLOR_RGB(COLOR_BLACK),
                                    TH_SONG_NAME, g_Stage.stdData->songNames[0]);
     this->impl->msg.currentMsgIdx = -1;
-    this->impl->finishedStage = 0;
-    this->impl->bonusScore.isShown = 0;
-    this->impl->fullPowerMode.isShown = 0;
-    this->impl->spellCardBonus.isShown = 0;
+    this->impl->finishedStage = FALSE;
+    this->impl->bonusScore.isShown = false;
+    this->impl->fullPowerMode.isShown = false;
+    this->impl->spellCardBonus.isShown = false;
     this->flags.flag0 = 2;
     this->flags.flag1 = 2;
     this->flags.flag3 = 2;
@@ -594,7 +589,6 @@ void Gui::MsgRead(i32 msgIdx)
 {
     this->impl->MsgRead(msgIdx);
     g_Supervisor.unk198 = 3;
-    return;
 }
 
 void GuiImpl::MsgRead(i32 msgIdx)
@@ -627,7 +621,6 @@ void GuiImpl::MsgRead(i32 msgIdx)
         g_AnmManager->LoadAnm(ANM_FILE_EFFECTS, "data/eff07.anm", ANM_OFFSET_EFFECTS);
         g_AnmManager->LoadAnm(ANM_FILE_FACE_STAGE_A, "data/face12c.anm", ANM_OFFSET_FACE_STAGE_A);
     }
-    return;
 }
 
 ZunResult GuiImpl::RunMsg()
@@ -675,7 +668,7 @@ ZunResult GuiImpl::RunMsg()
                                             this->msg.textColorsB[args->text.textColor], " ");
             }
             g_AnmManager->SetAndExecuteScriptIdx(&this->msg.dialogueLines[args->text.textLine],
-                                                 0x702 + args->text.textLine);
+                                                 1794 + args->text.textLine);
             this->msg.dialogueLines[args->text.textLine].fontWidth =
                 this->msg.dialogueLines[args->text.textLine].fontHeight = this->msg.fontSize;
             g_AnmManager->DrawVmTextFmt(&this->msg.dialogueLines[args->text.textLine],
@@ -712,11 +705,11 @@ ZunResult GuiImpl::RunMsg()
             this->msg.ignoreWaitCounter += 1;
             break;
         case MSG_OPCODE_MUSIC:
-            g_AnmManager->SetAndExecuteScriptIdx(&this->songNameSprite, 0x701);
+            g_AnmManager->SetAndExecuteScriptIdx(&this->songNameSprite, 1793);
             this->songNameSprite.fontWidth = 16;
             this->songNameSprite.fontHeight = 16;
             g_AnmManager->DrawStringFormat(&this->songNameSprite, COLOR_RGB(COLOR_LIGHTCYAN), COLOR_RGB(COLOR_BLACK),
-                                           "♪%s", g_Stage.stdData->songNames[this->msg.currentInstr->args.music]);
+                                           TH_SONG_NAME, g_Stage.stdData->songNames[this->msg.currentInstr->args.music]);
             if (g_Supervisor.PlayMidiFile(this->msg.currentInstr->args.music) != 0)
             {
                 g_Supervisor.PlayAudio(g_Stage.stdData->songPaths[this->msg.currentInstr->args.music]);
@@ -725,14 +718,14 @@ ZunResult GuiImpl::RunMsg()
         case MSG_OPCODE_TEXTINTRO:
             args = &this->msg.currentInstr->args;
             g_AnmManager->SetAndExecuteScriptIdx(&this->msg.introLines[args->text.textLine],
-                                                 args->text.textLine + 0x704);
+                                                 args->text.textLine + 1796);
             g_AnmManager->DrawStringFormat(&this->msg.introLines[args->text.textLine],
                                            this->msg.textColorsA[args->text.textColor],
                                            this->msg.textColorsB[args->text.textColor], args->text.text);
             this->msg.framesElapsedDuringPause = 0;
             break;
         case MSG_OPCODE_STAGERESULTS:
-            this->finishedStage = 1;
+            this->finishedStage = TRUE;
             if (g_GameManager.currentStage < 6)
             {
                 g_AnmManager->SetAndExecuteScriptIdx(&this->loadingScreenSprite,
@@ -994,7 +987,7 @@ void Gui::UpdateStageElements()
         }
         if ((i32)(250 <= this->impl->bonusScore.timer.current))
         {
-            this->impl->bonusScore.isShown = 0;
+            this->impl->bonusScore.isShown = false;
         }
         this->impl->bonusScore.timer++;
     }
@@ -1011,7 +1004,7 @@ void Gui::UpdateStageElements()
         }
         if ((i32)(180 <= this->impl->fullPowerMode.timer.current))
         {
-            this->impl->fullPowerMode.isShown = 0;
+            this->impl->fullPowerMode.isShown = false;
         }
         this->impl->fullPowerMode.timer++;
     }
@@ -1019,11 +1012,11 @@ void Gui::UpdateStageElements()
     {
         if ((i32)(280 <= this->impl->spellCardBonus.timer.current))
         {
-            this->impl->spellCardBonus.isShown = 0;
+            this->impl->spellCardBonus.isShown = false;
         }
         this->impl->spellCardBonus.timer++;
     }
-    if (this->impl->finishedStage == 1)
+    if (this->impl->finishedStage == TRUE)
     {
         stageScore = 0;
         stageScore += g_GameManager.currentStage * 1000;
@@ -1069,7 +1062,6 @@ void Gui::UpdateStageElements()
         g_GameManager.score += stageScore;
         this->impl->finishedStage += 1;
     }
-    return;
 }
 
 static ZunColor COLOR1 = 0xa0d0ff;
@@ -1328,7 +1320,6 @@ void Gui::DrawGameScene()
     {
         this->flags.flag4--;
     }
-    return;
 }
 
 #pragma var_order(stageTextPos, stageTextColor, demoTextColor)
@@ -1473,14 +1464,13 @@ ZunResult Gui::RegisterChain()
     return ZUN_SUCCESS;
 }
 
-GuiImpl::GuiImpl() {
-
+GuiImpl::GuiImpl()
+{
 };
 
 void Gui::CutChain()
 {
     g_Chain.Cut(&g_GuiCalcChain);
     g_Chain.Cut(&g_GuiDrawChain);
-    return;
 }
 }; // namespace th06

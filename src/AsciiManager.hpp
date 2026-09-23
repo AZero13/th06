@@ -22,9 +22,9 @@ struct AsciiManagerString
     D3DXVECTOR2 scale;
     // If true, we are drawing the currently selected element of the MainMenu
     // class.
-    u32 isSelected;
+    ZunBool isSelected;
     // If true, we are drawing an element of the Gui class.
-    u32 isGui;
+    ZunBool isGui;
 };
 ZUN_ASSERT_SIZE(AsciiManagerString, 0x60);
 
@@ -79,7 +79,7 @@ struct AsciiManager
     D3DCOLOR color;
     D3DXVECTOR2 scale;
     // If true, we are drawing an element of the Gui class.
-    u32 isGui;
+    ZunBool isGui;
     // If true, we are drawing the currently selected element of the MainMenu
     // class.
     ZunBool isSelected;

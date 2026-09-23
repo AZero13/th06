@@ -40,7 +40,7 @@ def configure(build_type):
         writer.variable("link", "link.exe")
         writer.variable(
             "th06_link_flags",
-            "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /map /mapinfo:exports /mapinfo:lines /nodefaultlib:libcpmt.lib",
+            "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /opt:icf /map /mapinfo:exports /mapinfo:lines /nodefaultlib:libcpmt.lib",
         )
 
         writer.variable("msvc_deps_prefix", "Note: including file:")
@@ -57,7 +57,7 @@ def configure(build_type):
         writer.rule("rc", "$rc /fo $out $in")
         writer.rule(
             "link",
-            "$link $link_flags /nologo /out:$out $link_libs $in",
+            "$link $link_flags /nologo /out:$out $in $link_libs",
         )
         writer.rule(
             "copyicon",
@@ -238,7 +238,7 @@ def configure(build_type):
         if build_type == BuildType.DIFFBUILD:
             objfiles += ["$builddir/globals.obj"]
 
-        th06_link_libs = "dinput8.lib dsound.lib d3d8.lib winmm.lib dxguid.lib d3dx8.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib"
+        th06_link_libs = "dinput8.lib dsound.lib d3d8.lib winmm.lib d3dx8.lib dxguid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib"
         writer.build(
             "$builddir/th06.exe",
             "link",

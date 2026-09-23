@@ -1,18 +1,10 @@
 #pragma once
 
-#include <d3d8.h>
-#include <d3dx8math.h>
-#include <dinput.h>
-
-#include "Chain.hpp"
-#include "Global.hpp"
-#include "MidiOutput.hpp"
 #include "Supervisor.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
 #include "diffbuild.hpp"
 #include "inttypes.hpp"
-#include "pbg3/Pbg3Archive.hpp"
 
 namespace th06
 {
