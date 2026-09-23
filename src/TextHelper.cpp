@@ -278,11 +278,14 @@ void TextHelper::ReleaseTextBuffer()
     SAFE_RELEASE(g_TextBufferSurface);
 }
 
-void Fake_TextOutA_SetBkMode_SetTextColor()
+void Fake_TextOutA_SetBkMode_SetTextColor_CxxThrowException()
 {
     void *painA = (void *)&TextOut;
     void *painB = (void *)&SetBkMode;
     void *painC = (void *)&SetTextColor;
+    // NOTE: Using throw instead includes TypeInfo/RTTI
+    // objects, which breaks library code order.
+    _CxxThrowException(NULL, NULL);
 }
 
 #pragma function(strlen)

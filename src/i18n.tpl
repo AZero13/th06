@@ -32,7 +32,8 @@
 #define TH_JP_ERR_CONFIG_NOT_FOUND "コンフィグデータが見つからないので初期化しました\n"
 #define TH_JP_ERR_CONFIG_CORRUPTED "コンフィグデータが破壊されていたので再初期化しました\n"
 #define TH_JP_ERR_NO_WAVE_FILE "wave データが無いので、midi にします\n"
-#define TH_JP_ERR_NOT_A_WAV_FILE "Wav ファイルじゃない? %s\n"
+#define TH_JP_ERR_NOT_A_WAV_FILE_A "Wav ファイルじゃない %s\n"
+#define TH_JP_ERR_NOT_A_WAV_FILE_B "Wav ファイルじゃない? %s\n"
 #define TH_JP_ERR_NO_VERTEX_BUFFER "頂点バッファの使用を抑制します\n"
 #define TH_JP_ERR_NO_FOG "フォグの使用を抑制します\n"
 #define TH_JP_ERR_USE_16BIT_TEXTURES "16Bit のテクスチャの使用を強制します\n"
@@ -40,10 +41,10 @@
 #define TH_JP_ERR_DONT_RENDER_ITEMS "ゲーム周りのアイテムの描画を抑制します\n"
 #define TH_JP_ERR_NO_GOURAUD_SHADING "グーローシェーディングを抑制します\n"
 #define TH_JP_ERR_NO_DEPTH_TESTING "デプステストを抑制します\n"
-#define TH_JP_ERR_FORCE_60FPS_MODE "60フレーム強制モードにします\n"
+#define TH_JP_ERR_FORCE_60FPS_MODE "６０フレーム強制モードにします\n"
 #define TH_JP_ERR_NO_TEXTURE_COLOR_COMPOSITING "テクスチャの色合成を抑制します\n"
 #define TH_JP_ERR_LAUNCH_WINDOWED "ウィンドウモードで起動します\n"
-#define TH_JP_ERR_FORCE_REFERENCE_RASTERIZER "リファレンスラスタライザを強制しますn"
+#define TH_JP_ERR_FORCE_REFERENCE_RASTERIZER "リファレンスラスタライザを強制します\n"
 #define TH_JP_ERR_DO_NOT_USE_DIRECTINPUT "パッド、キーボードの入力に DirectInput を使用しません\n"
 #define TH_JP_ERR_DIRECTINPUT_NOT_AVAILABLE "DirectInput が使用できません\n"
 #define TH_JP_ERR_DIRECTINPUT_SETDATAFORMAT_NOT_AVAILABLE "DirectInput SetDataFormat が使用できません\n"
@@ -90,6 +91,8 @@
 #define TH_JP_SATSUKI_RIN_FLOWER "冴月 麟 (花)"
 #define TH_JP_SATSUKI_RIN_WIND "冴月 麟 (風)"
 
+#define TH_JP_SONG_NAME "♪%s"
+
 #define TH_JP_UNKNOWN_SPELLCARD "？？？？？"
 
 #define TH_JP_CM_DAT_FILE "紅魔郷CM.dat"
@@ -129,7 +132,8 @@
 #define TH_EN_ERR_CONFIG_NOT_FOUND "Config not found, initializing with default values.\n"
 #define TH_EN_ERR_CONFIG_CORRUPTED "Config corrupted, reinitializing with default values.\n"
 #define TH_EN_ERR_NO_WAVE_FILE "There is no wave data, so I'll make it midi!\n"
-#define TH_EN_ERR_NOT_A_WAV_FILE "%s isn't a wav file?"
+#define TH_EN_ERR_NOT_A_WAV_FILE_A "%s isn't a wav file\n"
+#define TH_EN_ERR_NOT_A_WAV_FILE_B "%s isn't a wav file?\n"
 #define TH_EN_ERR_NO_VERTEX_BUFFER "Suppressing the use of the vertex buffer.\n"
 #define TH_EN_ERR_NO_FOG "Suppressing the use of fog.\n"
 #define TH_EN_ERR_USE_16BIT_TEXTURES "Enforces the use of 16Bit textures.\n"
@@ -186,6 +190,8 @@
 #define TH_EN_SATSUKI_RIN_FLOWER "Satsuki Rin (Flower)"
 #define TH_EN_SATSUKI_RIN_WIND "Satsuki Rin (Wind)"
 
+#define TH_EN_SONG_NAME "♪%s"
+
 #define TH_EN_UNKNOWN_SPELLCARD "??????"
 
 #define TH_EN_CM_DAT_FILE "KOUMAKYO_CM.dat"
@@ -225,7 +231,8 @@
 #define TH_ERR_CONFIG_NOT_FOUND TH_MAKE_LANG_STR(TH_LANG, _ERR_CONFIG_NOT_FOUND)
 #define TH_ERR_CONFIG_CORRUPTED TH_MAKE_LANG_STR(TH_LANG, _ERR_CONFIG_CORRUPTED)
 #define TH_ERR_NO_WAVE_FILE TH_MAKE_LANG_STR(TH_LANG, _ERR_NO_WAVE_FILE)
-#define TH_ERR_NOT_A_WAV_FILE TH_MAKE_LANG_STR(TH_LANG, _ERR_NOT_A_WAV_FILE)
+#define TH_ERR_NOT_A_WAV_FILE_A TH_MAKE_LANG_STR(TH_LANG, _ERR_NOT_A_WAV_FILE_A)
+#define TH_ERR_NOT_A_WAV_FILE_B TH_MAKE_LANG_STR(TH_LANG, _ERR_NOT_A_WAV_FILE_B)
 #define TH_ERR_NO_VERTEX_BUFFER TH_MAKE_LANG_STR(TH_LANG, _ERR_NO_VERTEX_BUFFER)
 #define TH_ERR_NO_FOG TH_MAKE_LANG_STR(TH_LANG, _ERR_NO_FOG)
 #define TH_ERR_USE_16BIT_TEXTURES TH_MAKE_LANG_STR(TH_LANG, _ERR_USE_16BIT_TEXTURES)
@@ -280,6 +287,7 @@
 #define TH_KIRISAME_MARISA_LOVE TH_MAKE_LANG_STR(TH_LANG, _KIRISAME_MARISA_LOVE)
 #define TH_SATSUKI_RIN_FLOWER TH_MAKE_LANG_STR(TH_LANG, _SATSUKI_RIN_FLOWER)
 #define TH_SATSUKI_RIN_WIND TH_MAKE_LANG_STR(TH_LANG, _SATSUKI_RIN_WIND)
+#define TH_SONG_NAME TH_MAKE_LANG_STR(TH_LANG, _SONG_NAME)
 #define TH_UNKNOWN_SPELLCARD TH_MAKE_LANG_STR(TH_LANG, _UNKNOWN_SPELLCARD)
 #define TH_CM_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _CM_DAT_FILE)
 #define TH_ED_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _ED_DAT_FILE)
@@ -288,5 +296,4 @@
 #define TH_ST_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _ST_DAT_FILE)
 #define TH_TL_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _TL_DAT_FILE)
 
-#define TH_SONG_NAME "♪%s"
 #define TH_FONT_NAME "ＭＳ ゴシック"

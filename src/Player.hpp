@@ -113,7 +113,7 @@ ZUN_ASSERT_SIZE(PlayerBullet, 0x158);
 
 struct PlayerBombInfo
 {
-    u32 isInUse;
+    ZunBool isInUse;
     i32 duration;
     ZunTimer timer;
     void (*calc)(Player *p);
