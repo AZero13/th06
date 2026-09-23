@@ -709,7 +709,8 @@ ZunResult GuiImpl::RunMsg()
             this->songNameSprite.fontWidth = 16;
             this->songNameSprite.fontHeight = 16;
             g_AnmManager->DrawStringFormat(&this->songNameSprite, COLOR_RGB(COLOR_LIGHTCYAN), COLOR_RGB(COLOR_BLACK),
-                                           TH_SONG_NAME, g_Stage.stdData->songNames[this->msg.currentInstr->args.music]);
+                                           TH_SONG_NAME,
+                                           g_Stage.stdData->songNames[this->msg.currentInstr->args.music]);
             if (g_Supervisor.PlayMidiFile(this->msg.currentInstr->args.music) != 0)
             {
                 g_Supervisor.PlayAudio(g_Stage.stdData->songPaths[this->msg.currentInstr->args.music]);
@@ -1464,9 +1465,7 @@ ZunResult Gui::RegisterChain()
     return ZUN_SUCCESS;
 }
 
-GuiImpl::GuiImpl()
-{
-};
+GuiImpl::GuiImpl() {};
 
 void Gui::CutChain()
 {
