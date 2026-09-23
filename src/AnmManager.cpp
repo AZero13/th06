@@ -513,7 +513,7 @@ void AnmManager::SetRenderStateForVm(AnmVm *vm)
     return;
 }
 
-static const f32 g_ZeroPointFive = 0.5f;
+extern __declspec(selectany) const f32 g_ZeroPointFive = 0.5f;
 
 ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
 {
