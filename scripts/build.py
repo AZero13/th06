@@ -1,6 +1,9 @@
 import argparse
 from pathlib import Path
 import textwrap
+import sys
+import subprocess
+import os
 
 from configure import BuildType, configure
 from winhelpers import run_windows_program
@@ -35,6 +38,16 @@ def build(build_type, verbose=False, jobs=1, target=None):
         cwd=str(SCRIPTS_DIR.parent),
     )
 
+    # Ninja is pretty hard to work with so this is the only (janky)
+    # working solution. If you can think of a better one, PRs welcome.
+    if build_type == BuildType.BINARY_MATCHBUILD:
+        if os.path.isfile("build/th06.exe"):
+            subprocess.run([
+                sys.executable,
+                str(SCRIPTS_DIR / "patch_timestamp.py"),
+                "build/th06.exe",
+                "1038721275"  # 2002-12-01 06:41:15
+            ])
 
 def main():
     parser = argparse.ArgumentParser(
