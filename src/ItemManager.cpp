@@ -109,7 +109,7 @@ void ItemManager::OnUpdate()
         this->itemCount++;
         if (curItem->state == 2)
         {
-            if ((i32)(60 > curItem->timer.current))
+            if (curItem->timer < 60)
             {
                 fVar5 = curItem->timer.AsFramesFloat() / 60.0f;
                 curItem->currentPosition = fVar5 * curItem->targetPosition + curItem->startPosition * (1.0f - fVar5);

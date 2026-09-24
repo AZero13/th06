@@ -986,7 +986,7 @@ void Gui::UpdateStageElements()
         {
             this->impl->bonusScore.pos.x = 104.0f;
         }
-        if ((i32)(250 <= this->impl->bonusScore.timer.current))
+        if (this->impl->bonusScore.timer >= 250)
         {
             this->impl->bonusScore.isShown = false;
         }
@@ -1003,7 +1003,7 @@ void Gui::UpdateStageElements()
         {
             this->impl->fullPowerMode.pos.x = 104.0f;
         }
-        if ((i32)(180 <= this->impl->fullPowerMode.timer.current))
+        if (this->impl->fullPowerMode.timer >= 180)
         {
             this->impl->fullPowerMode.isShown = false;
         }
@@ -1011,7 +1011,7 @@ void Gui::UpdateStageElements()
     }
     if (this->impl->spellCardBonus.isShown)
     {
-        if ((i32)(280 <= this->impl->spellCardBonus.timer.current))
+        if (this->impl->spellCardBonus.timer >= 280)
         {
             this->impl->spellCardBonus.isShown = false;
         }
