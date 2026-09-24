@@ -965,7 +965,7 @@ HRESULT CWaveFile::ResetFile(bool loop)
                 if (mmioSetInfo(this->m_hmmio, &mmioinfoIn, 0) != 0)
                 {
                     utils::DebugPrint2("error : mmioSetInfo in CWaveFile::ResetFile\n");
-                    return 0x80004005;
+                    return E_FAIL;
                 }
             }
         }

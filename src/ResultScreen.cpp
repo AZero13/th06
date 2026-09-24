@@ -804,13 +804,13 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
         {
             if (g_GameManager.numRetries != 0)
             {
-                saveInterrupt = 0xc;
+                saveInterrupt = 12;
             }
             else
             {
                 if (g_Supervisor.framerateMultiplier < 0.99f)
                 {
-                    saveInterrupt = 0xd;
+                    saveInterrupt = 13;
                 }
                 else
                 {
@@ -861,7 +861,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 sprite = &this->unk_40[0];
                 for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
                 {
-                    sprite->pendingInterrupt = 0xa;
+                    sprite->pendingInterrupt = 10;
                 }
 
                 this->frameTimer = 0;
@@ -945,10 +945,10 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 sprite = &this->unk_40[0];
                 for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
                 {
-                    sprite->pendingInterrupt = 0xf;
+                    sprite->pendingInterrupt = 15;
                 }
-                sprite = &this->unk_40[this->replayNumber + 0x16];
-                sprite->pendingInterrupt = 0xe;
+                sprite = &this->unk_40[this->replayNumber + 22];
+                sprite->pendingInterrupt = 14;
                 this->resultScreenState = RESULT_SCREEN_STATE_WRITING_REPLAY_NAME;
             }
             else
@@ -956,10 +956,10 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 sprite = &this->unk_40[0];
                 for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
                 {
-                    sprite->pendingInterrupt = 0xb;
+                    sprite->pendingInterrupt = 11;
                 }
-                sprite = &this->unk_40[this->replayNumber + 0x16];
-                sprite->pendingInterrupt = 0xe;
+                sprite = &this->unk_40[this->replayNumber + 22];
+                sprite->pendingInterrupt = 14;
                 this->resultScreenState = RESULT_SCREEN_STATE_OVERWRITE_REPLAY_FILE;
             }
             this->cursor = 0;
@@ -1975,11 +1975,11 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                     g_AsciiManager.color = COLOR_KEYBOARD_KEY_HIGHLIGHT;
                     if (resultScreen->frameTimer % 64 < 32)
                     {
-                        charPos.y = 1.2f + 0.8f * (resultScreen->frameTimer % 0x20) / 32.0f;
+                        charPos.y = 1.2f + 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
                     }
                     else
                     {
-                        charPos.y = 2.0f - 0.8f * (resultScreen->frameTimer % 0x20) / 32.0f;
+                        charPos.y = 2.0f - 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
                     }
                     g_AsciiManager.scale.x = charPos.y;
                     g_AsciiManager.scale.y = charPos.y;

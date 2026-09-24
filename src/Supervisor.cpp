@@ -37,15 +37,15 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
     g_IsEigthFrameOfHeldInput = false;
     if (g_LastFrameInput == g_CurFrameInput)
     {
-        if (0x1e <= g_NumOfFramesInputsWereHeld)
+        if (30 <= g_NumOfFramesInputsWereHeld)
         {
             if (g_NumOfFramesInputsWereHeld % 8 == 0)
             {
                 g_IsEigthFrameOfHeldInput = true;
             }
-            if (0x26 <= g_NumOfFramesInputsWereHeld)
+            if (38 <= g_NumOfFramesInputsWereHeld)
             {
-                g_NumOfFramesInputsWereHeld = 0x1e;
+                g_NumOfFramesInputsWereHeld = 30;
             }
         }
         g_NumOfFramesInputsWereHeld++;

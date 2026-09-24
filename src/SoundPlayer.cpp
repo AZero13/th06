@@ -105,7 +105,7 @@ ZunResult SoundPlayer::Release(void)
     {
         return ZUN_SUCCESS;
     }
-    for (i = 0; i < 0x80; i++)
+    for (i = 0; i < ARRAY_SIZE_SIGNED(this->soundBuffers); i++)
     {
         SAFE_RELEASE(this->duplicateSoundBuffers[i]);
         SAFE_RELEASE(this->soundBuffers[i]);
@@ -249,7 +249,7 @@ ZunResult SoundPlayer::LoadWav(char *path)
     {
         return ZUN_ERROR;
     }
-    if (g_Supervisor.cfg.playSounds == 0)
+    if (!g_Supervisor.cfg.playSounds)
     {
         return ZUN_ERROR;
     }
@@ -318,7 +318,7 @@ ZunResult SoundPlayer::LoadPos(const char *path)
     {
         return ZUN_ERROR;
     }
-    if (g_Supervisor.cfg.playSounds == NULL)
+    if (!g_Supervisor.cfg.playSounds)
     {
         return ZUN_ERROR;
     }

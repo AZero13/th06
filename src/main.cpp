@@ -694,13 +694,13 @@ i32 GameWindow::InitD3dRendering(void)
     if (!g_Supervisor.IsHardwareBlendingDisabled() && !(g_Supervisor.d3dCaps.TextureOpCaps & D3DTEXOPCAPS_ADD))
     {
         g_GameErrorContext.Log(TH_ERR_NO_SUPPORT_FOR_D3DTEXOPCAPS_ADD);
-        g_Supervisor.cfg.opts |= 1 << GCOS_USE_D3D_HW_TEXTURE_BLENDING;
+        g_Supervisor.cfg.opts.useSwTextureBlending = true;
     }
     if (g_Supervisor.ShouldRunAt60Fps() &&
         !(g_Supervisor.d3dCaps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE))
     {
         g_GameErrorContext.Log(TH_ERR_CANT_FORCE_60FPS_NO_ASYNC_FLIP);
-        g_Supervisor.cfg.opts &= ~(1 << GCOS_FORCE_60FPS);
+        g_Supervisor.cfg.opts.force60Fps = false;
     }
     if (!g_Supervisor.Is16bitColorMode() && using_d3d_hal)
     {
@@ -712,7 +712,7 @@ i32 GameWindow::InitD3dRendering(void)
         else
         {
             g_Supervisor.colorMode16Bits = false;
-            g_Supervisor.cfg.opts |= 1 << GCOS_FORCE_16BIT_COLOR_MODE;
+            g_Supervisor.cfg.opts.force16bitColorMode = true;
             g_GameErrorContext.Log(TH_ERR_D3DFMT_A8R8G8B8_UNSUPPORTED);
         }
     }

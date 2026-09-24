@@ -325,11 +325,11 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
 
 void Gui::ShowBombNamePortrait(u32 sprite, const char *bombName)
 {
-    g_AnmManager->SetAndExecuteScriptIdx(&this->impl->playerSpellcardPortrait, 0x4a1);
+    g_AnmManager->SetAndExecuteScriptIdx(&this->impl->playerSpellcardPortrait, 1185);
     g_AnmManager->SetActiveSprite(&this->impl->playerSpellcardPortrait, sprite);
-    g_AnmManager->SetAndExecuteScriptIdx(&this->impl->bombSpellcardName, 0x706);
+    g_AnmManager->SetAndExecuteScriptIdx(&this->impl->bombSpellcardName, 1798);
     g_AnmManager->DrawVmTextFmt(&this->impl->bombSpellcardName, 0xf0f0ff, 0x0, bombName);
-    this->bombSpellcardBarLength = strlen(bombName) * 0xf / 2.0f + 16;
+    this->bombSpellcardBarLength = strlen(bombName) * 15 / 2.0f + 16;
     g_Supervisor.unk198 = 3;
     g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB, 0);
 }

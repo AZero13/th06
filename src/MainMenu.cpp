@@ -1143,7 +1143,7 @@ ZunBool MainMenu::WeirdSecondInputCheck()
 {
     i32 vm;
 
-    if (this->stateTimer < 0x1e)
+    if (this->stateTimer < 30)
     {
         return true;
     }
@@ -1993,7 +1993,7 @@ ZunResult MainMenu::ChoosePracticeLevel()
     if (this->gameState == STATE_PRACTICE_LVL_SELECT)
     {
         D3DXVECTOR3 textPos(320.0, 200.0, 0.0);
-        u32 color = (this->stateTimer < 30) ? this->stateTimer * 0xFF / 30 : 0xff;
+        u32 color = (this->stateTimer < 30) ? this->stateTimer * 255 / 30 : 255;
         i32 charShotType = (g_GameManager.character << 1) + g_GameManager.shotType;
         i32 selectedStage =
             (g_GameManager.clrd[charShotType].difficultyClearedWithoutRetries[g_GameManager.difficulty] > 6)
@@ -2010,11 +2010,11 @@ ZunResult MainMenu::ChoosePracticeLevel()
         {
             if (stageNum == this->cursor)
             {
-                g_AsciiManager.color = color << 0x18 | 0x00C0F0F0;
+                g_AsciiManager.color = color << 24 | 0x00C0F0F0;
             }
             else
             {
-                g_AsciiManager.color = (color >> 1) << 0x18 | 0x0080C0C0;
+                g_AsciiManager.color = (color >> 1) << 24 | 0x0080C0C0;
             }
             g_AsciiManager.AddFormatText(&textPos, "STAGE %d  %.9d", stageNum + 1,
                                          g_GameManager.pscr[charShotType][stageNum][g_GameManager.difficulty].score);
