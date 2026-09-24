@@ -346,7 +346,7 @@ static ZunResult SetupDInput(Supervisor *supervisor)
 ZunResult Supervisor::AddedCallback(Supervisor *s)
 {
     i32 i;
-    
+
     for (i = 0; i < ARRAY_SIZE_SIGNED(s->pbg3Archives); i++)
     {
         s->pbg3Archives[i] = NULL;

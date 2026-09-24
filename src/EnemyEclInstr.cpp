@@ -221,7 +221,8 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
 
                     if (playerBulletOffset.VectorLength() > 128.0f)
                     {
-                        currentBullet->angle = g_Rng.GetRandomF32ZeroToOne() * ((ZUN_PI * 3.0f) / 4.0f) + (ZUN_PI / 4.0f);
+                        currentBullet->angle =
+                            g_Rng.GetRandomF32ZeroToOne() * ((ZUN_PI * 3.0f) / 4.0f) + (ZUN_PI / 4.0f);
                     }
                     else
                     {

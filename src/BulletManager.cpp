@@ -826,8 +826,8 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 else if (curBullet->exFlags & 0x400)
                 {
                     if (!g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
-                                                 curBullet->sprites.spriteBullet.sprite->widthPx,
-                                                 curBullet->sprites.spriteBullet.sprite->heightPx))
+                                                  curBullet->sprites.spriteBullet.sprite->widthPx,
+                                                  curBullet->sprites.spriteBullet.sprite->heightPx))
                     {
                         if (curBullet->pos.x < 0.0f || curBullet->pos.x >= GAME_REGION_WIDTH)
                         {
@@ -854,8 +854,8 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 else if (curBullet->exFlags & 0x800)
                 {
                     if (!g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
-                                                 curBullet->sprites.spriteBullet.sprite->widthPx,
-                                                 curBullet->sprites.spriteBullet.sprite->heightPx))
+                                                  curBullet->sprites.spriteBullet.sprite->widthPx,
+                                                  curBullet->sprites.spriteBullet.sprite->heightPx))
                     {
                         if (curBullet->pos.x < 0.0f || curBullet->pos.x >= 384.0f)
                         {
@@ -883,12 +883,11 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
 
             curBullet->pos += curBullet->velocity * g_Supervisor.effectiveFramerateMultiplier;
             if (!g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
-                                         curBullet->sprites.spriteBullet.sprite->widthPx,
-                                         curBullet->sprites.spriteBullet.sprite->heightPx))
+                                          curBullet->sprites.spriteBullet.sprite->widthPx,
+                                          curBullet->sprites.spriteBullet.sprite->heightPx))
             {
-                if (!(curBullet->exFlags & 0x40) && !(curBullet->exFlags & 0x100) &&
-                    !(curBullet->exFlags & 0x80) && !(curBullet->exFlags & 0x400) &&
-                    !(curBullet->exFlags & 0x800) && curBullet->outOfBoundsTime == 0)
+                if (!(curBullet->exFlags & 0x40) && !(curBullet->exFlags & 0x100) && !(curBullet->exFlags & 0x80) &&
+                    !(curBullet->exFlags & 0x400) && !(curBullet->exFlags & 0x800) && curBullet->outOfBoundsTime == 0)
                 {
                     memset(curBullet, 0, sizeof(Bullet));
                     continue;

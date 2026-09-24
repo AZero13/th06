@@ -1186,8 +1186,10 @@ ZunResult MainMenu::DrawStartMenu(void)
 {
     i32 i;
     i = MoveCursor(this, 8);
-    if ((this->cursor == 1) && !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_A) && !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_B) &&
-        !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_A) && !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_B))
+    if ((this->cursor == 1) && !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_A) &&
+        !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_B) &&
+        !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_A) &&
+        !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_B))
     {
         this->cursor += i;
     }
@@ -1225,8 +1227,10 @@ ZunResult MainMenu::DrawStartMenu(void)
                 g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
                 break;
             case 1:
-                if (!(!g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_A) && !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_B) &&
-                      !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_A) && !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_B)))
+                if (!(!g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_A) &&
+                      !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_B) &&
+                      !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_A) &&
+                      !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_B)))
                 {
                     for (i = 0; i < ARRAY_SIZE_SIGNED(this->vm); i++)
                     {

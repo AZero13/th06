@@ -371,8 +371,7 @@ void AnmManager::ReleaseAnm(i32 anmIdx)
         for (i = 0; i < this->anmFiles[anmIdx]->numSprites; i++, byteOffset++)
         {
             spriteIdx = (i32 *)((u8 *)this->anmFiles[anmIdx] + *byteOffset);
-            memset(&this->sprites[*spriteIdx + spriteIdxOffset], 0,
-                   sizeof(AnmLoadedSprite));
+            memset(&this->sprites[*spriteIdx + spriteIdxOffset], 0, sizeof(AnmLoadedSprite));
             this->sprites[*spriteIdx + spriteIdxOffset].sourceFileIndex = -1;
         }
 

@@ -778,7 +778,7 @@ ZunResult GuiImpl::RunMsg()
             break;
         }
         this->msg.currentInstr =
-            (MsgRawInstr *)(((i32)&this->msg.currentInstr->args) + this->msg.currentInstr->argSize);
+            (MsgRawInstr *)(((i32) & this->msg.currentInstr->args) + this->msg.currentInstr->argSize);
     }
     this->msg.timer++;
 SKIP_TIME_INCREMENT:
