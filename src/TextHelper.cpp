@@ -291,7 +291,7 @@ void Fake_TextOutA_SetBkMode_SetTextColor_CxxThrowException()
 #pragma function(strlen)
 #pragma var_order(hdc, font, textSurfaceDesc, h, textHelper, hdc, srcRect, destRect, destSurface)
 void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontHeight,
-                                     i32 fontWidth, ZunColor textColor, ZunColor shadowColor, char *string,
+                                     i32 fontWidth, ZunColor textColor, ZunColor shadowColor, const char *string,
                                      LPDIRECT3DTEXTURE8 outTexture)
 {
     HGDIOBJ h;
@@ -339,6 +339,5 @@ void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 sp
     outTexture->GetSurfaceLevel(0, &destSurface);
     D3DXLoadSurfaceFromSurface(destSurface, NULL, &destRect, g_TextBufferSurface, NULL, &srcRect, 4, 0);
     SAFE_RELEASE(destSurface);
-    return;
 }
 }; // namespace th06

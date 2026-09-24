@@ -141,11 +141,6 @@ DIFFABLE_STATIC(MainMenu, g_MainMenu);
 
 DIFFABLE_STATIC_ASSIGN(i16, g_LastJoystickInput) = TH_BUTTON_DOWN; // why???
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 7, g_StageList) = {"Stage1", "Stage2", "Stage3", "Stage4",
-                                                        "Stage5", "Stage6", "Extra "};
-DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 4, g_ShortCharacterList) = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
-DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 5, g_DifficultyList) = {"Easy   ", "Normal ", "Hard   ", "Lunatic", "Extra  "};
-
 #pragma function(strcpy)
 #pragma var_order(i, vmList, time, deltaTime, deltaTimeAsFrames, deltaTimeAsMs, mapping, startedUp, sVar1,             \
                   controllerData, mappingData, refreshRate, local_48, local_4c, chosenStage, pos1, pos2, pos3, pos4,   \
@@ -1575,6 +1570,29 @@ i32 MainMenu::ReplayHandling()
 #pragma var_order(vmRef, i, replayAmount, isSelected, isSelected2)
 ZunResult MainMenu::DrawReplayMenu()
 {
+    static const char *g_StageList[] = {
+        "Stage1",
+        "Stage2",
+        "Stage3",
+        "Stage4",
+        "Stage5",
+        "Stage6",
+        "Extra "
+    };
+    static const char* g_ShortCharacterList[] = {
+        "ReimuA ",
+        "ReimuB ",
+        "MarisaA",
+        "MarisaB"
+    };
+    static const char* g_DifficultyList[] = {
+        "Easy   ",
+        "Normal ",
+        "Hard   ",
+        "Lunatic",
+        "Extra  "
+    };
+
     i32 replayAmount;
     i32 i;
     AnmVm *vmRef;

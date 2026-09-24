@@ -606,7 +606,6 @@ void StageMenu::OnDrawGameMenu()
             }
         }
     }
-    return;
 }
 
 enum RetryGameMenuState
@@ -824,7 +823,6 @@ void StageMenu::OnDrawRetryMenu()
             }
         }
     }
-    return;
 }
 
 #pragma var_order(currentPopup, j, i, currentDigit, unusedVec3)
@@ -875,8 +873,6 @@ void AsciiManager::DrawPopupsWithHwVertexProcessing()
             currentDigit--;
         }
     }
-
-    return;
 }
 
 #pragma var_order(currentPopup, j, i, currentDigit, unusedVec3)
@@ -927,8 +923,6 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
             currentDigit--;
         }
     }
-
-    return;
 }
 
 // NOTE: This moves 1.0f into the AsciiManager section of rdata

@@ -83,26 +83,18 @@ struct ResultScreen
 ZUN_ASSERT_SIZE(ResultScreen, 0x56b0);
 #pragma intrinsic(memset)
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(f32, 5, g_DifficultyWeightsList) = {-30.0f, -10.0f, 20.0f, 30.0f, 30.0f};
+DIFFABLE_STATIC_ASSIGN(const char *, g_AlphabetList) = TH_KEYBOARD;
 
-DIFFABLE_STATIC_ASSIGN(char *, g_AlphabetList) =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:;･@abcdefghijklmnopqrstuvwxyz+-/*=%0123456789(){}[]<>#!?'\"$      --";
-
-DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 6, g_CharacterList) = {TH_HAKUREI_REIMU_SPIRIT,  TH_HAKUREI_REIMU_DREAM,
-                                                            TH_KIRISAME_MARISA_DEVIL, TH_KIRISAME_MARISA_LOVE,
-                                                            TH_SATSUKI_RIN_FLOWER,    TH_SATSUKI_RIN_WIND};
+DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 6, g_CharacterList) = {TH_HAKUREI_REIMU_SPIRIT,  TH_HAKUREI_REIMU_DREAM,
+                                                                  TH_KIRISAME_MARISA_DEVIL, TH_KIRISAME_MARISA_LOVE,
+                                                                  TH_SATSUKI_RIN_FLOWER,    TH_SATSUKI_RIN_WIND};
 
 DIFFABLE_STATIC_ARRAY_ASSIGN(f32, 5, g_SpellcardsWeightsList) = {1.0f, 1.5f, 1.5f, 2.0f, 2.5f};
-
-DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 5, g_RightAlignedDifficultyList) = {"     Easy", "   Normal", "     Hard",
-                                                                         "  Lunatic", "    Extra"};
-
-DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 4, g_ShortCharacterList2) = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
 
 #define DEFAULT_HIGH_SCORE_NAME "Nanashi "
 
 #pragma var_order(scoreData, bytesShifted, xorValue, checksum, bytes, remainingData, decryptedFilePointer, fileLen)
-ScoreDat *OpenScore(char *path)
+ScoreDat *OpenScore(const char *path)
 {
     u8 *bytes;
     i32 bytesShifted;
@@ -1253,6 +1245,17 @@ ZunResult ResultScreen::CheckConfirmButton()
 #pragma var_order(viewport, strPos, unknownFloat, completion, slowdownRate, color)
 u32 ResultScreen::DrawFinalStats()
 {
+    static const char *g_RightAlignedDifficultyList[] = {
+        "     Easy",
+        "   Normal",
+        "     Hard",
+        "  Lunatic",
+        "    Extra"
+    };
+    static const f32 g_DifficultyWeightsList[] = {
+        -30.0f, -10.0f, 20.0f, 30.0f, 30.0f
+    };
+
     f32 completion;
     f32 unknownFloat;
     D3DXVECTOR3 strPos;
@@ -1764,6 +1767,13 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
                   spellcardIdx, charPos, keyboardCharacter)
 ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
 {
+    static const char *g_ShortCharacterList2[] = {
+        "ReimuA ",
+        "ReimuB ",
+        "MarisaA",
+        "MarisaB"
+    };
+
     AnmVm *sprite;
     char keyboardCharacter[16];
     ZunVec2 charPos;

@@ -98,8 +98,8 @@ struct AnmManager
     void SetupVertexBuffer();
 
     ZunResult CreateEmptyTexture(i32 textureIdx, u32 width, u32 height, i32 textureFormat);
-    ZunResult LoadTexture(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey);
-    ZunResult LoadTextureAlphaChannel(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey);
+    ZunResult LoadTexture(i32 textureIdx, const char *textureName, i32 textureFormat, D3DCOLOR colorKey);
+    ZunResult LoadTextureAlphaChannel(i32 textureIdx, const char *textureName, i32 textureFormat, D3DCOLOR colorKey);
     void ReleaseTexture(i32 textureIdx);
 
     void ReleaseSurfaces(void)
@@ -118,7 +118,6 @@ struct AnmManager
                                  this->screenshotWidth, this->screenshotHeight);
             this->screenshotTextureId = -1;
         }
-        return;
     }
 
     void TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32 height);
@@ -164,10 +163,10 @@ struct AnmManager
     i32 ExecuteScript(AnmVm *vm);
     ZunResult Draw(AnmVm *vm);
     void DrawTextToSprite(u32 spriteDstIndex, i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontWidth,
-                          i32 fontHeight, ZunColor textColor, ZunColor shadowColor, char *strToPrint);
-    void DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...);
-    void DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...);
-    void DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...);
+                          i32 fontHeight, ZunColor textColor, ZunColor shadowColor, const char *strToPrint);
+    void DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...);
+    void DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...);
+    void DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...);
     ZunResult DrawNoRotation(AnmVm *vm);
     ZunResult DrawInner(AnmVm *vm, i32 unk);
     ZunResult DrawFacingCamera(AnmVm *vm);
@@ -177,7 +176,7 @@ struct AnmManager
     void LoadSprite(u32 spriteIdx, AnmLoadedSprite *sprite);
     ZunResult SetActiveSprite(AnmVm *vm, u32 spriteIdx);
 
-    ZunResult LoadSurface(i32 surfaceIdx, char *path);
+    ZunResult LoadSurface(i32 surfaceIdx, const char *path);
     void ReleaseSurface(i32 surfaceIdx);
     void CopySurfaceToBackBuffer(i32 surfaceIdx, i32 left, i32 top, i32 x, i32 y);
     void DrawEndingRect(i32 surfaceIdx, i32 rectX, i32 rectY, i32 rectLeft, i32 rectTop, i32 width, i32 height);
@@ -186,7 +185,7 @@ struct AnmManager
                            float yOffset);
 
     void ReleaseAnm(i32 anmIdx);
-    ZunResult LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset);
+    ZunResult LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset);
     void AnmManager::ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
     {
         vm->anmFileIndex = anmFileIdx;

@@ -79,8 +79,8 @@ enum SpellcardState
 
 struct StageFile
 {
-    char *anmFile;
-    char *stdFile;
+    const char *anmFile;
+    const char *stdFile;
 };
 ZUN_ASSERT_SIZE(StageFile, 0x8);
 
@@ -105,7 +105,7 @@ struct Stage
     static ZunResult AddedCallback(Stage *stage);
     static ZunResult DeletedCallback(Stage *stage);
 
-    ZunResult LoadStageData(char *anmpath, char *stdpath);
+    ZunResult LoadStageData(const char *anmpath, const char *stdpath);
     ZunResult UpdateObjects();
     ZunResult RenderObjects(i32 zLevel);
 

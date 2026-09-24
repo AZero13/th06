@@ -70,7 +70,7 @@ struct SoundPlayer
     ZunResult InitSoundBuffers();
     ZunResult Release(void);
 
-    ZunResult LoadSound(i32 idx, char *path);
+    ZunResult LoadSound(i32 idx, const char *path);
     void PlaySounds();
     void PlaySoundByIdx(SoundIdx idx, i32 unused);
     ZunResult PlayBGM(BOOL isLooping);
@@ -91,7 +91,7 @@ struct SoundPlayer
     static DWORD WINAPI BackgroundMusicPlayerThread(LPVOID lpThreadParameter);
 
     ZunResult LoadWav(char *path);
-    ZunResult LoadPos(char *path);
+    ZunResult LoadPos(const char *path);
 
     LPDIRECTSOUND dsoundHdl;
     i32 unk4;
@@ -112,6 +112,6 @@ struct SoundPlayer
 ZUN_ASSERT_SIZE(SoundPlayer, 0x638);
 
 DIFFABLE_EXTERN(SoundBufferIdxVolume, g_SoundBufferIdxVol[32]);
-DIFFABLE_EXTERN(char, *g_SFXList[26]);
+DIFFABLE_EXTERN(const char*, g_SFXList[26]);
 DIFFABLE_EXTERN(SoundPlayer, g_SoundPlayer)
 }; // namespace th06

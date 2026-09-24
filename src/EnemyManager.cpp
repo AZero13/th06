@@ -332,7 +332,6 @@ void EnemyManager::RunEclTimeline()
     {
         g_GameManager.counat++;
     }
-    return;
 }
 
 #pragma var_order(curEnemy, i)
@@ -489,7 +488,7 @@ void Enemy::ClampPos()
     }
 }
 
-ZunResult EnemyManager::RegisterChain(char *stgEnm1, char *stgEnm2)
+ZunResult EnemyManager::RegisterChain(const char *stgEnm1, const char *stgEnm2)
 {
     EnemyManager *mgr = &g_EnemyManager;
     mgr->Initialize();
@@ -856,6 +855,5 @@ void EnemyManager::CutChain()
 {
     g_Chain.Cut(&g_EnemyManagerCalcChain);
     g_Chain.Cut(&g_EnemyManagerDrawChain);
-    return;
 }
 }; // namespace th06

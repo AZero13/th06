@@ -489,6 +489,5 @@ void Supervisor::DrawFpsCounter()
         fpsCounterPos.z = 0.0;
         g_AsciiManager.AddString(&fpsCounterPos, g_FpsCounterBuffer);
     }
-    return;
 }
 }; // namespace th06

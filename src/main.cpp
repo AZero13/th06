@@ -424,7 +424,6 @@ void GameWindow::Present()
     {
         g_Supervisor.unk198--;
     }
-    return;
 }
 
 i32 GameWindow::InitD3dInterface(void)
@@ -828,7 +827,6 @@ void GameWindow::InitD3dDevice(void)
         g_AnmManager->SetCurrentTexture(NULL);
     }
     g_Stage.skyFogNeedsSetup = true;
-    return;
 }
 
 namespace utils

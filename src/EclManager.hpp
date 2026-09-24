@@ -513,7 +513,7 @@ struct EclManagerExtraData
 
 struct EclManager
 {
-    ZunResult Load(char *ecl);
+    ZunResult Load(const char *ecl);
     void Unload();
     ZunResult RunEcl(Enemy *enemy);
     ZunResult CallEclSub(EnemyEclContext *enemyEcl, i16 subId);

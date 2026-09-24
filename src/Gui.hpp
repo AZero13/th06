@@ -29,7 +29,7 @@ struct Gui
     static ChainCallbackResult OnDraw(Gui *);
 
     ZunResult ActualAddedCallback();
-    ZunResult LoadMsg(char *path);
+    ZunResult LoadMsg(const char *path);
     void FreeMsgFile();
 
     ZunBool IsStageFinished();
@@ -43,9 +43,9 @@ struct Gui
     void MsgRead(i32 msgIdx);
     ZunBool MsgWait();
 
-    void ShowSpellcard(i32 spellcardSprite, char *spellcardName);
+    void ShowSpellcard(i32 spellcardSprite, const char *spellcardName);
     void ShowSpellcardBonus(u32 spellcardScore);
-    void ShowBombNamePortrait(u32 sprite, char *bombName);
+    void ShowBombNamePortrait(u32 sprite, const char *bombName);
     void ShowBonusScore(u32 bonusScore);
     void EndEnemySpellcard();
     void EndPlayerSpellcard();

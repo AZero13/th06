@@ -42,7 +42,7 @@ DIFFABLE_STATIC(i32, g_PlayerShot);
 DIFFABLE_STATIC(f32, g_PlayerDistance);
 DIFFABLE_STATIC(f32, g_PlayerAngle);
 
-ZunResult EclManager::Load(char *eclPath)
+ZunResult EclManager::Load(const char *eclPath)
 {
     i32 idx;
 
@@ -70,7 +70,6 @@ void EclManager::Unload()
         ZUN_FREE(this->eclFile);
     }
     this->eclFile = NULL;
-    return;
 }
 
 ZunResult EclManager::CallEclSub(EnemyEclContext *ctx, i16 subId)
@@ -1267,7 +1266,6 @@ void SetVar(Enemy *enemy, EclVarId lhs, void *rhs)
     {
         *(f32 *)lhsPtr = *(f32 *)rhsPtr;
     }
-    return;
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
@@ -1292,7 +1290,6 @@ void MathAdd(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsV
         rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = *(f32 *)lhsPtr + *(f32 *)rhsPtr;
     }
-    return;
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
@@ -1316,7 +1313,6 @@ void MathSub(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsV
         rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = *(f32 *)lhsPtr - *(f32 *)rhsPtr;
     }
-    return;
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
@@ -1342,7 +1338,6 @@ void MathMul(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsV
         rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = *(f32 *)lhsPtr * *(f32 *)rhsPtr;
     }
-    return;
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
@@ -1366,7 +1361,6 @@ void MathDiv(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsV
         rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = *(f32 *)lhsPtr / *(f32 *)rhsPtr;
     }
-    return;
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
@@ -1390,7 +1384,6 @@ void MathMod(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsV
         rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = fmodf(*(f32 *)lhsPtr, *(f32 *)rhsPtr);
     }
-    return;
 }
 
 #pragma var_order(y2Ptr, outPtr, x1Ptr, y1Ptr, outType, x2Ptr)
@@ -1409,7 +1402,6 @@ void MathAtan2(Enemy *enemy, EclVarId outVarId, f32 *x1, f32 *y1, f32 *y2, f32 *
         x2Ptr = GetVarFloat(enemy, x2, NULL);
         *outPtr = atan2f(*x2Ptr - *x1Ptr, *y2Ptr - *y1Ptr);
     }
-    return;
 }
 }; // namespace EnemyEclInstr
 }; // namespace th06

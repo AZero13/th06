@@ -116,7 +116,7 @@ void AnmManager::SetupVertexBuffer()
     }
 }
 
-ZunResult AnmManager::LoadTexture(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey)
+ZunResult AnmManager::LoadTexture(i32 textureIdx, const char *textureName, i32 textureFormat, D3DCOLOR colorKey)
 {
     ReleaseTexture(textureIdx);
     this->imageDataArray[textureIdx] = FileSystem::OpenPath(textureName);
@@ -152,7 +152,7 @@ ZunResult AnmManager::LoadTexture(i32 textureIdx, char *textureName, i32 texture
 
 #pragma var_order(surfaceDesc, data, lockedRectDst, lockedRectSrc, textureSrc, dstData0, srcData0, y0, x0, dstData1,   \
                   srcData1, y1, x1, dstData2, srcData2, y2, x2)
-ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey)
+ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textureName, i32 textureFormat, D3DCOLOR colorKey)
 {
     struct Argb1555Pixel
     {
@@ -288,7 +288,7 @@ ZunResult AnmManager::CreateEmptyTexture(i32 textureIdx, u32 width, u32 height, 
 }
 
 #pragma var_order(anm, anmName, rawSprite, index, curSpriteOffset, loadedSprite)
-ZunResult AnmManager::LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset)
+ZunResult AnmManager::LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset)
 {
     this->ReleaseAnm(anmIdx);
     this->anmFiles[anmIdx] = (AnmRawEntry *)FileSystem::OpenPath(path);
@@ -303,7 +303,7 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset)
 
     anm->textureIdx = anmIdx;
 
-    char *anmName = (char *)anm + anm->nameOffset;
+    const char *anmName = (char *)anm + anm->nameOffset;
 
     if (*anmName == '@')
     {
@@ -510,13 +510,12 @@ void AnmManager::SetRenderStateForVm(AnmVm *vm)
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
         }
     }
-    return;
 }
 
-extern __declspec(selectany) const f32 g_ZeroPointFive = 0.5f;
 
 ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
 {
+    static const f32 g_ZeroPointFive = 0.5f;
     if (param_3 != 0)
     {
         __asm {
@@ -656,7 +655,6 @@ void AnmManager::TranslateRotation(VertexTex1Xyzrwh *param_1, f32 x, f32 y, f32 
 {
     param_1->position.x = x * cosine + y * sine + xOffset;
     param_1->position.y = -x * sine + y * cosine + yOffset;
-    return;
 }
 
 #pragma var_order(spriteXCenter, spriteYCenter, yOffset, xOffset, zSine, z, zCosine)
@@ -1312,7 +1310,7 @@ stop:
 
 void AnmManager::DrawTextToSprite(u32 textureDstIdx, i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight,
                                   i32 fontWidth, i32 fontHeight, ZunColor textColor, ZunColor shadowColor,
-                                  char *strToPrint)
+                                  const char *strToPrint)
 {
     if (fontWidth <= 0)
     {
@@ -1324,11 +1322,10 @@ void AnmManager::DrawTextToSprite(u32 textureDstIdx, i32 xPos, i32 yPos, i32 spr
     }
     TextHelper::RenderTextToTexture(xPos, yPos, spriteWidth, spriteHeight, fontWidth, fontHeight, textColor,
                                     shadowColor, strToPrint, this->textures[textureDstIdx]);
-    return;
 }
 
 #pragma var_order(argptr, buffer, fontWidth)
-void AnmManager::DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...)
+void AnmManager::DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
     u32 fontWidth;
     char buffer[64];
@@ -1342,11 +1339,10 @@ void AnmManager::DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowCol
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, buffer);
     vm->flags.isVisible = true;
-    return;
 }
 
 #pragma var_order(args, secondPartStartX, buf, fontWidth)
-void AnmManager::DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...)
+void AnmManager::DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
     char buf[64];
     va_list args;
@@ -1366,11 +1362,10 @@ void AnmManager::DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadow
                            vm->sprite->textureWidth, vm->sprite->textureHeight, fontWidth, vm->fontHeight, textColor,
                            shadowColor, buf);
     vm->flags.isVisible = true;
-    return;
 }
 
 #pragma var_order(args, secondPartStartX, buf, fontWidth)
-void AnmManager::DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...)
+void AnmManager::DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
     char buf[64];
     va_list args;
@@ -1390,10 +1385,9 @@ void AnmManager::DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shado
                            vm->sprite->textureWidth, vm->sprite->textureHeight, fontWidth, vm->fontHeight, textColor,
                            shadowColor, buf);
     vm->flags.isVisible = true;
-    return;
 }
 
-ZunResult AnmManager::LoadSurface(i32 surfaceIdx, char *path)
+ZunResult AnmManager::LoadSurface(i32 surfaceIdx, const char *path)
 {
     if (this->surfaces[surfaceIdx] != NULL)
     {
@@ -1591,6 +1585,5 @@ void AnmManager::TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32
     }
     destSurface->Release();
     sourceSurface->Release();
-    return;
 }
 }; // namespace th06

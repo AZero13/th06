@@ -611,7 +611,7 @@ Laser *BulletManager::SpawnLaserPattern(EnemyLaserShooter *bulletProps)
     return laser;
 }
 
-ZunResult BulletManager::RegisterChain(char *bulletAnmPath)
+ZunResult BulletManager::RegisterChain(const char *bulletAnmPath)
 {
     BulletManager *mgr = &g_BulletManager;
 

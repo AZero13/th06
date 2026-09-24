@@ -24,32 +24,6 @@ namespace th06
 
 DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 5, g_ExtraLivesScores) = {10000000, 20000000, 40000000, 60000000, 1900000000};
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 9, g_EclFiles) = {"dummy",
-                                                       "data/ecldata1.ecl",
-                                                       "data/ecldata2.ecl",
-                                                       "data/ecldata3.ecl",
-                                                       "data/ecldata4.ecl",
-                                                       "data/ecldata5.ecl",
-                                                       "data/ecldata6.ecl",
-                                                       "data/ecldata7.ecl",
-                                                       NULL};
-
-struct AnmStageFiles
-{
-    char *file1;
-    char *file2;
-};
-
-DIFFABLE_STATIC_ARRAY_ASSIGN(AnmStageFiles, 8, g_AnmStageFiles) = {
-    {"dummy", "dummy"},
-    {"data/stg1enm.anm", "data/stg1enm2.anm"},
-    {"data/stg2enm.anm", "data/stg2enm2.anm"},
-    {"data/stg3enm.anm", NULL},
-    {"data/stg4enm.anm", NULL},
-    {"data/stg5enm.anm", "data/stg5enm2.anm"},
-    {"data/stg6enm.anm", "data/stg6enm2.anm"},
-    {"data/stg7enm.anm", "data/stg7enm2.anm"},
-};
 struct DifficultyInfo
 {
     u32 rank;
@@ -57,26 +31,6 @@ struct DifficultyInfo
     u32 maxRank;
 };
 ZUN_ASSERT_SIZE(DifficultyInfo, 0xc);
-
-DIFFABLE_STATIC_ARRAY_ASSIGN(DifficultyInfo, 5, g_DifficultyInfoForReplay) = {
-    // rank, minRank, maxRank
-    /* EASY    */ {16, 12, 20},
-    /* NORMAL  */ {16, 10, 32},
-    /* HARD    */ {16, 10, 32},
-    /* LUNATIC */ {16, 10, 32},
-    /* EXTRA   */ {16, 14, 18},
-};
-
-DIFFABLE_STATIC_ARRAY_ASSIGN(DifficultyInfo, 5, g_DifficultyInfo) = {
-    // rank, minRank, maxRank
-    /* EASY    */ {16, 12, 20},
-    /* NORMAL  */ {16, 10, 32},
-    /* HARD    */ {16, 10, 32},
-    /* LUNATIC */ {16, 10, 32},
-    /* EXTRA   */ {16, 14, 18},
-};
-
-DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {0, 1, 2, 4, -1, -1, -1, -1, 3};
 
 // These are either on Supervisor.cpp or somewhere else
 DIFFABLE_STATIC(GameManager, g_GameManager);
@@ -271,6 +225,43 @@ ZunResult GameManager::RegisterChain()
 #pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx, unk1, unk2, padding)
 ZunResult GameManager::AddedCallback(GameManager *mgr)
 {
+    static const char *g_EclFiles[] = {
+        "dummy",
+        "data/ecldata1.ecl",
+        "data/ecldata2.ecl",
+        "data/ecldata3.ecl",
+        "data/ecldata4.ecl",
+        "data/ecldata5.ecl",
+        "data/ecldata6.ecl",
+        "data/ecldata7.ecl"
+    };
+    static const char *g_AnmStageFiles[][2] = {
+        {"dummy", "dummy"},
+        {"data/stg1enm.anm", "data/stg1enm2.anm"},
+        {"data/stg2enm.anm", "data/stg2enm2.anm"},
+        {"data/stg3enm.anm", NULL},
+        {"data/stg4enm.anm", NULL},
+        {"data/stg5enm.anm", "data/stg5enm2.anm"},
+        {"data/stg6enm.anm", "data/stg6enm2.anm"},
+        {"data/stg7enm.anm", "data/stg7enm2.anm"},
+    };
+    static DifficultyInfo g_DifficultyInfoForReplay[] = {
+        // rank, minRank, maxRank
+        /* EASY    */ {16, 12, 20},
+        /* NORMAL  */ {16, 10, 32},
+        /* HARD    */ {16, 10, 32},
+        /* LUNATIC */ {16, 10, 32},
+        /* EXTRA   */ {16, 14, 18},
+    };
+    static DifficultyInfo g_DifficultyInfo[] = {
+        // rank, minRank, maxRank
+        /* EASY    */ {16, 12, 20},
+        /* NORMAL  */ {16, 10, 32},
+        /* HARD    */ {16, 10, 32},
+        /* LUNATIC */ {16, 10, 32},
+        /* EXTRA   */ {16, 14, 18},
+    };
+
     ScoreDat *scoredat;
     u32 clrdIdx;
     u32 catkCursor;
@@ -420,8 +411,8 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_BULLETMANAGER);
         return ZUN_ERROR;
     }
-    if (EnemyManager::RegisterChain(g_AnmStageFiles[mgr->currentStage].file1,
-                                    g_AnmStageFiles[mgr->currentStage].file2) != ZUN_SUCCESS)
+    if (EnemyManager::RegisterChain(g_AnmStageFiles[mgr->currentStage][0],
+                                    g_AnmStageFiles[mgr->currentStage][1]) != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_ENEMYMANAGER);
         return ZUN_ERROR;
@@ -531,7 +522,6 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
                                10000.0f + extraRenderDistance);
     g_Supervisor.d3dDevice->SetTransform(D3DTS_VIEW, &g_Supervisor.viewMatrix);
     g_Supervisor.d3dDevice->SetTransform(D3DTS_PROJECTION, &g_Supervisor.projectionMatrix);
-    return;
 }
 
 #pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov, upVec, atVec, eyeVec,   \
@@ -574,7 +564,6 @@ void GameManager::SetupCamera(f32 extraRenderDistance)
                                10000.0f + extraRenderDistance);
     g_Supervisor.d3dDevice->SetTransform(D3DTS_VIEW, &g_Supervisor.viewMatrix);
     g_Supervisor.d3dDevice->SetTransform(D3DTS_PROJECTION, &g_Supervisor.projectionMatrix);
-    return;
 }
 
 void GameManager::IncreaseSubrank(i32 amount)

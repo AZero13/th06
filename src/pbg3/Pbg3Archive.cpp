@@ -95,11 +95,11 @@ i32 Pbg3Archive::Release()
     return TRUE;
 }
 
-i32 Pbg3Archive::FindEntry(char *path)
+i32 Pbg3Archive::FindEntry(const char *path)
 {
     for (u32 entryIdx = 0; entryIdx < this->numOfEntries; entryIdx += 1)
     {
-        char *entryFilename = this->entries[entryIdx].filename;
+        const char *entryFilename = this->entries[entryIdx].filename;
         i32 res = strcmp(path, entryFilename);
         if (res == 0)
         {
@@ -168,7 +168,7 @@ Pbg3Archive::~Pbg3Archive()
     this->Release();
 }
 
-i32 Pbg3Archive::Load(char *path)
+i32 Pbg3Archive::Load(const char *path)
 {
     if (this->Release() == FALSE)
     {
@@ -244,7 +244,7 @@ i32 Pbg3Archive::Load(char *path)
         DEC_NEXT_BIT();                                                                                                \
     }
 
-u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, char *filename)
+u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, const char *filename)
 {
     if (entryIdx >= this->numOfEntries)
         return NULL;
