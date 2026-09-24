@@ -265,7 +265,7 @@ void ItemManager::OnUpdate()
                     }
                     iVar9 = idx3;
                     g_GameManager.currentPower += 8;
-                    if (128 <= g_GameManager.currentPower)
+                    if (g_GameManager.currentPower >= MAX_POWER)
                     {
                         g_GameManager.currentPower = MAX_POWER;
                         g_BulletManager.TurnAllBulletsIntoPoints();
