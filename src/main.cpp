@@ -257,7 +257,7 @@ restart:
         goto restart;
     }
 
-    FileSystem::WriteDataToFile(TH_CONFIG_FILE, &g_Supervisor.cfg, sizeof(g_Supervisor.cfg));
+    FileSystem::WriteDataToFile(TH_CONFIG_FILE, &g_Supervisor.cfg, sizeof(GameConfiguration));
     SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, g_GameWindow.screenSaveActive, NULL, SPIF_SENDCHANGE);
     SystemParametersInfo(SPI_SETLOWPOWERACTIVE, g_GameWindow.lowPowerActive, NULL, SPIF_SENDCHANGE);
     SystemParametersInfo(SPI_SETPOWEROFFACTIVE, g_GameWindow.powerOffActive, NULL, SPIF_SENDCHANGE);
@@ -271,7 +271,7 @@ restart:
 
 namespace th06
 {
-#define FRAME_TIME (1000. / 60.)
+#define FRAME_TIME (1000.0 / 60.0)
 
 #pragma var_order(res, viewport, slowdown, local_34, delta, curtime)
 RenderResult GameWindow::Render()
@@ -299,10 +299,10 @@ RenderResult GameWindow::Render()
                 viewport.Y = 0;
                 viewport.Width = GAME_WINDOW_WIDTH;
                 viewport.Height = GAME_WINDOW_HEIGHT;
-                viewport.MinZ = 0.0;
-                viewport.MaxZ = 1.0;
+                viewport.MinZ = 0.0f;
+                viewport.MaxZ = 1.0f;
                 g_Supervisor.d3dDevice->SetViewport(&viewport);
-                g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, g_Stage.skyFog.color, 1.0,
+                g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, g_Stage.skyFog.color, 1.0f,
                                               0);
                 g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
             }
@@ -334,7 +334,7 @@ RenderResult GameWindow::Render()
     {
         if (this->curFrame != 0)
         {
-            g_Supervisor.framerateMultiplier = 1.0;
+            g_Supervisor.framerateMultiplier = 1.0f;
             timeBeginPeriod(1);
             slowdown = timeGetTime();
             if (slowdown < g_LastFrameTime)
@@ -369,9 +369,9 @@ RenderResult GameWindow::Render()
 
     I_HAVE_NO_CLUE_WHY_BUT_I_MUST_JUMP_HERE:
         Present();
-        if (g_Supervisor.framerateMultiplier == 0.f)
+        if (g_Supervisor.framerateMultiplier == 0.0f)
         {
-            if (2 <= g_TickCountToEffectiveFramerate)
+            if (g_TickCountToEffectiveFramerate >= 2)
             {
                 timeBeginPeriod(1);
                 curtime = timeGetTime();
@@ -380,13 +380,13 @@ RenderResult GameWindow::Render()
                     g_Supervisor.lastFrameTime = curtime;
                 }
                 delta = curtime - g_Supervisor.lastFrameTime;
-                delta = (delta * 60.) / 2. / 1000.;
-                delta /= (g_Supervisor.cfg.frameskipConfig + 1);
-                if (delta >= .865)
+                delta = (delta * 60.0) / 2.0 / 1000.0;
+                delta /= g_Supervisor.cfg.frameskipConfig + 1;
+                if (delta >= 0.865)
                 {
                     delta = 1.0;
                 }
-                else if (delta >= .6)
+                else if (delta >= 0.6)
                 {
                     delta = 0.8;
                 }
@@ -405,7 +405,7 @@ RenderResult GameWindow::Render()
             g_Supervisor.effectiveFramerateMultiplier = g_Supervisor.framerateMultiplier;
         }
         this->curFrame = 0;
-        g_TickCountToEffectiveFramerate = g_TickCountToEffectiveFramerate + 1;
+        g_TickCountToEffectiveFramerate++;
     }
     return RENDER_RESULT_KEEP_RUNNING;
 }
@@ -671,22 +671,22 @@ i32 GameWindow::InitD3dRendering(void)
         }
     }
 
-    half_width = (float)GAME_WINDOW_WIDTH / 2.0;
-    half_height = (float)GAME_WINDOW_HEIGHT / 2.0;
+    half_width = GAME_WINDOW_WIDTH / 2.0f;
+    half_height = GAME_WINDOW_HEIGHT / 2.0f;
     aspect_ratio = (float)GAME_WINDOW_WIDTH / (float)GAME_WINDOW_HEIGHT;
-    field_of_view_y = 0.52359879; // PI / 6.0f
+    field_of_view_y = ZUN_PI / 6.0f; // PI / 6.0f
     camera_distance = half_height / tanf(field_of_view_y / 2.0f);
-    up.x = 0.0;
-    up.y = 1.0;
-    up.z = 0.0;
+    up.x = 0.0f;
+    up.y = 1.0f;
+    up.z = 0.0f;
     at.x = half_width;
     at.y = -half_height;
-    at.z = 0.0;
+    at.z = 0.0f;
     eye.x = half_width;
     eye.y = -half_height;
     eye.z = -camera_distance;
     D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix, &eye, &at, &up);
-    D3DXMatrixPerspectiveFovLH(&g_Supervisor.projectionMatrix, field_of_view_y, aspect_ratio, 100.0, 10000.0);
+    D3DXMatrixPerspectiveFovLH(&g_Supervisor.projectionMatrix, field_of_view_y, aspect_ratio, 100.0f, 10000.0f);
     g_Supervisor.d3dDevice->SetTransform(D3DTS_VIEW, &g_Supervisor.viewMatrix);
     g_Supervisor.d3dDevice->SetTransform(D3DTS_PROJECTION, &g_Supervisor.projectionMatrix);
     g_Supervisor.d3dDevice->GetViewport(&g_Supervisor.viewport);
@@ -720,7 +720,7 @@ i32 GameWindow::InitD3dRendering(void)
     ScreenEffect::SetViewport(0);
     g_GameWindow.isAppClosing = false;
     g_Supervisor.lastFrameTime = 0;
-    g_Supervisor.framerateMultiplier = 0.0;
+    g_Supervisor.framerateMultiplier = 0.0f;
     return 0;
 }
 
@@ -770,13 +770,13 @@ void GameWindow::InitD3dDevice(void)
     {
         g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGENABLE, FALSE);
     }
-    fogDensity = 1.0;
+    fogDensity = 1.0f;
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGDENSITY, *(DWORD *)&fogDensity);
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, 0xffa0a0a0);
-    fogVal = 1000.0;
+    fogVal = 1000.0f;
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&fogVal);
-    fogVal = 5000.0;
+    fogVal = 5000.0f;
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&fogVal);
     if (!g_Supervisor.IsColorCompositingDisabled())
     {
@@ -821,9 +821,9 @@ void GameWindow::InitD3dDevice(void)
     g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTADDRESS_WRAP);
     if (g_AnmManager != NULL)
     {
-        g_AnmManager->SetCurrentBlendMode(0xff);
-        g_AnmManager->SetCurrentColorOp(0xff);
-        g_AnmManager->SetCurrentVertexShader(0xff);
+        g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
+        g_AnmManager->SetCurrentColorOp(AnmColorOp_NotSet);
+        g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
         g_AnmManager->SetCurrentTexture(NULL);
     }
     g_Stage.skyFogNeedsSetup = true;

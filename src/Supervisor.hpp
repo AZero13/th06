@@ -78,6 +78,7 @@ ZUN_ASSERT_SIZE(GameConfiguration, 0x38);
 #define IN_PBG3_INDEX 0
 #define MD_PBG3_INDEX 1
 #define ST_PBG3_INDEX 2
+#define TL_PBG3_INDEX 3
 #define CM_PBG3_INDEX 4
 #define ED_PBG3_INDEX 5
 

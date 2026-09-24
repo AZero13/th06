@@ -14,6 +14,13 @@ namespace th06
 {
 #define TEXT_RIGHT_ARROW 0x7f
 
+#define ASCII_SCORE_POPUPS_COUNT 512
+#define ASCII_PLAYER_POPUPS_COUNT 3
+#define ASCII_TOTAL_POPUPS_COUNT (ASCII_SCORE_POPUPS_COUNT + ASCII_PLAYER_POPUPS_COUNT)
+
+#define ASCII_SCORE_POPUPS_START 0
+#define ASCII_PLAYER_POPUPS_START ASCII_SCORE_POPUPS_COUNT
+
 struct AsciiManagerString
 {
     char text[64];
@@ -91,7 +98,7 @@ struct AsciiManager
     StageMenu gameMenu;
     // Menu that shows up when the player dies after losing their last life.
     StageMenu retryMenu;
-    AsciiManagerPopup popups[515];
+    AsciiManagerPopup popups[ASCII_TOTAL_POPUPS_COUNT];
 };
 ZUN_ASSERT_SIZE(AsciiManager, 0xc1ac);
 DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);

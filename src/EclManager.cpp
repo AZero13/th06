@@ -252,7 +252,8 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                     enemy->savedContextStack[enemy->stackDepth] = enemy->currentContext;
                 }
                 g_EclManager.CallEclSub(&enemy->currentContext, local_14);
-                if (!enemy->flags.disableCallStack && enemy->stackDepth < 7)
+                if (!enemy->flags.disableCallStack &&
+                    enemy->stackDepth < ARRAY_SIZE_SIGNED(enemy->savedContextStack) - 1)
                 {
                     enemy->stackDepth++;
                 }
@@ -624,22 +625,22 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 enemy->angle = g_Rng.GetRandomF32InRange(local_8.y - local_8.x) + local_8.x;
                 if (enemy->position.x < enemy->lowerMoveLimit.x + 96.0f)
                 {
-                    if (enemy->angle > ZUN_PI / 2.0f)
+                    if (enemy->angle > ZUN_HALF_PI)
                     {
                         enemy->angle = ZUN_PI - enemy->angle;
                     }
-                    else if (enemy->angle < -ZUN_PI / 2.0f)
+                    else if (enemy->angle < -ZUN_HALF_PI)
                     {
                         enemy->angle = -ZUN_PI - enemy->angle;
                     }
                 }
                 if (enemy->position.x > enemy->upperMoveLimit.x - 96.0f)
                 {
-                    if (enemy->angle < ZUN_PI / 2.0f && enemy->angle >= 0.0f)
+                    if (enemy->angle < ZUN_HALF_PI && enemy->angle >= 0.0f)
                     {
                         enemy->angle = ZUN_PI - enemy->angle;
                     }
-                    else if (enemy->angle > -ZUN_PI / 2.0f && enemy->angle <= 0.0f)
+                    else if (enemy->angle > -ZUN_HALF_PI && enemy->angle <= 0.0f)
                     {
                         enemy->angle = -ZUN_PI - enemy->angle;
                     }
@@ -673,7 +674,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 enemy->flags.isDamageable = instruction->args.setInt;
                 break;
             case ECL_OPCODE_EFFECTSOUND:
-                g_SoundPlayer.PlaySoundByIdx((SoundIdx)instruction->args.setInt, 0);
+                g_SoundPlayer.PlaySoundByIdx((SoundIdx)instruction->args.setInt);
                 break;
             case ECL_OPCODE_ENEMYFLAGDEATH:
                 enemy->flags.deathMode = instruction->args.setInt;
@@ -747,7 +748,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                     g_Gui.EndEnemySpellcard();
                     if (g_EnemyManager.spellcardInfo.isActive == 1)
                     {
-                        scoreIncrease = g_BulletManager.DespawnBullets(12800, 1);
+                        scoreIncrease = g_BulletManager.DespawnBullets(12800, true);
                         if (g_EnemyManager.spellcardInfo.isCapturing)
                         {
                             local_80 = &g_GameManager.catk[g_EnemyManager.spellcardInfo.idx];
@@ -806,7 +807,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
 
                     local_98[0] += g_Rng.GetRandomF32InRange(144.0f) - 72.0f;
                     local_98[1] += g_Rng.GetRandomF32InRange(144.0f) - 72.0f;
-                    if (g_GameManager.currentPower < 128)
+                    if (g_GameManager.currentPower < MAX_POWER)
                     {
                         g_ItemManager.SpawnItem(&local_98, local_8c == 0 ? ITEM_POWER_BIG : ITEM_POWER_SMALL, 0);
                     }
@@ -867,7 +868,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                     }
 
                     local_b4->life = 0;
-                    if (!local_b4->flags.isInteractable && 0 <= local_b4->deathCallbackSub)
+                    if (!local_b4->flags.isInteractable && local_b4->deathCallbackSub >= 0)
                     {
                         g_EclManager.CallEclSub(&local_b4->currentContext, local_b4->deathCallbackSub);
                         local_b4->deathCallbackSub = -1;
@@ -929,7 +930,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                                                                           enemy->angularVelocity);
                 enemy->speed = g_Supervisor.effectiveFramerateMultiplier * enemy->acceleration + enemy->speed;
                 sincosmul(&enemy->axisSpeed, enemy->angle, enemy->speed);
-                enemy->axisSpeed.z = 0.0;
+                enemy->axisSpeed.z = 0.0f;
                 break;
             case 2:
                 enemy->moveInterpTimer--;
@@ -967,9 +968,9 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 }
                 break;
             }
-            if (0 < enemy->life)
+            if (enemy->life > 0)
             {
-                if (0 < enemy->shootInterval)
+                if (enemy->shootInterval > 0)
                 {
                     enemy->shootIntervalTimer++;
                     if (enemy->shootIntervalTimer >= enemy->shootInterval)
@@ -979,7 +980,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                         enemy->shootIntervalTimer = 0;
                     }
                 }
-                if (0 <= enemy->anmExLeft)
+                if (enemy->anmExLeft >= 0)
                 {
                     local_c0 = 0;
                     if (enemy->axisSpeed.x < 0.0f)
@@ -1167,7 +1168,7 @@ i32 *GetVar(Enemy *enemy, EclVarId *eclVarId, EclValueType *valueType)
     case ECL_VAR_DIFFICULTY:
         if (valueType != NULL)
             *valueType = ECL_VALUE_TYPE_READONLY;
-        return (int *)&g_GameManager.difficulty;
+        return (i32 *)&g_GameManager.difficulty;
 
     case ECL_VAR_RANK:
         if (valueType != NULL)

@@ -47,7 +47,7 @@ DIFFABLE_STATIC(ChainElem, g_GameManagerDrawChain);
 
 #define MAX_LIVES 8
 
-i32 GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height)
+ZunBool GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height)
 {
     if (width / 2.0f + x < 0.0f)
     {
@@ -117,13 +117,13 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
     g_Supervisor.viewport.Y = gameManager->arcadeRegionTopLeftPos.y;
     g_Supervisor.viewport.Width = gameManager->arcadeRegionSize.x;
     g_Supervisor.viewport.Height = gameManager->arcadeRegionSize.y;
-    g_Supervisor.viewport.MinZ = 0.5;
-    g_Supervisor.viewport.MaxZ = 1.0;
+    g_Supervisor.viewport.MinZ = 0.5f;
+    g_Supervisor.viewport.MaxZ = 1.0f;
 
     SetupCamera(0);
 
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
-    g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_ZBUFFER, g_Stage.skyFog.color, 1.0, 0);
+    g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_ZBUFFER, g_Stage.skyFog.color, 1.0f, 0);
 
     // Seems like gameManager->isInGameMenu was supposed to have 3 states, but all the times it ends up checking both
     if (gameManager->isInGameMenu == 1 || gameManager->isInGameMenu == 2 || gameManager->isInRetryMenu)
@@ -173,7 +173,7 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
             if (gameManager->livesRemaining < MAX_LIVES)
             {
                 gameManager->livesRemaining++;
-                g_SoundPlayer.PlaySoundByIdx(SOUND_1UP, 0);
+                g_SoundPlayer.PlaySoundByIdx(SOUND_1UP);
             }
             g_Gui.flags.flag0 = 2;
             gameManager->extraLives++;
@@ -274,14 +274,14 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     {
         g_Supervisor.defaultConfig.bombCount = g_GameManager.bombsRemaining;
         g_Supervisor.defaultConfig.lifeCount = g_GameManager.livesRemaining;
-        mgr->arcadeRegionTopLeftPos.x = 32.0;
-        mgr->arcadeRegionTopLeftPos.y = 16.0;
-        mgr->arcadeRegionSize.x = 384.0;
-        mgr->arcadeRegionSize.y = 448.0;
-        mgr->playerMovementAreaTopLeftPos.x = 8.0;
-        mgr->playerMovementAreaTopLeftPos.y = 16.0;
-        mgr->playerMovementAreaSize.x = 368.0;
-        mgr->playerMovementAreaSize.y = 416.0;
+        mgr->arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
+        mgr->arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
+        mgr->arcadeRegionSize.x = GAME_REGION_WIDTH;
+        mgr->arcadeRegionSize.y = GAME_REGION_HEIGHT;
+        mgr->playerMovementAreaTopLeftPos.x = 8.0f;
+        mgr->playerMovementAreaTopLeftPos.y = 16.0f;
+        mgr->playerMovementAreaSize.x = 368.0f;
+        mgr->playerMovementAreaSize.y = 416.0f;
         mgr->counat = 0;
         mgr->guiScore = 0;
         mgr->score = 0;
@@ -289,7 +289,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         mgr->highScore = 100000;
         mgr->currentPower = 0;
         mgr->numRetries = 0;
-        if (6 <= mgr->currentStage)
+        if (mgr->currentStage >= 6)
         {
             mgr->difficulty = EXTRA;
         }
@@ -370,17 +370,17 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         case STAGE2:
             break;
         case STAGE3:
-            mgr->currentPower = 64;
+            mgr->currentPower = MAX_POWER / 2;
             break;
         default:
-            mgr->currentPower = 128;
+            mgr->currentPower = MAX_POWER;
         }
     }
     g_Supervisor.LoadPbg3(CM_PBG3_INDEX, TH_CM_DAT_FILE);
     g_Supervisor.LoadPbg3(ST_PBG3_INDEX, TH_ST_DAT_FILE);
     if (g_GameManager.isInReplay == TRUE)
     {
-        if (ReplayManager::RegisterChain(1, g_GameManager.replayFile) != ZUN_SUCCESS)
+        if (ReplayManager::RegisterChain(true, g_GameManager.replayFile) != ZUN_SUCCESS)
         {
             failedToLoadReplay = true;
         }
@@ -432,7 +432,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     }
     if (!g_GameManager.isInReplay)
     {
-        ReplayManager::RegisterChain(0, "replay/th6_00.rpy");
+        ReplayManager::RegisterChain(false, "replay/th6_00.rpy");
     }
     if (!g_GameManager.demoMode)
     {
@@ -445,8 +445,8 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     mgr->isInMenu = true;
     if (g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT)
     {
-        g_Supervisor.unk1b4 = 0.0;
-        g_Supervisor.unk1b8 = 0.0;
+        g_Supervisor.unk1b4 = 0.0f;
+        g_Supervisor.unk1b8 = 0.0f;
     }
     mgr->isTimeStopped = false;
     mgr->score = 0;
@@ -503,8 +503,8 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
     viewportMiddleWidth = g_Supervisor.viewport.Width / 2.0f;
     viewportMiddleHeight = g_Supervisor.viewport.Height / 2.0f;
     aspectRatio = (f32)g_Supervisor.viewport.Width / (f32)g_Supervisor.viewport.Height;
-    fov = D3DXToRadian(30);
-    cameraDistance = viewportMiddleHeight / tanf(fov / 2);
+    fov = D3DXToRadian(30.0f);
+    cameraDistance = viewportMiddleHeight / tanf(fov / 2.0f);
     upVec.x = 0.0f;
     upVec.y = 1.0f;
     upVec.z = 0.0f;
@@ -542,8 +542,8 @@ void GameManager::SetupCamera(f32 extraRenderDistance)
     viewportMiddleWidth = g_Supervisor.viewport.Width / 2.0f;
     viewportMiddleHeight = g_Supervisor.viewport.Height / 2.0f;
     aspectRatio = (f32)g_Supervisor.viewport.Width / (f32)g_Supervisor.viewport.Height;
-    fov = D3DXToRadian(30);
-    cameraDistance = viewportMiddleHeight / tanf(fov / 2);
+    fov = D3DXToRadian(30.0f);
+    cameraDistance = viewportMiddleHeight / tanf(fov / 2.0f);
     upVec.x = 0.0f;
     upVec.y = 1.0f;
     upVec.z = 0.0f;
@@ -551,7 +551,7 @@ void GameManager::SetupCamera(f32 extraRenderDistance)
     atVecX = viewportMiddleWidth + (f32)g_GameManager.stageCameraFacingDir.x;
     atVec.x = atVecX;
     atVec.y = atVecY;
-    atVec.z = 0;
+    atVec.z = 0.0f;
     eyeVecZ = -cameraDistance * (f32)g_GameManager.stageCameraFacingDir.z;
     eyeVec.x = viewportMiddleWidth;
     eyeVec.y = -viewportMiddleHeight;

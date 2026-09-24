@@ -22,9 +22,9 @@ TextHelper::TextHelper()
     this->format = (D3DFORMAT)-1;
     this->width = 0;
     this->height = 0;
-    this->hdc = 0;
-    this->gdiObj2 = 0;
-    this->gdiObj = 0;
+    this->hdc = NULL;
+    this->gdiObj2 = NULL;
+    this->gdiObj = NULL;
     this->buffer = NULL;
 }
 
@@ -201,7 +201,7 @@ bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
         }
         break;
     case D3DFMT_A4R4G4B4:
-        for (idx = 1; idx < doubleArea; idx = idx + 2)
+        for (idx = 1; idx < doubleArea; idx += 2)
         {
             bufferRegion[idx] = bufferRegion[idx] ^ 0xf0;
         }

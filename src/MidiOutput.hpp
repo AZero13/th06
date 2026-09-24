@@ -166,7 +166,7 @@ struct MidiOutput : MidiTimer
     u32 unk2d4;
     u32 unk2d8;
     u32 unk2dc;
-    u32 fadeOutFlag;
+    ZunBool fadeOutFlag;
     i32 fadeOutInterval;
     i32 fadeOutElapsedMS;
     u32 unk2ec;

@@ -693,7 +693,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                     curEnemy->life = 0;
                     break;
                 }
-                g_SoundPlayer.PlaySoundByIdx((SoundIdx)((enemyIdx % 2) + SOUND_2), 0);
+                g_SoundPlayer.PlaySoundByIdx((SoundIdx)((enemyIdx % 2) + SOUND_2));
                 g_EffectManager.SpawnParticles(curEnemy->deathAnm1, &curEnemy->position, 1, COLOR_WHITE);
                 g_EffectManager.SpawnParticles(curEnemy->deathAnm2 + 4, &curEnemy->position, 4, COLOR_WHITE);
                 if (0 <= curEnemy->deathCallbackSub)
@@ -716,17 +716,17 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
             if (curEnemy->unk_e41 != 0)
             {
                 curEnemy->unk_e41--;
-                curEnemy->primaryVm.flags.colorOp = AnmVmColorOp_Modulate;
+                curEnemy->primaryVm.flags.colorOp = AnmColorOp_Modulate;
             }
             else if (enemyLifeBeforeDmg > curEnemy->life)
             {
-                g_SoundPlayer.PlaySoundByIdx(SOUND_TOTAL_BOSS_DEATH, 0);
-                curEnemy->primaryVm.flags.colorOp = AnmVmColorOp_Add;
+                g_SoundPlayer.PlaySoundByIdx(SOUND_TOTAL_BOSS_DEATH);
+                curEnemy->primaryVm.flags.colorOp = AnmColorOp_Add;
                 curEnemy->unk_e41 = 4;
             }
             else
             {
-                curEnemy->primaryVm.flags.colorOp = AnmVmColorOp_Modulate;
+                curEnemy->primaryVm.flags.colorOp = AnmColorOp_Modulate;
             }
         }
         Enemy::UpdateEffects(curEnemy);

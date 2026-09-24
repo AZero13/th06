@@ -241,7 +241,7 @@ struct Player
     {
         sprite->pos[0] += g_GameManager.arcadeRegionTopLeftPos.x;
         sprite->pos[1] += g_GameManager.arcadeRegionTopLeftPos.y;
-        sprite->pos[2] = 0.0;
+        sprite->pos[2] = 0.0f;
     };
 };
 ZUN_ASSERT_SIZE(Player, 0x98f0);

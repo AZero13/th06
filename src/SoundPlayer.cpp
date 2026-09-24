@@ -54,11 +54,7 @@ ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)
     if (FAILED(this->manager->Initialize(gameWindow, 2, 2, 44100, 16)))
     {
         g_GameErrorContext.Log(TH_ERR_SOUNDPLAYER_FAILED_TO_INITIALIZE_OBJECT);
-        if (this->manager != NULL)
-        {
-            delete this->manager;
-            this->manager = NULL;
-        }
+        SAFE_DELETE(this->manager);
         return ZUN_ERROR;
     }
 
@@ -89,7 +85,7 @@ ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)
 
     memset(audioBuffer1Start, 0, BACKGROUND_MUSIC_BUFFER_SIZE);
     this->initSoundBuffer->Unlock(audioBuffer1Start, audioBuffer1Len, audioBuffer2Start, audioBuffer2Len);
-    this->initSoundBuffer->Play(0, 0, 1);
+    this->initSoundBuffer->Play(0, 0, DSBPLAY_LOOPING);
     /* 4 times per second */
     SetTimer(gameWindow, 0, 250, NULL);
     this->gameWindow = gameWindow;
@@ -389,12 +385,7 @@ void SoundPlayer::StopBGM()
             CloseHandle(this->backgroundMusicUpdateEvent);
             this->backgroundMusicThreadHandle = NULL;
         }
-        // NOTE: ZUN_DELETE does not match this
-        if (this->backgroundMusic != NULL)
-        {
-            delete this->backgroundMusic;
-            this->backgroundMusic = NULL;
-        }
+        SAFE_DELETE(this->backgroundMusic);
         utils::DebugPrint2("stop BGM\n");
     }
 }

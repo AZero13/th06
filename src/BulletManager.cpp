@@ -195,7 +195,7 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
         }
         else if (bullet->sprites.spriteBullet.sprite->heightPx <= 32.0f)
         {
-            if (bullet->sprites.spriteBullet.anmFileIndex != 0x207)
+            if (bullet->sprites.spriteBullet.anmFileIndex != ANM_SCRIPT_BULLET3_FIREBALL)
             {
                 g_AnmManager->SetActiveSprite(&bullet->sprites.spriteSpawnEffectFast,
                                               bullet->sprites.spriteSpawnEffectFast.activeSpriteIndex +
@@ -229,7 +229,7 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
         }
         else if (bullet->sprites.spriteBullet.sprite->heightPx <= 32.0f)
         {
-            if (bullet->sprites.spriteBullet.anmFileIndex != 0x207)
+            if (bullet->sprites.spriteBullet.anmFileIndex != ANM_SCRIPT_BULLET3_FIREBALL)
             {
                 g_AnmManager->SetActiveSprite(&bullet->sprites.spriteSpawnEffectNormal,
                                               bullet->sprites.spriteSpawnEffectNormal.activeSpriteIndex +
@@ -260,7 +260,7 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
         }
         else if (bullet->sprites.spriteBullet.sprite->heightPx <= 32.0f)
         {
-            if (bullet->sprites.spriteBullet.anmFileIndex != 0x207)
+            if (bullet->sprites.spriteBullet.anmFileIndex != ANM_SCRIPT_BULLET3_FIREBALL)
             {
                 g_AnmManager->SetActiveSprite(&bullet->sprites.spriteSpawnEffectSlow,
                                               bullet->sprites.spriteSpawnEffectSlow.activeSpriteIndex +
@@ -292,7 +292,7 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
     }
     else if (bullet->sprites.spriteBullet.sprite->heightPx <= 32.0f)
     {
-        if (bullet->sprites.spriteBullet.anmFileIndex != 0x207)
+        if (bullet->sprites.spriteBullet.anmFileIndex != ANM_SCRIPT_BULLET3_FIREBALL)
         {
             g_AnmManager->SetActiveSprite(&bullet->sprites.spriteSpawnEffectDonut,
                                           bullet->sprites.spriteSpawnEffectDonut.activeSpriteIndex +
@@ -499,7 +499,7 @@ i32 BulletManager::DespawnBullets(i32 maxBonusScore, ZunBool awardPoints)
             laser->state = 2;
             laser->timer = 0;
 
-            if (awardPoints != 0)
+            if (awardPoints)
             {
                 g_ItemManager.SpawnItem(&laser->pos, ITEM_POINT_BULLET, 1);
                 offset = laser->startOffset;
@@ -549,7 +549,7 @@ ZunResult BulletManager::SpawnBulletPattern(EnemyBulletShooter *bulletProps)
 out:
     if (bulletProps->flags & 0x200)
     {
-        g_SoundPlayer.PlaySoundByIdx(bulletProps->sfx, 0);
+        g_SoundPlayer.PlaySoundByIdx(bulletProps->sfx);
     }
     return ZUN_SUCCESS;
 }
@@ -574,7 +574,7 @@ Laser *BulletManager::SpawnLaserPattern(EnemyLaserShooter *bulletProps)
         g_AnmManager->InitializeAndSetSprite(&laser->vm1, g_BulletSpriteOffset16Px[bulletProps->spriteOffset] +
                                                               ANM_SPRITE_BULLET3_SPAWN_BIG_BALL);
 
-        laser->vm1.flags.blendMode = AnmVmBlendMode_One;
+        laser->vm1.flags.blendMode = AnmBlendMode_Additive;
         laser->pos = bulletProps->position;
         laser->color = bulletProps->spriteOffset;
         laser->inUse = true;
@@ -825,14 +825,14 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 }
                 else if (curBullet->exFlags & 0x400)
                 {
-                    if (g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
+                    if (!g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
                                                  curBullet->sprites.spriteBullet.sprite->widthPx,
-                                                 curBullet->sprites.spriteBullet.sprite->heightPx) == 0)
+                                                 curBullet->sprites.spriteBullet.sprite->heightPx))
                     {
                         if (curBullet->pos.x < 0.0f || curBullet->pos.x >= GAME_REGION_WIDTH)
                         {
                             curBullet->angle = -curBullet->angle - ZUN_PI;
-                            curBullet->angle = utils::AddNormalizeAngle(curBullet->angle, 0.0);
+                            curBullet->angle = utils::AddNormalizeAngle(curBullet->angle, 0.0f);
                         }
 
                         if (curBullet->pos.y < 0.0f || curBullet->pos.y >= GAME_REGION_HEIGHT)
@@ -853,9 +853,9 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 }
                 else if (curBullet->exFlags & 0x800)
                 {
-                    if (g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
+                    if (!g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
                                                  curBullet->sprites.spriteBullet.sprite->widthPx,
-                                                 curBullet->sprites.spriteBullet.sprite->heightPx) == 0)
+                                                 curBullet->sprites.spriteBullet.sprite->heightPx))
                     {
                         if (curBullet->pos.x < 0.0f || curBullet->pos.x >= 384.0f)
                         {
@@ -882,22 +882,22 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             }
 
             curBullet->pos += curBullet->velocity * g_Supervisor.effectiveFramerateMultiplier;
-            if (g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
+            if (!g_GameManager.IsInBounds(curBullet->pos.x, curBullet->pos.y,
                                          curBullet->sprites.spriteBullet.sprite->widthPx,
-                                         curBullet->sprites.spriteBullet.sprite->heightPx) == 0)
+                                         curBullet->sprites.spriteBullet.sprite->heightPx))
             {
-                if ((curBullet->exFlags & 0x40) == 0 && (curBullet->exFlags & 0x100) == 0 &&
-                    (curBullet->exFlags & 0x80) == 0 && (curBullet->exFlags & 0x400) == 0 &&
-                    (curBullet->exFlags & 0x800) == 0 && curBullet->unk_5c0 == 0)
+                if (!(curBullet->exFlags & 0x40) && !(curBullet->exFlags & 0x100) &&
+                    !(curBullet->exFlags & 0x80) && !(curBullet->exFlags & 0x400) &&
+                    !(curBullet->exFlags & 0x800) && curBullet->outOfBoundsTime == 0)
                 {
                     memset(curBullet, 0, sizeof(Bullet));
                     continue;
                 }
                 else
                 {
-                    curBullet->unk_5c0++;
+                    curBullet->outOfBoundsTime++;
 
-                    if (curBullet->unk_5c0 >= 0x100)
+                    if (curBullet->outOfBoundsTime >= 256)
                     {
                         memset(curBullet, 0, sizeof(Bullet));
                         continue;
@@ -906,7 +906,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             }
             else
             {
-                curBullet->unk_5c0 = 0;
+                curBullet->outOfBoundsTime = 0;
             }
 
             if (!curBullet->isGrazed)
@@ -978,7 +978,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
         curLaser->vm0.scaleX = curLaser->width / curLaser->vm0.sprite->widthPx;
         local_14 = curLaser->endOffset - curLaser->startOffset;
         curLaser->vm0.scaleY = local_14 / curLaser->vm0.sprite->heightPx;
-        curLaser->vm0.rotation.z = ZUN_PI / 2.0f - curLaser->angle;
+        curLaser->vm0.rotation.z = ZUN_HALF_PI - curLaser->angle;
 
         switch (curLaser->state)
         {
@@ -987,7 +987,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             {
                 laserColor = curLaser->timer.AsFramesFloat() * 255.0f / curLaser->startTime;
 
-                if (255 < laserColor)
+                if (laserColor > 255)
                 {
                     laserColor = 255;
                 }
@@ -1048,7 +1048,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             {
                 laserColor = curLaser->timer.AsFramesFloat() * 255.0f / curLaser->startTime;
 
-                if (255 < laserColor)
+                if (laserColor > 255)
                 {
                     laserColor = 255;
                 }
@@ -1057,7 +1057,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             }
             else
             {
-                if (0 < curLaser->despawnDuration)
+                if (curLaser->despawnDuration > 0)
                 {
                     local_14 = curLaser->width -
                                (curLaser->timer.AsFramesFloat() * curLaser->width) / curLaser->despawnDuration;
@@ -1131,7 +1131,7 @@ ChainCallbackResult BulletManager::OnDraw(BulletManager *mgr)
             curLaser->vm1.pos.y = sine * curLaser->startOffset + curLaser->pos.y;
             curLaser->vm1.pos.z = 0.0f;
             curLaser->vm1.color = curLaser->vm0.color;
-            curLaser->vm1.flags.colorOp = AnmVmColorOp_Add;
+            curLaser->vm1.flags.colorOp = AnmColorOp_Add;
             curLaser->vm1.color = COLOR_SET_ALPHA2(curLaser->vm1.color, 0xff);
             curLaser->vm1.scaleX = (curLaser->width / 10.0f) * ((16.0f - curLaser->startOffset) / 16.0f);
             curLaser->vm1.scaleY = curLaser->vm1.scaleX;
@@ -1295,12 +1295,12 @@ void BulletManager::DrawBullet(Bullet *bullet)
 
     anmVm->pos.x = bullet->pos.x;
     anmVm->pos.y = bullet->pos.y;
-    anmVm->pos.z = 0.0;
+    anmVm->pos.z = 0.0f;
     anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
 
     if (anmVm->autoRotate != 0)
     {
-        anmVm->rotation.z = (ZUN_PI / 2.0f) - bullet->angle;
+        anmVm->rotation.z = ZUN_HALF_PI - bullet->angle;
     }
 
     g_AnmManager->Draw2(anmVm);
@@ -1331,12 +1331,12 @@ void BulletManager::DrawBulletNoHwVertex(Bullet *bullet)
 
     anmVm->pos.x = g_GameManager.arcadeRegionTopLeftPos.x + bullet->pos.x;
     anmVm->pos.y = g_GameManager.arcadeRegionTopLeftPos.y + bullet->pos.y;
-    anmVm->pos.z = 0.0;
+    anmVm->pos.z = 0.0f;
     anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
 
     if (anmVm->autoRotate != 0)
     {
-        anmVm->rotation.z = (ZUN_PI / 2.0f) - bullet->angle;
+        anmVm->rotation.z = ZUN_HALF_PI - bullet->angle;
     }
 
     g_AnmManager->Draw(anmVm);
