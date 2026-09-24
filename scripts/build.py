@@ -42,12 +42,15 @@ def build(build_type, verbose=False, jobs=1, target=None):
     # working solution. If you can think of a better one, PRs welcome.
     if build_type == BuildType.BINARY_MATCHBUILD:
         if os.path.isfile("build/th06.exe"):
-            subprocess.run([
-                sys.executable,
-                str(SCRIPTS_DIR / "patch_timestamp.py"),
-                "build/th06.exe",
-                "1038721275"  # 2002-12-01 06:41:15
-            ])
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPTS_DIR / "patch_timestamp.py"),
+                    "build/th06.exe",
+                    "1038721275",  # 2002-12-01 06:41:15
+                ]
+            )
+
 
 def main():
     parser = argparse.ArgumentParser(

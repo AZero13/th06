@@ -246,10 +246,7 @@ def configure(build_type):
             "$builddir/th06.exe",
             "link",
             inputs=objfiles,
-            variables={
-                "link_libs": th06_link_libs,
-                "link_flags": th06_link_flags
-            },
+            variables={"link_libs": th06_link_libs, "link_flags": th06_link_flags},
         )
 
         test_objfiles = (
