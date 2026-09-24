@@ -33,8 +33,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 5, g_CharData) = {
     /* ReimuB  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuB, Player::FireBulletReimuB},
     /* MarisaA */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletMarisaA, Player::FireBulletMarisaA},
     /* MarisaB */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletMarisaB, Player::FireBulletMarisaB},
-    /* Rin???  */ {4.0, 2.0, 4.0, 2.0, NULL, NULL}
-};
+    /* Rin???  */ {4.0, 2.0, 4.0, 2.0, NULL, NULL}};
 DIFFABLE_STATIC(Player, g_Player);
 
 #pragma var_order(bulletData, bulletFrame, unused3, unused, unused2)

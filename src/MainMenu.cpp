@@ -1570,28 +1570,9 @@ i32 MainMenu::ReplayHandling()
 #pragma var_order(vmRef, i, replayAmount, isSelected, isSelected2)
 ZunResult MainMenu::DrawReplayMenu()
 {
-    static const char *g_StageList[] = {
-        "Stage1",
-        "Stage2",
-        "Stage3",
-        "Stage4",
-        "Stage5",
-        "Stage6",
-        "Extra "
-    };
-    static const char* g_ShortCharacterList[] = {
-        "ReimuA ",
-        "ReimuB ",
-        "MarisaA",
-        "MarisaB"
-    };
-    static const char* g_DifficultyList[] = {
-        "Easy   ",
-        "Normal ",
-        "Hard   ",
-        "Lunatic",
-        "Extra  "
-    };
+    static const char *g_StageList[] = {"Stage1", "Stage2", "Stage3", "Stage4", "Stage5", "Stage6", "Extra "};
+    static const char *g_ShortCharacterList[] = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
+    static const char *g_DifficultyList[] = {"Easy   ", "Normal ", "Hard   ", "Lunatic", "Extra  "};
 
     i32 replayAmount;
     i32 i;

@@ -120,7 +120,8 @@ ZunResult SoundPlayer::Release(void)
     return ZUN_SUCCESS;
 }
 
-static WAVEFORMATEX *GetWavFormatData(u8 *soundData, const char *formatString, i32 *formatSize, u32 fileSizeExcludingFormat)
+static WAVEFORMATEX *GetWavFormatData(u8 *soundData, const char *formatString, i32 *formatSize,
+                                      u32 fileSizeExcludingFormat)
 {
     while (fileSizeExcludingFormat > 0)
     {

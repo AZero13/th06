@@ -152,7 +152,8 @@ ZunResult AnmManager::LoadTexture(i32 textureIdx, const char *textureName, i32 t
 
 #pragma var_order(surfaceDesc, data, lockedRectDst, lockedRectSrc, textureSrc, dstData0, srcData0, y0, x0, dstData1,   \
                   srcData1, y1, x1, dstData2, srcData2, y2, x2)
-ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textureName, i32 textureFormat, D3DCOLOR colorKey)
+ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textureName, i32 textureFormat,
+                                              D3DCOLOR colorKey)
 {
     struct Argb1555Pixel
     {
@@ -511,7 +512,6 @@ void AnmManager::SetRenderStateForVm(AnmVm *vm)
         }
     }
 }
-
 
 ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
 {

@@ -1245,16 +1245,9 @@ ZunResult ResultScreen::CheckConfirmButton()
 #pragma var_order(viewport, strPos, unknownFloat, completion, slowdownRate, color)
 u32 ResultScreen::DrawFinalStats()
 {
-    static const char *g_RightAlignedDifficultyList[] = {
-        "     Easy",
-        "   Normal",
-        "     Hard",
-        "  Lunatic",
-        "    Extra"
-    };
-    static const f32 g_DifficultyWeightsList[] = {
-        -30.0f, -10.0f, 20.0f, 30.0f, 30.0f
-    };
+    static const char *g_RightAlignedDifficultyList[] = {"     Easy", "   Normal", "     Hard", "  Lunatic",
+                                                         "    Extra"};
+    static const f32 g_DifficultyWeightsList[] = {-30.0f, -10.0f, 20.0f, 30.0f, 30.0f};
 
     f32 completion;
     f32 unknownFloat;
@@ -1767,12 +1760,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
                   spellcardIdx, charPos, keyboardCharacter)
 ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
 {
-    static const char *g_ShortCharacterList2[] = {
-        "ReimuA ",
-        "ReimuB ",
-        "MarisaA",
-        "MarisaB"
-    };
+    static const char *g_ShortCharacterList2[] = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
 
     AnmVm *sprite;
     char keyboardCharacter[16];

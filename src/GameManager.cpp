@@ -225,16 +225,14 @@ ZunResult GameManager::RegisterChain()
 #pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx, unk1, unk2, padding)
 ZunResult GameManager::AddedCallback(GameManager *mgr)
 {
-    static const char *g_EclFiles[] = {
-        "dummy",
-        "data/ecldata1.ecl",
-        "data/ecldata2.ecl",
-        "data/ecldata3.ecl",
-        "data/ecldata4.ecl",
-        "data/ecldata5.ecl",
-        "data/ecldata6.ecl",
-        "data/ecldata7.ecl"
-    };
+    static const char *g_EclFiles[] = {"dummy",
+                                       "data/ecldata1.ecl",
+                                       "data/ecldata2.ecl",
+                                       "data/ecldata3.ecl",
+                                       "data/ecldata4.ecl",
+                                       "data/ecldata5.ecl",
+                                       "data/ecldata6.ecl",
+                                       "data/ecldata7.ecl"};
     static const char *g_AnmStageFiles[][2] = {
         {"dummy", "dummy"},
         {"data/stg1enm.anm", "data/stg1enm2.anm"},
@@ -411,8 +409,8 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_BULLETMANAGER);
         return ZUN_ERROR;
     }
-    if (EnemyManager::RegisterChain(g_AnmStageFiles[mgr->currentStage][0],
-                                    g_AnmStageFiles[mgr->currentStage][1]) != ZUN_SUCCESS)
+    if (EnemyManager::RegisterChain(g_AnmStageFiles[mgr->currentStage][0], g_AnmStageFiles[mgr->currentStage][1]) !=
+        ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_ENEMYMANAGER);
         return ZUN_ERROR;
