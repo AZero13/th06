@@ -8,14 +8,14 @@ FileAbstraction::FileAbstraction()
     access = 0;
 }
 
-i32 FileAbstraction::Open(char *filename, char *mode)
+i32 FileAbstraction::Open(const char *filename, const char *mode)
 {
     int creationDisposition;
     i32 goToEnd = FALSE;
 
     this->Close();
 
-    char *curMode;
+    const char *curMode;
     for (curMode = mode; *curMode != '\0'; curMode++)
     {
         if (*curMode == 'r')

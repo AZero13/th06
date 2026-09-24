@@ -323,7 +323,7 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-void Gui::ShowBombNamePortrait(u32 sprite, char *bombName)
+void Gui::ShowBombNamePortrait(u32 sprite, const char *bombName)
 {
     g_AnmManager->SetAndExecuteScriptIdx(&this->impl->playerSpellcardPortrait, 0x4a1);
     g_AnmManager->SetActiveSprite(&this->impl->playerSpellcardPortrait, sprite);
@@ -334,7 +334,7 @@ void Gui::ShowBombNamePortrait(u32 sprite, char *bombName)
     g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB, 0);
 }
 
-void Gui::ShowSpellcard(i32 spellcardSprite, char *spellcardName)
+void Gui::ShowSpellcard(i32 spellcardSprite, const char *spellcardName)
 {
     g_AnmManager->SetAndExecuteScriptIdx(&this->impl->enemySpellcardPortrait, ANM_SCRIPT_FACE_ENEMY_SPELLCARD_PORTRAIT);
     g_AnmManager->SetActiveSprite(&this->impl->enemySpellcardPortrait, ANM_SPRITE_FACE_STAGE_START + spellcardSprite);
@@ -559,7 +559,7 @@ ZunResult Gui::ActualAddedCallback()
     return ZUN_SUCCESS;
 }
 
-ZunResult Gui::LoadMsg(char *path)
+ZunResult Gui::LoadMsg(const char *path)
 {
     i32 idx;
 

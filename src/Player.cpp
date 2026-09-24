@@ -28,12 +28,12 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(BombData, 4, g_BombData) = {
     /* MarisaA */ {BombData::BombMarisaACalc, BombData::BombMarisaADraw},
     /* MarisaB */ {BombData::BombMarisaBCalc, BombData::BombMarisaBDraw},
 };
-DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 4, g_CharData) = {
+DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 5, g_CharData) = {
     /* ReimuA  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuA, Player::FireBulletReimuA},
     /* ReimuB  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuB, Player::FireBulletReimuB},
     /* MarisaA */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletMarisaA, Player::FireBulletMarisaA},
     /* MarisaB */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletMarisaB, Player::FireBulletMarisaB},
-};
+    /* Rin???  */ {4.0, 2.0, 4.0, 2.0, NULL, NULL}};
 DIFFABLE_STATIC(Player, g_Player);
 
 #pragma var_order(bulletData, bulletFrame, unused3, unused, unused2)
@@ -488,7 +488,6 @@ void Player::Die()
     {
         this->laserTimer[curLaserTimerIdx] = 2;
     }
-    return;
 }
 
 static void StartFireBulletTimer(Player *p)
@@ -1407,6 +1406,5 @@ void Player::CutChain()
     g_Player.chainDraw1 = NULL;
     g_Chain.Cut(g_Player.chainDraw2);
     g_Player.chainDraw2 = NULL;
-    return;
 }
 }; // namespace th06

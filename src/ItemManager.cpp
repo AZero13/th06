@@ -67,7 +67,6 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
         item->unk_142 = 1;
         return;
     }
-    return;
 }
 
 DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 31, g_PowerItemScore) = {
@@ -334,7 +333,6 @@ void ItemManager::OnUpdate()
     {
         g_SoundPlayer.PlaySoundByIdx(SOUND_15, 0);
     }
-    return;
 }
 
 #pragma var_order(idx, cursor)
@@ -351,7 +349,6 @@ void ItemManager::RemoveAllItems()
         }
         cursor->state = 1;
     }
-    return;
 }
 
 #pragma var_order(itemAlpha, idx, curItem)
@@ -398,7 +395,6 @@ void ItemManager::OnDraw()
         }
         g_AnmManager->DrawNoRotation(&curItem->sprite);
     }
-    return;
 }
 
 }; // namespace th06

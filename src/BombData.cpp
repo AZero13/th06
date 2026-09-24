@@ -209,7 +209,6 @@ void BombData::BombReimuADraw(Player *player)
         g_AnmManager->DrawNoRotation(bombSprite);
         bombSprite++;
     }
-    return;
 }
 
 #pragma var_order(local8, viewport, darkeningTimeLeft)
@@ -403,8 +402,6 @@ void BombData::BombMarisaACalc(Player *player)
     }
     player->playerState = PLAYER_STATE_INVULNERABLE;
     player->bombInfo.timer++;
-
-    return;
 }
 
 #pragma var_order(bombSprite, idx)

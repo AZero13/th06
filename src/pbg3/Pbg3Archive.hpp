@@ -25,12 +25,12 @@ class Pbg3Archive
 
     i32 Release();
 
-    i32 Load(char *path);
+    i32 Load(const char *path);
     i32 ParseHeader();
-    i32 FindEntry(char *path);
+    i32 FindEntry(const char *path);
     u32 GetEntrySize(u32 entryIdx);
     u8 *ReadEntryRaw(u32 *outSize, u32 *outChecksum, i32 entryIdx);
-    u8 *ReadDecompressEntry(u32 entryIdx, char *filename);
+    u8 *ReadDecompressEntry(u32 entryIdx, const char *filename);
 
   private:
     Pbg3Parser *parser;

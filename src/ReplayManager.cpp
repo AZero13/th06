@@ -67,7 +67,7 @@ ZunResult ReplayManager::ValidateReplayData(ReplayData *data, i32 fileSize)
     return ZUN_SUCCESS;
 }
 
-ZunResult ReplayManager::RegisterChain(i32 isDemo, char *replayFile)
+ZunResult ReplayManager::RegisterChain(i32 isDemo, const char *replayFile)
 {
     ReplayManager *replayMgr;
 
@@ -335,7 +335,7 @@ void ReplayManager::StopRecording()
 
 #pragma var_order(stageIdx, mgr, slowDown, replayCopy, stageReplayPos, file, csumStagePos, checksum, checksumCursor,   \
                   obfOffset, obfStagePos, obfuscateCursor)
-void ReplayManager::SaveReplay(char *replayPath, char *replayName)
+void ReplayManager::SaveReplay(const char *replayPath, const char *replayName)
 {
     ReplayManager *mgr;
     FILE *file;
@@ -466,6 +466,5 @@ void ReplayManager::SaveReplay(char *replayPath, char *replayName)
         }
         g_Chain.Cut(g_ReplayManager->calcChain);
     }
-    return;
 }
 }; // namespace th06

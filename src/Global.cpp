@@ -20,7 +20,37 @@
 
 namespace th06
 {
+
+DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {0, 1, 2, 4, -1, -1, -1, -1, 3};
+
 DIFFABLE_STATIC(Chain, g_Chain)
+
+// Controller
+DIFFABLE_STATIC_ARRAY_ASSIGN(u8, (32 * 4), g_ControllerData) = {0};
+DIFFABLE_STATIC(JOYCAPS, g_JoystickCaps)
+DIFFABLE_STATIC(u16, g_FocusButtonConflictState)
+DIFFABLE_STATIC(u16, g_LastFrameInput)
+DIFFABLE_STATIC(u16, g_IsEigthFrameOfHeldInput)
+DIFFABLE_STATIC(u16, g_NumOfFramesInputsWereHeld)
+DIFFABLE_STATIC(u16, g_CurFrameInput)
+
+class CMyFont
+{
+  private:
+    LPD3DXFONT m_lpFont;
+
+  public:
+    CMyFont()
+    {
+        m_lpFont = NULL;
+    };
+    virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
+    virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
+    virtual void Clean();
+};
+
+// CMyFont
+DIFFABLE_STATIC(CMyFont, g_CMyFont)
 
 Chain::~Chain()
 {
@@ -321,10 +351,10 @@ ChainElem *Chain::CreateElem(ChainCallback callback)
 
 void Chain::Cut(ChainElem *to_remove)
 {
-    int isDrawChain;
+    ZunBool isDrawChain;
     ChainElem *tmp;
 
-    isDrawChain = 0;
+    isDrawChain = false;
 
     if (to_remove == NULL)
     {
@@ -344,7 +374,7 @@ void Chain::Cut(ChainElem *to_remove)
     }
 
     {
-        isDrawChain = 1;
+        isDrawChain = true;
 
         tmp = &this->drawChain;
         while (tmp != NULL)
@@ -400,29 +430,11 @@ destroy_elem:
     }
 }
 
-// Controller
-DIFFABLE_STATIC_ARRAY_ASSIGN(u8, (32 * 4), g_ControllerData) = {0};
-DIFFABLE_STATIC(JOYCAPSA, g_JoystickCaps)
-DIFFABLE_STATIC(u16, g_FocusButtonConflictState)
-DIFFABLE_STATIC(u16, g_LastFrameInput)
-DIFFABLE_STATIC(u16, g_IsEigthFrameOfHeldInput)
-DIFFABLE_STATIC(u16, g_NumOfFramesInputsWereHeld)
-DIFFABLE_STATIC(u16, g_CurFrameInput)
-
-// CMyFont
-DIFFABLE_STATIC(CMyFont, g_CMyFont)
-
 // ZunMemory
 DIFFABLE_STATIC(ZunMemory, g_ZunMemory);
 
 // FileSystem
 DIFFABLE_STATIC(u32, g_LastFileSize)
-
-// GameErrorContext
-DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext)
-
-// Rng
-DIFFABLE_STATIC(Rng, g_Rng)
 
 u16 Controller::GetJoystickCaps(void)
 {
@@ -871,13 +883,13 @@ void CMyFont::Clean()
 }
 
 #pragma var_order(pbg3Idx, entryname, entryIdx, fsize, data, file)
-u8 *FileSystem::OpenPath(char *filepath, ZunBool isExternalResource)
+u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
 {
     u8 *data;
     FILE *file;
     size_t fsize;
     i32 entryIdx;
-    char *entryname;
+    const char *entryname;
     i32 pbg3Idx;
 
     entryIdx = -1;
@@ -949,7 +961,7 @@ u8 *FileSystem::OpenPath(char *filepath, ZunBool isExternalResource)
     return data;
 }
 
-int FileSystem::WriteDataToFile(char *path, void *data, size_t size)
+int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 {
     FILE *f;
 
@@ -973,8 +985,11 @@ int FileSystem::WriteDataToFile(char *path, void *data, size_t size)
     }
 }
 
-// DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext)
-// DIFFABLE_STATIC(CMyFont, g_CMyFont)
+// GameErrorContext
+DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext)
+
+// Rng
+DIFFABLE_STATIC(Rng, g_Rng)
 
 const char *GameErrorContext::Log(const char *fmt, ...)
 {

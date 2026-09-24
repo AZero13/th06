@@ -102,7 +102,7 @@ ZUN_ASSERT_SIZE(Laser, 0x270);
 struct BulletManager
 {
     BulletManager();
-    static ZunResult RegisterChain(char *bulletAnmPath);
+    static ZunResult RegisterChain(const char *bulletAnmPath);
     static void CutChain();
     static ZunResult AddedCallback(BulletManager *mgr);
     static ZunResult DeletedCallback(BulletManager *mgr);
@@ -128,7 +128,7 @@ struct BulletManager
     i32 nextBulletIndex;
     i32 bulletCount;
     ZunTimer time;
-    char *bulletAnmPath;
+    const char *bulletAnmPath;
 };
 ZUN_ASSERT_SIZE(BulletManager, 0xf5c18);
 

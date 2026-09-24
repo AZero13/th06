@@ -21,7 +21,6 @@ void ScreenEffect::Clear(D3DCOLOR color)
     {
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
     }
-    return;
 }
 
 // Why is this not in GameWindow.cpp? Don't ask me...

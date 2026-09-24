@@ -10,7 +10,7 @@ class Pbg3Parser : public IPbg3Parser, public FileAbstraction
 {
   public:
     Pbg3Parser();
-    i32 OpenArchive(char *path);
+    i32 OpenArchive(const char *path);
     void Close();
     virtual i32 ReadBit();
     virtual u32 ReadInt(u32 numBitsAsPowersOf2);

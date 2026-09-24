@@ -42,7 +42,7 @@
 #define TH_JP_ERR_NO_GOURAUD_SHADING "グーローシェーディングを抑制します\n"
 #define TH_JP_ERR_NO_DEPTH_TESTING "デプステストを抑制します\n"
 #define TH_JP_ERR_FORCE_60FPS_MODE "６０フレーム強制モードにします\n"
-#define TH_JP_ERR_NO_TEXTURE_COLOR_COMPOSITING "テクスチャの色合成を抑制します\n"
+#define TH_JP_ERR_NO_TEXTURE_COLOR_COMPOSITING "テクスチャの色合成を抑制しますn"
 #define TH_JP_ERR_LAUNCH_WINDOWED "ウィンドウモードで起動します\n"
 #define TH_JP_ERR_FORCE_REFERENCE_RASTERIZER "リファレンスラスタライザを強制します\n"
 #define TH_JP_ERR_DO_NOT_USE_DIRECTINPUT "パッド、キーボードの入力に DirectInput を使用しません\n"
@@ -93,10 +93,12 @@
 
 #define TH_JP_SONG_NAME "♪%s"
 
+#define TH_JP_KEYBOARD "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:;･@abcdefghijklmnopqrstuvwxyz+-/*=%0123456789(){}[]<>#!?'\"$      --"
+
 #define TH_JP_UNKNOWN_SPELLCARD "？？？？？"
 
 #define TH_JP_CM_DAT_FILE "紅魔郷CM.dat"
-#define TH_JP_ED_DAT_FILE "紅魔郷ED.DAT"
+#define TH_JP_ED_DAT_FILE "紅魔郷ED.dat"
 #define TH_JP_IN_DAT_FILE "紅魔郷IN.dat"
 #define TH_JP_MD_DAT_FILE "紅魔郷MD.dat"
 #define TH_JP_ST_DAT_FILE "紅魔郷ST.dat"
@@ -142,7 +144,7 @@
 #define TH_EN_ERR_NO_GOURAUD_SHADING "Suppress gouraud shading.\n"
 #define TH_EN_ERR_NO_DEPTH_TESTING "Suppress depth testing.\n"
 #define TH_EN_ERR_FORCE_60FPS_MODE "Force 60FPS mode.\n"
-#define TH_EN_ERR_NO_TEXTURE_COLOR_COMPOSITING "Suppress texture color compositing.\n"
+#define TH_EN_ERR_NO_TEXTURE_COLOR_COMPOSITING "Suppress texture color compositing.n"
 #define TH_EN_ERR_LAUNCH_WINDOWED "Launch in windowed mode.\n"
 #define TH_EN_ERR_FORCE_REFERENCE_RASTERIZER "Force reference rasterizer.\n"
 #define TH_EN_ERR_DO_NOT_USE_DIRECTINPUT "Do not use DirectInput for pad and keyboard input.\n"
@@ -191,6 +193,8 @@
 #define TH_EN_SATSUKI_RIN_WIND "Satsuki Rin (Wind)"
 
 #define TH_EN_SONG_NAME "♪%s"
+
+#define TH_EN_KEYBOARD "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:;･@abcdefghijklmnopqrstuvwxyz+-/*=%0123456789(){}[]<>#!?'\"$      --"
 
 #define TH_EN_UNKNOWN_SPELLCARD "??????"
 
@@ -288,6 +292,7 @@
 #define TH_SATSUKI_RIN_FLOWER TH_MAKE_LANG_STR(TH_LANG, _SATSUKI_RIN_FLOWER)
 #define TH_SATSUKI_RIN_WIND TH_MAKE_LANG_STR(TH_LANG, _SATSUKI_RIN_WIND)
 #define TH_SONG_NAME TH_MAKE_LANG_STR(TH_LANG, _SONG_NAME)
+#define TH_KEYBOARD TH_MAKE_LANG_STR(TH_LANG, _KEYBOARD)
 #define TH_UNKNOWN_SPELLCARD TH_MAKE_LANG_STR(TH_LANG, _UNKNOWN_SPELLCARD)
 #define TH_CM_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _CM_DAT_FILE)
 #define TH_ED_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _ED_DAT_FILE)

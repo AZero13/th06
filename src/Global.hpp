@@ -115,21 +115,6 @@ DIFFABLE_EXTERN(u16, g_CurFrameInput)
 DIFFABLE_EXTERN(u16, g_IsEigthFrameOfHeldInput)
 DIFFABLE_EXTERN(u16, g_NumOfFramesInputsWereHeld)
 
-class CMyFont
-{
-  private:
-    LPD3DXFONT m_lpFont;
-
-  public:
-    CMyFont()
-    {
-        m_lpFont = NULL;
-    };
-    virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
-    virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
-    virtual void Clean();
-};
-
 class ZunMemory
 {
   public:
@@ -166,8 +151,8 @@ namespace FileSystem
 {
 // This documents intent better than just true
 #define EXTERNAL_FILE true
-u8 *OpenPath(char *filepath, ZunBool isExternalResource = false);
-int WriteDataToFile(char *path, void *data, size_t size);
+u8 *OpenPath(const char *filepath, ZunBool isExternalResource = false);
+int WriteDataToFile(const char *path, const void *data, size_t size);
 } // namespace FileSystem
 DIFFABLE_EXTERN(u32, g_LastFileSize)
 
@@ -207,8 +192,6 @@ DIFFABLE_EXTERN(Rng, g_Rng)
 DIFFABLE_EXTERN(HANDLE, g_ExclusiveMutex);
 
 // From GameErrorContext.hpp
-class GameErrorContext;
-
 class GameErrorContext
 {
   public:
@@ -261,10 +244,4 @@ class GameErrorContext
 };
 
 DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext)
-
-template <size_t N> __forceinline void FAKE_INLINE_DWORD_STACK_PADDING()
-{
-    i32 pad[N];
-}
-
 }; // namespace th06

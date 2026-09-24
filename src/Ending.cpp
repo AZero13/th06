@@ -67,7 +67,7 @@ struct Ending
 
     ZunResult ParseEndFile();
 
-    ZunResult LoadEnding(char *endFilePath);
+    ZunResult LoadEnding(const char *endFilePath);
     void FadingEffect();
 
     ChainElem *calcChain;
@@ -91,7 +91,7 @@ struct Ending
     i32 timeFading;
     i32 fadeFrames;
     EndingFadeType fadeType;
-    char *endFileDataPtr;
+    const char *endFileDataPtr;
 };
 ZUN_ASSERT_SIZE(Ending, 0x1170);
 
@@ -506,7 +506,7 @@ endParsing:
     return ZUN_SUCCESS;
 }
 
-ZunResult Ending::LoadEnding(char *endFilePath)
+ZunResult Ending::LoadEnding(const char *endFilePath)
 {
     u8 *endFileDat;
 

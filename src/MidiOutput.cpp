@@ -216,7 +216,7 @@ MidiOutput::~MidiOutput()
     }
 }
 
-ZunResult MidiOutput::ReadFileData(u32 idx, char *path)
+ZunResult MidiOutput::ReadFileData(u32 idx, const char *path)
 {
     if (g_Supervisor.cfg.musicMode != MIDI)
     {
@@ -324,7 +324,7 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
     return ZUN_SUCCESS;
 }
 
-ZunResult MidiOutput::LoadFile(char *midiPath)
+ZunResult MidiOutput::LoadFile(const char *midiPath)
 {
     if (this->ReadFileData(0x1f, midiPath) != ZUN_SUCCESS)
     {
@@ -491,7 +491,6 @@ void MidiOutput::OnTimerElapsed()
     {
         this->LoadTracks();
     }
-    return;
 }
 
 #pragma var_order(nextTrackLength, idx, arg2, lVar5, opcodeLow, opcodeHigh, opcode, arg1, curTrackLength, midiHdr,     \
@@ -682,7 +681,6 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
     track->opcode = opcode;
     nextTrackLength = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
     track->trackLengthOther = track->trackLengthOther + nextTrackLength;
-    return;
 }
 
 #pragma var_order(arg1, idx, volumeByte, midiStatus, volumeClamped)
@@ -714,7 +712,6 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
         volumeByte = volumeClamped & 0xff;
         this->midiOutDev.SendShortMsg(midiStatus, arg1, volumeByte);
     }
-    return;
 }
 
 // TODO: HORRIBLE FAKE LINKER HACK

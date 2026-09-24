@@ -110,20 +110,20 @@ struct Supervisor
     static ZunResult DeletedCallback(Supervisor *s);
     static void DrawFpsCounter();
 
-    ZunBool ReadMidiFile(u32 midiFileIdx, char *path);
+    ZunBool ReadMidiFile(u32 midiFileIdx, const char *path);
     i32 PlayMidiFile(i32 midiFileIdx);
-    ZunResult PlayAudio(char *path);
+    ZunResult PlayAudio(const char *path);
     ZunResult StopAudio();
-    ZunResult SetupMidiPlayback(char *path);
+    ZunResult SetupMidiPlayback(const char *path);
     ZunResult FadeOutMusic(f32 fadeOutSeconds);
 
     static BOOL CALLBACK ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef);
     static BOOL CALLBACK EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext);
 
-    i32 LoadPbg3(i32 pbg3FileIdx, char *filename);
+    i32 LoadPbg3(i32 pbg3FileIdx, const char *filename);
     void ReleasePbg3(i32 pbg3FileIdx);
 
-    ZunResult LoadConfig(char *path);
+    ZunResult LoadConfig(const char *path);
 
     void TickTimer(i32 *frames, f32 *subframes);
 

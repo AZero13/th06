@@ -365,7 +365,7 @@ void Stage::CutChain()
 }
 
 #pragma var_order(vmIdx, idx, curObj, curQuad)
-ZunResult Stage::LoadStageData(char *anmpath, char *stdpath)
+ZunResult Stage::LoadStageData(const char *anmpath, const char *stdpath)
 {
     RawStageObject *curObj;
     RawStageQuadBasic *curQuad;

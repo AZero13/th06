@@ -143,7 +143,7 @@ struct ScoreDat
 };
 ZUN_ASSERT_SIZE(ScoreDat, 0x14);
 
-ScoreDat *OpenScore(char *path);
+ScoreDat *OpenScore(const char *path);
 void ReleaseScoreDat(ScoreDat *s);
 
 u32 GetHighScore(ScoreDat *s, ScoreListNode *node, u32 character, u32 difficulty);

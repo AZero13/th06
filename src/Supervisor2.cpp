@@ -42,7 +42,7 @@ void Supervisor::ReleasePbg3(i32 pbg3FileIdx)
     ZUN_DELETE(this->pbg3Archives[pbg3FileIdx]);
 }
 
-i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, char *filename)
+i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
 {
     if (this->pbg3Archives[pbg3FileIdx] == NULL || strcmp(filename, this->pbg3ArchiveNames[pbg3FileIdx]) != 0)
     {
@@ -76,7 +76,7 @@ i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, char *filename)
 }
 
 #pragma var_order(data, wavFile, wavFile2)
-ZunResult Supervisor::LoadConfig(char *path)
+ZunResult Supervisor::LoadConfig(const char *path)
 {
     GameConfiguration *data;
     FILE *wavFile;
@@ -208,7 +208,7 @@ ZunResult Supervisor::LoadConfig(char *path)
     return ZUN_SUCCESS;
 }
 
-ZunBool Supervisor::ReadMidiFile(u32 midiFileIdx, char *path)
+ZunBool Supervisor::ReadMidiFile(u32 midiFileIdx, const char *path)
 {
     // Return conventions seem opposite of normal? But they're never used anyway
     if (g_Supervisor.cfg.musicMode == MIDI)
@@ -244,7 +244,7 @@ i32 Supervisor::PlayMidiFile(i32 midiFileIdx)
     return TRUE;
 }
 
-ZunResult Supervisor::SetupMidiPlayback(char *path)
+ZunResult Supervisor::SetupMidiPlayback(const char *path)
 {
     if (g_Supervisor.cfg.musicMode == MIDI)
     {
@@ -259,7 +259,7 @@ ZunResult Supervisor::SetupMidiPlayback(char *path)
     return ZUN_SUCCESS;
 }
 
-ZunResult Supervisor::PlayAudio(char *path)
+ZunResult Supervisor::PlayAudio(const char *path)
 {
     char wavName[256];
     char wavPos[256];

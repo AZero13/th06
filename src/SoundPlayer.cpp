@@ -21,7 +21,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(SoundBufferIdxVolume, 32, g_SoundBufferIdxVol) = {
     {7, -1800, 20},  {19, -300, 50},  {20, -600, 50},  {21, -800, 50}, {22, -100, 140}, {23, -500, 100},
     {24, -1000, 20}, {25, -1000, 90},
 };
-DIFFABLE_STATIC_ARRAY_ASSIGN(char *, 26, g_SFXList) = {
+DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 26, g_SFXList) = {
     "data/wav/plst00.wav", "data/wav/enep00.wav",   "data/wav/pldead00.wav", "data/wav/power0.wav",
     "data/wav/power1.wav", "data/wav/tan00.wav",    "data/wav/tan01.wav",    "data/wav/tan02.wav",
     "data/wav/ok00.wav",   "data/wav/cancel00.wav", "data/wav/select00.wav", "data/wav/gun00.wav",
@@ -120,7 +120,8 @@ ZunResult SoundPlayer::Release(void)
     return ZUN_SUCCESS;
 }
 
-static WAVEFORMATEX *GetWavFormatData(u8 *soundData, char *formatString, i32 *formatSize, u32 fileSizeExcludingFormat)
+static WAVEFORMATEX *GetWavFormatData(u8 *soundData, const char *formatString, i32 *formatSize,
+                                      u32 fileSizeExcludingFormat)
 {
     while (fileSizeExcludingFormat > 0)
     {
@@ -137,7 +138,7 @@ static WAVEFORMATEX *GetWavFormatData(u8 *soundData, char *formatString, i32 *fo
 
 #pragma var_order(sFDCursor, dsBuffer, wavDataPtr, formatSize, audioPtr2, audioSize2, audioSize1, audioPtr1,           \
                   soundFileData, wavData, fileSize)
-ZunResult SoundPlayer::LoadSound(i32 idx, char *path)
+ZunResult SoundPlayer::LoadSound(i32 idx, const char *path)
 {
     u8 *soundFileData;
     u8 *sFDCursor;
@@ -306,7 +307,7 @@ ZunResult SoundPlayer::LoadWav(char *path)
 }
 
 #pragma var_order(fileData, bgmFile, loopEnd, loopStart)
-ZunResult SoundPlayer::LoadPos(char *path)
+ZunResult SoundPlayer::LoadPos(const char *path)
 {
     u8 *fileData;
     CWaveFile *bgmFile;
@@ -458,7 +459,6 @@ void SoundPlayer::PlaySoundByIdx(SoundIdx idx, i32 unused)
     }
     this->soundBuffersToPlay[i] = idx;
     this->unk408[idx] = SFXToPlay;
-    return;
 }
 
 #pragma var_order(idx, sndBufIdx)
@@ -491,7 +491,6 @@ void SoundPlayer::PlaySounds()
         this->duplicateSoundBuffers[sndBufIdx]->SetCurrentPosition(0);
         this->duplicateSoundBuffers[sndBufIdx]->Play(0, 0, 0);
     }
-    return;
 }
 
 #pragma var_order(msg, looped, lpThreadParameterCopy, waitObj, res, stopped)
