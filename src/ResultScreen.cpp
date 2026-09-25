@@ -18,8 +18,7 @@
 
 namespace th06
 {
-#pragma section(".data$Q1ResultScreen", read, write)
-#pragma bss_seg(".data$Q1ResultScreen")
+FILE_BSS_SORT(Q1);
 
 #pragma function(memset)
 struct ResultScreen

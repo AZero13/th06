@@ -10,18 +10,10 @@
 
 namespace th06
 {
-#pragma section(".data$S1g_AnmManager", read, write)
-#pragma section(".data$S2g_PrimitivesToDrawNoVertexBuf", read, write)
-#pragma section(".data$S3g_PrimitivesToDrawVertexBuff", read, write)
-#pragma section(".data$S4g_PrimitivesToDrawUnknown", read, write)
-
-__declspec(allocate(".data$S3g_PrimitivesToDrawVertexBuff")) DIFFABLE_STATIC(VertexTex1Xyzrwh,
-                                                                             g_PrimitivesToDrawVertexBuf[4]);
-__declspec(allocate(".data$S2g_PrimitivesToDrawNoVertexBuf")) DIFFABLE_STATIC(VertexTex1DiffuseXyzrwh,
-                                                                              g_PrimitivesToDrawNoVertexBuf[4]);
-__declspec(allocate(".data$S4g_PrimitivesToDrawUnknown")) DIFFABLE_STATIC(VertexTex1DiffuseXyz,
-                                                                          g_PrimitivesToDrawUnknown[4]);
-__declspec(allocate(".data$S1g_AnmManager")) DIFFABLE_STATIC(AnmManager *, g_AnmManager);
+DIFFABLE_STATIC_SORTED(S3, VertexTex1Xyzrwh, g_PrimitivesToDrawVertexBuf[4]);
+DIFFABLE_STATIC_SORTED(S2, VertexTex1DiffuseXyzrwh, g_PrimitivesToDrawNoVertexBuf[4]);
+DIFFABLE_STATIC_SORTED(S4, VertexTex1DiffuseXyz, g_PrimitivesToDrawUnknown[4]);
+DIFFABLE_STATIC_SORTED(S1, AnmManager *, g_AnmManager);
 
 #ifndef DIFFBUILD
 const D3DFORMAT g_TextureFormatD3D8Mapping[6] = {

@@ -32,13 +32,9 @@ struct DifficultyInfo
 };
 ZUN_ASSERT_SIZE(DifficultyInfo, 0xc);
 
-#pragma section(".data$H1g_GameManager", read, write)
-#pragma section(".data$H2g_GameManagerCalcChain", read, write)
-#pragma section(".data$H3g_GameManagerDrawChain", read, write)
-
-__declspec(allocate(".data$H1g_GameManager")) DIFFABLE_STATIC(GameManager, g_GameManager);
-__declspec(allocate(".data$H2g_GameManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_GameManagerCalcChain);
-__declspec(allocate(".data$H3g_GameManagerDrawChain")) DIFFABLE_STATIC(ChainElem, g_GameManagerDrawChain);
+DIFFABLE_STATIC_SORTED(H1, GameManager, g_GameManager);
+DIFFABLE_STATIC_SORTED(H2, ChainElem, g_GameManagerCalcChain);
+DIFFABLE_STATIC_SORTED(H3, ChainElem, g_GameManagerDrawChain);
 
 #define MAX_SCORE 999999999
 

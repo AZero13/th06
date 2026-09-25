@@ -15,15 +15,10 @@
 
 namespace th06
 {
-#pragma section(".data$L1g_GameWindow", read, write)
-#pragma section(".data$L2g_TickCountToEffectiveFramerate", read, write)
-#pragma section(".data$L3g_LastFrameTime", read, write)
-#pragma section(".data$L4g_ExclusiveMutex", read, write)
-
-__declspec(allocate(".data$L1g_GameWindow")) DIFFABLE_STATIC(GameWindow, g_GameWindow);
-__declspec(allocate(".data$L2g_TickCountToEffectiveFramerate")) DIFFABLE_STATIC(i32, g_TickCountToEffectiveFramerate);
-__declspec(allocate(".data$L3g_LastFrameTime")) DIFFABLE_STATIC(f64, g_LastFrameTime);
-__declspec(allocate(".data$L4g_ExclusiveMutex")) DIFFABLE_STATIC(HANDLE, g_ExclusiveMutex);
+DIFFABLE_STATIC_SORTED(L1, GameWindow, g_GameWindow);
+DIFFABLE_STATIC_SORTED(L2, i32, g_TickCountToEffectiveFramerate);
+DIFFABLE_STATIC_SORTED(L3, f64, g_LastFrameTime);
+DIFFABLE_STATIC_SORTED(L4, HANDLE, g_ExclusiveMutex);
 } // namespace th06
 
 typedef HRESULT(WINAPI *DIRECTDRAWCREATE)(GUID *, LPDIRECTDRAW *, IUnknown *);

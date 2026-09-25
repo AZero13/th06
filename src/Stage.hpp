@@ -143,5 +143,5 @@ struct Stage
 };
 ZUN_ASSERT_SIZE(Stage, 0x2f4);
 
-DIFFABLE_EXTERN(Stage, g_Stage)
+DIFFABLE_EXTERN(Stage, g_Stage);
 }; // namespace th06

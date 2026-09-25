@@ -23,13 +23,10 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(u8, 32, g_RandomItems) = {
     ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POINT,       ITEM_POINT,
     ITEM_POWER_SMALL, ITEM_POWER_BIG};
 
-#pragma section(".data$E1g_EnemyManagerDrawChain", read, write)
-#pragma section(".data$E2g_EnemyManager", read, write)
-#pragma section(".data$E3g_EnemyManagerCalcChain", read, write)
-
-__declspec(allocate(".data$E3g_EnemyManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_EnemyManagerCalcChain);
-__declspec(allocate(".data$E1g_EnemyManagerDrawChain"), align(8)) DIFFABLE_STATIC(ChainElem, g_EnemyManagerDrawChain);
-__declspec(allocate(".data$E2g_EnemyManager")) DIFFABLE_STATIC(EnemyManager, g_EnemyManager);
+DIFFABLE_STATIC_SORTED(E1, i32, g_EnemyManagerPad);
+DIFFABLE_STATIC_SORTED(E4, ChainElem, g_EnemyManagerCalcChain);
+DIFFABLE_STATIC_SORTED(E2, ChainElem, g_EnemyManagerDrawChain);
+DIFFABLE_STATIC_SORTED(E3, EnemyManager, g_EnemyManager);
 
 #pragma var_order(i, enemy)
 void EnemyManager::Initialize()

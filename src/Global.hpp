@@ -14,6 +14,7 @@
 #include "diffbuild.hpp"
 #include "i18n.hpp"
 #include "inttypes.hpp"
+#include "pbg3/Pbg3Archive.hpp"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define ARRAY_SIZE_SIGNED(x) ((i32)sizeof(x) / (i32)sizeof(x[0]))
@@ -168,7 +169,7 @@ namespace FileSystem
 u8 *OpenPath(const char *filepath, ZunBool isExternalResource = false);
 int WriteDataToFile(const char *path, const void *data, size_t size);
 } // namespace FileSystem
-DIFFABLE_EXTERN(u32, g_LastFileSize)
+DIFFABLE_EXTERN(u32, g_LastFileSize);
 
 // From Rng.hpp
 struct Rng
@@ -202,7 +203,7 @@ struct Rng
     }
 };
 
-DIFFABLE_EXTERN(Rng, g_Rng)
+DIFFABLE_EXTERN(Rng, g_Rng);
 DIFFABLE_EXTERN(HANDLE, g_ExclusiveMutex);
 
 // From GameErrorContext.hpp
@@ -258,5 +259,6 @@ class GameErrorContext
 };
 
 DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
+DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives);
 DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface);
 }; // namespace th06

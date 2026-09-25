@@ -37,11 +37,8 @@ struct UnknownSoundThing
     ZunTimer idk;
 };
 
-#pragma section(".data$R1g_UnknownSoundThing", read, write)
-#pragma section(".data$R2g_SoundPlayer", read, write)
-
-__declspec(allocate(".data$R1g_UnknownSoundThing")) DIFFABLE_STATIC(UnknownSoundThing, g_UnknownSoundThing);
-__declspec(allocate(".data$R2g_SoundPlayer")) DIFFABLE_STATIC(SoundPlayer, g_SoundPlayer);
+DIFFABLE_STATIC_SORTED(R1, UnknownSoundThing, g_UnknownSoundThing);
+DIFFABLE_STATIC_SORTED(R2, SoundPlayer, g_SoundPlayer);
 
 #pragma var_order(bufDesc, audioBuffer2Start, audioBuffer2Len, audioBuffer1Len, audioBuffer1Start, wavFormat)
 ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)

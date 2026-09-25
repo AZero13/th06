@@ -22,6 +22,7 @@
 
 namespace th06
 {
+// Using an explicit section name here because the static local guard happens to work...
 #pragma section(".data$M1Supervisor", read, write)
 #pragma bss_seg(".data$M1Supervisor")
 

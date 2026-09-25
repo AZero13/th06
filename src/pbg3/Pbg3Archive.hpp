@@ -40,6 +40,4 @@ class Pbg3Archive
     Pbg3Entry *entries;
 };
 ZUN_ASSERT_SIZE(Pbg3Archive, 0x14);
-
-DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives)
 }; // namespace th06

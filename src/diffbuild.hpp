@@ -30,11 +30,16 @@
 
 #pragma once
 
+#define MACRO_CATW_RAW(arg1, arg2, arg3) arg1##arg2##arg3
+#define MACRO_CATW(arg1, arg2, arg3) MACRO_CATW_RAW(arg1, arg2, arg3)
+#define _MACRO_STR(arg) #arg
+#define MACRO_STR(arg) _MACRO_STR(arg)
+
 #ifdef DIFFBUILD
-#define DIFFABLE_EXTERN(type, name) extern "C" type name;
-#define DIFFABLE_EXTERN_ARRAY(type, size, name) extern "C" type name[size];
-#define DIFFABLE_STATIC(type, name) extern "C" type name;
-#define DIFFABLE_STATIC_ARRAY(type, size, name) extern "C" type name[size];
+#define DIFFABLE_EXTERN(type, name) extern "C" type name
+#define DIFFABLE_EXTERN_ARRAY(type, size, name) extern "C" type name[size]
+#define DIFFABLE_STATIC(type, name) extern "C" type name
+#define DIFFABLE_STATIC_ARRAY(type, size, name) extern "C" type name[size]
 // This macro is meant to be used like so:
 // DIFFABLE_STATIC_ARRAY_ASSIGN(u32, g_ArrayName) = 12;
 //
@@ -53,13 +58,25 @@
 #define DIFFABLE_STATIC_ARRAY_ASSIGN(type, size, name)                                                                 \
     extern "C" type name[size];                                                                                        \
     template <> type DIFFBUILD_HIDE_NAME_##name[size]
+#define DIFFABLE_STATIC_SORTED(sort, type, name) DIFFABLE_STATIC(type, name)
+#define DIFFABLE_STATIC_ARRAY_SORTED(sort, type, size, name) DIFFABLE_STATIC_ARRAY(type, size, name)
+#define FILE_BSS_SORT(sort)
 #else
-#define DIFFABLE_EXTERN(type, name) extern type name;
-#define DIFFABLE_EXTERN_ARRAY(type, size, name) extern "C" type name[size];
-#define DIFFABLE_STATIC(type, name) type name;
-#define DIFFABLE_STATIC_ARRAY(type, size, name) type name[size];
+#define DIFFABLE_EXTERN(type, name) extern type name
+#define DIFFABLE_EXTERN_ARRAY(type, size, name) extern "C" type name[size]
+#define DIFFABLE_STATIC(type, name) type name
+#define DIFFABLE_STATIC_ARRAY(type, size, name) type name[size]
 #define DIFFABLE_STATIC_ASSIGN(type, name) type name
 #define DIFFABLE_STATIC_ARRAY_ASSIGN(type, size, name) type name[size]
+#define DIFFABLE_STATIC_SORTED(sort, type, name)                                                                       \
+__pragma(section(MACRO_STR(MACRO_CATW(.data$,sort,name)), read, write))                                                \
+__declspec(allocate(MACRO_STR(MACRO_CATW(.data$,sort,name)))) DIFFABLE_STATIC(type, name)
+#define DIFFABLE_STATIC_ARRAY_SORTED(sort, type, size, name)                                                           \
+__pragma(section(MACRO_STR(MACRO_CATW(.data$, sort, name)), read, write))                                              \
+__declspec(allocate(MACRO_STR(MACRO_CATW(.data$, sort, name)))) DIFFABLE_STATIC_ARRAY(type, size, name)
+#define FILE_BSS_SORT(sort)                                                                                            \
+__pragma(section(MACRO_STR(MACRO_CATW(.data$,sort,__LINE__))))                                                         \
+__pragma(bss_seg(MACRO_STR(MACRO_CATW(.data$,sort,__LINE__))))
 #endif
 
 #if defined(BINARYMATCHBUILD) || defined(DIFFBUILD) || defined(DLLBUILD)

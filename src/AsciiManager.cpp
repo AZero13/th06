@@ -13,18 +13,11 @@
 
 namespace th06
 {
-
-#pragma section(".data$A1g_AsciiManagerOnDrawMenusChain", read, write)
-#pragma section(".data$A2g_AsciiManager", read, write)
-#pragma section(".data$A3g_AsciiManagerCalcChain", read, write)
-#pragma section(".data$A4g_AsciiManagerOnDrawPopupsChain", read, write)
-
-__declspec(allocate(".data$A2g_AsciiManager")) DIFFABLE_STATIC(AsciiManager, g_AsciiManager);
-__declspec(allocate(".data$A3g_AsciiManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_AsciiManagerCalcChain);
-__declspec(allocate(".data$A1g_AsciiManagerOnDrawMenusChain"),
-           align(32)) DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawMenusChain);
-__declspec(allocate(".data$A4g_AsciiManagerOnDrawPopupsChain")) DIFFABLE_STATIC(ChainElem,
-                                                                                g_AsciiManagerOnDrawPopupsChain);
+DIFFABLE_STATIC_ARRAY_SORTED(A1, i32, 4, g_AsciiManagerPad);
+DIFFABLE_STATIC_SORTED(A3, AsciiManager, g_AsciiManager);
+DIFFABLE_STATIC_SORTED(A4, ChainElem, g_AsciiManagerCalcChain);
+DIFFABLE_STATIC_SORTED(A2, ChainElem, g_AsciiManagerOnDrawMenusChain);
+DIFFABLE_STATIC_SORTED(A5, ChainElem, g_AsciiManagerOnDrawPopupsChain);
 
 ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
 {

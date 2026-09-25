@@ -29,13 +29,10 @@ DIFFABLE_STATIC_ASSIGN(u32 *, g_EffectsColor) = g_EffectsColorWithTextureBlendin
 DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 16, g_BulletSpriteOffset16Px) = {0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 0};
 DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 8, g_BulletSpriteOffset32Px) = {0, 1, 1, 2, 2, 3, 4, 0};
 
-#pragma section(".data$F1g_BulletManagerDrawChain", read, write)
-#pragma section(".data$F2g_BulletManager", read, write)
-#pragma section(".data$F3g_BulletManagerCalcChain", read, write)
-
-__declspec(allocate(".data$F3g_BulletManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_BulletManagerCalcChain);
-__declspec(allocate(".data$F1g_BulletManagerDrawChain"), align(8)) DIFFABLE_STATIC(ChainElem, g_BulletManagerDrawChain);
-__declspec(allocate(".data$F2g_BulletManager")) DIFFABLE_STATIC(BulletManager, g_BulletManager);
+DIFFABLE_STATIC_SORTED(F1, i32, g_BulletManagerPad);
+DIFFABLE_STATIC_SORTED(F4, ChainElem, g_BulletManagerCalcChain);
+DIFFABLE_STATIC_SORTED(F2, ChainElem, g_BulletManagerDrawChain);
+DIFFABLE_STATIC_SORTED(F3, BulletManager, g_BulletManager);
 
 struct BulletTypeInfo
 {

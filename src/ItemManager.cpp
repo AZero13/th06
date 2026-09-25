@@ -11,18 +11,12 @@
 
 namespace th06
 {
-#pragma section(".data$K1g_ItemSize", read, write)
-#pragma section(".data$K2g_ItemSizeGuard", read, write)
-#pragma section(".data$K3g_ItemManagerDrawChain", read, write)
-#pragma section(".data$K4g_ItemManager", read, write)
-#pragma section(".data$K5g_ItemManagerCalcChain", read, write)
+DIFFABLE_STATIC_SORTED(K1, ZunVec3, g_ItemSize);
+DIFFABLE_STATIC_SORTED(K2, u32, g_ItemSizeGuard);
 
-__declspec(allocate(".data$K1g_ItemSize")) DIFFABLE_STATIC(ZunVec3, g_ItemSize);
-__declspec(allocate(".data$K2g_ItemSizeGuard")) DIFFABLE_STATIC(u32, g_ItemSizeGuard);
-
-__declspec(allocate(".data$K4g_ItemManager")) DIFFABLE_STATIC(ItemManager, g_ItemManager);
-__declspec(allocate(".data$K5g_ItemManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_ItemManagerCalcChain); // unused
-__declspec(allocate(".data$K3g_ItemManagerDrawChain")) DIFFABLE_STATIC(ChainElem, g_ItemManagerDrawChain); // unused
+DIFFABLE_STATIC_SORTED(K4, ItemManager, g_ItemManager);
+DIFFABLE_STATIC_SORTED(K5, ChainElem, g_ItemManagerCalcChain); // unused
+DIFFABLE_STATIC_SORTED(K3, ChainElem, g_ItemManagerDrawChain); // unused
 
 ItemManager::ItemManager() {};
 

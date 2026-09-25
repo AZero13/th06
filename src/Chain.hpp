@@ -69,5 +69,5 @@ class Chain
 };
 ZUN_ASSERT_SIZE(Chain, 0x80);
 
-DIFFABLE_EXTERN(Chain, g_Chain)
+DIFFABLE_EXTERN(Chain, g_Chain);
 }; // namespace th06
