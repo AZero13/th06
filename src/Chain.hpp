@@ -50,6 +50,7 @@ class Chain
     ChainElem drawChain;
     unsigned int midiOutputDeviceCount;
     unsigned int unk;
+    i32 unk_48[13];
 
     void ReleaseSingleChain(ChainElem *root);
 
@@ -66,7 +67,7 @@ class Chain
 
     ChainElem *CreateElem(ChainCallback callback);
 };
-ZUN_ASSERT_SIZE(Chain, 0x48);
+ZUN_ASSERT_SIZE(Chain, 0x80);
 
-DIFFABLE_EXTERN(Chain, g_Chain)
+DIFFABLE_EXTERN(Chain, g_Chain);
 }; // namespace th06

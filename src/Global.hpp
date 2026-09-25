@@ -14,6 +14,7 @@
 #include "diffbuild.hpp"
 #include "i18n.hpp"
 #include "inttypes.hpp"
+#include "pbg3/Pbg3Archive.hpp"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define ARRAY_SIZE_SIGNED(x) ((i32)sizeof(x) / (i32)sizeof(x[0]))
@@ -98,11 +99,11 @@ enum TouhouButton
 namespace Controller
 {
 u16 GetJoystickCaps(void);
-u32 SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, enum TouhouButton touhouButton,
+u32 SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
                                   u32 inputButtons);
 
-unsigned int SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest,
-                                              enum TouhouButton touhouButton, u8 *inputButtons);
+unsigned int SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
+                                              u8 *inputButtons);
 
 u16 GetControllerInput(u16 buttons);
 u8 *GetControllerState();
@@ -110,10 +111,24 @@ u16 GetInput(void);
 void ResetKeyboard(void);
 }; // namespace Controller
 
-DIFFABLE_EXTERN(u16, g_LastFrameInput)
-DIFFABLE_EXTERN(u16, g_CurFrameInput)
-DIFFABLE_EXTERN(u16, g_IsEigthFrameOfHeldInput)
-DIFFABLE_EXTERN(u16, g_NumOfFramesInputsWereHeld)
+struct ControllerMapping
+{
+    i16 shootButton;
+    i16 bombButton;
+    i16 focusButton;
+    i16 menuButton;
+    i16 upButton;
+    i16 downButton;
+    i16 leftButton;
+    i16 rightButton;
+    i16 skipButton;
+};
+
+DIFFABLE_EXTERN(ControllerMapping, g_ControllerMapping);
+DIFFABLE_EXTERN(u16, g_LastFrameInput);
+DIFFABLE_EXTERN(u16, g_CurFrameInput);
+DIFFABLE_EXTERN(u16, g_IsEigthFrameOfHeldInput);
+DIFFABLE_EXTERN(u16, g_NumOfFramesInputsWereHeld);
 
 class ZunMemory
 {
@@ -154,7 +169,7 @@ namespace FileSystem
 u8 *OpenPath(const char *filepath, ZunBool isExternalResource = false);
 int WriteDataToFile(const char *path, const void *data, size_t size);
 } // namespace FileSystem
-DIFFABLE_EXTERN(u32, g_LastFileSize)
+DIFFABLE_EXTERN(u32, g_LastFileSize);
 
 // From Rng.hpp
 struct Rng
@@ -188,7 +203,7 @@ struct Rng
     }
 };
 
-DIFFABLE_EXTERN(Rng, g_Rng)
+DIFFABLE_EXTERN(Rng, g_Rng);
 DIFFABLE_EXTERN(HANDLE, g_ExclusiveMutex);
 
 // From GameErrorContext.hpp
@@ -243,5 +258,7 @@ class GameErrorContext
     }
 };
 
-DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext)
+DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
+DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives);
+DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface);
 }; // namespace th06

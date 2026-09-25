@@ -127,9 +127,9 @@ struct GuiImpl
 };
 ZUN_ASSERT_SIZE(GuiImpl, 0x2c44);
 
-DIFFABLE_STATIC(Gui, g_Gui);
-DIFFABLE_STATIC(ChainElem, g_GuiCalcChain);
-DIFFABLE_STATIC(ChainElem, g_GuiDrawChain);
+DIFFABLE_STATIC_SORTED(G1, Gui, g_Gui);
+DIFFABLE_STATIC_SORTED(G3, ChainElem, g_GuiCalcChain);
+DIFFABLE_STATIC_SORTED(G2, ChainElem, g_GuiDrawChain);
 
 ZunBool Gui::IsStageFinished()
 {

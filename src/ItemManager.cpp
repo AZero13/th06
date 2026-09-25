@@ -11,13 +11,14 @@
 
 namespace th06
 {
-DIFFABLE_STATIC(ItemManager, g_ItemManager);
-DIFFABLE_STATIC(ChainElem, g_ItemManagerCalcChain); // unused
-DIFFABLE_STATIC(ChainElem, g_ItemManagerDrawChain); // unused
+DIFFABLE_STATIC_SORTED(K1, ZunVec3, g_ItemSize);
+DIFFABLE_STATIC_SORTED(K2, u32, g_ItemSizeGuard);
 
-ItemManager::ItemManager() {
+DIFFABLE_STATIC_SORTED(K4, ItemManager, g_ItemManager);
+DIFFABLE_STATIC_SORTED(K5, ChainElem, g_ItemManagerCalcChain); // unused
+DIFFABLE_STATIC_SORTED(K3, ChainElem, g_ItemManagerDrawChain); // unused
 
-};
+ItemManager::ItemManager() {};
 
 void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
 {
@@ -97,7 +98,16 @@ void ItemManager::OnUpdate()
     i32 itemAcquired;
 
     curItem = &this->items[0];
-    static D3DXVECTOR3 g_ItemSize(16.0f, 16.0f, 16.0f);
+
+    // static D3DXVECTOR3 g_ItemSize(16.0f, 16.0f, 16.0f);
+    if (!(g_ItemSizeGuard & 1))
+    {
+        g_ItemSizeGuard |= 1;
+        g_ItemSize.x = 16.0f;
+        g_ItemSize.y = 16.0f;
+        g_ItemSize.z = 16.0f;
+    }
+
     itemAcquired = false;
     this->itemCount = 0;
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->items) - 1; idx++, curItem++)
@@ -154,7 +164,7 @@ void ItemManager::OnUpdate()
             curItem->startPosition.y = 3.0f;
         }
     yolo:
-        if (g_Player.CalcItemBoxCollision(&curItem->currentPosition, &g_ItemSize))
+        if (g_Player.CalcItemBoxCollision(&curItem->currentPosition, g_ItemSize.AsD3dXVec()))
         {
             switch (curItem->itemType)
             {

@@ -49,5 +49,5 @@ struct EnemyManager
 };
 ZUN_ASSERT_SIZE(EnemyManager, 0xee5ec);
 
-DIFFABLE_EXTERN(EnemyManager, g_EnemyManager)
+DIFFABLE_EXTERN(EnemyManager, g_EnemyManager);
 }; // namespace th06

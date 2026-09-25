@@ -12,13 +12,9 @@
 
 namespace th06
 {
-
 #define ITEM_SPAWNS 3
 #define ITEM_TABLES 8
 
-DIFFABLE_STATIC(ChainElem, g_EnemyManagerCalcChain)
-DIFFABLE_STATIC(ChainElem, g_EnemyManagerDrawChain)
-DIFFABLE_STATIC(EnemyManager, g_EnemyManager)
 DIFFABLE_STATIC_ARRAY_ASSIGN(u8, 32, g_RandomItems) = {
     ITEM_POWER_SMALL, ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL,
     ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POINT,       ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POWER_SMALL,
@@ -26,6 +22,11 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(u8, 32, g_RandomItems) = {
     ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL,
     ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POINT,       ITEM_POINT,
     ITEM_POWER_SMALL, ITEM_POWER_BIG};
+
+DIFFABLE_STATIC_SORTED(E1, i32, g_EnemyManagerPad);
+DIFFABLE_STATIC_SORTED(E4, ChainElem, g_EnemyManagerCalcChain);
+DIFFABLE_STATIC_SORTED(E2, ChainElem, g_EnemyManagerDrawChain);
+DIFFABLE_STATIC_SORTED(E3, EnemyManager, g_EnemyManager);
 
 #pragma var_order(i, enemy)
 void EnemyManager::Initialize()

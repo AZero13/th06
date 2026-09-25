@@ -36,11 +36,12 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(ExInsn, 17, g_EclExInsn) = {EnemyEclInstr::ExInsCir
                                                          EnemyEclInstr::ExInsStageXFunc14,
                                                          EnemyEclInstr::ExInsStageXFunc15,
                                                          EnemyEclInstr::ExInsFlandreFinalContextUpdate};
-DIFFABLE_STATIC(ChainElem, g_EclManagerCalcChain); // unused
-DIFFABLE_STATIC(EclManager, g_EclManager);
-DIFFABLE_STATIC(i32, g_PlayerShot);
-DIFFABLE_STATIC(f32, g_PlayerDistance);
-DIFFABLE_STATIC(f32, g_PlayerAngle);
+
+DIFFABLE_STATIC_SORTED(C5, ChainElem, g_EclManagerCalcChain); // unused
+DIFFABLE_STATIC_SORTED(C4, EclManager, g_EclManager);
+DIFFABLE_STATIC_SORTED(C1, i32, g_PlayerShot);
+DIFFABLE_STATIC_SORTED(C2, f32, g_PlayerDistance);
+DIFFABLE_STATIC_SORTED(C3, f32, g_PlayerAngle);
 
 ZunResult EclManager::Load(const char *eclPath)
 {

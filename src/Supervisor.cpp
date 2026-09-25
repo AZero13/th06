@@ -22,8 +22,11 @@
 
 namespace th06
 {
-DIFFABLE_STATIC(LPDIRECT3DSURFACE8, g_TextBufferSurface)
-DIFFABLE_STATIC(Supervisor, g_Supervisor)
+// Using an explicit section name here because the static local guard happens to work...
+#pragma section(".data$M1Supervisor", read, write)
+#pragma bss_seg(".data$M1Supervisor")
+
+__declspec(allocate(".data$M1Supervisor")) DIFFABLE_STATIC(Supervisor, g_Supervisor);
 
 ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
 {
@@ -453,9 +456,9 @@ void Supervisor::DrawFpsCounter()
     float elapsed;
     float fps;
 
-    static DWORD g_LastTime = timeGetTime();
-    static u32 g_NumFramesSinceLastTime = 0;
-    static char g_FpsCounterBuffer[256];
+    __declspec(allocate(".data$M1Supervisor")) static DWORD g_LastTime = timeGetTime();
+    __declspec(allocate(".data$M1Supervisor")) static u32 g_NumFramesSinceLastTime = 0;
+    __declspec(allocate(".data$M1Supervisor")) static char g_FpsCounterBuffer[256];
 
     curTime = timeGetTime();
     g_NumFramesSinceLastTime = g_NumFramesSinceLastTime + 1 + (u32)g_Supervisor.cfg.frameskipConfig;

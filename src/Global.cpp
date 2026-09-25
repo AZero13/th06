@@ -23,16 +23,16 @@ namespace th06
 
 DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {0, 1, 2, 4, -1, -1, -1, -1, 3};
 
-DIFFABLE_STATIC(Chain, g_Chain)
+DIFFABLE_STATIC_SORTED(J1, Chain, g_Chain);
 
 // Controller
-DIFFABLE_STATIC_ARRAY_ASSIGN(u8, (32 * 4), g_ControllerData) = {0};
-DIFFABLE_STATIC(JOYCAPS, g_JoystickCaps)
-DIFFABLE_STATIC(u16, g_FocusButtonConflictState)
-DIFFABLE_STATIC(u16, g_LastFrameInput)
-DIFFABLE_STATIC(u16, g_IsEigthFrameOfHeldInput)
-DIFFABLE_STATIC(u16, g_NumOfFramesInputsWereHeld)
-DIFFABLE_STATIC(u16, g_CurFrameInput)
+DIFFABLE_STATIC_SORTED(J5, u8, g_ControllerData[128]);
+DIFFABLE_STATIC_SORTED(I1, JOYCAPS, g_JoystickCaps);
+DIFFABLE_STATIC_SORTED(I2, u16, g_FocusButtonConflictState);
+DIFFABLE_STATIC_SORTED(I6, u16, g_LastFrameInput);
+DIFFABLE_STATIC_SORTED(I7, u16, g_IsEigthFrameOfHeldInput);
+DIFFABLE_STATIC_SORTED(I8, u16, g_NumOfFramesInputsWereHeld);
+DIFFABLE_STATIC_SORTED(I5, u16, g_CurFrameInput);
 
 class CMyFont
 {
@@ -50,7 +50,7 @@ class CMyFont
 };
 
 // CMyFont
-DIFFABLE_STATIC(CMyFont, g_CMyFont)
+DIFFABLE_STATIC_SORTED(J3, CMyFont, g_CMyFont);
 
 Chain::~Chain()
 {
@@ -431,10 +431,10 @@ destroy_elem:
 }
 
 // ZunMemory
-DIFFABLE_STATIC(ZunMemory, g_ZunMemory);
+DIFFABLE_STATIC_SORTED(J4, ZunMemory, g_ZunMemory);
 
 // FileSystem
-DIFFABLE_STATIC(u32, g_LastFileSize)
+DIFFABLE_STATIC_SORTED(I9, u32, g_LastFileSize);
 
 u16 Controller::GetJoystickCaps(void)
 {
@@ -861,10 +861,14 @@ void CMyFont::Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h)
     SelectObject(hTextDC, hOldFont);
     DeleteObject(hFont);
 }
+
+DIFFABLE_STATIC_SORTED(J6, LPDIRECT3DSURFACE8, g_TextBufferSurface);
+
 void Fake_DrawTextA()
 {
     void *fake = (void *)&DrawText;
 }
+
 // ----------------------------------------------------------------------------
 void CMyFont::Print(char *str, int x, int y, D3DCOLOR color)
 {
@@ -881,6 +885,8 @@ void CMyFont::Clean()
 {
     RELEASE(m_lpFont);
 }
+
+DIFFABLE_STATIC_SORTED(I4, Pbg3Archive **, g_Pbg3Archives);
 
 #pragma var_order(pbg3Idx, entryname, entryIdx, fsize, data, file)
 u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
@@ -986,10 +992,10 @@ int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 }
 
 // GameErrorContext
-DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext)
+DIFFABLE_STATIC_SORTED(J2, GameErrorContext, g_GameErrorContext);
 
 // Rng
-DIFFABLE_STATIC(Rng, g_Rng)
+DIFFABLE_STATIC_SORTED(I3, Rng, g_Rng);
 
 const char *GameErrorContext::Log(const char *fmt, ...)
 {

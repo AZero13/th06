@@ -11,7 +11,9 @@
 
 namespace th06
 {
-DIFFABLE_STATIC(ReplayManager *, g_ReplayManager)
+FILE_BSS_SORT(P1);
+
+DIFFABLE_STATIC(ReplayManager *, g_ReplayManager);
 
 #pragma var_order(idx, decryptedData, obfOffset, obfuscateCursor, checksum, checksumCursor)
 ZunResult ReplayManager::ValidateReplayData(ReplayData *data, i32 fileSize)

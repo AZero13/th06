@@ -32,9 +32,9 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
     {ANM_SCRIPT_BULLET4_SCRIPT_19, EffectManager::EffectCallbackStill},
 };
 
-DIFFABLE_STATIC(EffectManager, g_EffectManager);
-DIFFABLE_STATIC(ChainElem, g_EffectManagerCalcChain);
-DIFFABLE_STATIC(ChainElem, g_EffectManagerDrawChain);
+DIFFABLE_STATIC_SORTED(D1, EffectManager, g_EffectManager);
+DIFFABLE_STATIC_SORTED(D2, ChainElem, g_EffectManagerCalcChain);
+DIFFABLE_STATIC_SORTED(D3, ChainElem, g_EffectManagerDrawChain);
 
 void EffectManager::Reset()
 {

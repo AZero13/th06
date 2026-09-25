@@ -18,6 +18,8 @@
 
 namespace th06
 {
+FILE_BSS_SORT(Q1);
+
 #pragma function(memset)
 struct ResultScreen
 {

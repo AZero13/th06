@@ -15,10 +15,10 @@
 
 namespace th06
 {
-DIFFABLE_STATIC(GameWindow, g_GameWindow)
-DIFFABLE_STATIC(i32, g_TickCountToEffectiveFramerate)
-DIFFABLE_STATIC(f64, g_LastFrameTime)
-DIFFABLE_STATIC(HANDLE, g_ExclusiveMutex)
+DIFFABLE_STATIC_SORTED(L1, GameWindow, g_GameWindow);
+DIFFABLE_STATIC_SORTED(L2, i32, g_TickCountToEffectiveFramerate);
+DIFFABLE_STATIC_SORTED(L3, f64, g_LastFrameTime);
+DIFFABLE_STATIC_SORTED(L4, HANDLE, g_ExclusiveMutex);
 } // namespace th06
 
 typedef HRESULT(WINAPI *DIRECTDRAWCREATE)(GUID *, LPDIRECTDRAW *, IUnknown *);

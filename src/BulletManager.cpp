@@ -14,9 +14,6 @@
 
 namespace th06
 {
-DIFFABLE_STATIC(ChainElem, g_BulletManagerCalcChain);
-DIFFABLE_STATIC(ChainElem, g_BulletManagerDrawChain);
-DIFFABLE_STATIC(BulletManager, g_BulletManager);
 DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 28, g_EffectsColorWithTextureBlending) = {
     0xff000000, 0xff303030, 0xff606060, 0xff500000, 0xff900000, 0xffff2020, 0xff400040,
     0xff800080, 0xffff30ff, 0xff000050, 0xff000090, 0xff2020ff, 0xff203060, 0xff304090,
@@ -31,6 +28,11 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 28, g_EffectsColorWithoutTextureBlending) = {
 DIFFABLE_STATIC_ASSIGN(u32 *, g_EffectsColor) = g_EffectsColorWithTextureBlending;
 DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 16, g_BulletSpriteOffset16Px) = {0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 0};
 DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 8, g_BulletSpriteOffset32Px) = {0, 1, 1, 2, 2, 3, 4, 0};
+
+DIFFABLE_STATIC_SORTED(F1, i32, g_BulletManagerPad);
+DIFFABLE_STATIC_SORTED(F4, ChainElem, g_BulletManagerCalcChain);
+DIFFABLE_STATIC_SORTED(F2, ChainElem, g_BulletManagerDrawChain);
+DIFFABLE_STATIC_SORTED(F3, BulletManager, g_BulletManager);
 
 struct BulletTypeInfo
 {

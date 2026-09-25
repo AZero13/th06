@@ -10,10 +10,10 @@
 
 namespace th06
 {
-DIFFABLE_STATIC(VertexTex1Xyzrwh, g_PrimitivesToDrawVertexBuf[4]);
-DIFFABLE_STATIC(VertexTex1DiffuseXyzrwh, g_PrimitivesToDrawNoVertexBuf[4]);
-DIFFABLE_STATIC(VertexTex1DiffuseXyz, g_PrimitivesToDrawUnknown[4]);
-DIFFABLE_STATIC(AnmManager *, g_AnmManager)
+DIFFABLE_STATIC_SORTED(S3, VertexTex1Xyzrwh, g_PrimitivesToDrawVertexBuf[4]);
+DIFFABLE_STATIC_SORTED(S2, VertexTex1DiffuseXyzrwh, g_PrimitivesToDrawNoVertexBuf[4]);
+DIFFABLE_STATIC_SORTED(S4, VertexTex1DiffuseXyz, g_PrimitivesToDrawUnknown[4]);
+DIFFABLE_STATIC_SORTED(S1, AnmManager *, g_AnmManager);
 
 #ifndef DIFFBUILD
 const D3DFORMAT g_TextureFormatD3D8Mapping[6] = {

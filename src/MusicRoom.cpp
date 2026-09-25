@@ -8,6 +8,8 @@
 
 namespace th06
 {
+FILE_BSS_SORT(N1);
+
 struct TrackDescriptor
 {
     TrackDescriptor()

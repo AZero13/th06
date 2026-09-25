@@ -13,10 +13,11 @@
 
 namespace th06
 {
-DIFFABLE_STATIC(AsciiManager, g_AsciiManager)
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerCalcChain)
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawMenusChain)
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawPopupsChain)
+DIFFABLE_STATIC_ARRAY_SORTED(A1, i32, 4, g_AsciiManagerPad);
+DIFFABLE_STATIC_SORTED(A3, AsciiManager, g_AsciiManager);
+DIFFABLE_STATIC_SORTED(A4, ChainElem, g_AsciiManagerCalcChain);
+DIFFABLE_STATIC_SORTED(A2, ChainElem, g_AsciiManagerOnDrawMenusChain);
+DIFFABLE_STATIC_SORTED(A5, ChainElem, g_AsciiManagerOnDrawPopupsChain);
 
 ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
 {
