@@ -136,6 +136,13 @@ DWORD GetDXVersion()
     return dwDXVersion;
 }
 
+namespace th06
+{
+AnmManager::~AnmManager()
+{
+}
+} // namespace th06
+
 #pragma var_order(renderResult, testCoopLevelRes, msg, testResetRes)
 extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {

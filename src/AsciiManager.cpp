@@ -929,11 +929,4 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
     }
 }
 
-// NOTE: This moves 1.0f into the AsciiManager section of rdata
-void dummy_float_1()
-{
-    float a = 0.0f;
-    a += 1.0f;
-}
-
 }; // namespace th06
