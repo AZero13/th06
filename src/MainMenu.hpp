@@ -11,5 +11,5 @@
 
 namespace th06
 {
-ZunResult MainMenu_RegisterChain(u32 isDemo);
+ZunResult MainMenu_RegisterChain(ZunBool isDemo);
 }; // namespace th06

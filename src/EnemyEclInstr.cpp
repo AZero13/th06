@@ -59,21 +59,22 @@ void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
         switch (effectIndex)
         {
         case 0:
-            currentBullet->speed = 0.0;
-            velocityVector.x = 0.0;
-            velocityVector.y = 0.0;
-            velocityVector.z = 0.0;
+            currentBullet->speed = 0.0f;
+            velocityVector.x = 0.0f;
+            velocityVector.y = 0.0f;
+            velocityVector.z = 0.0f;
             currentBullet->velocity = velocityVector;
             break;
         case 1:
             currentBullet->exFlags |= 0x10;
             currentBullet->ex5Int0 = 220;
+            // TODO: Inline as currentBullet->timer.Initialize()
             bulletTimer = &currentBullet->timer;
             bulletTimer->current = 0;
-            bulletTimer->subFrame = 0.0;
+            bulletTimer->subFrame = 0.0f;
             bulletTimer->previous = -999;
-            accelerationMultiplier = 0.01;
-            accelerationAngle = g_Rng.GetRandomF32ZeroToOne() * (2 * ZUN_PI) - ZUN_PI;
+            accelerationMultiplier = 0.01f;
+            accelerationAngle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
             sincosmul(&currentBullet->ex4Acceleration, accelerationAngle, accelerationMultiplier);
             break;
         }
@@ -120,23 +121,23 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
     {
         g_EclManager.extra.coords[ENEMY_POS] = enemy->position;
         g_EclManager.extra.coords[PLAYER_POS] = g_Player.positionCenter;
-        g_EclManager.extra.starAngleTable[0] = g_Rng.GetRandomF32ZeroToOne() * (ZUN_PI * 2) - ZUN_PI;
+        g_EclManager.extra.starAngleTable[0] = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
         g_EclManager.extra.starAngleTable[1] =
-            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4.0f * ZUN_PI / 5.0f);
     }
     if (enemy->currentContext.var2 % 30 == 0)
     {
         g_EclManager.extra.starAngleTable[0] = g_EclManager.extra.starAngleTable[1];
         g_EclManager.extra.starAngleTable[1] =
-            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4 * ZUN_PI / 5);
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4.0f * ZUN_PI / 5.0f);
         g_EclManager.extra.starAngleTable[2] =
-            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[1], 4 * ZUN_PI / 5);
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[1], 4.0f * ZUN_PI / 5.0f);
         g_EclManager.extra.starAngleTable[3] =
-            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[2], 4 * ZUN_PI / 5);
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[2], 4.0f * ZUN_PI / 5.0f);
         g_EclManager.extra.starAngleTable[4] =
-            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[3], 4 * ZUN_PI / 5);
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[3], 4.0f * ZUN_PI / 5.0f);
         g_EclManager.extra.starAngleTable[5] =
-            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[4], 4 * ZUN_PI / 5);
+            utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[4], 4.0f * ZUN_PI / 5.0f);
     }
     if (enemy->currentContext.var2 % 6 == 0)
     {
@@ -149,7 +150,7 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         baseTargetPosition.z = 0.0f;
 
         patternPosition += 0.5f;
-        enemy->bulletProps.angle1 = (ZUN_PI / 3) * patternPosition;
+        enemy->bulletProps.angle1 = (ZUN_PI / 3.0f) * patternPosition;
 
         for (i = 0; i < 5; i++)
         {
@@ -157,16 +158,16 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
             sincosmul(&starPatternTarget0, g_EclManager.extra.starAngleTable[i], enemy->currentContext.float3);
             sincosmul(&starPatterTarget1, g_EclManager.extra.starAngleTable[i + 1], enemy->currentContext.float3);
             starPatternTarget0 = (starPatterTarget1 - starPatternTarget0) * targetDistance + starPatternTarget0;
-            starPatternTarget0.z = 0;
+            starPatternTarget0.z = 0.0f;
             enemy->bulletProps.position = baseTargetPosition + starPatternTarget0;
             propsSpeedBackup = enemy->bulletProps.speed1;
             enemy->bulletProps.speed1 =
                 g_Rng.GetRandomF32InRange(enemy->bulletProps.speed2) + enemy->bulletProps.speed1;
             g_BulletManager.SpawnBulletPattern(&enemy->bulletProps);
             enemy->bulletProps.speed1 = propsSpeedBackup;
-            enemy->bulletProps.angle1 -= (ZUN_PI / 6) * patternPosition;
+            enemy->bulletProps.angle1 -= (ZUN_PI / 6.0f) * patternPosition;
         }
-        g_SoundPlayer.PlaySoundByIdx(SOUND_16, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_16);
     }
     enemy->currentContext.var2++;
 #undef ENEMY_POS
@@ -220,12 +221,13 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
 
                     if (playerBulletOffset.VectorLength() > 128.0f)
                     {
-                        currentBullet->angle = g_Rng.GetRandomF32ZeroToOne() * ((ZUN_PI * 3) / 4) + (ZUN_PI / 4);
+                        currentBullet->angle =
+                            g_Rng.GetRandomF32ZeroToOne() * ((ZUN_PI * 3.0f) / 4.0f) + (ZUN_PI / 4.0f);
                     }
                     else
                     {
-                        currentBullet->angle = g_Player.AngleFromPlayer(&currentBullet->pos) + (ZUN_PI / 2) +
-                                               g_Rng.GetRandomF32InRange(ZUN_PI * 2);
+                        currentBullet->angle = g_Player.AngleFromPlayer(&currentBullet->pos) + ZUN_HALF_PI +
+                                               g_Rng.GetRandomF32InRange(ZUN_2PI);
                     }
 
                     sincosmul(&currentBullet->velocity, currentBullet->angle, currentBullet->speed);
@@ -261,12 +263,12 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
 
                     if (playerBulletOffset.VectorLength() > 128.0f)
                     {
-                        currentBullet->angle = g_Rng.GetRandomF32ZeroToOne() * (ZUN_PI * 2);
+                        currentBullet->angle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI;
                     }
                     else
                     {
-                        currentBullet->angle = g_Player.AngleFromPlayer(&currentBullet->pos) + (ZUN_PI / 2) +
-                                               g_Rng.GetRandomF32InRange(ZUN_PI * 2);
+                        currentBullet->angle = g_Player.AngleFromPlayer(&currentBullet->pos) + ZUN_HALF_PI +
+                                               g_Rng.GetRandomF32InRange(ZUN_2PI);
                     }
 
                     sincosmul(&currentBullet->velocity, currentBullet->angle, currentBullet->speed);
@@ -313,7 +315,7 @@ void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
             bulletProps.count1 = 3;
         }
         bulletProps.count2 = 1;
-        bulletProps.angle2 = ZUN_PI / 6;
+        bulletProps.angle2 = ZUN_PI / 6.0f;
         bulletProps.unk_4a = 0;
         bulletProps.flags = 0;
 
@@ -333,26 +335,26 @@ void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
         bpPositionOffset = matrixOut + matrixIn;
         matrixIn = -matrixIn;
 
-        matrixOutSeed = ZUN_PI / 4;
+        matrixOutSeed = ZUN_PI / 4.0f;
         cosOut = cosf(matrixOutSeed);
         sinOut = sinf(matrixOutSeed);
         matrixOut = matrixIn;
         matrixIn.x = matrixOut.x * cosOut + matrixOut.y * sinOut;
         matrixIn.y = -matrixOut.x * sinOut + matrixOut.y * cosOut;
-        matrixOutSeed = -ZUN_PI / 18;
+        matrixOutSeed = -ZUN_PI / 18.0f;
         cosOut = cosf(matrixOutSeed);
         sinOut = sinf(matrixOutSeed);
-        bulletProps.angle1 = 0.0;
-        bulletAngle = -ZUN_PI / 4;
+        bulletProps.angle1 = 0.0f;
+        bulletAngle = -ZUN_PI / 4.0f;
 
-        for (i = 0; i < 9; i++, bulletAngle += ZUN_PI / 18)
+        for (i = 0; i < 9; i++, bulletAngle += ZUN_PI / 18.0f)
         {
             matrixOut = matrixIn;
             matrixIn.x = matrixOut.x * cosOut + matrixOut.y * sinOut;
             matrixIn.y = -matrixOut.x * sinOut + matrixOut.y * cosOut;
 
             bulletProps.position = matrixIn + enemy->position + bpPositionOffset;
-            bulletProps.speed1 = 2.0;
+            bulletProps.speed1 = 2.0f;
             if ((patternPosition & 1) && g_GameManager.difficulty <= NORMAL)
             {
                 bulletProps.angle1 = bulletAngle;
@@ -360,7 +362,7 @@ void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
             bulletProps.spriteOffset = 3;
             g_BulletManager.SpawnBulletPattern(&bulletProps);
         }
-        g_SoundPlayer.PlaySoundByIdx(SOUND_7, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_7);
     }
     enemy->currentContext.var2++;
 }
@@ -406,7 +408,7 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
         effect = g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_19, &particlePos, 1, COLOR_DEEPBLUE);
         effect->unk_11c.x = (g_Rng.GetRandomF32ZeroToOne() * 40.0f - 20.0f) / 60.0f;
         effect->unk_11c.y = (8.0f * baseAngleModifier) / 60.0f - (4.0f / 15.0f);
-        effect->unk_11c.z = 0.0;
+        effect->unk_11c.z = 0.0f;
         effect->unk_128 = -effect->unk_11c / 120.0f;
 
         particlePos = enemy->position;
@@ -415,7 +417,7 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
         effect = g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_19, &particlePos, 1, COLOR_DEEPBLUE);
         effect->unk_11c.x = (g_Rng.GetRandomF32ZeroToOne() * 40.0f - 20.0f) / 60.0f;
         effect->unk_11c.y = (8.0f * baseAngleModifier) / 60.0f - (4.0f / 15.0f);
-        effect->unk_11c.z = 0.0;
+        effect->unk_11c.z = 0.0f;
         effect->unk_128 = -effect->unk_11c / 120.0f;
     }
 
@@ -439,19 +441,19 @@ void ExInsStage6Func7(Enemy *enemy, EclRawInstr *instr)
     D3DXVECTOR3 positionVectors[8];
 
     attackType = instr->args.exInstr.i32Param;
-    randomAngleModifier = g_Rng.GetRandomF32ZeroToOne() * (ZUN_PI * 2);
+    randomAngleModifier = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI;
 
     for (outerLoopCount = 0; outerLoopCount < 2; outerLoopCount++)
     {
         if (outerLoopCount == 0)
         {
             laserAngle = -ZUN_PI + randomAngleModifier;
-            angleDiff = ZUN_PI / 4;
+            angleDiff = ZUN_PI / 4.0f;
         }
         else
         {
-            laserAngle = (7 * -ZUN_PI / 8) + randomAngleModifier;
-            angleDiff = -ZUN_PI / 4;
+            laserAngle = (7.0f * -ZUN_PI / 8.0f) + randomAngleModifier;
+            angleDiff = -ZUN_PI / 4.0f;
         }
 
         lengthMultiplier = 32.0f;
@@ -460,7 +462,7 @@ void ExInsStage6Func7(Enemy *enemy, EclRawInstr *instr)
             positionVectors[i] = enemy->position;
             positionVectors[i].x += cosf(laserAngle) * lengthMultiplier;
             positionVectors[i].y += sinf(laserAngle) * lengthMultiplier;
-            laserAngle += ZUN_PI / 4;
+            laserAngle += ZUN_PI / 4.0f;
         }
 
         if (outerLoopCount == 0)
@@ -469,7 +471,7 @@ void ExInsStage6Func7(Enemy *enemy, EclRawInstr *instr)
         }
         else
         {
-            laserAngle = (7 * -ZUN_PI / 8) + randomAngleModifier;
+            laserAngle = (7.0f * -ZUN_PI / 8.0f) + randomAngleModifier;
         }
 
         for (innerLoopCount = 0; innerLoopCount < 3; innerLoopCount++)
@@ -533,9 +535,9 @@ void ExInsStage6Func7(Enemy *enemy, EclRawInstr *instr)
                 }
                 positionVectors[i].x += cosf(laserAngle) * lengthMultiplier;
                 positionVectors[i].y += sinf(laserAngle) * lengthMultiplier;
-                laserAngle += ZUN_PI / 4;
+                laserAngle += ZUN_PI / 4.0f;
             }
-            laserAngle += angleDiff - (ZUN_PI * 2);
+            laserAngle += angleDiff - ZUN_2PI;
         }
     }
 }
@@ -565,7 +567,7 @@ void ExInsStage6Func8(Enemy *enemy, EclRawInstr *instr)
             bulletProps.position = currentBullet->pos;
             bulletProps.sprite = 3;
             bulletProps.spriteOffset = 1;
-            bulletProps.angle1 = g_Rng.GetRandomF32InRange(ZUN_PI * 2) - ZUN_PI;
+            bulletProps.angle1 = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
             bulletProps.speed1 = 0.0f;
             bulletProps.count1 = 1;
             bulletProps.count2 = 1;
@@ -590,7 +592,7 @@ void ExInsStage6Func9(Enemy *enemy, EclRawInstr *instr)
     currentBullet = g_BulletManager.bullets;
     EnemyBulletShooter unusedBulletProps;
 
-    randomAngleModifier = g_Rng.GetRandomF32InRange(ZUN_PI * 2) - ZUN_PI;
+    randomAngleModifier = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &enemy->position, 1, COLOR_WHITE);
 
     for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
@@ -637,7 +639,7 @@ void ExInsStage6Func11(Enemy *enemy, EclRawInstr *instr)
     currentBullet = g_BulletManager.bullets;
     EnemyBulletShooter unusedBulletProps;
 
-    unusedRandomNumber = g_Rng.GetRandomF32InRange(ZUN_PI * 2) - ZUN_PI;
+    unusedRandomNumber = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &enemy->position, 1, COLOR_WHITE);
 
     for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
@@ -659,7 +661,7 @@ void ExInsStage6Func11(Enemy *enemy, EclRawInstr *instr)
             currentBullet->timer = 0;
             currentBullet->ex5Int0 = 120;
 
-            sincosmul(&currentBullet->ex4Acceleration, g_Rng.GetRandomF32InRange(ZUN_PI * 2) - ZUN_PI, 0.01f);
+            sincosmul(&currentBullet->ex4Acceleration, g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI, 0.01f);
         }
     }
 }
@@ -706,7 +708,7 @@ void ExInsStage4Func12(Enemy *enemy, EclRawInstr *instr)
     {
         if (enemy->lasers[i] != NULL && enemy->lasers[i]->inUse)
         {
-            enemy->bulletProps.position = D3DXVECTOR3(64.0, 0.0, 0.0);
+            enemy->bulletProps.position = D3DXVECTOR3(64.0f, 0.0f, 0.0f);
             utils::Rotate(&enemy->bulletProps.position, &enemy->bulletProps.position, enemy->lasers[i]->angle);
             enemy->bulletProps.position += enemy->position;
             g_BulletManager.SpawnBulletPattern(&enemy->bulletProps);
@@ -726,7 +728,7 @@ void ExInsStageXFunc13(Enemy *enemy, EclRawInstr *instr)
     basePatternAngle = enemy->currentContext.float2;
     if (enemy->currentContext.var3 % 6 == 0)
     {
-        for (i = 0; i < numPatterns; i++, basePatternAngle += (ZUN_PI * 2) / numPatterns)
+        for (i = 0; i < numPatterns; i++, basePatternAngle += ZUN_2PI / numPatterns)
         {
             sincosmul(&bulletProps.position, basePatternAngle, enemy->currentContext.float3);
             bulletProps.position.x += 192.0f;

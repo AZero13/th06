@@ -24,7 +24,7 @@ ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
     {
         AsciiManagerPopup *curPopup = &mgr->popups[0];
         i32 i = 0;
-        for (; i < ARRAY_SIZE_SIGNED(mgr->popups); i++, curPopup++)
+        for (; i < ASCII_TOTAL_POPUPS_COUNT; i++, curPopup++)
         {
             if (!curPopup->inUse)
             {
@@ -105,7 +105,8 @@ ZunResult AsciiManager::RegisterChain()
 
 ZunResult AsciiManager::AddedCallback(AsciiManager *s)
 {
-    int x, y, z;
+    // TODO: Are these inline padding vars?
+    i32 pad[3];
 
     if (g_AnmManager->LoadAnm(ANM_FILE_ASCII, "data/ascii.anm", ANM_OFFSET_ASCII) != ZUN_SUCCESS)
     {
@@ -129,10 +130,12 @@ void AsciiManager::InitializeVms()
     memset(this, 0, sizeof(AsciiManager));
 
     this->color = COLOR_WHITE;
-    this->scale.x = 1.0;
-    this->scale.y = 1.0;
+    this->scale.x = 1.0f;
+    this->scale.y = 1.0f;
 
     this->vm1.flags.anchor = AnmVmAnchor_TopLeft;
+
+    // NOTE: AnmManager::InitializeAndSetSprite does not match here?
     AnmVm *vm1 = &this->vm1;
     AnmManager *mgr1 = g_AnmManager;
     vm1->Initialize();
@@ -142,7 +145,7 @@ void AsciiManager::InitializeVms()
     this->vm0.Initialize();
     mgr0->SetActiveSprite(&this->vm0, 32);
 
-    this->vm1.pos.z = 0.1;
+    this->vm1.pos.z = 0.1f;
     this->isSelected = false;
 }
 
@@ -170,7 +173,7 @@ void AsciiManager::AddString(D3DXVECTOR3 *position, const char *text)
     }
 
     AsciiManagerString *curString = &this->strings[this->numStrings];
-    this->numStrings += 1;
+    this->numStrings++;
     // Hello unguarded strcpy my old friend. If text is bigger than 64
     // characters, kboom.
     strcpy(curString->text, text);
@@ -280,12 +283,12 @@ void AsciiManager::CreatePopup1(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
     AsciiManagerPopup *popup;
     i32 characterCount;
 
-    if (this->nextPopupIndex1 >= (ARRAY_SIZE_SIGNED(this->popups) - 3))
+    if (this->nextPopupIndex1 >= ASCII_SCORE_POPUPS_COUNT)
     {
         this->nextPopupIndex1 = 0;
     }
 
-    popup = &this->popups[this->nextPopupIndex1];
+    popup = &this->popups[ASCII_SCORE_POPUPS_START + this->nextPopupIndex1];
     popup->inUse = true;
     characterCount = 0;
 
@@ -321,12 +324,12 @@ void AsciiManager::CreatePopup2(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
     AsciiManagerPopup *popup;
     i32 characterCount;
 
-    if (this->nextPopupIndex2 >= 3)
+    if (this->nextPopupIndex2 >= ASCII_PLAYER_POPUPS_COUNT)
     {
         this->nextPopupIndex2 = 0;
     }
 
-    popup = &this->popups[0x200 + this->nextPopupIndex2];
+    popup = &this->popups[ASCII_PLAYER_POPUPS_START + this->nextPopupIndex2];
     popup->inUse = true;
     characterCount = 0;
 
@@ -441,7 +444,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_QUIT].scaleX = 1.5f;
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_UNPAUSE].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_QUIT].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        if (4 <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -468,7 +471,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_QUIT].scaleX = 1.7f;
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_UNPAUSE].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_QUIT].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
-        if (4 <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -491,7 +494,7 @@ i32 StageMenu::OnUpdateGameMenu()
         break;
     case GAME_MENU_PAUSE_SELECTED_UNPAUSE:
         /* Close menu, wait 20 frames for the animation? */
-        if (20 <= this->numFrames)
+        if (this->numFrames >= 20)
         {
             this->curState = GAME_MENU_PAUSE_OPENING;
             g_GameManager.isInGameMenu = 0;
@@ -510,7 +513,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_NO].scaleX = 1.5f;
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_YES].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_NO].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        if (4 <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -536,7 +539,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_NO].scaleX = 1.7f;
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_YES].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_NO].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
-        if (GAME_MENU_SPRITE_CURSOR_YES <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -558,7 +561,7 @@ i32 StageMenu::OnUpdateGameMenu()
         }
         break;
     case GAME_MENU_QUIT_SELECTED_YES:
-        if (20 <= this->numFrames)
+        if (this->numFrames >= 20)
         {
             this->curState = GAME_MENU_PAUSE_OPENING;
             g_GameManager.isInGameMenu = 0;
@@ -691,7 +694,7 @@ i32 StageMenu::OnUpdateRetryMenu()
         this->menuSprites[RETRY_MENU_SPRITE_NO].scaleX = 1.5f;
         this->menuSprites[RETRY_MENU_SPRITE_YES].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
         this->menuSprites[RETRY_MENU_SPRITE_NO].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        if (4 <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -793,7 +796,7 @@ i32 StageMenu::OnUpdateRetryMenu()
 
 void StageMenu::OnDrawRetryMenu()
 {
-    int idx;
+    i32 idx;
 
     if (g_GameManager.isInRetryMenu)
     {
@@ -841,7 +844,7 @@ void AsciiManager::DrawPopupsWithHwVertexProcessing()
     g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
 
-    for (i = 0; i < ARRAY_SIZE_SIGNED(this->popups); i++, currentPopup++)
+    for (i = 0; i < ASCII_TOTAL_POPUPS_COUNT; i++, currentPopup++)
     {
         if (!currentPopup->inUse)
         {
@@ -853,7 +856,7 @@ void AsciiManager::DrawPopupsWithHwVertexProcessing()
         this->vm1.color = currentPopup->color;
 
         currentDigit = (u8 *)currentPopup->digits + currentPopup->characterCount - 1;
-        for (j = currentPopup->characterCount; 0 < j; j--)
+        for (j = currentPopup->characterCount; j > 0; j--)
         {
             this->vm1.sprite = g_AnmManager->sprites + *currentDigit;
             if (*currentDigit >= '\n')
@@ -891,7 +894,7 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
     g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
 
-    for (i = 0; i < ARRAY_SIZE_SIGNED(this->popups); i++, currentPopup++)
+    for (i = 0; i < ASCII_TOTAL_POPUPS_COUNT; i++, currentPopup++)
     {
         if (!currentPopup->inUse)
         {
@@ -903,7 +906,7 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
         this->vm1.color = currentPopup->color;
 
         currentDigit = (u8 *)currentPopup->digits + currentPopup->characterCount - 1;
-        for (j = currentPopup->characterCount; 0 < j; j--)
+        for (j = currentPopup->characterCount; j > 0; j--)
         {
             this->vm1.sprite = g_AnmManager->sprites + *currentDigit;
             if (*currentDigit >= '\n')

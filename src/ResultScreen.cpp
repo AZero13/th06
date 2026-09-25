@@ -600,15 +600,15 @@ i32 ResultScreen::HandleResultKeyboard()
             sprite->pendingInterrupt = this->diffSelected + 3;
         }
 
-        g_AnmManager->DrawStringFormat2(this->unk_28a0, COLOR_RGB(COLOR_WHITE), COLOR_RGB(COLOR_BLACK),
-                                        g_CharacterList[this->charUsed * SHOTTYPES_PER_CHARACTER]);
+        g_AnmManager->DrawStringFormat2(&this->unk_28a0[SHOT_TYPE_A], COLOR_RGB(COLOR_WHITE), COLOR_RGB(COLOR_BLACK),
+                                        g_CharacterList[this->charUsed * SHOTTYPES_PER_CHARACTER + SHOT_TYPE_A]);
         if (g_GameManager.shotType != SHOT_TYPE_A)
         {
             this->unk_28a0[0].color = COLOR_TRANSPARENT_WHITE;
         }
 
-        g_AnmManager->DrawStringFormat2(&this->unk_28a0[1], COLOR_RGB(COLOR_WHITE), COLOR_RGB(COLOR_BLACK),
-                                        g_CharacterList[this->charUsed * SHOTTYPES_PER_CHARACTER + 1]);
+        g_AnmManager->DrawStringFormat2(&this->unk_28a0[SHOT_TYPE_B], COLOR_RGB(COLOR_WHITE), COLOR_RGB(COLOR_BLACK),
+                                        g_CharacterList[this->charUsed * SHOTTYPES_PER_CHARACTER + SHOT_TYPE_B]);
         if (g_GameManager.shotType != SHOT_TYPE_B)
         {
             this->unk_28a0[1].color = COLOR_TRANSPARENT_WHITE;
@@ -661,7 +661,7 @@ i32 ResultScreen::HandleResultKeyboard()
             }
             break;
         };
-        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
     }
     if (WAS_PRESSED_WEIRD(TH_BUTTON_DOWN))
     {
@@ -680,7 +680,7 @@ i32 ResultScreen::HandleResultKeyboard()
             }
             break;
         };
-        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
     }
     if (WAS_PRESSED_WEIRD(TH_BUTTON_LEFT))
     {
@@ -703,7 +703,7 @@ i32 ResultScreen::HandleResultKeyboard()
             }
             break;
         };
-        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
     }
     if (WAS_PRESSED_WEIRD(TH_BUTTON_RIGHT))
     {
@@ -722,7 +722,7 @@ i32 ResultScreen::HandleResultKeyboard()
             }
             break;
         };
-        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
     }
     if (WAS_PRESSED_WEIRD(TH_BUTTON_SELECTMENU))
     {
@@ -749,7 +749,7 @@ i32 ResultScreen::HandleResultKeyboard()
                 this->selectedCharacter = RESULT_KEYBOARD_END;
             }
         }
-        g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
     }
 
     if (WAS_PRESSED_WEIRD(TH_BUTTON_RETURNMENU))
@@ -761,12 +761,12 @@ i32 ResultScreen::HandleResultKeyboard()
             this->cursor--;
             this->hscr.name[replayNameIdx2] = ' ';
         }
-        g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
     }
     if (WAS_PRESSED(TH_BUTTON_MENU))
     {
     RETURN_TO_STATS_SCREEN:
-        g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
 
     RETURN_TO_STATS_SCREEN_WITHOUT_SOUND:
 
@@ -804,13 +804,13 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
         {
             if (g_GameManager.numRetries != 0)
             {
-                saveInterrupt = 0xc;
+                saveInterrupt = 12;
             }
             else
             {
                 if (g_Supervisor.framerateMultiplier < 0.99f)
                 {
-                    saveInterrupt = 0xd;
+                    saveInterrupt = 13;
                 }
                 else
                 {
@@ -855,13 +855,13 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
             {
             GO_TO_CHOOSE_REPLAY_FILE:
 
-                g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT, 0);
+                g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
                 this->resultScreenState = RESULT_SCREEN_STATE_CHOOSING_REPLAY_FILE;
 
                 sprite = &this->unk_40[0];
                 for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
                 {
-                    sprite->pendingInterrupt = 0xa;
+                    sprite->pendingInterrupt = 10;
                 }
 
                 this->frameTimer = 0;
@@ -871,7 +871,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
         EXIT_WITH_SOUND:
 
             this->frameTimer = 0;
-            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
             this->resultScreenState = RESULT_SCREEN_STATE_EXITING;
             sprite = &this->unk_40[0];
             for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
@@ -891,7 +891,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
         {
 
             this->frameTimer = 0;
-            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
             this->resultScreenState = RESULT_SCREEN_STATE_EXITING;
             sprite = &this->unk_40[0];
             for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
@@ -934,7 +934,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
         this->replayNumber = this->cursor;
         if (WAS_PRESSED(TH_BUTTON_SELECTMENU))
         {
-            g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
             this->replayNumber = this->cursor;
             this->frameTimer = 0;
             _strdate(this->defaultReplay.date);
@@ -945,10 +945,10 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 sprite = &this->unk_40[0];
                 for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
                 {
-                    sprite->pendingInterrupt = 0xf;
+                    sprite->pendingInterrupt = 15;
                 }
-                sprite = &this->unk_40[this->replayNumber + 0x16];
-                sprite->pendingInterrupt = 0xe;
+                sprite = &this->unk_40[this->replayNumber + 22];
+                sprite->pendingInterrupt = 14;
                 this->resultScreenState = RESULT_SCREEN_STATE_WRITING_REPLAY_NAME;
             }
             else
@@ -956,10 +956,10 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 sprite = &this->unk_40[0];
                 for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
                 {
-                    sprite->pendingInterrupt = 0xb;
+                    sprite->pendingInterrupt = 11;
                 }
-                sprite = &this->unk_40[this->replayNumber + 0x16];
-                sprite->pendingInterrupt = 0xe;
+                sprite = &this->unk_40[this->replayNumber + 22];
+                sprite->pendingInterrupt = 14;
                 this->resultScreenState = RESULT_SCREEN_STATE_OVERWRITE_REPLAY_FILE;
             }
             this->cursor = 0;
@@ -967,7 +967,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
         }
         if (WAS_PRESSED(10))
         {
-            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
             this->resultScreenState = RESULT_SCREEN_STATE_SAVE_REPLAY_QUESTION;
             sprite = &this->unk_40[0];
             for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
@@ -999,7 +999,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 }
                 break;
             };
-            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
         }
         if (WAS_PRESSED_WEIRD(TH_BUTTON_DOWN))
         {
@@ -1018,7 +1018,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 }
                 break;
             };
-            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
         }
         if (WAS_PRESSED_WEIRD(TH_BUTTON_LEFT))
         {
@@ -1041,7 +1041,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 }
                 break;
             };
-            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
         }
         if (WAS_PRESSED_WEIRD(TH_BUTTON_RIGHT))
         {
@@ -1059,7 +1059,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 }
                 break;
             };
-            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
         }
         if (WAS_PRESSED_WEIRD(TH_BUTTON_SELECTMENU))
         {
@@ -1094,7 +1094,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                     this->selectedCharacter = RESULT_KEYBOARD_END;
                 }
             }
-            g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
         }
 
         if (WAS_PRESSED_WEIRD(TH_BUTTON_RETURNMENU))
@@ -1106,7 +1106,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                 this->cursor--;
                 this->replayName[replayNameCharacter2] = ' ';
             }
-            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
         }
         if (WAS_PRESSED(TH_BUTTON_MENU))
         {
@@ -1169,7 +1169,7 @@ void ResultScreen::MoveCursor(ResultScreen *resultScreen, i32 length)
         {
             resultScreen->cursor += length;
         }
-        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
     }
     if (WAS_PRESSED_WEIRD(TH_BUTTON_DOWN))
     {
@@ -1178,7 +1178,7 @@ void ResultScreen::MoveCursor(ResultScreen *resultScreen, i32 length)
         {
             resultScreen->cursor -= length;
         }
-        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
     }
 }
 
@@ -1191,7 +1191,7 @@ ZunBool ResultScreen::MoveCursorHorizontally(ResultScreen *resultScreen, i32 len
         {
             resultScreen->cursor += length;
         }
-        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
         return true;
     }
     else if (WAS_PRESSED_WEIRD(TH_BUTTON_RIGHT))
@@ -1201,7 +1201,7 @@ ZunBool ResultScreen::MoveCursorHorizontally(ResultScreen *resultScreen, i32 len
         {
             resultScreen->cursor -= length;
         }
-        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU, 0);
+        g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
         return true;
     }
     else
@@ -1332,7 +1332,7 @@ u32 ResultScreen::DrawFinalStats()
             slowdownRate = 1.0f;
         }
 
-        slowdownRate = (1 - slowdownRate) * 100.0f;
+        slowdownRate = (1.0f - slowdownRate) * 100.0f;
 
         strPos.y += 22.0f;
         g_AsciiManager.AddFormatText(&strPos, "    %3.2f%%", slowdownRate);
@@ -1382,7 +1382,7 @@ ZunResult ResultScreen_RegisterChain(i32 unk)
     resultScreen->calcChain->deletedCallback = (ChainDeletedCallback)ResultScreen::DeletedCallback;
     resultScreen->calcChain->arg = resultScreen;
 
-    if (unk != 0)
+    if (unk)
     {
         if (!g_GameManager.isInPracticeMode)
         {
@@ -1429,7 +1429,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
             for (i = 0; i < ARRAY_SIZE_SIGNED(resultScreen->unk_40); i++, vm++)
             {
                 vm->pendingInterrupt = 1;
-                vm->flags.colorOp = 1;
+                vm->flags.colorOp = AnmColorOp_Add;
                 if (!g_Supervisor.IsHardwareBlendingDisabled())
                 {
                     vm->color &= COLOR_BLACK;
@@ -1556,13 +1556,13 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
                     vm->pendingInterrupt = 2;
                 }
                 resultScreen->resultScreenState = RESULT_SCREEN_STATE_EXITING;
-                g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+                g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
             }
         }
         if (WAS_PRESSED(TH_BUTTON_RETURNMENU))
         {
             resultScreen->cursor = RESULT_SCREEN_CURSOR_EXIT;
-            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
         }
         break;
 
@@ -1628,7 +1628,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
                     }
                 }
                 resultScreen->cheatCodeStep = 0;
-                g_SoundPlayer.PlaySoundByIdx(SOUND_1UP, 0);
+                g_SoundPlayer.PlaySoundByIdx(SOUND_1UP);
             }
         }
         else
@@ -1663,7 +1663,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
         }
         if (WAS_PRESSED(TH_BUTTON_RETURNMENU))
         {
-            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
             resultScreen->resultScreenState = RESULT_SCREEN_STATE_INIT;
             resultScreen->frameTimer = 1;
             vm = &resultScreen->unk_40[0];
@@ -1716,7 +1716,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
         }
         if (WAS_PRESSED(TH_BUTTON_RETURNMENU))
         {
-            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK, 0);
+            g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
             resultScreen->resultScreenState = RESULT_SCREEN_STATE_INIT;
             resultScreen->frameTimer = 1;
             vm = &resultScreen->unk_40[0];
@@ -1975,11 +1975,11 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                     g_AsciiManager.color = COLOR_KEYBOARD_KEY_HIGHLIGHT;
                     if (resultScreen->frameTimer % 64 < 32)
                     {
-                        charPos.y = 1.2f + 0.8f * (resultScreen->frameTimer % 0x20) / 32.0f;
+                        charPos.y = 1.2f + 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
                     }
                     else
                     {
-                        charPos.y = 2.0f - 0.8f * (resultScreen->frameTimer % 0x20) / 32.0f;
+                        charPos.y = 2.0f - 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
                     }
                     g_AsciiManager.scale.x = charPos.y;
                     g_AsciiManager.scale.y = charPos.y;
@@ -2018,8 +2018,8 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
             spritePos[1] += 18.0f;
         }
     }
-    g_AsciiManager.scale.x = 1.0;
-    g_AsciiManager.scale.y = 1.0;
+    g_AsciiManager.scale.x = 1.0f;
+    g_AsciiManager.scale.y = 1.0f;
     if ((resultScreen->resultScreenState >= RESULT_SCREEN_STATE_SAVE_REPLAY_QUESTION) &&
         (resultScreen->resultScreenState <= RESULT_SCREEN_STATE_OVERWRITE_REPLAY_FILE))
     {

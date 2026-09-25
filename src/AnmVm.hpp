@@ -85,16 +85,34 @@ enum AnmVmFlagsEnum
     AnmVmFlags_IsStopped = 1 << 13,
 };
 
-enum AnmVmBlendMode
+enum AnmBlendMode
 {
-    AnmVmBlendMode_InvSrcAlpha,
-    AnmVmBlendMode_One,
+    AnmBlendMode_NotSet = -1,
+    AnmBlendMode_Normal,
+    AnmBlendMode_Additive,
 };
 
-enum AnmVmColorOp
+enum AnmColorOp
 {
-    AnmVmColorOp_Modulate,
-    AnmVmColorOp_Add,
+    AnmColorOp_NotSet = -1,
+    AnmColorOp_Modulate,
+    AnmColorOp_Add,
+};
+
+enum AnmZWriteState
+{
+    AnmZWriteState_NotSet = -1,
+    AnmZWriteState_On = false,
+    AnmZWriteState_Off = true,
+};
+
+enum AnmVertexShader
+{
+    AnmVertexShader_NotSet = -1,
+    AnmVertexShader_0,
+    AnmVertexShader_1,
+    AnmVertexShader_2,
+    AnmVertexShader_3,
 };
 
 enum AnmVmAnchor
@@ -103,6 +121,13 @@ enum AnmVmAnchor
     AnmVmAnchor_Left,
     AnmVmAnchor_Top,
     AnmVmAnchor_TopLeft,
+};
+
+enum AnmVmMirror
+{
+    AnmVmMirror_None,
+    AnmVmMirror_X,
+    AnmVmMirror_Y
 };
 
 union AnmVmFlags {
@@ -148,18 +173,18 @@ struct AnmVm : AnmVmBase
 {
     void Initialize()
     {
-        this->uvScrollPos.y = 0.0;
-        this->uvScrollPos.x = 0.0;
-        this->scaleInterpFinalX = 0.0;
-        this->scaleInterpFinalY = 0.0;
-        this->angleVel.z = 0.0;
-        this->angleVel.y = 0.0;
-        this->angleVel.x = 0.0;
-        this->rotation.z = 0.0;
-        this->rotation.y = 0.0;
-        this->rotation.x = 0.0;
-        this->scaleX = 1.0;
-        this->scaleY = 1.0;
+        this->uvScrollPos.y = 0.0f;
+        this->uvScrollPos.x = 0.0f;
+        this->scaleInterpFinalX = 0.0f;
+        this->scaleInterpFinalY = 0.0f;
+        this->angleVel.z = 0.0f;
+        this->angleVel.y = 0.0f;
+        this->angleVel.x = 0.0f;
+        this->rotation.z = 0.0f;
+        this->rotation.y = 0.0f;
+        this->rotation.x = 0.0f;
+        this->scaleX = 1.0f;
+        this->scaleY = 1.0f;
         this->scaleInterpEndTime = 0;
         this->alphaInterpEndTime = 0;
         this->color = D3DCOLOR_RGBA(0xff, 0xff, 0xff, 0xff);
@@ -178,7 +203,7 @@ struct AnmVm : AnmVmBase
 
     void SetInvisible()
     {
-        this->flags.isVisible = 0;
+        this->flags.isVisible = false;
     }
 
     D3DXVECTOR3 pos;

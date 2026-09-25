@@ -72,7 +72,7 @@ struct SoundPlayer
 
     ZunResult LoadSound(i32 idx, const char *path);
     void PlaySounds();
-    void PlaySoundByIdx(SoundIdx idx, i32 unused);
+    void PlaySoundByIdx(SoundIdx idx, i32 unused = 0);
     ZunResult PlayBGM(BOOL isLooping);
     void StopBGM();
     void FadeOut(f32 seconds)
@@ -82,7 +82,7 @@ struct SoundPlayer
         if (this->backgroundMusic != NULL)
         {
             bgm = this->backgroundMusic;
-            bgm->m_dwIsFadingOut = 1;
+            bgm->m_dwIsFadingOut = TRUE;
             bgm->m_dwCurFadeoutProgress = seconds * 60;
             bgm->m_dwTotalFadeout = bgm->m_dwCurFadeoutProgress;
         }

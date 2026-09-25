@@ -29,11 +29,11 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(BombData, 4, g_BombData) = {
     /* MarisaB */ {BombData::BombMarisaBCalc, BombData::BombMarisaBDraw},
 };
 DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 5, g_CharData) = {
-    /* ReimuA  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuA, Player::FireBulletReimuA},
-    /* ReimuB  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuB, Player::FireBulletReimuB},
-    /* MarisaA */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletMarisaA, Player::FireBulletMarisaA},
-    /* MarisaB */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletMarisaB, Player::FireBulletMarisaB},
-    /* Rin???  */ {4.0, 2.0, 4.0, 2.0, NULL, NULL}};
+    /* ReimuA  */ {4.0f, 2.0f, 4.0f, 2.0f, Player::FireBulletReimuA, Player::FireBulletReimuA},
+    /* ReimuB  */ {4.0f, 2.0f, 4.0f, 2.0f, Player::FireBulletReimuB, Player::FireBulletReimuB},
+    /* MarisaA */ {5.0f, 2.5f, 5.0f, 2.5f, Player::FireBulletMarisaA, Player::FireBulletMarisaA},
+    /* MarisaB */ {5.0f, 2.5f, 5.0f, 2.5f, Player::FireBulletMarisaB, Player::FireBulletMarisaB},
+    /* Rin???  */ {4.0f, 2.0f, 4.0f, 2.0f, NULL, NULL}};
 DIFFABLE_STATIC(Player, g_Player);
 
 #pragma var_order(bulletData, bulletFrame, unused3, unused, unused2)
@@ -101,7 +101,7 @@ static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i
         bullet->damage = bulletData->damage;
         if (bulletData->bulletSoundIdx >= 0)
         {
-            g_SoundPlayer.PlaySoundByIdx((SoundIdx)bulletData->bulletSoundIdx, 0);
+            g_SoundPlayer.PlaySoundByIdx((SoundIdx)bulletData->bulletSoundIdx);
         }
 
         return bulletIdx >= powerData->numBullets - 1;
@@ -221,9 +221,9 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
         {
             if (bullet->bulletState == PLAYER_BULLET_STATE_FIRED)
             {
-                g_AnmManager->SetAndExecuteScriptIdx(&bullet->sprite, bullet->sprite.anmFileIndex + 0x20);
+                g_AnmManager->SetAndExecuteScriptIdx(&bullet->sprite, bullet->sprite.anmFileIndex + 32);
                 g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_5, &bullet->position, 1, COLOR_WHITE);
-                bullet->position.z = 0.1;
+                bullet->position.z = 0.1f;
             }
             bullet->bulletState = PLAYER_BULLET_STATE_COLLIDED;
             bullet->velocity.x /= 8.0f;
@@ -403,7 +403,7 @@ i32 Player::CalcLaserHitbox(D3DXVECTOR3 *laserCenter, D3DXVECTOR3 *laserSize, D3
 
     laserTopLeft = this->positionCenter - *rotation;
     utils::Rotate(&laserBottomRight, &laserTopLeft, angle);
-    laserBottomRight.z = 0;
+    laserBottomRight.z = 0.0f;
     laserTopLeft = laserBottomRight + *rotation;
     playerRelativeTopLeft = laserTopLeft - this->hitboxSize;
     playerRelativeBottomRight = laserTopLeft + this->hitboxSize;
@@ -470,7 +470,7 @@ void Player::ScoreGraze(D3DXVECTOR3 *center)
     g_GameManager.AddScore(500);
     g_GameManager.IncreaseSubrank(6);
     g_Gui.flags.flag3 = 2;
-    g_SoundPlayer.PlaySoundByIdx(SOUND_GRAZE, 0);
+    g_SoundPlayer.PlaySoundByIdx(SOUND_GRAZE);
 }
 
 void Player::Die()
@@ -482,7 +482,7 @@ void Player::Die()
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_6, &this->positionCenter, 16, COLOR_WHITE);
     this->playerState = PLAYER_STATE_DEAD;
     this->invulnerabilityTimer = 0;
-    g_SoundPlayer.PlaySoundByIdx(SOUND_PICHUN, 0);
+    g_SoundPlayer.PlaySoundByIdx(SOUND_PICHUN);
     g_GameManager.deaths++;
     for (curLaserTimerIdx = 0; curLaserTimerIdx < ARRAY_SIZE_SIGNED(this->laserTimer); curLaserTimerIdx++)
     {
@@ -507,8 +507,8 @@ ZunResult Player::HandlePlayerInputs()
     float horizontalOrbOffset;
     float verticalOrbOffset;
 
-    float horizontalSpeed = 0.0;
-    float verticalSpeed = 0.0;
+    float horizontalSpeed = 0.0f;
+    float verticalSpeed = 0.0f;
     PlayerDirection playerDirection = this->playerDirection;
 
     this->playerDirection = MOVEMENT_NONE;
@@ -704,7 +704,7 @@ ZunResult Player::HandlePlayerInputs()
     this->orbsPosition[0] = this->positionCenter;
     this->orbsPosition[1] = this->positionCenter;
 
-    verticalOrbOffset = 0.0;
+    verticalOrbOffset = 0.0f;
     horizontalOrbOffset = verticalOrbOffset;
 
     if (g_GameManager.currentPower < 8)
@@ -723,7 +723,7 @@ ZunResult Player::HandlePlayerInputs()
         break;
 
     case ORB_UNFOCUSED:
-        horizontalOrbOffset = 24.0;
+        horizontalOrbOffset = 24.0f;
         this->focusMovementTimer = 0;
         if (this->isFocus)
         {
@@ -761,8 +761,8 @@ ZunResult Player::HandlePlayerInputs()
         }
 
     case ORB_FOCUSED:
-        horizontalOrbOffset = 8.0;
-        verticalOrbOffset = -32.0;
+        horizontalOrbOffset = 8.0f;
+        verticalOrbOffset = -32.0f;
         this->focusMovementTimer = 0;
         if (!this->isFocus)
         {
@@ -816,7 +816,7 @@ f32 Player::AngleFromPlayer(D3DXVECTOR3 *pos)
     relY = pos->y - this->positionCenter.y;
     if (relY == 0.0f && relX == 0.0f)
     {
-        return ZUN_PI / 2;
+        return RADIANS(90.0f);
     }
     return atan2f(relY, relX);
 }
@@ -956,9 +956,9 @@ static void UpdatePlayerBullets(Player *player)
             bullet->position.y /= 2.0f;
             bullet->position.z = 0.44f;
 
-            bullet->sprite.scaleY = (bullet->position.y * 2) / 14.0f;
+            bullet->sprite.scaleY = (bullet->position.y * 2.0f) / 14.0f;
 
-            bullet->size.y = bullet->position.y * 2;
+            bullet->size.y = bullet->position.y * 2.0f;
             break;
         }
 
@@ -1065,17 +1065,17 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     }
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(p->bombRegionSizes); idx++)
     {
-        p->bombRegionSizes[idx].x = 0.0;
+        p->bombRegionSizes[idx].x = 0.0f;
     }
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(p->bombProjectiles); idx++)
     {
-        p->bombProjectiles[idx].sizeX = 0.0;
+        p->bombProjectiles[idx].sizeX = 0.0f;
     }
     if (p->bombInfo.isInUse)
     {
         p->bombInfo.calc(p);
     }
-    else if (!g_Gui.HasCurrentMsgIdx() && p->respawnTimer != 0 && 0 < g_GameManager.bombsRemaining &&
+    else if (!g_Gui.HasCurrentMsgIdx() && p->respawnTimer != 0 && g_GameManager.bombsRemaining > 0 &&
              WAS_PRESSED(TH_BUTTON_BOMB) && p->bombInfo.calc != NULL)
     {
         g_GameManager.bombsUsed++;
@@ -1136,7 +1136,7 @@ ChainCallbackResult Player::OnUpdate(Player *p)
             p->playerSprite.scaleX = 1.0f - 1.0f * scaleFactor1;
             p->playerSprite.color =
                 COLOR_SET_ALPHA(COLOR_WHITE, (u32)(255.0f - p->invulnerabilityTimer.AsFramesFloat() * 255.0f / 30.0f));
-            p->playerSprite.flags.blendMode = AnmVmBlendMode_One;
+            p->playerSprite.flags.blendMode = AnmBlendMode_Additive;
             p->previousHorizontalSpeed = 0.0f;
             p->previousVerticalSpeed = 0.0f;
             if ((i32)p->invulnerabilityTimer >= 30)
@@ -1144,10 +1144,10 @@ ChainCallbackResult Player::OnUpdate(Player *p)
                 p->playerState = PLAYER_STATE_SPAWNING;
                 p->positionCenter.x = g_GameManager.arcadeRegionSize.x / 2.0f;
                 p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
-                p->positionCenter.z = 0.2;
+                p->positionCenter.z = 0.2f;
                 p->invulnerabilityTimer = 0;
-                p->playerSprite.scaleX = 3.0;
-                p->playerSprite.scaleY = 3.0;
+                p->playerSprite.scaleX = 3.0f;
+                p->playerSprite.scaleY = 3.0f;
                 g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_PLAYER_IDLE);
                 if (g_GameManager.livesRemaining <= 0)
                 {
@@ -1178,18 +1178,18 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         scaleFactor2 = 1.0f - p->invulnerabilityTimer.AsFramesFloat() / 30.0f;
         p->playerSprite.scaleY = 2.0f * scaleFactor2 + 1.0f;
         p->playerSprite.scaleX = 1.0f - 1.0f * scaleFactor2;
-        p->playerSprite.flags.blendMode = AnmVmBlendMode_One;
-        p->verticalMovementSpeedMultiplierDuringBomb = 1.0;
-        p->horizontalMovementSpeedMultiplierDuringBomb = 1.0;
+        p->playerSprite.flags.blendMode = AnmBlendMode_Additive;
+        p->verticalMovementSpeedMultiplierDuringBomb = 1.0f;
+        p->horizontalMovementSpeedMultiplierDuringBomb = 1.0f;
         p->playerSprite.color = COLOR_SET_ALPHA(COLOR_WHITE, p->invulnerabilityTimer * 255 / 30);
         p->respawnTimer = 0;
-        if (30 <= p->invulnerabilityTimer)
+        if ((i32)p->invulnerabilityTimer >= 30)
         {
             p->playerState = PLAYER_STATE_INVULNERABLE;
-            p->playerSprite.scaleX = 1.0;
-            p->playerSprite.scaleY = 1.0;
+            p->playerSprite.scaleX = 1.0f;
+            p->playerSprite.scaleY = 1.0f;
             p->playerSprite.color = COLOR_WHITE;
-            p->playerSprite.flags.blendMode = AnmVmBlendMode_InvSrcAlpha;
+            p->playerSprite.flags.blendMode = AnmBlendMode_Normal;
             p->invulnerabilityTimer = 240;
             p->respawnTimer = 6;
         }
@@ -1206,17 +1206,17 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         {
             p->playerState = PLAYER_STATE_ALIVE;
             p->invulnerabilityTimer = 0;
-            p->playerSprite.flags.colorOp = AnmVmColorOp_Modulate;
+            p->playerSprite.flags.colorOp = AnmColorOp_Modulate;
             p->playerSprite.color = COLOR_WHITE;
         }
         else if (p->invulnerabilityTimer % 8 < 2)
         {
-            p->playerSprite.flags.colorOp = AnmVmColorOp_Add;
+            p->playerSprite.flags.colorOp = AnmColorOp_Add;
             p->playerSprite.color = 0xff404040;
         }
         else
         {
-            p->playerSprite.flags.colorOp = AnmVmColorOp_Modulate;
+            p->playerSprite.flags.colorOp = AnmColorOp_Modulate;
             p->playerSprite.color = COLOR_WHITE;
         }
     }
@@ -1235,7 +1235,7 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         g_AnmManager->ExecuteScript(&p->orbsSprite[0]);
         g_AnmManager->ExecuteScript(&p->orbsSprite[1]);
     }
-    p->positionOfLastEnemyHit = D3DXVECTOR3(-999.0, -999.0, 0.0);
+    p->positionOfLastEnemyHit = D3DXVECTOR3(-999.0f, -999.0f, 0.0f);
     UpdateFireBulletsTimer(p);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
@@ -1255,7 +1255,7 @@ static void DrawBullets(Player *p)
         }
         if (bullets->sprite.autoRotate)
         {
-            bullets->sprite.rotation.z = ZUN_PI / 2 - utils::AddNormalizeAngle(bullets->unk_134.z, ZUN_PI);
+            bullets->sprite.rotation.z = RADIANS(90.0f) - utils::AddNormalizeAngle(bullets->unk_134.z, RADIANS(180.0f));
         }
         g_AnmManager->Draw2(&bullets->sprite);
     }
@@ -1270,7 +1270,7 @@ ChainCallbackResult Player::OnDrawHighPrio(Player *p)
     }
     p->playerSprite.pos.x = g_GameManager.arcadeRegionTopLeftPos.x + p->positionCenter.x;
     p->playerSprite.pos.y = g_GameManager.arcadeRegionTopLeftPos.y + p->positionCenter.y;
-    p->playerSprite.pos.z = 0.49;
+    p->playerSprite.pos.z = 0.49f;
     if (!g_GameManager.isInRetryMenu)
     {
         g_AnmManager->DrawNoRotation(&p->playerSprite);
@@ -1283,8 +1283,8 @@ ChainCallbackResult Player::OnDrawHighPrio(Player *p)
             p->orbsSprite[0].pos[1] += g_GameManager.arcadeRegionTopLeftPos.y;
             p->orbsSprite[1].pos[0] += g_GameManager.arcadeRegionTopLeftPos.x;
             p->orbsSprite[1].pos[1] += g_GameManager.arcadeRegionTopLeftPos.y;
-            p->orbsSprite[0].pos.z = 0.491;
-            p->orbsSprite[1].pos.z = 0.491;
+            p->orbsSprite[0].pos.z = 0.491f;
+            p->orbsSprite[1].pos.z = 0.491f;
             g_AnmManager->Draw(&p->orbsSprite[0]);
             g_AnmManager->Draw(&p->orbsSprite[1]);
         }
@@ -1307,7 +1307,7 @@ static void DrawBulletExplosions(Player *p)
         }
         if (bullets->sprite.autoRotate)
         {
-            bullets->sprite.rotation.z = ZUN_PI / 2 - utils::AddNormalizeAngle(bullets->unk_134.z, ZUN_PI);
+            bullets->sprite.rotation.z = RADIANS(90.0f) - utils::AddNormalizeAngle(bullets->unk_134.z, RADIANS(180.0f));
         }
         bullets->sprite.pos.z = 0.4f;
         g_AnmManager->Draw2(&bullets->sprite);
@@ -1347,23 +1347,23 @@ ZunResult Player::AddedCallback(Player *p)
     }
     p->positionCenter.x = g_GameManager.arcadeRegionSize.x / 2.0f;
     p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
-    p->positionCenter.z = 0.49;
-    p->orbsPosition[0].z = 0.49;
-    p->orbsPosition[1].z = 0.49;
+    p->positionCenter.z = 0.49f;
+    p->orbsPosition[0].z = 0.49f;
+    p->orbsPosition[1].z = 0.49f;
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(p->bombRegionSizes); idx++)
     {
-        p->bombRegionSizes[idx].x = 0.0;
+        p->bombRegionSizes[idx].x = 0.0f;
     }
-    p->hitboxSize.x = 1.25;
-    p->hitboxSize.y = 1.25;
-    p->hitboxSize.z = 5.0;
-    p->grabItemSize.x = 12.0;
-    p->grabItemSize.y = 12.0;
-    p->grabItemSize.z = 5.0;
+    p->hitboxSize.x = 1.25f;
+    p->hitboxSize.y = 1.25f;
+    p->hitboxSize.z = 5.0f;
+    p->grabItemSize.x = 12.0f;
+    p->grabItemSize.y = 12.0f;
+    p->grabItemSize.z = 5.0f;
     p->playerDirection = MOVEMENT_NONE;
     p->characterData = g_CharData[g_GameManager.CharacterShotType()];
-    p->characterData.diagonalMovementSpeed = p->characterData.orthogonalMovementSpeed / sqrtf(2.0);
-    p->characterData.diagonalMovementSpeedFocus = p->characterData.orthogonalMovementSpeedFocus / sqrtf(2.0);
+    p->characterData.diagonalMovementSpeed = p->characterData.orthogonalMovementSpeed / sqrtf(2.0f);
+    p->characterData.diagonalMovementSpeedFocus = p->characterData.orthogonalMovementSpeedFocus / sqrtf(2.0f);
     p->fireBulletCallback = p->characterData.fireBulletCallback;
     p->fireBulletFocusCallback = p->characterData.fireBulletFocusCallback;
     p->playerState = PLAYER_STATE_SPAWNING;
@@ -1383,8 +1383,8 @@ ZunResult Player::AddedCallback(Player *p)
     {
         p->laserTimer[idx] = 0;
     }
-    p->verticalMovementSpeedMultiplierDuringBomb = 1.0;
-    p->horizontalMovementSpeedMultiplierDuringBomb = 1.0;
+    p->verticalMovementSpeedMultiplierDuringBomb = 1.0f;
+    p->horizontalMovementSpeedMultiplierDuringBomb = 1.0f;
     p->respawnTimer = 8;
     return ZUN_SUCCESS;
 }

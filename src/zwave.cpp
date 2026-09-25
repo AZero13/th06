@@ -413,7 +413,7 @@ HRESULT CSound::Play(DWORD dwPriority, DWORD dwFlags)
         Reset();
     }
 
-    this->m_dwIsFadingOut = 0;
+    this->m_dwIsFadingOut = FALSE;
     this->m_dwCurFadeoutProgress = 0;
     this->m_dwTotalFadeout = 0;
 
@@ -441,7 +441,7 @@ HRESULT CSound::Stop()
 
     utils::DebugPrint2("\n");
 
-    this->m_dwIsFadingOut = 0;
+    this->m_dwIsFadingOut = FALSE;
 
     return hr;
 }
@@ -497,12 +497,12 @@ CStreamingSound::~CStreamingSound()
 //-----------------------------------------------------------------------------
 HRESULT CStreamingSound::UpdateFadeOut()
 {
-    if (this->m_dwIsFadingOut != 0)
+    if (this->m_dwIsFadingOut)
     {
-        this->m_dwCurFadeoutProgress = this->m_dwCurFadeoutProgress - 1;
+        this->m_dwCurFadeoutProgress--;
         if (this->m_dwCurFadeoutProgress <= 0)
         {
-            this->m_dwIsFadingOut = 0;
+            this->m_dwIsFadingOut = FALSE;
             this->m_apDSBuffer[0]->Stop();
             return 1;
         }
@@ -965,7 +965,7 @@ HRESULT CWaveFile::ResetFile(bool loop)
                 if (mmioSetInfo(this->m_hmmio, &mmioinfoIn, 0) != 0)
                 {
                     utils::DebugPrint2("error : mmioSetInfo in CWaveFile::ResetFile\n");
-                    return 0x80004005;
+                    return E_FAIL;
                 }
             }
         }

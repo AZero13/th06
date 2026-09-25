@@ -177,7 +177,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
             skyFogInterpRatio = stage->skyFogInterpTimer.AsFramesFloat() / stage->skyFogInterpDuration;
             if (skyFogInterpRatio >= 1.0f)
             {
-                skyFogInterpRatio = 1.0;
+                skyFogInterpRatio = 1.0f;
             }
             for (idx = 0; idx < 4; idx++)
             {
@@ -210,9 +210,9 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
         {
             if (stage->ticksSinceSpellcardStarted == 60)
             {
-                stage->spellcardState = static_cast<SpellcardState>(stage->spellcardState + 1);
+                stage->spellcardState = (SpellcardState)(stage->spellcardState + 1);
             }
-            stage->ticksSinceSpellcardStarted = stage->ticksSinceSpellcardStarted + 1;
+            stage->ticksSinceSpellcardStarted++;
             g_AnmManager->ExecuteScript(&stage->spellcardBackground);
         }
         return CHAIN_CALLBACK_RESULT_CONTINUE;
@@ -223,7 +223,7 @@ ChainCallbackResult Stage::OnDrawHighPrio(Stage *stage)
 {
     if (stage->skyFogNeedsSetup)
     {
-        stage->skyFogNeedsSetup = 0;
+        stage->skyFogNeedsSetup = false;
         g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
     }
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&stage->skyFog.nearPlane);
@@ -256,8 +256,8 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
             {
                 gameRegion.left = GAME_REGION_LEFT;
                 gameRegion.top = GAME_REGION_TOP;
-                gameRegion.right = GAME_REGION_LEFT + GAME_REGION_WIDTH;
-                gameRegion.bottom = GAME_REGION_TOP + GAME_REGION_HEIGHT;
+                gameRegion.right = GAME_REGION_RIGHT;
+                gameRegion.bottom = GAME_REGION_BOTTOM;
                 stageToSpellcardBackgroundAlpha = (stage->ticksSinceSpellcardStarted * 255) / 60;
                 ScreenEffect::DrawSquare(&gameRegion, stageToSpellcardBackgroundAlpha << 24);
             }
@@ -271,8 +271,8 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
         }
         g_AnmManager->Draw(&stage->spellcardBackground);
     }
-    g_Supervisor.viewport.MinZ = 0.0;
-    g_Supervisor.viewport.MaxZ = 0.5;
+    g_Supervisor.viewport.MinZ = 0.0f;
+    g_Supervisor.viewport.MaxZ = 0.5f;
     GameManager::SetupCameraStageBackground(0);
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     val = 1000.0f;
@@ -287,9 +287,9 @@ ZunResult Stage::AddedCallback(Stage *stage)
     stage->scriptTime = 0;
 
     stage->instructionIndex = 0;
-    stage->position.x = 0.0;
-    stage->position.y = 0.0;
-    stage->position.z = 0.0;
+    stage->position.x = 0.0f;
+    stage->position.y = 0.0f;
+    stage->position.z = 0.0f;
     stage->spellcardState = NOT_RUNNING;
     stage->skyFogInterpDuration = 0;
 
@@ -299,10 +299,10 @@ ZunResult Stage::AddedCallback(Stage *stage)
         return ZUN_ERROR;
     }
     stage->skyFog.color = COLOR_BLACK;
-    stage->skyFog.nearPlane = 200.0;
-    stage->skyFog.farPlane = 500.0;
-    stage->facingDirInterpFinal = D3DXVECTOR3(0, 0, 1.0);
-    stage->facingDirInterpInitial = D3DXVECTOR3(0, 0, 1.0);
+    stage->skyFog.nearPlane = 200.0f;
+    stage->skyFog.farPlane = 500.0f;
+    stage->facingDirInterpFinal = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+    stage->facingDirInterpInitial = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
 
     stage->facingDirInterpDuration = 1;
     stage->facingDirInterpTimer = 0;
@@ -397,7 +397,7 @@ ZunResult Stage::LoadStageData(const char *anmpath, const char *stdpath)
         curObj = this->objects[idx];
         curObj->flags = 1;
         curQuad = &curObj->firstQuad;
-        while (0 <= curQuad->type)
+        while (curQuad->type >= 0)
         {
             g_AnmManager->ExecuteAnmIdx(&this->quadVms[vmIdx], curQuad->anmScript + ANM_OFFSET_STAGEBG);
             curQuad->vmIdx = vmIdx++;
@@ -424,7 +424,7 @@ ZunResult Stage::UpdateObjects()
         {
             vmsNotFinished = 0;
             objQuad = &obj->firstQuad;
-            while (0 <= objQuad->type)
+            while (objQuad->type >= 0)
             {
                 vm = &this->quadVms[objQuad->vmIdx];
                 switch (objQuad->type)
@@ -474,10 +474,10 @@ ZunResult Stage::RenderObjects(i32 zLevel)
 
     instance = &this->objectInstances[0];
     instancesDrawn = 0;
-    didDraw = 0;
-    projectSrc.x = 0.0;
-    projectSrc.y = 0.0;
-    projectSrc.z = 0.0;
+    didDraw = false;
+    projectSrc.x = 0.0f;
+    projectSrc.y = 0.0f;
+    projectSrc.z = 0.0f;
     D3DXMatrixIdentity(&worldMatrix);
     while (instance->id >= 0)
     {
@@ -596,8 +596,8 @@ ZunResult Stage::RenderObjects(i32 zLevel)
             goto skip;
 
         render:
-            didDraw = 1;
-            while (0 <= curQuad->type)
+            didDraw = true;
+            while (curQuad->type >= 0)
             {
                 curQuadVm = this->quadVms + curQuad->vmIdx;
                 switch (curQuad->type)

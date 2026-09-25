@@ -168,7 +168,10 @@ struct AnmManager
     void DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...);
     void DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...);
     ZunResult DrawNoRotation(AnmVm *vm);
-    ZunResult DrawInner(AnmVm *vm, i32 unk);
+
+#define RENDER_VERTICES_DEFAULT false
+#define RENDER_VERTICES_ROUND_INPUTS true
+    ZunResult DrawInner(AnmVm *vm, ZunBool roundVertices);
     ZunResult DrawFacingCamera(AnmVm *vm);
     ZunResult Draw2(AnmVm *vm);
     ZunResult Draw3(AnmVm *vm);
@@ -189,8 +192,8 @@ struct AnmManager
     void AnmManager::ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
     {
         vm->anmFileIndex = anmFileIdx;
-        vm->pos = D3DXVECTOR3(0, 0, 0);
-        vm->posOffset = D3DXVECTOR3(0, 0, 0);
+        vm->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+        vm->posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
         vm->fontHeight = 15;
         vm->fontWidth = 15;
 

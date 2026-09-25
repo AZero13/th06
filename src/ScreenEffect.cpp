@@ -11,12 +11,12 @@ namespace th06
 
 void ScreenEffect::Clear(D3DCOLOR color)
 {
-    g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0, 0);
+    g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
     if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
     {
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
     }
-    g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0, 0);
+    g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
     if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
     {
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
@@ -30,8 +30,8 @@ void ScreenEffect::SetViewport(D3DCOLOR color)
     g_Supervisor.viewport.Y = 0;
     g_Supervisor.viewport.Width = GAME_WINDOW_WIDTH;
     g_Supervisor.viewport.Height = GAME_WINDOW_HEIGHT;
-    g_Supervisor.viewport.MinZ = 0.0;
-    g_Supervisor.viewport.MaxZ = 1.0;
+    g_Supervisor.viewport.MinZ = 0.0f;
+    g_Supervisor.viewport.MaxZ = 1.0f;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     ScreenEffect::Clear(color);
 }
@@ -82,13 +82,13 @@ void ScreenEffect::DrawSquare(ZunRect *rect, D3DCOLOR rectColor)
 
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
     g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_DIFFUSE | D3DFVF_XYZRHW);
-    g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertices, sizeof(*vertices));
-    g_AnmManager->SetCurrentVertexShader(0xff);
+    g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertices, sizeof(VertexDiffuseXyzrwh));
+    g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
     g_AnmManager->SetCurrentSprite(NULL);
     g_AnmManager->SetCurrentTexture(NULL);
-    g_AnmManager->SetCurrentColorOp(0xff);
-    g_AnmManager->SetCurrentBlendMode(0xff);
-    g_AnmManager->SetCurrentZWriteDisable(0xff);
+    g_AnmManager->SetCurrentColorOp(AnmColorOp_NotSet);
+    g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
+    g_AnmManager->SetCurrentZWriteDisable(AnmZWriteState_NotSet);
 
     if (!g_Supervisor.IsColorCompositingDisabled())
     {
@@ -189,8 +189,8 @@ ChainCallbackResult ScreenEffect::DrawFadeIn(ScreenEffect *effect)
     fadeRect.bottom = 480.0f;
     g_Supervisor.viewport.X = 0;
     g_Supervisor.viewport.Y = 0;
-    g_Supervisor.viewport.Width = 640;
-    g_Supervisor.viewport.Height = 480;
+    g_Supervisor.viewport.Width = GAME_WINDOW_WIDTH;
+    g_Supervisor.viewport.Height = GAME_WINDOW_HEIGHT;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     ScreenEffect::DrawSquare(&fadeRect, (effect->fadeAlpha << 24) | effect->genericParam);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
@@ -214,20 +214,20 @@ ChainCallbackResult ScreenEffect::ShakeScreen(ScreenEffect *effect)
 
     if (g_GameManager.isTimeStopped)
     {
-        g_GameManager.arcadeRegionTopLeftPos.x = 32.0f;
-        g_GameManager.arcadeRegionTopLeftPos.y = 16.0f;
-        g_GameManager.arcadeRegionSize.x = 384.0f;
-        g_GameManager.arcadeRegionSize.y = 448.0f;
+        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
+        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
+        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
+        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
         return CHAIN_CALLBACK_RESULT_CONTINUE;
     }
 
     effect->timer++;
     if (effect->timer >= effect->effectLength)
     {
-        g_GameManager.arcadeRegionTopLeftPos.x = 32.0f;
-        g_GameManager.arcadeRegionTopLeftPos.y = 16.0f;
-        g_GameManager.arcadeRegionSize.x = 384.0f;
-        g_GameManager.arcadeRegionSize.y = 448.0f;
+        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
+        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
+        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
+        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
         return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
     }
 
@@ -238,32 +238,32 @@ ChainCallbackResult ScreenEffect::ShakeScreen(ScreenEffect *effect)
     switch (g_Rng.GetRandomU32InRange(3))
     {
     case 0:
-        g_GameManager.arcadeRegionTopLeftPos.x = 32.0f;
-        g_GameManager.arcadeRegionSize.x = 384.0f;
+        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
+        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
         break;
     case 1:
-        g_GameManager.arcadeRegionTopLeftPos.x = 32.0f + screenOffset;
-        g_GameManager.arcadeRegionSize.x = 384.0f - screenOffset;
+        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT + screenOffset;
+        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH - screenOffset;
         break;
     case 2:
-        g_GameManager.arcadeRegionTopLeftPos.x = 32.0f;
-        g_GameManager.arcadeRegionSize.x = 384.0f - screenOffset;
+        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
+        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH - screenOffset;
         break;
     }
 
     switch (g_Rng.GetRandomU32InRange(3))
     {
     case 0:
-        g_GameManager.arcadeRegionTopLeftPos.y = 16.0f;
-        g_GameManager.arcadeRegionSize.y = 448.0f;
+        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
+        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
         break;
     case 1:
-        g_GameManager.arcadeRegionTopLeftPos.y = 16.0f + screenOffset;
-        g_GameManager.arcadeRegionSize.y = 448.0f - screenOffset;
+        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP + screenOffset;
+        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT - screenOffset;
         break;
     case 2:
-        g_GameManager.arcadeRegionTopLeftPos.y = 16.0f;
-        g_GameManager.arcadeRegionSize.y = 448.0f - screenOffset;
+        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
+        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT - screenOffset;
         break;
     }
 

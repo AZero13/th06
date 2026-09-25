@@ -9,7 +9,7 @@ namespace th06
 {
 struct ReplayManager
 {
-    static ZunResult RegisterChain(i32 isDemo, const char *replayFile);
+    static ZunResult RegisterChain(ZunBool isDemo, const char *replayFile);
     static ChainCallbackResult OnUpdate(ReplayManager *mgr);
     static ChainCallbackResult OnUpdateDemoHighPrio(ReplayManager *mgr);
     static ChainCallbackResult OnUpdateDemoLowPrio(ReplayManager *mgr);

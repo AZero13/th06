@@ -37,15 +37,15 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
     g_IsEigthFrameOfHeldInput = false;
     if (g_LastFrameInput == g_CurFrameInput)
     {
-        if (0x1e <= g_NumOfFramesInputsWereHeld)
+        if (g_NumOfFramesInputsWereHeld >= 30)
         {
             if (g_NumOfFramesInputsWereHeld % 8 == 0)
             {
                 g_IsEigthFrameOfHeldInput = true;
             }
-            if (0x26 <= g_NumOfFramesInputsWereHeld)
+            if (g_NumOfFramesInputsWereHeld >= 38)
             {
-                g_NumOfFramesInputsWereHeld = 0x1e;
+                g_NumOfFramesInputsWereHeld = 30;
             }
         }
         g_NumOfFramesInputsWereHeld++;
@@ -83,7 +83,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
             case SUPERVISOR_STATE_EXITERROR:
                 return CHAIN_CALLBACK_RESULT_EXIT_GAME_ERROR;
             case SUPERVISOR_STATE_RESULTSCREEN:
-                if (ResultScreen_RegisterChain(FALSE) != ZUN_SUCCESS)
+                if (ResultScreen_RegisterChain(false) != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
@@ -129,7 +129,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
 
             case SUPERVISOR_STATE_RESULTSCREEN_FROMGAME:
                 GameManager::CutChain();
-                if (ResultScreen_RegisterChain(TRUE) != ZUN_SUCCESS)
+                if (ResultScreen_RegisterChain(true) != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
@@ -152,7 +152,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
                 ReplayManager::SaveReplay(NULL, NULL);
                 s->curState = SUPERVISOR_STATE_MAINMENU;
                 g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
-                if (MainMenu_RegisterChain(TRUE) != ZUN_SUCCESS)
+                if (MainMenu_RegisterChain(true) != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
@@ -199,7 +199,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
                 s->curState = SUPERVISOR_STATE_INIT;
                 goto REINIT_MAINMENU;
             case SUPERVISOR_STATE_RESULTSCREEN_FROMGAME:
-                if (ResultScreen_RegisterChain(TRUE) != ZUN_SUCCESS)
+                if (ResultScreen_RegisterChain(true) != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
@@ -216,12 +216,12 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
 
 ChainCallbackResult Supervisor::OnDraw(Supervisor *s)
 {
-    g_AnmManager->SetCurrentVertexShader(0xff);
+    g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
     g_AnmManager->SetCurrentSprite(NULL);
     g_AnmManager->SetCurrentTexture(NULL);
-    g_AnmManager->SetCurrentColorOp(0xff);
-    g_AnmManager->SetCurrentBlendMode(0xff);
-    g_AnmManager->SetCurrentZWriteDisable(0xff);
+    g_AnmManager->SetCurrentColorOp(AnmColorOp_NotSet);
+    g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
+    g_AnmManager->SetCurrentZWriteDisable(AnmZWriteState_NotSet);
 
     Supervisor::DrawFpsCounter();
     return CHAIN_CALLBACK_RESULT_CONTINUE;
@@ -347,7 +347,7 @@ ZunResult Supervisor::AddedCallback(Supervisor *s)
 {
     i32 i;
 
-    for (i = 0; i < (i32)(sizeof(s->pbg3Archives) / sizeof(s->pbg3Archives[0])); i++)
+    for (i = 0; i < ARRAY_SIZE_SIGNED(s->pbg3Archives); i++)
     {
         s->pbg3Archives[i] = NULL;
     }
@@ -445,49 +445,45 @@ ZunResult Supervisor::DeletedCallback(Supervisor *s)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(curTime, framerate, fps, elapsed, fpsCounterPos)
+#pragma var_order(curTime, framerate, fps, elapsed)
 void Supervisor::DrawFpsCounter()
 {
     DWORD curTime;
     float framerate;
     float elapsed;
     float fps;
-    D3DXVECTOR3 fpsCounterPos;
 
-    static u32 g_NumFramesSinceLastTime = 0;
     static DWORD g_LastTime = timeGetTime();
+    static u32 g_NumFramesSinceLastTime = 0;
     static char g_FpsCounterBuffer[256];
 
     curTime = timeGetTime();
     g_NumFramesSinceLastTime = g_NumFramesSinceLastTime + 1 + (u32)g_Supervisor.cfg.frameskipConfig;
     if (500 <= curTime - g_LastTime)
     {
-        elapsed = (curTime - g_LastTime) / 1000.f;
+        elapsed = (curTime - g_LastTime) / 1000.0f;
         fps = g_NumFramesSinceLastTime / elapsed;
         g_LastTime = curTime;
         g_NumFramesSinceLastTime = 0;
         sprintf(g_FpsCounterBuffer, "%.02ffps", fps);
         if (g_GameManager.isInMenu)
         {
-            framerate = 60.f / g_Supervisor.framerateMultiplier;
+            framerate = 60.0f / g_Supervisor.framerateMultiplier;
             g_Supervisor.unk1b8 = g_Supervisor.unk1b8 + framerate;
 
-            if (framerate * .89999998f < fps)
+            if (framerate * 0.89999998f < fps)
                 g_Supervisor.unk1b4 = g_Supervisor.unk1b4 + framerate;
             else if (framerate * 0.69999999f < fps)
-                g_Supervisor.unk1b4 = framerate * .8f + g_Supervisor.unk1b4;
+                g_Supervisor.unk1b4 = framerate * 0.8f + g_Supervisor.unk1b4;
             else if (framerate * 0.5f < fps)
-                g_Supervisor.unk1b4 = framerate * .6f + g_Supervisor.unk1b4;
+                g_Supervisor.unk1b4 = framerate * 0.6f + g_Supervisor.unk1b4;
             else
-                g_Supervisor.unk1b4 = framerate * .5f + g_Supervisor.unk1b4;
+                g_Supervisor.unk1b4 = framerate * 0.5f + g_Supervisor.unk1b4;
         }
     }
     if (!g_Supervisor.isInEnding)
     {
-        fpsCounterPos.x = 512.0;
-        fpsCounterPos.y = 464.0;
-        fpsCounterPos.z = 0.0;
-        g_AsciiManager.AddString(&fpsCounterPos, g_FpsCounterBuffer);
+        g_AsciiManager.AddString(&D3DXVECTOR3(512.0f, 464.0f, 0.0f), g_FpsCounterBuffer);
     }
 }
 }; // namespace th06

@@ -46,6 +46,7 @@ ZUN_ASSERT_SIZE(ZunVec3, 0xC);
 #define ZUN_MIN(x, y) ((x) > (y) ? (y) : (x))
 #define ZUN_PI ((f32)(3.14159265358979323846))
 #define ZUN_2PI ((f32)(ZUN_PI * 2.0f))
+#define ZUN_HALF_PI ((f32)(ZUN_PI / 2.0f))
 
 #define RADIANS(degrees) ((degrees * ZUN_PI / 180.0f))
 

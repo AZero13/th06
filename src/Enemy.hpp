@@ -180,7 +180,7 @@ struct Enemy
 
     static f32 BulletRankSpeedInner(f32 low, f32 high, f32 scaleFactor)
     {
-        return scaleFactor * (high - low) / 32 + low;
+        return scaleFactor * (high - low) / 32.0f + low;
     }
 
     f32 BulletRankSpeed(f32 scaleFactor)

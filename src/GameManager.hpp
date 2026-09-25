@@ -49,6 +49,8 @@ enum StageNumber
 
 #define MAX_CLEARS 99
 
+#define MAX_POWER 128
+
 struct GameManager;
 
 DIFFABLE_EXTERN(GameManager, g_GameManager);
@@ -64,7 +66,7 @@ struct GameManager
     static void SetupCamera(f32);
     static void SetupCameraStageBackground(f32);
 
-    i32 HasReachedMaxClears(i32 character, i32 shottype)
+    ZunBool HasReachedMaxClears(i32 character, i32 shottype)
     {
         return (
             this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[1] == MAX_CLEARS ||
@@ -73,7 +75,7 @@ struct GameManager
     }
     void IncreaseSubrank(i32 amount);
     void DecreaseSubrank(i32 amount);
-    i32 IsInBounds(f32 x, f32 y, f32 width, f32 height);
+    ZunBool IsInBounds(f32 x, f32 y, f32 width, f32 height);
 
     void AddScore(i32 points)
     {

@@ -69,7 +69,7 @@ struct Bullet
     i16 spriteOffset;
     u16 unk_5bc;
     u16 state;
-    u16 unk_5c0;
+    u16 outOfBoundsTime;
     u8 unk_5c2;
     u8 isGrazed;
 };

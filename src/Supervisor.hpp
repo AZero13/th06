@@ -17,20 +17,20 @@ namespace th06
 {
 #define GAME_VERSION 0x102
 
-enum GameConfigOptsShifts
+struct GameConfigOpts
 {
-    GCOS_USE_D3D_HW_TEXTURE_BLENDING = 0x0,
-    GCOS_DONT_USE_VERTEX_BUF = 0x1,
-    GCOS_FORCE_16BIT_COLOR_MODE = 0x2,
-    GCOS_CLEAR_BACKBUFFER_ON_REFRESH = 0x3,
-    GCOS_DISPLAY_MINIMUM_GRAPHICS = 0x4,
-    GCOS_SUPPRESS_USE_OF_GOROUD_SHADING = 0x5,
-    GCOS_TURN_OFF_DEPTH_TEST = 0x6,
-    GCOS_FORCE_60FPS = 0x7,
-    GCOS_NO_COLOR_COMP = 0x8,
-    GCOS_REFERENCE_RASTERIZER_MODE = 0x9,
-    GCOS_DONT_USE_FOG = 0xa,
-    GCOS_NO_DIRECTINPUT_PAD = 0xb,
+    u32 useSwTextureBlending : 1;
+    u32 dontUseVertexBuf : 1;
+    u32 force16bitColorMode : 1;
+    u32 clearBackBufferOnRefresh : 1;
+    u32 displayMinimumGraphics : 1;
+    u32 suppressUseOfGoroudShading : 1;
+    u32 disableDepthTest : 1;
+    u32 force60Fps : 1;
+    u32 disableColorCompositing : 1;
+    u32 referenceRasterizerMode : 1;
+    u32 disableFog : 1;
+    u32 dontUseDirectInput : 1;
 };
 
 struct ControllerMapping
@@ -71,12 +71,14 @@ struct GameConfiguration
     i16 padYAxis;
     i8 unk[16];
     // GameConfigOpts bitfield.
-    u32 opts;
+    GameConfigOpts opts;
 };
+ZUN_ASSERT_SIZE(GameConfiguration, 0x38);
 
 #define IN_PBG3_INDEX 0
 #define MD_PBG3_INDEX 1
 #define ST_PBG3_INDEX 2
+#define TL_PBG3_INDEX 3
 #define CM_PBG3_INDEX 4
 #define ED_PBG3_INDEX 5
 
@@ -134,62 +136,62 @@ struct Supervisor
 
     ZunBool IsHardwareBlendingDisabled()
     {
-        return this->cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING & 1;
+        return this->cfg.opts.useSwTextureBlending;
     }
 
     ZunBool IsVertexBufferDisabled()
     {
-        return this->cfg.opts >> GCOS_DONT_USE_VERTEX_BUF & 1;
+        return this->cfg.opts.dontUseVertexBuf;
     }
 
     ZunBool Is16bitColorMode()
     {
-        return this->cfg.opts >> GCOS_FORCE_16BIT_COLOR_MODE & 1;
+        return this->cfg.opts.force16bitColorMode;
     }
 
     ZunBool IsMinimumGraphicsMode()
     {
-        return this->cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1;
+        return this->cfg.opts.displayMinimumGraphics;
     }
 
     ZunBool IsShadingDisabled()
     {
-        return this->cfg.opts >> GCOS_SUPPRESS_USE_OF_GOROUD_SHADING & 1;
+        return this->cfg.opts.suppressUseOfGoroudShading;
     }
 
     ZunBool IsDepthTestDisabled()
     {
-        return this->cfg.opts >> GCOS_TURN_OFF_DEPTH_TEST & 1;
+        return this->cfg.opts.disableDepthTest;
     }
 
     ZunBool IsForced60Fps()
     {
-        return this->cfg.opts >> GCOS_FORCE_60FPS & 1;
+        return this->cfg.opts.force60Fps;
     }
 
     ZunBool IsColorCompositingDisabled()
     {
-        return this->cfg.opts >> GCOS_NO_COLOR_COMP & 1;
+        return this->cfg.opts.disableColorCompositing;
     }
 
     ZunBool IsReferenceRasterizerMode()
     {
-        return this->cfg.opts >> GCOS_REFERENCE_RASTERIZER_MODE & 1;
+        return this->cfg.opts.referenceRasterizerMode;
     }
 
     ZunBool IsFogDisabled()
     {
-        return this->cfg.opts >> GCOS_DONT_USE_FOG & 1;
+        return this->cfg.opts.disableFog;
     }
 
     ZunBool IsDInputDisabled()
     {
-        return this->cfg.opts >> GCOS_NO_DIRECTINPUT_PAD & 1;
+        return this->cfg.opts.dontUseDirectInput;
     }
 
     ZunBool ShouldForceBackbufferClear()
     {
-        return this->cfg.opts >> GCOS_CLEAR_BACKBUFFER_ON_REFRESH & 1 | this->IsMinimumGraphicsMode();
+        return this->cfg.opts.clearBackBufferOnRefresh | this->IsMinimumGraphicsMode();
     }
 
     u32 IsSoftwareTexturing()

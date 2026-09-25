@@ -117,8 +117,8 @@ void Ending::FadingEffect()
     ZunRect endingRect;
     ZunColor color;
 
-    endingRect.left = 0.0;
-    endingRect.top = 0.0;
+    endingRect.left = 0.0f;
+    endingRect.top = 0.0f;
     endingRect.right = GAME_WINDOW_WIDTH;
     endingRect.bottom = GAME_WINDOW_HEIGHT;
 
@@ -201,13 +201,13 @@ ZunResult Ending::ParseEndFile()
     i32 spriteIdx;
     i32 diffIdx;
     i32 characterIdx;
-    i32 charactersReaded;
+    i32 charactersRead;
     ZunBool lineDisplayed;
 
     char textBuffer[39];
 
     lineDisplayed = false;
-    charactersReaded = 0;
+    charactersRead = 0;
 
     memset(textBuffer, 0, sizeof(textBuffer) - 1);
 
@@ -256,12 +256,12 @@ ZunResult Ending::ParseEndFile()
 
     while (true)
     {
-        switch (this->endFileDataPtr[0])
+        switch (*this->endFileDataPtr)
         {
         case END_READ_OPCODE:
             /* If there is an @ symbol, that means we have an opcode to read. */
             this->endFileDataPtr++;
-            switch (this->endFileDataPtr[0])
+            switch (*this->endFileDataPtr)
             {
             case END_OPCODE_BACKGROUND:
                 /* background(jpg_file) */
@@ -304,7 +304,7 @@ ZunResult Ending::ParseEndFile()
                 {
                     return ZUN_ERROR;
                 }
-                charactersReaded = 0;
+                charactersRead = 0;
                 lineDisplayed = false;
                 for (characterIdx = 0; characterIdx < ARRAY_SIZE_SIGNED(g_GameManager.clrd); characterIdx++)
                 {
@@ -421,11 +421,11 @@ ZunResult Ending::ParseEndFile()
                 return ZUN_ERROR;
             }
 
-            while ((this->endFileDataPtr[0] != '\n' && (this->endFileDataPtr[0] != '\r')))
+            while (this->endFileDataPtr[0] != '\n' && this->endFileDataPtr[0] != '\r')
             {
                 this->endFileDataPtr++;
             }
-            while ((this->endFileDataPtr[0] == '\n' || (this->endFileDataPtr[0] == '\r')))
+            while (this->endFileDataPtr[0] == '\n' || this->endFileDataPtr[0] == '\r')
             {
                 this->endFileDataPtr++;
             }
@@ -435,7 +435,7 @@ ZunResult Ending::ParseEndFile()
         case '\n':
         case '\r':
             // When encountered a breakline or null byte, display the text already loaded in textBuffer
-            if (charactersReaded != 0)
+            if (charactersRead != 0)
             {
                 g_AnmManager->SetAndExecuteScriptIdx(&this->sprites[lineDisplayed + this->timesFileParsed * 2],
                                                      lineDisplayed + ANM_SCRIPT_TEXT_ENDING_TEXT +
@@ -465,13 +465,13 @@ ZunResult Ending::ParseEndFile()
             goto endParsing;
         default:
             // Read 2 characters at a time
-            textBuffer[charactersReaded] = this->endFileDataPtr[0];
-            textBuffer[charactersReaded + 1] = this->endFileDataPtr[1];
-            charactersReaded += 2;
+            textBuffer[charactersRead] = this->endFileDataPtr[0];
+            textBuffer[charactersRead + 1] = this->endFileDataPtr[1];
+            charactersRead += 2;
             this->endFileDataPtr += 2;
 
             // When reached the character limit, display the text now
-            if (charactersReaded >= 32)
+            if (charactersRead >= 32)
             {
                 g_AnmManager->SetAndExecuteScriptIdx(&this->sprites[lineDisplayed + this->timesFileParsed * 2],
                                                      lineDisplayed + ANM_SCRIPT_TEXT_ENDING_TEXT +
@@ -483,7 +483,7 @@ ZunResult Ending::ParseEndFile()
                     goto endParsing;
                 }
                 lineDisplayed = true;
-                charactersReaded = 0;
+                charactersRead = 0;
 
                 memset(textBuffer, 0, sizeof(textBuffer) - 1);
             }
@@ -615,8 +615,8 @@ ZunResult Ending::AddedCallback(Ending *ending)
 
     g_AnmManager->SetCurrentTexture(NULL);
     g_AnmManager->SetCurrentSprite(NULL);
-    g_AnmManager->SetCurrentBlendMode(0xff);
-    g_AnmManager->SetCurrentVertexShader(0xff);
+    g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
+    g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
 
     shotTypeAndCharacter = g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType;
     ending->hasSeenEnding = false;

@@ -152,5 +152,5 @@ ZunResult ParseCatk(ScoreDat *s, Catk *catk);
 ZunResult ParseClrd(ScoreDat *s, Clrd *out);
 ZunResult ParsePscr(ScoreDat *s, Pscr *out);
 
-ZunResult ResultScreen_RegisterChain(i32 unk);
+ZunResult ResultScreen_RegisterChain(ZunBool unk);
 }; // namespace th06
