@@ -38,10 +38,8 @@ def configure(build_type):
 
         writer.variable("rc", "rc.exe")
         writer.variable("link", "link.exe")
-        writer.variable(
-            "th06_link_flags",
-            "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /opt:icf /map /mapinfo:exports /mapinfo:lines /nodefaultlib:libcpmt.lib",
-        )
+
+        th06_link_flags = "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /opt:icf /map /mapinfo:exports /mapinfo:lines /nodefaultlib:libcpmt.lib"
 
         writer.variable("msvc_deps_prefix", "Note: including file:")
 
@@ -239,14 +237,16 @@ def configure(build_type):
             objfiles += ["$builddir/globals.obj"]
 
         th06_link_libs = "dinput8.lib dsound.lib d3d8.lib winmm.lib d3dx8.lib dxguid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib"
+
+        # Original exe does not have PDB path
+        if build_type != BuildType.BINARY_MATCHBUILD:
+            th06_link_flags += " /debug /pdb:$builddir/th06.pdb"
+
         writer.build(
             "$builddir/th06.exe",
             "link",
             inputs=objfiles,
-            variables={
-                "link_libs": th06_link_libs,
-                "link_flags": "$th06_link_flags /debug /pdb:$builddir/th06.pdb",
-            },
+            variables={"link_libs": th06_link_libs, "link_flags": th06_link_flags},
         )
 
         test_objfiles = (
@@ -260,7 +260,7 @@ def configure(build_type):
             inputs=test_objfiles + ["$builddir/munit.lib"],
             variables={
                 "link_libs": th06_link_libs + " $builddir/munit.lib",
-                "link_flags": "/debug /pdb:$builddir/th06.pdb",
+                "link_flags": "/pdb:$builddir/th06.pdb",
             },
         )
 
