@@ -30,14 +30,11 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(StageFile, 8, g_StageFiles) = {
 #pragma section(".data$B3g_StageOnDrawLowPrioChain", read, write)
 #pragma section(".data$B4g_StageCalcChain", read, write)
 
-__declspec(allocate(".data$B2g_Stage"))
-DIFFABLE_STATIC(Stage, g_Stage);
-__declspec(allocate(".data$B4g_StageCalcChain"))
-DIFFABLE_STATIC(ChainElem, g_StageCalcChain);
-__declspec(allocate(".data$B1g_StageOnDrawHighPrioChain"), align(16))
-DIFFABLE_STATIC(ChainElem, g_StageOnDrawHighPrioChain);
-__declspec(allocate(".data$B3g_StageOnDrawLowPrioChain"))
-DIFFABLE_STATIC(ChainElem, g_StageOnDrawLowPrioChain);
+__declspec(allocate(".data$B2g_Stage")) DIFFABLE_STATIC(Stage, g_Stage);
+__declspec(allocate(".data$B4g_StageCalcChain")) DIFFABLE_STATIC(ChainElem, g_StageCalcChain);
+__declspec(allocate(".data$B1g_StageOnDrawHighPrioChain"), align(16)) DIFFABLE_STATIC(ChainElem,
+                                                                                      g_StageOnDrawHighPrioChain);
+__declspec(allocate(".data$B3g_StageOnDrawLowPrioChain")) DIFFABLE_STATIC(ChainElem, g_StageOnDrawLowPrioChain);
 
 Stage::Stage()
 {

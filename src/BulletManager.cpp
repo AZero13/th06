@@ -33,12 +33,9 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 8, g_BulletSpriteOffset32Px) = {0, 1, 1, 2, 2,
 #pragma section(".data$F2g_BulletManager", read, write)
 #pragma section(".data$F3g_BulletManagerCalcChain", read, write)
 
-__declspec(allocate(".data$F3g_BulletManagerCalcChain"))
-DIFFABLE_STATIC(ChainElem, g_BulletManagerCalcChain);
-__declspec(allocate(".data$F1g_BulletManagerDrawChain"), align(8))
-DIFFABLE_STATIC(ChainElem, g_BulletManagerDrawChain);
-__declspec(allocate(".data$F2g_BulletManager"))
-DIFFABLE_STATIC(BulletManager, g_BulletManager);
+__declspec(allocate(".data$F3g_BulletManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_BulletManagerCalcChain);
+__declspec(allocate(".data$F1g_BulletManagerDrawChain"), align(8)) DIFFABLE_STATIC(ChainElem, g_BulletManagerDrawChain);
+__declspec(allocate(".data$F2g_BulletManager")) DIFFABLE_STATIC(BulletManager, g_BulletManager);
 
 struct BulletTypeInfo
 {

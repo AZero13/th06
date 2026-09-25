@@ -43,16 +43,11 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(ExInsn, 17, g_EclExInsn) = {EnemyEclInstr::ExInsCir
 #pragma section(".data$C4g_EclManager", read, write)
 #pragma section(".data$C5g_EclManagerCalcChain", read, write)
 
-__declspec(allocate(".data$C5g_EclManagerCalcChain"))
-DIFFABLE_STATIC(ChainElem, g_EclManagerCalcChain); // unused
-__declspec(allocate(".data$C4g_EclManager"))
-DIFFABLE_STATIC(EclManager, g_EclManager);
-__declspec(allocate(".data$C1g_PlayerShot"))
-DIFFABLE_STATIC(i32, g_PlayerShot);
-__declspec(allocate(".data$C2g_PlayerDistance"))
-DIFFABLE_STATIC(f32, g_PlayerDistance);
-__declspec(allocate(".data$C3g_PlayerAngle"))
-DIFFABLE_STATIC(f32, g_PlayerAngle);
+__declspec(allocate(".data$C5g_EclManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_EclManagerCalcChain); // unused
+__declspec(allocate(".data$C4g_EclManager")) DIFFABLE_STATIC(EclManager, g_EclManager);
+__declspec(allocate(".data$C1g_PlayerShot")) DIFFABLE_STATIC(i32, g_PlayerShot);
+__declspec(allocate(".data$C2g_PlayerDistance")) DIFFABLE_STATIC(f32, g_PlayerDistance);
+__declspec(allocate(".data$C3g_PlayerAngle")) DIFFABLE_STATIC(f32, g_PlayerAngle);
 
 ZunResult EclManager::Load(const char *eclPath)
 {

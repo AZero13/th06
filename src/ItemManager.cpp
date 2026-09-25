@@ -16,22 +16,15 @@ namespace th06
 #pragma section(".data$K3g_ItemManagerDrawChain", read, write)
 #pragma section(".data$K4g_ItemManager", read, write)
 #pragma section(".data$K5g_ItemManagerCalcChain", read, write)
-    
-__declspec(allocate(".data$K1g_ItemSize"))
-DIFFABLE_STATIC(ZunVec3, g_ItemSize);
-__declspec(allocate(".data$K2g_ItemSizeGuard"))
-DIFFABLE_STATIC(u32, g_ItemSizeGuard);
 
-__declspec(allocate(".data$K4g_ItemManager"))
-DIFFABLE_STATIC(ItemManager, g_ItemManager);
-__declspec(allocate(".data$K5g_ItemManagerCalcChain"))
-DIFFABLE_STATIC(ChainElem, g_ItemManagerCalcChain); // unused
-__declspec(allocate(".data$K3g_ItemManagerDrawChain"))
-DIFFABLE_STATIC(ChainElem, g_ItemManagerDrawChain); // unused
+__declspec(allocate(".data$K1g_ItemSize")) DIFFABLE_STATIC(ZunVec3, g_ItemSize);
+__declspec(allocate(".data$K2g_ItemSizeGuard")) DIFFABLE_STATIC(u32, g_ItemSizeGuard);
 
-ItemManager::ItemManager()
-{
-};
+__declspec(allocate(".data$K4g_ItemManager")) DIFFABLE_STATIC(ItemManager, g_ItemManager);
+__declspec(allocate(".data$K5g_ItemManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_ItemManagerCalcChain); // unused
+__declspec(allocate(".data$K3g_ItemManagerDrawChain")) DIFFABLE_STATIC(ChainElem, g_ItemManagerDrawChain); // unused
+
+ItemManager::ItemManager() {};
 
 void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
 {
@@ -112,7 +105,7 @@ void ItemManager::OnUpdate()
 
     curItem = &this->items[0];
 
-    //static D3DXVECTOR3 g_ItemSize(16.0f, 16.0f, 16.0f);
+    // static D3DXVECTOR3 g_ItemSize(16.0f, 16.0f, 16.0f);
     if (!(g_ItemSizeGuard & 1))
     {
         g_ItemSizeGuard |= 1;

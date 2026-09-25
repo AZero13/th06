@@ -27,12 +27,9 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(u8, 32, g_RandomItems) = {
 #pragma section(".data$E2g_EnemyManager", read, write)
 #pragma section(".data$E3g_EnemyManagerCalcChain", read, write)
 
-__declspec(allocate(".data$E3g_EnemyManagerCalcChain"))
-DIFFABLE_STATIC(ChainElem, g_EnemyManagerCalcChain);
-__declspec(allocate(".data$E1g_EnemyManagerDrawChain"), align(8))
-DIFFABLE_STATIC(ChainElem, g_EnemyManagerDrawChain);
-__declspec(allocate(".data$E2g_EnemyManager"))
-DIFFABLE_STATIC(EnemyManager, g_EnemyManager);
+__declspec(allocate(".data$E3g_EnemyManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_EnemyManagerCalcChain);
+__declspec(allocate(".data$E1g_EnemyManagerDrawChain"), align(8)) DIFFABLE_STATIC(ChainElem, g_EnemyManagerDrawChain);
+__declspec(allocate(".data$E2g_EnemyManager")) DIFFABLE_STATIC(EnemyManager, g_EnemyManager);
 
 #pragma var_order(i, enemy)
 void EnemyManager::Initialize()

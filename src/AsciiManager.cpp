@@ -19,14 +19,12 @@ namespace th06
 #pragma section(".data$A3g_AsciiManagerCalcChain", read, write)
 #pragma section(".data$A4g_AsciiManagerOnDrawPopupsChain", read, write)
 
-__declspec(allocate(".data$A2g_AsciiManager"))
-DIFFABLE_STATIC(AsciiManager, g_AsciiManager);
-__declspec(allocate(".data$A3g_AsciiManagerCalcChain"))
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerCalcChain);
-__declspec(allocate(".data$A1g_AsciiManagerOnDrawMenusChain"), align(32))
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawMenusChain);
-__declspec(allocate(".data$A4g_AsciiManagerOnDrawPopupsChain"))
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawPopupsChain);
+__declspec(allocate(".data$A2g_AsciiManager")) DIFFABLE_STATIC(AsciiManager, g_AsciiManager);
+__declspec(allocate(".data$A3g_AsciiManagerCalcChain")) DIFFABLE_STATIC(ChainElem, g_AsciiManagerCalcChain);
+__declspec(allocate(".data$A1g_AsciiManagerOnDrawMenusChain"),
+           align(32)) DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawMenusChain);
+__declspec(allocate(".data$A4g_AsciiManagerOnDrawPopupsChain")) DIFFABLE_STATIC(ChainElem,
+                                                                                g_AsciiManagerOnDrawPopupsChain);
 
 ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
 {

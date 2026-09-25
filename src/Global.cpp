@@ -39,24 +39,16 @@ DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {0, 1, 2, 4, -1
 #pragma section(".data$J5g_ControllerData", read, write)
 #pragma section(".data$J6g_TextBufferSurface", read, write)
 
-__declspec(allocate(".data$J1g_Chain"))
-DIFFABLE_STATIC(Chain, g_Chain);
+__declspec(allocate(".data$J1g_Chain")) DIFFABLE_STATIC(Chain, g_Chain);
 
 // Controller
-__declspec(allocate(".data$J5g_ControllerData"))
-DIFFABLE_STATIC_ARRAY(u8, (32 * 4), g_ControllerData);
-__declspec(allocate(".data$I1g_JoystickCaps"))
-DIFFABLE_STATIC(JOYCAPS, g_JoystickCaps);
-__declspec(allocate(".data$I2g_FocusButtonConflictState"))
-DIFFABLE_STATIC(u16, g_FocusButtonConflictState);
-__declspec(allocate(".data$I6g_LastFrameInput"))
-DIFFABLE_STATIC(u16, g_LastFrameInput);
-__declspec(allocate(".data$I7g_IsEigthFrameOfHeldInput"))
-DIFFABLE_STATIC(u16, g_IsEigthFrameOfHeldInput);
-__declspec(allocate(".data$I8g_NumOfFramesInputsWereHeld"))
-DIFFABLE_STATIC(u16, g_NumOfFramesInputsWereHeld);
-__declspec(allocate(".data$I5g_CurFrameInput"))
-DIFFABLE_STATIC(u16, g_CurFrameInput);
+__declspec(allocate(".data$J5g_ControllerData")) DIFFABLE_STATIC_ARRAY(u8, (32 * 4), g_ControllerData);
+__declspec(allocate(".data$I1g_JoystickCaps")) DIFFABLE_STATIC(JOYCAPS, g_JoystickCaps);
+__declspec(allocate(".data$I2g_FocusButtonConflictState")) DIFFABLE_STATIC(u16, g_FocusButtonConflictState);
+__declspec(allocate(".data$I6g_LastFrameInput")) DIFFABLE_STATIC(u16, g_LastFrameInput);
+__declspec(allocate(".data$I7g_IsEigthFrameOfHeldInput")) DIFFABLE_STATIC(u16, g_IsEigthFrameOfHeldInput);
+__declspec(allocate(".data$I8g_NumOfFramesInputsWereHeld")) DIFFABLE_STATIC(u16, g_NumOfFramesInputsWereHeld);
+__declspec(allocate(".data$I5g_CurFrameInput")) DIFFABLE_STATIC(u16, g_CurFrameInput);
 
 class CMyFont
 {
@@ -74,8 +66,7 @@ class CMyFont
 };
 
 // CMyFont
-__declspec(allocate(".data$J3g_CMyFont"))
-DIFFABLE_STATIC(CMyFont, g_CMyFont);
+__declspec(allocate(".data$J3g_CMyFont")) DIFFABLE_STATIC(CMyFont, g_CMyFont);
 
 Chain::~Chain()
 {
@@ -456,12 +447,10 @@ destroy_elem:
 }
 
 // ZunMemory
-__declspec(allocate(".data$J4g_ZunMemory"))
-DIFFABLE_STATIC(ZunMemory, g_ZunMemory);
+__declspec(allocate(".data$J4g_ZunMemory")) DIFFABLE_STATIC(ZunMemory, g_ZunMemory);
 
 // FileSystem
-__declspec(allocate(".data$I9g_LastFileSize"))
-DIFFABLE_STATIC(u32, g_LastFileSize);
+__declspec(allocate(".data$I9g_LastFileSize")) DIFFABLE_STATIC(u32, g_LastFileSize);
 
 u16 Controller::GetJoystickCaps(void)
 {
@@ -889,8 +878,7 @@ void CMyFont::Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h)
     DeleteObject(hFont);
 }
 
-__declspec(allocate(".data$J6g_TextBufferSurface"))
-DIFFABLE_STATIC(LPDIRECT3DSURFACE8, g_TextBufferSurface);
+__declspec(allocate(".data$J6g_TextBufferSurface")) DIFFABLE_STATIC(LPDIRECT3DSURFACE8, g_TextBufferSurface);
 
 void Fake_DrawTextA()
 {
@@ -914,8 +902,7 @@ void CMyFont::Clean()
     RELEASE(m_lpFont);
 }
 
-__declspec(allocate(".data$I4g_Pbg3Archives"))
-DIFFABLE_STATIC(Pbg3Archive **, g_Pbg3Archives);
+__declspec(allocate(".data$I4g_Pbg3Archives")) DIFFABLE_STATIC(Pbg3Archive **, g_Pbg3Archives);
 
 #pragma var_order(pbg3Idx, entryname, entryIdx, fsize, data, file)
 u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
@@ -1021,12 +1008,10 @@ int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 }
 
 // GameErrorContext
-__declspec(allocate(".data$J2g_GameErrorContext"))
-DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext);
+__declspec(allocate(".data$J2g_GameErrorContext")) DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext);
 
 // Rng
-__declspec(allocate(".data$I3g_Rng"))
-DIFFABLE_STATIC(Rng, g_Rng);
+__declspec(allocate(".data$I3g_Rng")) DIFFABLE_STATIC(Rng, g_Rng);
 
 const char *GameErrorContext::Log(const char *fmt, ...)
 {
