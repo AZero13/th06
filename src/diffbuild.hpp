@@ -69,14 +69,16 @@
 #define DIFFABLE_STATIC_ASSIGN(type, name) type name
 #define DIFFABLE_STATIC_ARRAY_ASSIGN(type, size, name) type name[size]
 #define DIFFABLE_STATIC_SORTED(sort, type, name)                                                                       \
-__pragma(section(MACRO_STR(MACRO_CATW(.data$,sort,name)), read, write))                                                \
-__declspec(allocate(MACRO_STR(MACRO_CATW(.data$,sort,name)))) DIFFABLE_STATIC(type, name)
+    __pragma(section(MACRO_STR(MACRO_CATW(.data$, sort, name)), read, write))                                          \
+        __declspec(allocate(MACRO_STR(MACRO_CATW(.data$, sort, name))))                                                \
+        DIFFABLE_STATIC(type, name)
 #define DIFFABLE_STATIC_ARRAY_SORTED(sort, type, size, name)                                                           \
-__pragma(section(MACRO_STR(MACRO_CATW(.data$, sort, name)), read, write))                                              \
-__declspec(allocate(MACRO_STR(MACRO_CATW(.data$, sort, name)))) DIFFABLE_STATIC_ARRAY(type, size, name)
+    __pragma(section(MACRO_STR(MACRO_CATW(.data$, sort, name)), read, write))                                          \
+        __declspec(allocate(MACRO_STR(MACRO_CATW(.data$, sort, name))))                                                \
+        DIFFABLE_STATIC_ARRAY(type, size, name)
 #define FILE_BSS_SORT(sort)                                                                                            \
-__pragma(section(MACRO_STR(MACRO_CATW(.data$,sort,__LINE__))))                                                         \
-__pragma(bss_seg(MACRO_STR(MACRO_CATW(.data$,sort,__LINE__))))
+    __pragma(section(MACRO_STR(MACRO_CATW(.data$, sort, __LINE__))))                                                   \
+        __pragma(bss_seg(MACRO_STR(MACRO_CATW(.data$, sort, __LINE__))))
 #endif
 
 #if defined(BINARYMATCHBUILD) || defined(DIFFBUILD) || defined(DLLBUILD)
