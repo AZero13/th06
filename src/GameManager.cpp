@@ -32,10 +32,15 @@ struct DifficultyInfo
 };
 ZUN_ASSERT_SIZE(DifficultyInfo, 0xc);
 
-// These are either on Supervisor.cpp or somewhere else
-DIFFABLE_STATIC(GameManager, g_GameManager);
+#pragma section(".data$H1g_GameManager", read, write)
+#pragma section(".data$H2g_GameManagerCalcChain", read, write)
+#pragma section(".data$H3g_GameManagerDrawChain", read, write)
 
+__declspec(allocate(".data$H1g_GameManager"))
+DIFFABLE_STATIC(GameManager, g_GameManager);
+__declspec(allocate(".data$H2g_GameManagerCalcChain"))
 DIFFABLE_STATIC(ChainElem, g_GameManagerCalcChain);
+__declspec(allocate(".data$H3g_GameManagerDrawChain"))
 DIFFABLE_STATIC(ChainElem, g_GameManagerDrawChain);
 
 #define MAX_SCORE 999999999

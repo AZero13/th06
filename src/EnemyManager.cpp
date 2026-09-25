@@ -12,13 +12,9 @@
 
 namespace th06
 {
-
 #define ITEM_SPAWNS 3
 #define ITEM_TABLES 8
 
-DIFFABLE_STATIC(ChainElem, g_EnemyManagerCalcChain)
-DIFFABLE_STATIC(ChainElem, g_EnemyManagerDrawChain)
-DIFFABLE_STATIC(EnemyManager, g_EnemyManager)
 DIFFABLE_STATIC_ARRAY_ASSIGN(u8, 32, g_RandomItems) = {
     ITEM_POWER_SMALL, ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL,
     ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POINT,       ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POWER_SMALL,
@@ -26,6 +22,17 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(u8, 32, g_RandomItems) = {
     ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL,
     ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POINT,       ITEM_POINT,
     ITEM_POWER_SMALL, ITEM_POWER_BIG};
+
+#pragma section(".data$E1g_EnemyManagerDrawChain", read, write)
+#pragma section(".data$E2g_EnemyManager", read, write)
+#pragma section(".data$E3g_EnemyManagerCalcChain", read, write)
+
+__declspec(allocate(".data$E3g_EnemyManagerCalcChain"))
+DIFFABLE_STATIC(ChainElem, g_EnemyManagerCalcChain);
+__declspec(allocate(".data$E1g_EnemyManagerDrawChain"), align(8))
+DIFFABLE_STATIC(ChainElem, g_EnemyManagerDrawChain);
+__declspec(allocate(".data$E2g_EnemyManager"))
+DIFFABLE_STATIC(EnemyManager, g_EnemyManager);
 
 #pragma var_order(i, enemy)
 void EnemyManager::Initialize()

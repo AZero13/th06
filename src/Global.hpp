@@ -98,11 +98,11 @@ enum TouhouButton
 namespace Controller
 {
 u16 GetJoystickCaps(void);
-u32 SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, enum TouhouButton touhouButton,
+u32 SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
                                   u32 inputButtons);
 
 unsigned int SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest,
-                                              enum TouhouButton touhouButton, u8 *inputButtons);
+                                              TouhouButton touhouButton, u8 *inputButtons);
 
 u16 GetControllerInput(u16 buttons);
 u8 *GetControllerState();
@@ -110,10 +110,24 @@ u16 GetInput(void);
 void ResetKeyboard(void);
 }; // namespace Controller
 
-DIFFABLE_EXTERN(u16, g_LastFrameInput)
-DIFFABLE_EXTERN(u16, g_CurFrameInput)
-DIFFABLE_EXTERN(u16, g_IsEigthFrameOfHeldInput)
-DIFFABLE_EXTERN(u16, g_NumOfFramesInputsWereHeld)
+struct ControllerMapping
+{
+    i16 shootButton;
+    i16 bombButton;
+    i16 focusButton;
+    i16 menuButton;
+    i16 upButton;
+    i16 downButton;
+    i16 leftButton;
+    i16 rightButton;
+    i16 skipButton;
+};
+
+DIFFABLE_EXTERN(ControllerMapping, g_ControllerMapping);
+DIFFABLE_EXTERN(u16, g_LastFrameInput);
+DIFFABLE_EXTERN(u16, g_CurFrameInput);
+DIFFABLE_EXTERN(u16, g_IsEigthFrameOfHeldInput);
+DIFFABLE_EXTERN(u16, g_NumOfFramesInputsWereHeld);
 
 class ZunMemory
 {
@@ -243,5 +257,6 @@ class GameErrorContext
     }
 };
 
-DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext)
+DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
+DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface);
 }; // namespace th06

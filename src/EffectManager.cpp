@@ -32,8 +32,15 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
     {ANM_SCRIPT_BULLET4_SCRIPT_19, EffectManager::EffectCallbackStill},
 };
 
+#pragma section(".data$D1g_EffectManager", read, write)
+#pragma section(".data$D2g_EffectManagerCalcChain", read, write)
+#pragma section(".data$D3g_EffectManagerDrawChain", read, write)
+
+__declspec(allocate(".data$D1g_EffectManager"))
 DIFFABLE_STATIC(EffectManager, g_EffectManager);
+__declspec(allocate(".data$D2g_EffectManagerCalcChain"))
 DIFFABLE_STATIC(ChainElem, g_EffectManagerCalcChain);
+__declspec(allocate(".data$D3g_EffectManagerDrawChain"))
 DIFFABLE_STATIC(ChainElem, g_EffectManagerDrawChain);
 
 void EffectManager::Reset()

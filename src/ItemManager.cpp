@@ -11,12 +11,26 @@
 
 namespace th06
 {
+#pragma section(".data$K1g_ItemSize", read, write)
+#pragma section(".data$K2g_ItemSizeGuard", read, write)
+#pragma section(".data$K3g_ItemManagerDrawChain", read, write)
+#pragma section(".data$K4g_ItemManager", read, write)
+#pragma section(".data$K5g_ItemManagerCalcChain", read, write)
+    
+__declspec(allocate(".data$K1g_ItemSize"))
+DIFFABLE_STATIC(ZunVec3, g_ItemSize);
+__declspec(allocate(".data$K2g_ItemSizeGuard"))
+DIFFABLE_STATIC(u32, g_ItemSizeGuard);
+
+__declspec(allocate(".data$K4g_ItemManager"))
 DIFFABLE_STATIC(ItemManager, g_ItemManager);
+__declspec(allocate(".data$K5g_ItemManagerCalcChain"))
 DIFFABLE_STATIC(ChainElem, g_ItemManagerCalcChain); // unused
+__declspec(allocate(".data$K3g_ItemManagerDrawChain"))
 DIFFABLE_STATIC(ChainElem, g_ItemManagerDrawChain); // unused
 
-ItemManager::ItemManager() {
-
+ItemManager::ItemManager()
+{
 };
 
 void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
@@ -97,7 +111,16 @@ void ItemManager::OnUpdate()
     i32 itemAcquired;
 
     curItem = &this->items[0];
-    static D3DXVECTOR3 g_ItemSize(16.0f, 16.0f, 16.0f);
+
+    //static D3DXVECTOR3 g_ItemSize(16.0f, 16.0f, 16.0f);
+    if (!(g_ItemSizeGuard & 1))
+    {
+        g_ItemSizeGuard |= 1;
+        g_ItemSize.x = 16.0f;
+        g_ItemSize.y = 16.0f;
+        g_ItemSize.z = 16.0f;
+    }
+
     itemAcquired = false;
     this->itemCount = 0;
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->items) - 1; idx++, curItem++)
@@ -154,7 +177,7 @@ void ItemManager::OnUpdate()
             curItem->startPosition.y = 3.0f;
         }
     yolo:
-        if (g_Player.CalcItemBoxCollision(&curItem->currentPosition, &g_ItemSize))
+        if (g_Player.CalcItemBoxCollision(&curItem->currentPosition, g_ItemSize.AsD3dXVec()))
         {
             switch (curItem->itemType)
             {

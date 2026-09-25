@@ -127,8 +127,15 @@ struct GuiImpl
 };
 ZUN_ASSERT_SIZE(GuiImpl, 0x2c44);
 
+#pragma section(".data$G1g_Gui", read, write)
+#pragma section(".data$G2g_GuiDrawChain", read, write)
+#pragma section(".data$G3g_GuiCalcChain", read, write)
+
+__declspec(allocate(".data$G1g_Gui"))
 DIFFABLE_STATIC(Gui, g_Gui);
+__declspec(allocate(".data$G3g_GuiCalcChain"))
 DIFFABLE_STATIC(ChainElem, g_GuiCalcChain);
+__declspec(allocate(".data$G2g_GuiDrawChain"))
 DIFFABLE_STATIC(ChainElem, g_GuiDrawChain);
 
 ZunBool Gui::IsStageFinished()

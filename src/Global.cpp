@@ -23,16 +23,40 @@ namespace th06
 
 DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {0, 1, 2, 4, -1, -1, -1, -1, 3};
 
-DIFFABLE_STATIC(Chain, g_Chain)
+#pragma section(".data$I1g_JoystickCaps", read, write)
+#pragma section(".data$I2g_FocusButtonConflictState", read, write)
+#pragma section(".data$I3g_Rng", read, write)
+#pragma section(".data$I4g_Pbg3Archives", read, write)
+#pragma section(".data$I5g_CurFrameInput", read, write)
+#pragma section(".data$I6g_LastFrameInput", read, write)
+#pragma section(".data$I7g_IsEigthFrameOfHeldInput", read, write)
+#pragma section(".data$I8g_NumOfFramesInputsWereHeld", read, write)
+#pragma section(".data$I9g_LastFileSize", read, write)
+#pragma section(".data$J1g_Chain", read, write)
+#pragma section(".data$J2g_GameErrorContext", read, write)
+#pragma section(".data$J3g_CMyFont", read, write)
+#pragma section(".data$J4g_ZunMemory", read, write)
+#pragma section(".data$J5g_ControllerData", read, write)
+#pragma section(".data$J6g_TextBufferSurface", read, write)
+
+__declspec(allocate(".data$J1g_Chain"))
+DIFFABLE_STATIC(Chain, g_Chain);
 
 // Controller
-DIFFABLE_STATIC_ARRAY_ASSIGN(u8, (32 * 4), g_ControllerData) = {0};
-DIFFABLE_STATIC(JOYCAPS, g_JoystickCaps)
-DIFFABLE_STATIC(u16, g_FocusButtonConflictState)
-DIFFABLE_STATIC(u16, g_LastFrameInput)
-DIFFABLE_STATIC(u16, g_IsEigthFrameOfHeldInput)
-DIFFABLE_STATIC(u16, g_NumOfFramesInputsWereHeld)
-DIFFABLE_STATIC(u16, g_CurFrameInput)
+__declspec(allocate(".data$J5g_ControllerData"))
+DIFFABLE_STATIC_ARRAY(u8, (32 * 4), g_ControllerData);
+__declspec(allocate(".data$I1g_JoystickCaps"))
+DIFFABLE_STATIC(JOYCAPS, g_JoystickCaps);
+__declspec(allocate(".data$I2g_FocusButtonConflictState"))
+DIFFABLE_STATIC(u16, g_FocusButtonConflictState);
+__declspec(allocate(".data$I6g_LastFrameInput"))
+DIFFABLE_STATIC(u16, g_LastFrameInput);
+__declspec(allocate(".data$I7g_IsEigthFrameOfHeldInput"))
+DIFFABLE_STATIC(u16, g_IsEigthFrameOfHeldInput);
+__declspec(allocate(".data$I8g_NumOfFramesInputsWereHeld"))
+DIFFABLE_STATIC(u16, g_NumOfFramesInputsWereHeld);
+__declspec(allocate(".data$I5g_CurFrameInput"))
+DIFFABLE_STATIC(u16, g_CurFrameInput);
 
 class CMyFont
 {
@@ -50,7 +74,8 @@ class CMyFont
 };
 
 // CMyFont
-DIFFABLE_STATIC(CMyFont, g_CMyFont)
+__declspec(allocate(".data$J3g_CMyFont"))
+DIFFABLE_STATIC(CMyFont, g_CMyFont);
 
 Chain::~Chain()
 {
@@ -431,10 +456,12 @@ destroy_elem:
 }
 
 // ZunMemory
+__declspec(allocate(".data$J4g_ZunMemory"))
 DIFFABLE_STATIC(ZunMemory, g_ZunMemory);
 
 // FileSystem
-DIFFABLE_STATIC(u32, g_LastFileSize)
+__declspec(allocate(".data$I9g_LastFileSize"))
+DIFFABLE_STATIC(u32, g_LastFileSize);
 
 u16 Controller::GetJoystickCaps(void)
 {
@@ -861,10 +888,15 @@ void CMyFont::Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h)
     SelectObject(hTextDC, hOldFont);
     DeleteObject(hFont);
 }
+
+__declspec(allocate(".data$J6g_TextBufferSurface"))
+DIFFABLE_STATIC(LPDIRECT3DSURFACE8, g_TextBufferSurface);
+
 void Fake_DrawTextA()
 {
     void *fake = (void *)&DrawText;
 }
+
 // ----------------------------------------------------------------------------
 void CMyFont::Print(char *str, int x, int y, D3DCOLOR color)
 {
@@ -881,6 +913,9 @@ void CMyFont::Clean()
 {
     RELEASE(m_lpFont);
 }
+
+__declspec(allocate(".data$I4g_Pbg3Archives"))
+DIFFABLE_STATIC(Pbg3Archive **, g_Pbg3Archives);
 
 #pragma var_order(pbg3Idx, entryname, entryIdx, fsize, data, file)
 u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
@@ -986,10 +1021,12 @@ int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 }
 
 // GameErrorContext
-DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext)
+__declspec(allocate(".data$J2g_GameErrorContext"))
+DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext);
 
 // Rng
-DIFFABLE_STATIC(Rng, g_Rng)
+__declspec(allocate(".data$I3g_Rng"))
+DIFFABLE_STATIC(Rng, g_Rng);
 
 const char *GameErrorContext::Log(const char *fmt, ...)
 {

@@ -8,6 +8,9 @@
 
 namespace th06
 {
+#pragma section(".data$N1MusicRoom", read, write)
+#pragma bss_seg(".data$N1MusicRoom")
+
 struct TrackDescriptor
 {
     TrackDescriptor()

@@ -33,19 +33,6 @@ struct GameConfigOpts
     u32 dontUseDirectInput : 1;
 };
 
-struct ControllerMapping
-{
-    i16 shootButton;
-    i16 bombButton;
-    i16 focusButton;
-    i16 menuButton;
-    i16 upButton;
-    i16 downButton;
-    i16 leftButton;
-    i16 rightButton;
-    i16 skipButton;
-};
-
 enum MusicMode
 {
     OFF = 0,
@@ -254,8 +241,6 @@ struct Supervisor
 };
 ZUN_ASSERT_SIZE(Supervisor, 0x4d8);
 
-DIFFABLE_EXTERN(ControllerMapping, g_ControllerMapping)
-DIFFABLE_EXTERN(Supervisor, g_Supervisor)
-DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface)
+DIFFABLE_EXTERN(Supervisor, g_Supervisor);
 
 }; // namespace th06
