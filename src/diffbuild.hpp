@@ -4,9 +4,9 @@
 // against the original TH06 to find inaccuracies in our reimplementation. To
 // make a DIFFBUILD, one must call the makefile with DIFFBUILD=1
 //
-// This helper provides two macros: DIFFABLE_EXTERN and DIFFABLE_STATIC. All
-// static variables should be defined and declared through those macros. So for
-// instance, instead of
+// This helper provides two macro groups: DIFFABLE_EXTERN and DIFFABLE_STATIC.
+// All static variables should be defined and declared through those macros. So
+// for instance, instead of
 //
 // ```
 // Stage g_Stage;
@@ -15,7 +15,7 @@
 // One should write
 //
 // ```
-// DIFFABLE_STATIC(Stage, g_Stage)
+// DIFFABLE_STATIC(Stage, g_Stage);
 // ```
 //
 // The first argument is the type, while the second argument is the name of the
@@ -27,6 +27,13 @@
 // ```
 // DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 5, g_ArrayName) = { 0, 1, 2 };
 // ```
+//
+// The SORTED variants are used as a workaround; MSVC's linker orders
+// zero-initialized and uninitialized globals based on name in a hard to
+// predict manner that would effectively require figuring out what ZUN called
+// his variables, which is less than desirable for obvious reasons.
+// This allows us to override the order the linker would normally choose.
+// Is it pretty? No. But MSVC has unfortunately forced our hand.
 
 #pragma once
 
