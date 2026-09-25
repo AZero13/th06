@@ -816,7 +816,7 @@ f32 Player::AngleFromPlayer(D3DXVECTOR3 *pos)
     relY = pos->y - this->positionCenter.y;
     if (relY == 0.0f && relX == 0.0f)
     {
-        return ZUN_HALF_PI;
+        return RADIANS(90.0f);
     }
     return atan2f(relY, relX);
 }
@@ -833,7 +833,7 @@ f32 Player::AngleToPlayer(D3DXVECTOR3 *pos)
     {
         // Shoot down. An angle of 0 means to the right, and the angle goes
         // clockwise.
-        return ZUN_HALF_PI;
+        return RADIANS(90.0f);
     }
     return atan2f(relY, relX);
 }
@@ -1255,7 +1255,7 @@ static void DrawBullets(Player *p)
         }
         if (bullets->sprite.autoRotate)
         {
-            bullets->sprite.rotation.z = ZUN_HALF_PI - utils::AddNormalizeAngle(bullets->unk_134.z, ZUN_PI);
+            bullets->sprite.rotation.z = RADIANS(90.0f) - utils::AddNormalizeAngle(bullets->unk_134.z, RADIANS(180.0f));
         }
         g_AnmManager->Draw2(&bullets->sprite);
     }
@@ -1307,7 +1307,7 @@ static void DrawBulletExplosions(Player *p)
         }
         if (bullets->sprite.autoRotate)
         {
-            bullets->sprite.rotation.z = ZUN_HALF_PI - utils::AddNormalizeAngle(bullets->unk_134.z, ZUN_PI);
+            bullets->sprite.rotation.z = RADIANS(90.0f) - utils::AddNormalizeAngle(bullets->unk_134.z, RADIANS(180.0f));
         }
         bullets->sprite.pos.z = 0.4f;
         g_AnmManager->Draw2(&bullets->sprite);
