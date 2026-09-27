@@ -27,7 +27,7 @@ def configure(build_type):
         if build_type == BuildType.DIFFBUILD:
             cl_common_flags += " /DDIFFBUILD"
         if build_type == BuildType.BINARY_MATCHBUILD:
-            cl_common_flags += " /DDBINARYMATCHBUILD"
+            cl_common_flags += " /DBINARYMATCHBUILD"
         writer.variable("cl_common_flags", cl_common_flags)
         writer.variable(
             "cl_flags",
@@ -39,7 +39,7 @@ def configure(build_type):
         writer.variable("rc", "rc.exe")
         writer.variable("link", "link.exe")
 
-        th06_link_flags = "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /opt:icf /map /mapinfo:exports /mapinfo:lines /nodefaultlib:libcpmt.lib"
+        th06_link_flags = "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /opt:icf /map /mapinfo:exports /mapinfo:lines"
 
         writer.variable("msvc_deps_prefix", "Note: including file:")
 
@@ -67,10 +67,6 @@ def configure(build_type):
             "python scripts/generate_i18n.py $in $out",
         )
         writer.rule(
-            "gendef",
-            "python scripts/gendef.py --output $out $in",
-        )
-        writer.rule(
             "rename_symbols",
             "python scripts/generate_objdiff_objs.py $in",
         )
@@ -78,7 +74,10 @@ def configure(build_type):
         cxx_sources = [
             "AsciiManager",
             "Stage",
-            "BombData",
+            "BombReimuA",
+            "BombReimuB",
+            "BombMarisaA",
+            "BombMarisaB",
             "EclManager",
             "EnemyEclInstr",
             "EffectManager",
@@ -94,7 +93,9 @@ def configure(build_type):
             "MidiOutput",
             "Supervisor",
             "ZunTimer",
-            "Supervisor2",
+            "SupervisorPbg3",
+            "SupervisorConfig",
+            "SupervisorAudio",
             "MusicRoom",
             "Player",
             "BulletData",
@@ -115,7 +116,9 @@ def configure(build_type):
                 "MusicRoom",
                 "Supervisor",
                 "ZunTimer",
-                "Supervisor2",
+                "SupervisorPbg3",
+                "SupervisorConfig",
+                "SupervisorAudio",
                 "TextHelper",
                 "ResultScreen",
             ]
@@ -167,7 +170,10 @@ def configure(build_type):
                 "$builddir/objdiff/reimpl/" + rule + ".obj",
                 "rename_symbols",
                 "$builddir/" + rule + ".obj",
-                implicit=["scripts/generate_objdiff_objs.py"],
+                implicit=[
+                    "scripts/generate_objdiff_objs.py",
+                    "config/ghidra_ns_to_obj.csv",
+                ],
             )
 
         for rule in pbg3_sources:
@@ -182,7 +188,10 @@ def configure(build_type):
                 "$builddir/objdiff/reimpl/" + rule + ".obj",
                 "rename_symbols",
                 "$builddir/" + rule + ".obj",
-                implicit=["scripts/generate_objdiff_objs.py"],
+                implicit=[
+                    "scripts/generate_objdiff_objs.py",
+                    "config/ghidra_ns_to_obj.csv",
+                ],
             )
 
         for rule in munit_sources:
@@ -221,12 +230,6 @@ def configure(build_type):
             "rc",
             inputs="resources/th06.rc",
             implicit="$builddir/icon.ico",
-        )
-        writer.build(
-            "$builddir/th06.def",
-            "gendef",
-            inputs=["$builddir/" + x + ".obj" for x in (cxx_sources + pbg3_sources)],
-            implicit=["scripts/gendef.py"],
         )
         objfiles = (
             ["$builddir/" + src + ".obj" for src in cxx_sources]

@@ -714,12 +714,4 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
     }
 }
 
-// TODO: HORRIBLE FAKE LINKER HACK
-// Figure out comdat folding to fix
-AnmManager::~AnmManager()
-{
-}
-void MidiTimer::OnTimerElapsed()
-{
-}
 }; // namespace th06

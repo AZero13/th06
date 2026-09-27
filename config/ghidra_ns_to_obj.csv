@@ -1,6 +1,9 @@
 AnmManager,th06::AnmVm,th06::AnmManager
 AsciiManager,th06::AsciiManager,th06::StageMenu
-BombData,th06::BombData
+BombReimuA,th06::BombData::BombReimuACalc,th06::BombData::BombReimuADraw,th06::BombData::DarkenViewport
+BombReimuB,th06::BombData::BombReimuBCalc,th06::BombData::BombReimuBDraw
+BombMarisaA,th06::BombData::BombMarisaACalc,th06::BombData::BombMarisaADraw
+BombMarisaB,th06::BombData::BombMarisaBCalc,th06::BombData::BombMarisaBDraw
 BulletManager,th06::BulletManager
 EclManager,th06::EclManager
 EffectManager,th06::EffectManager
@@ -24,8 +27,10 @@ ResultScreen,th06::ResultScreen
 ScreenEffect,th06::ScreenEffect
 SoundPlayer,th06::SoundPlayer
 Stage,th06::Stage,th06::AnmManager::ExecuteAnmIdx
+SupervisorPbg3,th06::Supervisor::ReleasePbg3,th06::Supervisor::LoadPbg3
+SupervisorConfig,th06::Supervisor::LoadConfig
+SupervisorAudio,th06::Supervisor::ReadMidiFile,th06::Supervisor::PlayMidiFile,th06::Supervisor::SetupMidiPlayback,th06::Supervisor::PlayAudio,th06::Supervisor::StopAudio,th06::Supervisor::FadeOutMusic
 Supervisor,th06::Supervisor
-Supervisor2,th06::Supervisor
 TextHelper,th06::TextHelper
 ZunTimer,th06::ZunTimer,th06::Supervisor
 main,WinMain,th06::GameWindow

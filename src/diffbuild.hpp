@@ -88,7 +88,7 @@
         __pragma(bss_seg(MACRO_STR(MACRO_CATW(.data$, sort, __LINE__))))
 #endif
 
-#if defined(BINARYMATCHBUILD) || defined(DIFFBUILD) || defined(DLLBUILD)
+#if defined(BINARYMATCHBUILD) || defined(DIFFBUILD)
 #define ZUN_ASSERT_SIZE(type, size) C_ASSERT(sizeof(type) == size);
 #else
 #define ZUN_ASSERT_SIZE(type, size) C_ASSERT(true);

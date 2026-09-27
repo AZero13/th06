@@ -29,9 +29,27 @@
             "reverse_fn_order": false
         },
         {
-            "name": "BombData",
-            "target_path": "build/objdiff/orig/BombData.obj",
-            "base_path": "build/objdiff/reimpl/BombData.obj",
+            "name": "BombReimuA",
+            "target_path": "build/objdiff/orig/BombReimuA.obj",
+            "base_path": "build/objdiff/reimpl/BombReimuA.obj",
+            "reverse_fn_order": false
+        },
+        {
+            "name": "BombReimuB",
+            "target_path": "build/objdiff/orig/BombReimuB.obj",
+            "base_path": "build/objdiff/reimpl/BombReimuB.obj",
+            "reverse_fn_order": false
+        },
+        {
+            "name": "BombMarisaA",
+            "target_path": "build/objdiff/orig/BombMarisaA.obj",
+            "base_path": "build/objdiff/reimpl/BombMarisaA.obj",
+            "reverse_fn_order": false
+        },
+        {
+            "name": "BombMarisaB",
+            "target_path": "build/objdiff/orig/BombMarisaB.obj",
+            "base_path": "build/objdiff/reimpl/BombMarisaB.obj",
             "reverse_fn_order": false
         },
         {
@@ -179,9 +197,21 @@
             "reverse_fn_order": false
         },
         {
-            "name": "Supervisor2",
-            "target_path": "build/objdiff/orig/Supervisor2.obj",
-            "base_path": "build/objdiff/reimpl/Supervisor2.obj",
+            "name": "SupervisorPbg3",
+            "target_path": "build/objdiff/orig/SupervisorPbg3.obj",
+            "base_path": "build/objdiff/reimpl/SupervisorPbg3.obj",
+            "reverse_fn_order": false
+        },
+        {
+            "name": "SupervisorConfig",
+            "target_path": "build/objdiff/orig/SupervisorConfig.obj",
+            "base_path": "build/objdiff/reimpl/SupervisorConfig.obj",
+            "reverse_fn_order": false
+        },
+        {
+            "name": "SupervisorAudio",
+            "target_path": "build/objdiff/orig/SupervisorAudio.obj",
+            "base_path": "build/objdiff/reimpl/SupervisorAudio.obj",
             "reverse_fn_order": false
         },
         {
