@@ -115,7 +115,8 @@ void ItemManager::OnUpdate()
             {
                 fVar5 = curItem->timer.AsFramesFloat() / 60.0f;
                 // start position
-                curItem->currentPosition = fVar5 * curItem->targetPosition + curItem->startPositionVelocity * (1.0f - fVar5);
+                curItem->currentPosition =
+                    fVar5 * curItem->targetPosition + curItem->startPositionVelocity * (1.0f - fVar5);
                 goto yolo;
             }
             else if (curItem->timer == 60)
