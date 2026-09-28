@@ -33,6 +33,41 @@ struct TextHelper
     bool InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight);
     bool CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface);
 
+    bool IsAllocated()
+    {
+        return this->gdiObj2 != NULL;
+    }
+
+    u8 *GetBuffer()
+    {
+        return this->buffer;
+    }
+
+    u32 GetImageWidthInBytes()
+    {
+        return this->imageWidthInBytes;
+    }
+
+    i32 GetHeight()
+    {
+        return this->height;
+    }
+
+    HDC GetHDC()
+    {
+        return this->hdc;
+    }
+
+    i32 GetWidth()
+    {
+        return this->width;
+    }
+
+    D3DFORMAT GetFormat()
+    {
+        return this->format;
+    }
+
     D3DFORMAT format;
     i32 width;
     i32 height;

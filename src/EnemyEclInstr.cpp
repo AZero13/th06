@@ -68,11 +68,8 @@ void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
         case 1:
             currentBullet->exFlags |= 0x10;
             currentBullet->ex5Int0 = 220;
-            // TODO: Inline as currentBullet->timer.Initialize()
             bulletTimer = &currentBullet->timer;
-            bulletTimer->current = 0;
-            bulletTimer->subFrame = 0.0f;
-            bulletTimer->previous = -999;
+            bulletTimer->SetCurrent(0);
             accelerationMultiplier = 0.01f;
             accelerationAngle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
             sincosmul(&currentBullet->ex4Acceleration, accelerationAngle, accelerationMultiplier);
