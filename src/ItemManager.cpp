@@ -126,7 +126,8 @@ void ItemManager::OnUpdate()
         }
         else
         {
-            if (curItem->state == ITEM_STATE_MAGNETED || (g_GameManager.currentPower >= MAX_POWER && g_Player.positionCenter.y < 128.0f))
+            if (curItem->state == ITEM_STATE_MAGNETED ||
+                (g_GameManager.currentPower >= MAX_POWER && g_Player.positionCenter.y < 128.0f))
             {
                 playerAngle = g_Player.AngleToPlayer(&curItem->currentPosition);
                 sincosmul(&curItem->startPositionVelocity, playerAngle, 8.0f);

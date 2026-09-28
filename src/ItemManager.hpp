@@ -21,7 +21,8 @@ enum ItemType // This enum is 1 byte in size on Enemy
     ITEM_POINT_BULLET,
 };
 
-enum ItemState {
+enum ItemState
+{
     ITEM_STATE_FALLING,
     ITEM_STATE_MAGNETED,
     ITEM_STATE_SPAWNED_BY_PLAYER_DEATH,
