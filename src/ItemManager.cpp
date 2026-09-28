@@ -18,7 +18,7 @@ DIFFABLE_STATIC_SORTED(K4, ItemManager, g_ItemManager);
 DIFFABLE_STATIC_SORTED(K5, ChainElem, g_ItemManagerCalcChain); // unused
 DIFFABLE_STATIC_SORTED(K3, ChainElem, g_ItemManagerDrawChain); // unused
 
-void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
+void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, ItemState state)
 {
     Item *item;
     i32 idx;
@@ -52,7 +52,7 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
         item->itemType = itemType;
         item->state = state;
         item->timer = 0;
-        if (state == 2)
+        if (state == ITEM_STATE_SPAWNED_BY_PLAYER_DEATH)
         {
             // From 48.0f to 336.0f
             item->targetPosition.x = g_Rng.GetRandomF32ZeroToOne() * 288.0f + 48.0f;
@@ -109,7 +109,7 @@ void ItemManager::OnUpdate()
             continue;
         }
         this->itemCount++;
-        if (curItem->state == 2)
+        if (curItem->state == ITEM_STATE_SPAWNED_BY_PLAYER_DEATH)
         {
             if (curItem->timer < 60)
             {
@@ -126,11 +126,11 @@ void ItemManager::OnUpdate()
         }
         else
         {
-            if (curItem->state == 1 || (g_GameManager.currentPower >= MAX_POWER && g_Player.positionCenter.y < 128.0f))
+            if (curItem->state == ITEM_STATE_MAGNETED || (g_GameManager.currentPower >= MAX_POWER && g_Player.positionCenter.y < 128.0f))
             {
                 playerAngle = g_Player.AngleToPlayer(&curItem->currentPosition);
                 sincosmul(&curItem->startPositionVelocity, playerAngle, 8.0f);
-                curItem->state = 1;
+                curItem->state = ITEM_STATE_MAGNETED;
             }
             else
             {
@@ -357,7 +357,7 @@ void ItemManager::RemoveAllItems()
         {
             continue;
         }
-        cursor->state = 1;
+        cursor->state = ITEM_STATE_MAGNETED;
     }
 }
 
