@@ -227,7 +227,7 @@ th06::ItemManager::ItemManager
 th06::ItemManager::SpawnItem
 th06::ItemManager::OnUpdate
 th06::ItemManager::OnDraw
-th06::ItemManager::MagnetAllItems
+th06::ItemManager::RemoveAllItems
 th06::MainMenu::MainMenu
 th06::MainMenu::AddedCallback
 th06::MainMenu::DeletedCallback

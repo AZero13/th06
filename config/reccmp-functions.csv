@@ -226,7 +226,7 @@ th06::TextHelper::RenderTextToTexture,0x41f050,function
 th06::ItemManager::ItemManager,0x41f230,function
 th06::ItemManager::SpawnItem,0x41f290,function
 th06::ItemManager::OnUpdate,0x41f4a0,function
-th06::ItemManager::MagnetAllItems,0x420130,function
+th06::ItemManager::RemoveAllItems,0x420130,function
 th06::ItemManager::OnDraw,0x420190,function
 WinMain,0x420330,function
 th06::GameWindow::Render,0x4206e0,function
