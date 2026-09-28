@@ -1347,7 +1347,7 @@ ZunResult BulletManager::AddedCallback(BulletManager *mgr)
 {
     u32 idx;
 
-    if ((ZunBool)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsStageReloading())
     {
         if (g_AnmManager->LoadAnm(ANM_FILE_BULLET3, "data/etama3.anm", ANM_OFFSET_BULLET3) != ZUN_SUCCESS)
         {
@@ -1433,7 +1433,7 @@ ZunResult BulletManager::AddedCallback(BulletManager *mgr)
 
 ZunResult BulletManager::DeletedCallback(BulletManager *arg)
 {
-    if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsStageReloading())
     {
         g_AnmManager->ReleaseAnm(ANM_FILE_BULLET3);
         g_AnmManager->ReleaseAnm(ANM_FILE_BULLET4);

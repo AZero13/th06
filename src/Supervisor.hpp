@@ -196,6 +196,16 @@ struct Supervisor
         return this->cfg.windowed;
     }
 
+    ZunBool IsInitialStageLoad()
+    {
+        return this->curState == SUPERVISOR_STATE_GAMEMANAGER_REINIT;
+    }
+
+    ZunBool IsStageReloading()
+    {
+        return this->curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT;
+    }
+
     HINSTANCE hInstance;
     LPDIRECT3D8 d3dIface;
     LPDIRECT3DDEVICE8 d3dDevice;
