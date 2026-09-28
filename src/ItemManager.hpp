@@ -48,7 +48,7 @@ struct ItemManager
     void SpawnItem(D3DXVECTOR3 *position, ItemType type, ItemState state);
     void OnUpdate();
     void OnDraw();
-    void RemoveAllItems();
+    void MagnetAllItems();
 
     Item items[513];
     i32 nextIndex;

@@ -347,7 +347,7 @@ void ItemManager::OnUpdate()
 }
 
 #pragma var_order(idx, cursor)
-void ItemManager::RemoveAllItems()
+void ItemManager::MagnetAllItems()
 {
     Item *cursor;
     i32 idx;
