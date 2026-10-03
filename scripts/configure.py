@@ -75,6 +75,7 @@ def configure(build_type):
         )
 
         cxx_sources = [
+            "TextHelper",
             "AsciiManager",
             "Stage",
             "BombData",
@@ -87,7 +88,9 @@ def configure(build_type):
             "Gui",
             "GameManager",
             "Global",
-            "TextHelper",
+            "FileSystem",
+            "font",
+            "score",
             "ItemManager",
             "main",
             "MidiOutput",
@@ -117,16 +120,14 @@ def configure(build_type):
                 "Supervisor",
                 "ZunTimer",
                 "Supervisor2",
-                "TextHelper",
-                "ResultScreen",
+                    "ResultScreen",
             ]
         )
 
         no_intrin_sources = set(
             [
                 "MainMenu",
-                "TextHelper",
-                "ResultScreen",
+                    "ResultScreen",
             ]
         )
 

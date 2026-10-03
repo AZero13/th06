@@ -250,4 +250,6 @@ ZUN_ASSERT_TYPE(GameErrorContext, 0x808, 4);
 DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
 DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives);
 DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface);
+
+
 } // namespace th06

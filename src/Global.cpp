@@ -10,6 +10,7 @@
 
 #include "GameWindow.hpp"
 #include "Global.hpp"
+#include "font.hpp"
 #include "Supervisor.hpp"
 #include "ZunMath.hpp"
 #include "ZunTimer.hpp"
@@ -34,23 +35,7 @@ DIFFABLE_STATIC_SORTED(I7, u16, g_IsEigthFrameOfHeldInput);
 DIFFABLE_STATIC_SORTED(I8, u16, g_NumOfFramesInputsWereHeld);
 DIFFABLE_STATIC_SORTED(I5, u16, g_CurFrameInput);
 
-class CMyFont
-{
-  private:
-    LPD3DXFONT m_lpFont;
 
-  public:
-    CMyFont()
-    {
-        m_lpFont = NULL;
-    }
-    virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
-    virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
-    virtual void Clean();
-};
-
-// CMyFont
-DIFFABLE_STATIC_SORTED(J3, CMyFont, g_CMyFont);
 
 Chain::~Chain()
 {
@@ -822,162 +807,6 @@ void Controller::ResetKeyboard(void)
 // All Rights Reserved.
 //
 // ----------------------------------------------------------------------------
-#define RELEASE(o)                                                                                                     \
-    if (o)                                                                                                             \
-    {                                                                                                                  \
-        o->Release();                                                                                                  \
-        o = NULL;                                                                                                      \
-    }
-
-void CMyFont::Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h)
-{
-    HDC hTextDC = NULL;
-    HFONT hFont = NULL, hOldFont = NULL;
-
-    hTextDC = CreateCompatibleDC(NULL);
-    hFont = CreateFont(h, w, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS,
-                       CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, TH_FONT_NAME);
-    if (!hFont)
-        return;
-    hOldFont = (HFONT)SelectObject(hTextDC, hFont);
-
-    if (FAILED(D3DXCreateFont(lpD3DDEV, hFont, &m_lpFont)))
-    {
-        MessageBox(NULL, "D3DXCreateFontIndirect FALSE", "ok", MB_OK);
-        return;
-    }
-    SelectObject(hTextDC, hOldFont);
-    DeleteObject(hFont);
-}
-
-DIFFABLE_STATIC_SORTED(J6, LPDIRECT3DSURFACE8, g_TextBufferSurface);
-
-void Fake_DrawTextA()
-{
-    void *fake = (void *)&DrawText;
-}
-
-// ----------------------------------------------------------------------------
-void CMyFont::Print(char *str, int x, int y, D3DCOLOR color)
-{
-    RECT rect;
-    rect.left = x;
-    rect.right = GAME_WINDOW_WIDTH;
-    rect.top = y;
-    rect.bottom = GAME_WINDOW_HEIGHT;
-
-    m_lpFont->DrawText(str, -1, &rect, DT_LEFT | DT_EXPANDTABS, color);
-}
-// ----------------------------------------------------------------------------
-void CMyFont::Clean()
-{
-    RELEASE(m_lpFont);
-}
-
-DIFFABLE_STATIC_SORTED(I4, Pbg3Archive **, g_Pbg3Archives);
-
-#pragma var_order(pbg3Idx, entryname, entryIdx, fsize, data, file)
-u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
-{
-    u8 *data;
-    FILE *file;
-    size_t fsize;
-    i32 entryIdx;
-    const char *entryname;
-    i32 pbg3Idx;
-
-    entryIdx = -1;
-    if (!isExternalResource)
-    {
-        entryname = strrchr(filepath, '\\');
-        if (entryname == NULL)
-        {
-            entryname = filepath;
-        }
-        else
-        {
-            entryname++;
-        }
-        entryname = strrchr(entryname, '/');
-        if (entryname == NULL)
-        {
-            entryname = filepath;
-        }
-        else
-        {
-            entryname++;
-        }
-        if (g_Pbg3Archives != NULL)
-        {
-            for (pbg3Idx = 0; pbg3Idx < 16; pbg3Idx++)
-            {
-                if (g_Pbg3Archives[pbg3Idx] != NULL)
-                {
-                    entryIdx = g_Pbg3Archives[pbg3Idx]->FindEntry(entryname);
-                    if (entryIdx >= 0)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-        if (entryIdx < 0)
-        {
-            return NULL;
-        }
-    }
-    if (entryIdx >= 0)
-    {
-        utils::DebugPrint2("%s Decode ... \n", entryname);
-        data = g_Pbg3Archives[pbg3Idx]->ReadDecompressEntry(entryIdx, entryname);
-        g_LastFileSize = g_Pbg3Archives[pbg3Idx]->GetEntrySize(entryIdx);
-    }
-    else
-    {
-        utils::DebugPrint2("%s Load ... \n", filepath);
-        file = fopen(filepath, "rb");
-        if (file == NULL)
-        {
-            utils::DebugPrint2("error : %s is not found.\n", filepath);
-            return NULL;
-        }
-        else
-        {
-            fseek(file, 0, SEEK_END);
-            fsize = ftell(file);
-            g_LastFileSize = fsize;
-            fseek(file, 0, SEEK_SET);
-            data = ZUN_ALLOC(fsize);
-            fread(data, 1, fsize, file);
-            fclose(file);
-        }
-    }
-    return data;
-}
-
-int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
-{
-    FILE *f;
-
-    f = fopen(path, "wb");
-    if (f == NULL)
-    {
-        return -1;
-    }
-    else
-    {
-        if (fwrite(data, 1, size, f) != size)
-        {
-            fclose(f);
-            return -2;
-        }
-        else
-        {
-            fclose(f);
-            return 0;
-        }
-    }
-}
 
 // GameErrorContext
 DIFFABLE_STATIC_SORTED(J2, GameErrorContext, g_GameErrorContext);

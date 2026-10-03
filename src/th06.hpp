@@ -39,3 +39,10 @@
 #include "pbg3/Pbg3Archive.hpp"
 #include "pbg3/Pbg3Parser.hpp"
 #include "zwave.hpp"
+
+#define RELEASE(o) \
+    if (o) \
+    { \
+        (o)->Release(); \
+        (o) = NULL; \
+    }

@@ -8,8 +8,9 @@ Ending,th06::Ending
 EnemyEclInstr,th06::EnemyEclInstr
 EnemyManager,th06::EnemyManager,th06::Enemy
 FileAbstraction,th06::FileAbstraction
+FileSystem,th06::FileSystem
 GameManager,th06::GameManager
-Global,th06::Chain,th06::ChainElem,th06::CMyFont,th06::Controller,th06::FileSystem,th06::GameErrorContext,th06::Rng,th06::utils
+Global,th06::Chain,th06::ChainElem,th06::Controller,th06::GameErrorContext,th06::Rng,th06::utils
 Gui,th06::Gui,th06::GuiImpl
 IPbg3Parser,th06::IPbg3Parser
 ItemManager,th06::ItemManager
@@ -28,5 +29,7 @@ Supervisor,th06::Supervisor
 Supervisor2,th06::Supervisor
 TextHelper,th06::TextHelper
 ZunTimer,th06::ZunTimer,th06::Supervisor
+font,th06::CMyFont
 main,WinMain,th06::GameWindow
+score,th06::OpenScore,th06::ParseCatk
 zwave,th06::CSound,th06::CSoundManager,th06::CStreamingSound,th06::CWaveFile

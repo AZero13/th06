@@ -65,7 +65,6 @@ struct AsciiManager
     static ZunResult AddedCallback(AsciiManager *s);
     static ZunResult DeletedCallback(AsciiManager *s);
 
-    // TODO: Make this inline somehow
     void InitializeVms();
 
     void DrawStrings();

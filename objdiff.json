@@ -89,6 +89,24 @@
             "reverse_fn_order": false
         },
         {
+            "name": "FileSystem",
+            "target_path": "build/objdiff/orig/FileSystem.obj",
+            "base_path": "build/objdiff/reimpl/FileSystem.obj",
+            "reverse_fn_order": false
+        },
+        {
+            "name": "font",
+            "target_path": "build/objdiff/orig/font.obj",
+            "base_path": "build/objdiff/reimpl/font.obj",
+            "reverse_fn_order": false
+        },
+        {
+            "name": "score",
+            "target_path": "build/objdiff/orig/score.obj",
+            "base_path": "build/objdiff/reimpl/score.obj",
+            "reverse_fn_order": false
+        },
+        {
             "name": "Gui",
             "target_path": "build/objdiff/orig/Gui.obj",
             "base_path": "build/objdiff/reimpl/Gui.obj",

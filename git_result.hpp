@@ -1,7 +1,6 @@
 #pragma once
 #include "AnmVm.hpp"
 #include "Global.hpp"
-#include "MainMenu.hpp"
 #include "ReplayData.hpp"
 #include "ZunResult.hpp"
 #include "decomp.hpp"
@@ -145,75 +144,6 @@ struct ScoreDat
     u32 fileLen;
 };
 ZUN_ASSERT_TYPE(ScoreDat, 0x14, 4);
-
-struct ResultScreen
-{
-    ResultScreen()
-    {
-        memset(this, 0, sizeof(ResultScreen));
-        this->cursor = 1;
-    }
-    ~ResultScreen()
-    {
-        ZUN_FREE(this->scoreDat);
-    }
-
-    static ZunResult RegisterChain(i32 unk);
-    static ChainCallbackResult OnUpdate(ResultScreen *r);
-    static ChainCallbackResult OnDraw(ResultScreen *r);
-    static ZunResult AddedCallback(ResultScreen *r);
-    static ZunResult DeletedCallback(ResultScreen *r);
-
-    static void WriteScore(ResultScreen *r);
-    void FreeScore(i32 difficulty, i32 shottype);
-
-    static void MoveCursor(ResultScreen *r, i32 len);
-    static ZunBool MoveCursorHorizontally(ResultScreen *r, i32 len);
-
-    static void FreeAllScores(ScoreListNode *scores);
-
-    i32 HandleResultKeyboard();
-    i32 HandleReplaySaveKeyboard();
-    ZunResult CheckConfirmButton();
-
-    static i32 LinkScore(ScoreListNode *, Hscr *);
-    i32 LinkScoreEx(Hscr *out, i32 difficulty, i32 shottype);
-    u32 DrawFinalStats();
-
-    ScoreDat *scoreDat;
-    i32 frameTimer;
-    i32 resultScreenState;
-    i32 lastResultScreenState;
-    i32 cursor;
-    i32 lastBestScoresCursor;
-    i32 previousCursor;
-    i32 replayNumber;
-    i32 selectedCharacter;
-    i32 charUsed;
-    i32 lastSpellcardSelected;
-    i32 diffSelected;
-    i32 cheatCodeStep;
-    char replayName[9];
-    alignment_padding(0x3);
-    AnmVm unk_40[38];
-    AnmVm unk_28a0[16];
-    AnmVm unk_39a0;
-    ScoreListNode scores[HSCR_NUM_DIFFICULTIES][SHOTTYPE_COUNT];
-    Hscr defaultScore[HSCR_NUM_DIFFICULTIES][SHOTTYPE_COUNT][HSCR_NUM_SCORES_SLOTS];
-    Hscr hscr;
-    Th6k fileHeader;
-    ChainElem *calcChain;
-    ChainElem *drawChain;
-    ReplayData replays[NORMAL_REPLAY_COUNT];
-    ReplayData defaultReplay;
-};
-
-
-
-
-
-
-
 
 ScoreDat *OpenScore(const char *path);
 void ReleaseScoreDat(ScoreDat *s);
