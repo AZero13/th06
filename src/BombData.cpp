@@ -173,13 +173,43 @@ void BombData::BombReimuACalc(Player *player)
     player->bombInfo.timer++;
 }
 
+#pragma var_order(local8, viewport, darkeningTimeLeft)
+static void DarkenViewport(Player *player)
+{
+    ZunRect viewport;
+    f32 darkeningTimeLeft;
+    i32 darknessLevel; // Controls alpha level of black rectangle drawn over view
+
+    viewport.left = 32.0f;
+    viewport.top = 16.0f;
+    viewport.right = 416.0f;
+    viewport.bottom = 464.0f;
+
+    if (player->bombInfo.timer < 60)
+    {
+        darkeningTimeLeft = (player->bombInfo.timer.AsFramesFloat() * 176.0f) / 60.0f;
+        darknessLevel = darkeningTimeLeft >= 176.0f ? 176 : (i32)darkeningTimeLeft;
+    }
+    else if (player->bombInfo.timer >= player->bombInfo.duration + -60)
+    {
+        darkeningTimeLeft = ((player->bombInfo.duration - player->bombInfo.timer.AsFramesFloat()) * 176.0f) / 60.0f;
+        darknessLevel = darkeningTimeLeft < 0.0f ? 0 : (i32)darkeningTimeLeft;
+    }
+    else
+    {
+        darknessLevel = 176;
+    }
+
+    ScreenEffect::DrawSquare(&viewport, darknessLevel << 24);
+}
+
 #pragma var_order(bombSprite, idx)
 void BombData::BombReimuADraw(Player *player)
 {
     i32 idx;
     AnmVm *bombSprite;
 
-    BombData::DarkenViewport(player);
+    DarkenViewport(player);
     bombSprite = &player->bombInfo.sprites[0][0];
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(player->bombInfo.sprites); idx++)
     {
@@ -209,36 +239,6 @@ void BombData::BombReimuADraw(Player *player)
         g_AnmManager->DrawNoRotation(bombSprite);
         bombSprite++;
     }
-}
-
-#pragma var_order(local8, viewport, darkeningTimeLeft)
-void BombData::DarkenViewport(Player *player)
-{
-    ZunRect viewport;
-    f32 darkeningTimeLeft;
-    i32 darknessLevel; // Controls alpha level of black rectangle drawn over view
-
-    viewport.left = 32.0f;
-    viewport.top = 16.0f;
-    viewport.right = 416.0f;
-    viewport.bottom = 464.0f;
-
-    if (player->bombInfo.timer < 60)
-    {
-        darkeningTimeLeft = (player->bombInfo.timer.AsFramesFloat() * 176.0f) / 60.0f;
-        darknessLevel = darkeningTimeLeft >= 176.0f ? 176 : (i32)darkeningTimeLeft;
-    }
-    else if (player->bombInfo.timer >= player->bombInfo.duration + -60)
-    {
-        darkeningTimeLeft = ((player->bombInfo.duration - player->bombInfo.timer.AsFramesFloat()) * 176.0f) / 60.0f;
-        darknessLevel = darkeningTimeLeft < 0.0f ? 0 : (i32)darkeningTimeLeft;
-    }
-    else
-    {
-        darknessLevel = 176;
-    }
-
-    ScreenEffect::DrawSquare(&viewport, darknessLevel << 24);
 }
 
 #pragma var_order(i, bombSprite, unusedVector)
@@ -327,7 +327,7 @@ void BombData::BombReimuBDraw(Player *player)
     AnmVm *bombSprite;
     i32 i;
 
-    BombData::DarkenViewport(player);
+    DarkenViewport(player);
     bombSprite = player->bombInfo.sprites[0];
     for (i = 0; i < 4; i++, bombSprite++)
     {
@@ -408,7 +408,7 @@ void BombData::BombMarisaADraw(Player *player)
     AnmVm *bombSprite;
     i32 idx;
 
-    BombData::DarkenViewport(player);
+    DarkenViewport(player);
     bombSprite = &player->bombInfo.sprites[0][0];
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(player->bombInfo.sprites); idx++)
     {
@@ -514,7 +514,7 @@ void BombData::BombMarisaBDraw(Player *player)
     AnmVm *bombSprite;
     i32 i;
 
-    BombData::DarkenViewport(player);
+    DarkenViewport(player);
     bombSprite = player->bombInfo.sprites[0];
     for (i = 0; i < 4; i++)
     {
