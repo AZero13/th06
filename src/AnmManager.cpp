@@ -70,9 +70,6 @@ AnmManager::AnmManager()
     this->screenshotTextureId = -1;
 }
 
-AnmManager::~AnmManager()
-{
-}
 
 void AnmManager::SetupVertexBuffer()
 {

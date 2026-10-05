@@ -4,8 +4,13 @@ namespace th06
 {
 FileAbstraction::FileAbstraction()
 {
-    handle = INVALID_HANDLE_VALUE;
-    access = 0;
+    this->handle = INVALID_HANDLE_VALUE;
+    this->access = 0;
+}
+
+FileAbstraction::~FileAbstraction()
+{
+    this->Close();
 }
 
 // DUMMY FUNCTIONS FOR IAT
@@ -39,16 +44,16 @@ BOOL Exists_Dummy(const char *filename)
     GetFileAttributesA(filename);
     return TRUE;
 }
-// END DUMMY FUNCTIONS
 
+// END DUMMY FUNCTIONS
 BOOL FileAbstraction::Open(const char *filename, const char *mode)
 {
-    u32 creationDisposition;
+    const char *curMode;
     BOOL isAppendMode = FALSE;
+    u32 creationDisposition;
 
     this->Close();
 
-    const char *curMode;
     for (curMode = mode; *curMode != '\0'; curMode++)
     {
         if (*curMode == 'r')
@@ -74,21 +79,17 @@ BOOL FileAbstraction::Open(const char *filename, const char *mode)
     }
 
     if (*curMode == '\0')
-    {
         return FALSE;
-    }
+
     this->handle = CreateFile(filename, this->access, FILE_SHARE_READ, NULL, creationDisposition,
                               FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
-    if (this->handle == INVALID_HANDLE_VALUE)
-    {
+    if (INVALID_HANDLE_VALUE == this->handle)
         return FALSE;
-    }
 
     if (isAppendMode)
-    {
-        SetFilePointer(this->handle, 0, NULL, FILE_END);
-    }
+        this->Seek(0, FILE_END);
+
     return TRUE;
 }
 
@@ -104,20 +105,16 @@ void FileAbstraction::Close()
 
 BOOL FileAbstraction::Read(void *data, u32 dataLen, DWORD *numBytesRead)
 {
-    if (this->access != GENERIC_READ)
-    {
+    if (GENERIC_READ != this->access)
         return FALSE;
-    }
 
     return ReadFile(this->handle, data, dataLen, numBytesRead, NULL);
 }
 
 BOOL FileAbstraction::Write(void *data, u32 dataLen, DWORD *outWritten)
 {
-    if (this->access != GENERIC_WRITE)
-    {
+    if (GENERIC_WRITE != this->access)
         return FALSE;
-    }
 
     return WriteFile(this->handle, data, dataLen, outWritten, NULL);
 }
@@ -127,18 +124,12 @@ i32 FileAbstraction::ReadByte()
     u8 data;
     DWORD outBytesRead;
 
-    if (this->Read(&data, 1, &outBytesRead) == FALSE)
-    {
+    if (FALSE == this->Read(&data, 1, &outBytesRead))
         return PBG_EOF;
-    }
     if (outBytesRead == 0)
-    {
         return PBG_EOF;
-    }
     else
-    {
         return data;
-    }
 }
 
 i32 FileAbstraction::WriteByte(i32 b)
@@ -147,26 +138,18 @@ i32 FileAbstraction::WriteByte(i32 b)
     DWORD outBytesWritten;
 
     outByte = b;
-    if (this->Write(&outByte, 1, &outBytesWritten) == FALSE)
-    {
+    if (FALSE == this->Write(&outByte, 1, &outBytesWritten))
         return PBG_EOF;
-    }
     if (outBytesWritten == 0)
-    {
         return PBG_EOF;
-    }
     else
-    {
         return b;
-    }
 }
 
 BOOL FileAbstraction::Seek(u32 amount, u32 seekFrom)
 {
-    if (this->handle == INVALID_HANDLE_VALUE)
-    {
+    if (INVALID_HANDLE_VALUE == this->handle)
         return FALSE;
-    }
 
     SetFilePointer(this->handle, amount, NULL, seekFrom);
     return TRUE;
@@ -174,20 +157,16 @@ BOOL FileAbstraction::Seek(u32 amount, u32 seekFrom)
 
 u32 FileAbstraction::Tell()
 {
-    if (this->handle == INVALID_HANDLE_VALUE)
-    {
+    if (INVALID_HANDLE_VALUE == this->handle)
         return 0;
-    }
 
     return SetFilePointer(this->handle, 0, NULL, FILE_CURRENT);
 }
 
 u32 FileAbstraction::GetSize()
 {
-    if (this->handle == INVALID_HANDLE_VALUE)
-    {
+    if (INVALID_HANDLE_VALUE == this->handle)
         return 0;
-    }
 
     return GetFileSize(this->handle, NULL);
 }
@@ -197,51 +176,45 @@ BOOL FileAbstraction::WriteString(void *buffer)
     DWORD Length;
     DWORD temp;
 
-    if (this->access != GENERIC_WRITE)
-    {
+    if (GENERIC_WRITE != this->access)
         return FALSE;
-    }
 
     Length = strlen((char *)buffer);
-    return Write(buffer, Length, &temp);
+    return this->Write(buffer, Length, &temp);
 }
 
 LPVOID FileAbstraction::ReadWholeFile(u32 maxSize)
 {
-    if (this->access != GENERIC_READ)
+    DWORD oldLocation, dataLen, outDataLen;
+    LPVOID data;
+
+    if (GENERIC_READ != this->access)
+        return NULL;
+
+    dataLen = this->GetSize();
+    if (dataLen > maxSize)
+        return NULL;
+
+    data = (LPVOID)LocalAlloc(LPTR, dataLen);
+    if (NULL == data)
+        return NULL;
+
+    oldLocation = this->Tell();
+
+    // Pretty sure the plan here was to seek to 0, but woops the code
+    // is buggy. And yes, this case leaks the data. Amazing, I know.
+    if (FALSE == this->Seek(oldLocation, FILE_BEGIN))
+        return NULL;
+
+    if (FALSE == this->Read(data, dataLen, &outDataLen))
     {
+        LocalFree(data);
         return NULL;
     }
 
-    u32 dataLen = this->GetSize();
-    DWORD outDataLen;
-    if (dataLen <= maxSize)
-    {
-        LPVOID data = (LPVOID)LocalAlloc(LPTR, dataLen);
-        if (data != NULL)
-        {
-            u32 oldLocation = this->Tell();
-            // Pretty sure the plan here was to seek to 0, but woops the code
-            // is buggy.
-            if (this->Seek(oldLocation, FILE_BEGIN) != FALSE)
-            {
-                if (this->Read(data, dataLen, &outDataLen) == FALSE)
-                {
-                    LocalFree(data);
-                    return NULL;
-                }
-                this->Seek(oldLocation, FILE_BEGIN);
-                return data;
-            }
-            // Yes, this case leaks the data. Amazing, I know.
-        }
-    }
-    return NULL;
-}
+    this->Seek(oldLocation, FILE_BEGIN);
 
-FileAbstraction::~FileAbstraction()
-{
-    this->Close();
+    return data;
 }
 
 } // namespace th06

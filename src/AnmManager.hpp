@@ -95,7 +95,6 @@ ZUN_ASSERT_TYPE(RenderVertexInfo, 0x14, 4);
 struct AnmManager
 {
     AnmManager();
-    ~AnmManager();
 
     void ReleaseVertexBuffer();
     void SetupVertexBuffer();

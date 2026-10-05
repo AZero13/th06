@@ -20,12 +20,15 @@ struct TextHelper
 {
     TextHelper();
     ~TextHelper();
-    bool AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT format);
+    bool SetText(const char *pString);
+    bool Update();
     bool TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format);
-    FormatInfo *GetFormatInfo(D3DFORMAT format);
+    bool AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT format);
     bool ReleaseBuffer();
-    bool InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight);
     bool CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface);
+    bool InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight);
+    FormatInfo *GetFormatInfo(D3DFORMAT format);
+    bool DrawA(i32 x, i32 y, TextHelper &Src);
 
     bool IsAllocated()
     {
@@ -100,49 +103,27 @@ TextHelper::~TextHelper()
     this->ReleaseBuffer();
 }
 
-bool TextHelper::ReleaseBuffer()
+bool TextHelper::SetText(const char *pString)
 {
-    if (this->hdc)
+    i32 len;
+    i32 i;
+
+    if (this->buffer)
     {
-        SelectObject(this->hdc, this->gdiObj);
-        DeleteDC(this->hdc);
-        DeleteObject(this->gdiObj2);
-        this->format = (D3DFORMAT)-1;
-        this->width = 0;
-        this->height = 0;
-        this->hdc = NULL;
-        this->gdiObj2 = NULL;
-        this->gdiObj = NULL;
-        this->buffer = NULL;
-        return true;
+        // Actually CFont did MemFree, but ZUN probably just returned or deleted
     }
-    else
-    {
-        return false;
-    }
+
+    len = strlen(pString) + 2;
+    return true;
 }
 
-bool TextHelper::AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT format)
+bool TextHelper::Update()
 {
-    if (this->TryAllocateBuffer(width, height, format))
-    {
-        return true;
-    }
-
-    if (format == D3DFMT_A1R5G5B5 || format == D3DFMT_A4R4G4B4)
-    {
-        return this->TryAllocateBuffer(width, height, D3DFMT_A8R8G8B8);
-    }
-    if (format == D3DFMT_R5G6B5)
-    {
-        return this->TryAllocateBuffer(width, height, D3DFMT_X8R8G8B8);
-    }
-    return false;
-}
-
-void strlen_dummy(const char *a)
-{
-    strlen(a);
+    SetBkMode(this->hdc, TRANSPARENT);
+    SetTextColor(this->hdc, 0);
+    TextOut(this->hdc, 0, 0, "", 0);
+    _CxxThrowException(NULL, NULL);
+    return true;
 }
 
 #pragma var_order(imageWidthInBytes, deviceContext, originalBitmapObj, bitmapInfo, formatInfo, bitmapObj, bitmapData)
@@ -198,18 +179,86 @@ bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
     return true;
 }
 
-FormatInfo *TextHelper::GetFormatInfo(D3DFORMAT format)
+bool TextHelper::AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT format)
 {
-    i32 i;
+    if (this->TryAllocateBuffer(width, height, format))
+    {
+        return true;
+    }
 
-    for (i = 0; g_FormatInfoArray[i].format != -1 && g_FormatInfoArray[i].format != format; i++)
+    if (format == D3DFMT_A1R5G5B5 || format == D3DFMT_A4R4G4B4)
     {
+        return this->TryAllocateBuffer(width, height, D3DFMT_A8R8G8B8);
     }
-    if (format == -1)
+    if (format == D3DFMT_R5G6B5)
     {
-        return NULL;
+        return this->TryAllocateBuffer(width, height, D3DFMT_X8R8G8B8);
     }
-    return &g_FormatInfoArray[i];
+    return false;
+}
+
+bool TextHelper::ReleaseBuffer()
+{
+    if (this->hdc)
+    {
+        SelectObject(this->hdc, this->gdiObj);
+        DeleteDC(this->hdc);
+        DeleteObject(this->gdiObj2);
+        this->format = (D3DFORMAT)-1;
+        this->width = 0;
+        this->height = 0;
+        this->hdc = NULL;
+        this->gdiObj2 = NULL;
+        this->gdiObj = NULL;
+        this->buffer = NULL;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+#pragma var_order(dstBuf, dstWidthBytes, rectToLock, curHeight, srcWidthBytes, outSurfaceDesc, srcBuf, lockedRect)
+bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
+{
+    D3DLOCKED_RECT lockedRect;
+    u8 *srcBuf;
+    D3DSURFACE_DESC outSurfaceDesc;
+    size_t srcWidthBytes;
+    i32 curHeight;
+    RECT rectToLock;
+    int dstWidthBytes;
+    u8 *dstBuf;
+
+    if (!this->IsAllocated())
+    {
+        return false;
+    }
+    outSurface->GetDesc(&outSurfaceDesc);
+    rectToLock.left = 0;
+    rectToLock.top = 0;
+    rectToLock.right = this->GetWidth();
+    rectToLock.bottom = this->GetHeight();
+    if (outSurface->LockRect(&lockedRect, &rectToLock, 0))
+    {
+        return false;
+    }
+    dstWidthBytes = lockedRect.Pitch;
+    srcWidthBytes = this->GetImageWidthInBytes();
+    srcBuf = this->GetBuffer();
+    dstBuf = (u8 *)lockedRect.pBits;
+    if (outSurfaceDesc.Format == this->GetFormat())
+    {
+        for (curHeight = 0; curHeight < this->GetHeight(); curHeight++)
+        {
+            memcpy(dstBuf, srcBuf, srcWidthBytes);
+            srcBuf += srcWidthBytes;
+            dstBuf += dstWidthBytes;
+        }
+    }
+    outSurface->UnlockRect();
+    return true;
 }
 
 struct A1R5G5B5
@@ -269,51 +318,24 @@ bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
     return true;
 }
 
-#pragma var_order(dstBuf, dstWidthBytes, rectToLock, curHeight, srcWidthBytes, outSurfaceDesc, srcBuf, lockedRect)
-bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
+FormatInfo *TextHelper::GetFormatInfo(D3DFORMAT format)
 {
-    D3DLOCKED_RECT lockedRect;
-    u8 *srcBuf;
-    D3DSURFACE_DESC outSurfaceDesc;
-    size_t srcWidthBytes;
-    i32 curHeight;
-    RECT rectToLock;
-    int dstWidthBytes;
-    u8 *dstBuf;
+    i32 i;
 
-    if (!this->IsAllocated())
+    for (i = 0; g_FormatInfoArray[i].format != -1 && g_FormatInfoArray[i].format != format; i++)
     {
-        return false;
     }
-    outSurface->GetDesc(&outSurfaceDesc);
-    rectToLock.left = 0;
-    rectToLock.top = 0;
-    rectToLock.right = this->GetWidth();
-    rectToLock.bottom = this->GetHeight();
-    if (outSurface->LockRect(&lockedRect, &rectToLock, 0))
+    if (format == -1)
     {
-        return false;
+        return NULL;
     }
-    dstWidthBytes = lockedRect.Pitch;
-    srcWidthBytes = this->GetImageWidthInBytes();
-    srcBuf = this->GetBuffer();
-    dstBuf = (u8 *)lockedRect.pBits;
-    if (outSurfaceDesc.Format == this->GetFormat())
-    {
-        for (curHeight = 0; curHeight < this->GetHeight(); curHeight++)
-        {
-            memcpy(dstBuf, srcBuf, srcWidthBytes);
-            srcBuf += srcWidthBytes;
-            dstBuf += dstWidthBytes;
-        }
-    }
-    outSurface->UnlockRect();
-    return true;
+    return &g_FormatInfoArray[i];
 }
 
-void memmove_dummy(void *a, void *b, size_t c)
+bool TextHelper::DrawA(i32 x, i32 y, TextHelper &Src)
 {
-    memmove(a, b, c);
+    memmove(this->buffer, Src.buffer, 0);
+    return true;
 }
 
 #define TEXT_BUFFER_HEIGHT 64
@@ -326,16 +348,6 @@ void TextHelper_CreateTextBuffer()
 void TextHelper_ReleaseTextBuffer()
 {
     SAFE_RELEASE(g_TextBufferSurface);
-}
-
-void Fake_TextOutA_SetBkMode_SetTextColor_CxxThrowException()
-{
-    void *painA = (void *)&TextOut;
-    void *painB = (void *)&SetBkMode;
-    void *painC = (void *)&SetTextColor;
-    // NOTE: Using throw instead includes TypeInfo/RTTI
-    // objects, which breaks library code order.
-    _CxxThrowException(NULL, NULL);
 }
 
 #pragma var_order(hdc, font, textSurfaceDesc, h, textHelper, hdc, srcRect, destRect, destSurface)
@@ -367,6 +379,7 @@ void TextHelper_RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spr
         SetTextColor(hdc, shadowColor);
         TextOut(hdc, xPos * 2 + 3, 2, string, strlen(string));
     }
+
     // Render main text.
     SetTextColor(hdc, textColor);
     TextOut(hdc, xPos * 2, 0, string, strlen(string));
