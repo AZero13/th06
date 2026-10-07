@@ -1,15 +1,23 @@
-#include "AsciiManager.hpp"
-#include "StageMenu.hpp"
-
 #include "AnmManager.hpp"
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
 #include "GameWindow.hpp"
 #include "Global.hpp"
 #include "Gui.hpp"
+#include "StageMenu.hpp"
 #include "Supervisor.hpp"
 #include "ZunTimer.hpp"
 #include <stdio.h>
+
+namespace th06
+{
+struct AsciiManager;
+
+ZunResult AsciiManager_AddedCallback(AsciiManager *s);
+ZunResult AsciiManager_DeletedCallback(AsciiManager *s);
+} // namespace th06
+
+#include "AsciiManager.hpp"
 
 namespace th06
 {
@@ -18,9 +26,6 @@ DIFFABLE_STATIC_SORTED(A3, AsciiManager, g_AsciiManager);
 DIFFABLE_STATIC_SORTED(A4, ChainElem, g_AsciiManagerCalcChain);
 DIFFABLE_STATIC_SORTED(A2, ChainElem, g_AsciiManagerOnDrawMenusChain);
 DIFFABLE_STATIC_SORTED(A5, ChainElem, g_AsciiManagerOnDrawPopupsChain);
-
-ZunResult AsciiManager_AddedCallback(AsciiManager *s);
-ZunResult AsciiManager_DeletedCallback(AsciiManager *s);
 
 ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *mgr)
 {
@@ -889,11 +894,13 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
     }
 }
 
-// NOTE: This moves 1.0f into the AsciiManager section of rdata
-void dummy_float_1()
+// NOTE: This moves 1.0f into the AsciiManager section of rdata, after 8.0f. The
+// call makes the /O2 trial compile this after StageMenu::OnDrawRetryMenu, the
+// first user of 8.0f. Nothing calls this, so the linker drops it.
+f32 dummy_float_1(StageMenu *menu, f32 a)
 {
-    float a = 0.0f;
-    a += 1.0f;
+    menu->OnDrawRetryMenu();
+    return a + 1.0f;
 }
 
 } // namespace th06

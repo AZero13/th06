@@ -52,23 +52,15 @@ DIFFABLE_STATIC_SORTED(I7, u16, g_IsEigthFrameOfHeldInput);
 DIFFABLE_STATIC_SORTED(I8, u16, g_NumOfFramesInputsWereHeld);
 DIFFABLE_STATIC_SORTED(I5, u16, g_CurFrameInput);
 
-class CMyFont
-{
-  private:
-    LPD3DXFONT m_lpFont;
-
-  public:
-    CMyFont()
-    {
-        m_lpFont = NULL;
-    }
-    virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
-    virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
-    virtual void Clean();
-};
-
 // CMyFont
+#if TRIALBUILD
+// In the /O2 trial the constructor is folded into initialized .data, which
+// doesn't happen inside a bss_seg, so this one is not sorted.
+#pragma bss_seg()
+DIFFABLE_STATIC(CMyFont, g_CMyFont);
+#else
 DIFFABLE_STATIC_SORTED(J3, CMyFont, g_CMyFont);
+#endif
 
 Chain::~Chain()
 {
@@ -110,7 +102,9 @@ Chain::Chain()
 ZunResult Chain::AddToCalcChain(ChainElem *elem, int priority)
 {
     ChainElem *cur = &this->calcChain;
+#if !TRIALBUILD
     utils::DebugPrint2("add calc chain (pri = %d)\n", priority);
+#endif
     elem->priority = priority;
 
     while (cur->next != NULL)
@@ -158,7 +152,9 @@ ZunResult Chain::AddToCalcChain(ChainElem *elem, int priority)
 ZunResult Chain::AddToDrawChain(ChainElem *elem, int priority)
 {
     ChainElem *cur = &this->drawChain;
+#if !TRIALBUILD
     utils::DebugPrint2("add draw chain (pri = %d)\n", priority);
+#endif
     elem->priority = priority;
 
     while (cur->next != NULL)
@@ -435,7 +431,13 @@ destroy_elem:
 }
 
 // ZunMemory
+#if TRIALBUILD
+// Nothing in the trial reads g_ZunMemory, so its slot can't be checked; this is
+// the one gap in this unit's .bss that leaves every other address unchanged.
+DIFFABLE_STATIC_SORTED(J0, ZunMemory, g_ZunMemory);
+#else
 DIFFABLE_STATIC_SORTED(J4, ZunMemory, g_ZunMemory);
+#endif
 
 // FileSystem
 DIFFABLE_STATIC_SORTED(I9, u32, g_LastFileSize);
@@ -1009,7 +1011,14 @@ int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 }
 
 // GameErrorContext
+#if TRIALBUILD
+// In the /O2 trial the constructor is folded into initialized .data, which
+// doesn't happen inside a bss_seg, so this one is not sorted.
+#pragma bss_seg()
+DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext);
+#else
 DIFFABLE_STATIC_SORTED(J2, GameErrorContext, g_GameErrorContext);
+#endif
 
 // Rng
 DIFFABLE_STATIC_SORTED(I3, Rng, g_Rng);

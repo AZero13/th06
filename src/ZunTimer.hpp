@@ -51,6 +51,13 @@ struct ZunTimer
     void Increment(i32 value);
     void Decrement(i32 value);
 
+    i32 Tick()
+    {
+        this->previous = this->current;
+        g_Supervisor.TickTimer(&this->current, &this->subFrame);
+        return this->current;
+    }
+
     void operator+=(i32 value)
     {
         this->Increment(value);
@@ -77,13 +84,6 @@ struct ZunTimer
     void operator=(i32 value)
     {
         SetCurrent(value);
-    }
-
-    i32 Tick()
-    {
-        this->previous = this->current;
-        g_Supervisor.TickTimer(&this->current, &this->subFrame);
-        return this->current;
     }
 
     operator f32()

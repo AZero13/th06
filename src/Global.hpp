@@ -49,6 +49,9 @@ namespace th06
 namespace utils
 {
 ZunResult CheckForRunningGameInstance(void);
+#if TRIALBUILD
+ZunResult CheckDirectXVersion(void);
+#endif
 
 // TODO: Properly make these a single static header func
 #if !TRIALBUILD
@@ -130,7 +133,7 @@ class ZunMemory
   public:
     ZunMemory()
     {
-        this->bRegistryInUse = false;
+        BSS_ZERO_INIT(this->bRegistryInUse = false);
     }
     ~ZunMemory()
     {
@@ -202,6 +205,22 @@ struct Rng
 DIFFABLE_EXTERN(Rng, g_Rng);
 DIFFABLE_EXTERN(HANDLE, g_ExclusiveMutex);
 
+// From font.h
+class CMyFont
+{
+  private:
+    LPD3DXFONT m_lpFont;
+
+  public:
+    CMyFont()
+    {
+        m_lpFont = NULL;
+    }
+    virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
+    virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
+    virtual void Clean();
+};
+
 // From GameErrorContext.hpp
 struct GameErrorContext
 {
@@ -216,20 +235,8 @@ struct GameErrorContext
     i8 m_ShowMessageBox;
     alignment_padding(0x3);
 
-    GameErrorContext()
-    {
-        ResetContext();
-        m_ShowMessageBox = false;
-        Log(TH_ERR_LOGGER_START);
-#if TRIALBUILD
-        DetailedLog(""); // TODO: Add string
-#endif
-    }
-
-    ~GameErrorContext()
-    {
-    }
-
+    // Defined before the constructor that calls it, so the /O2 trial can compile
+    // the constructor in its first pass (ahead of FileSystem::OpenPath).
     void ResetContext()
     {
         m_BufferEnd = m_Buffer;
@@ -238,6 +245,20 @@ struct GameErrorContext
         m_DetailedBufferEnd = m_DetailedBuffer;
         m_DetailedBufferEnd[0] = '\0';
 #endif
+    }
+
+    GameErrorContext()
+    {
+        ResetContext();
+        m_ShowMessageBox = false;
+        Log(TH_ERR_LOGGER_START);
+#if TRIALBUILD
+        DetailedLog(TH_ERR_DETAILED_LOGGER_START);
+#endif
+    }
+
+    ~GameErrorContext()
+    {
     }
 
     const char *Fatal(const char *fmt, ...);

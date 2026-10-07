@@ -90,7 +90,7 @@ struct Supervisor
 {
     Supervisor()
     {
-        memset(this, 0, sizeof(Supervisor));
+        BSS_ZERO_INIT(memset(this, 0, sizeof(Supervisor)));
     }
 
     ZunBool ReadMidiFile(u32 midiFileIdx, const char *path);

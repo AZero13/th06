@@ -91,6 +91,18 @@
 #define BSS_SORT(sort) __declspec(allocate(MACRO_STR(MACRO_CAT(.bss$, sort))))
 #endif
 
+// The trial is built with /O2, which drops the zero stores a dynamic initializer
+// makes to an object in the default .bss, since that memory starts out zeroed.
+// Any bss_seg or allocate on the object turns this off, even one naming ".bss",
+// so the sorted globals above keep those stores. ZUN never sorted .bss, so the
+// constructors of sorted globals wrap such stores in BSS_ZERO_INIT to leave them
+// out of the trial.
+#if TRIALBUILD
+#define BSS_ZERO_INIT(stmt)
+#else
+#define BSS_ZERO_INIT(stmt) stmt
+#endif
+
 // Using __COUNTER__ would be better but makes PCH *really* slow
 #define unique_name(prefix) MACRO_CAT(prefix, __LINE__)
 
