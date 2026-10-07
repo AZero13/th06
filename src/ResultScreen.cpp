@@ -85,8 +85,6 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 6, g_CharacterList) = {TH_HAKUREI_REI
                                                                   TH_KIRISAME_MARISA_DEVIL, TH_KIRISAME_MARISA_LOVE,
                                                                   TH_SATSUKI_RIN_FLOWER,    TH_SATSUKI_RIN_WIND};
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(f32, 5, g_SpellcardsWeightsList) = {1.0f, 1.5f, 1.5f, 2.0f, 2.5f};
-
 #define DEFAULT_HIGH_SCORE_NAME "Nanashi "
 
 #pragma var_order(scoreData, bytesShifted, xorValue, checksum, bytes, remainingData, decryptedFilePointer, fileLen)
@@ -1185,6 +1183,7 @@ u32 ResultScreen::DrawFinalStats()
     static const char *g_RightAlignedDifficultyList[] = {"     Easy", "   Normal", "     Hard", "  Lunatic",
                                                          "    Extra"};
     static const f32 g_DifficultyWeightsList[] = {-30.0f, -10.0f, 20.0f, 30.0f, 30.0f};
+    static f32 g_SpellcardsWeightsList[] = {1.0f, 1.5f, 1.5f, 2.0f, 2.5f};
 
     f32 completion;
     f32 unknownFloat;

@@ -42,9 +42,8 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
     }
 
 #if TRIALBUILD
-    if (GetDXVersion() != 0x800)
+    if (utils::CheckDirectXVersion())
     {
-        g_GameErrorContext.Fatal(""); // TODO: string
         g_GameErrorContext.Flush();
         return -1;
     }
@@ -172,6 +171,28 @@ restart:
 namespace th06
 {
 #define FRAME_TIME (1000.0 / 60.0)
+
+// The 0.13a trial still defines GameWindow_Present above GameWindow::Render, and
+// GameWindow_WindowProc above GameWindow_InitD3dInterface. Its /O2 build compiles
+// functions in an order that follows the source, so they sit there for TRIALBUILD;
+// 1.02h has them in the places further down.
+#if TRIALBUILD
+static void GameWindow_Present()
+{
+    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
+    {
+        g_AnmManager->ReleaseSurfaces();
+        g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
+        GameWindow_InitD3dDevice();
+        g_Supervisor.forceRedrawFrames = 2;
+    }
+    g_AnmManager->TakeScreenshotIfRequested();
+    if (g_Supervisor.forceRedrawFrames != 0)
+    {
+        g_Supervisor.forceRedrawFrames--;
+    }
+}
+#endif
 
 RenderResult GameWindow::Render()
 {
@@ -306,6 +327,7 @@ RenderResult GameWindow::Render()
     return RENDER_RESULT_KEEP_RUNNING;
 }
 
+#if !TRIALBUILD
 static void GameWindow_Present()
 {
     if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
@@ -321,6 +343,58 @@ static void GameWindow_Present()
         g_Supervisor.forceRedrawFrames--;
     }
 }
+#endif
+
+#if TRIALBUILD
+static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case MM_MOM_DONE:
+        if (g_Supervisor.midiOutput != NULL)
+        {
+            g_Supervisor.midiOutput->UnprepareHeader((LPMIDIHDR)lParam);
+        }
+        break;
+    case WM_ACTIVATEAPP:
+        g_GameWindow.isAppActive = wParam;
+        if (g_GameWindow.isAppActive)
+        {
+            g_GameWindow.showCursor = false;
+        }
+        else
+        {
+            g_GameWindow.showCursor = true;
+        }
+        break;
+    case WM_SETCURSOR:
+        if (!g_Supervisor.cfg.windowed)
+        {
+            if (g_GameWindow.showCursor)
+            {
+                SetCursor(LoadCursor(NULL, IDC_ARROW));
+                ShowCursor(TRUE);
+            }
+            else
+            {
+                ShowCursor(FALSE);
+                SetCursor(NULL);
+            }
+        }
+        else
+        {
+            SetCursor(LoadCursor(NULL, IDC_ARROW));
+            ShowCursor(TRUE);
+        }
+
+        return 1;
+    case WM_CLOSE:
+        g_GameWindow.isAppClosing = true;
+        return 1;
+    }
+    return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+#endif
 
 static i32 GameWindow_InitD3dInterface(void)
 {
@@ -350,7 +424,7 @@ static void GameWindow_CreateGameWindow(HINSTANCE hInstance)
     g_GameWindow.showCursor = false;
     base_class.lpszClassName = "BASE";
     RegisterClass(&base_class);
-    if (!g_Supervisor.IsWindowed())
+    if (!g_Supervisor.cfg.windowed)
     {
         width = GAME_WINDOW_WIDTH;
         height = GAME_WINDOW_HEIGHT;
@@ -367,6 +441,7 @@ static void GameWindow_CreateGameWindow(HINSTANCE hInstance)
     g_Supervisor.hwndGameWindow = g_GameWindow.window;
 }
 
+#if !TRIALBUILD
 static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
@@ -389,7 +464,7 @@ static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPara
         }
         break;
     case WM_SETCURSOR:
-        if (!g_Supervisor.IsWindowed())
+        if (!g_Supervisor.cfg.windowed)
         {
             if (g_GameWindow.showCursor)
             {
@@ -415,6 +490,7 @@ static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPara
     }
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
+#endif
 
 #pragma var_order(using_d3d_hal, display_mode, present_params, camera_distance, half_height, half_width, aspect_ratio, \
                   field_of_view_y)
@@ -732,5 +808,18 @@ ZunResult CheckForRunningGameInstance(void)
 
     return ZUN_SUCCESS;
 }
+
+#if TRIALBUILD
+ZunResult CheckDirectXVersion(void)
+{
+    if (GetDXVersion() != 0x800)
+    {
+        g_GameErrorContext.Fatal(TH_ERR_DIRECTX8_REQUIRED);
+        return ZUN_ERROR;
+    }
+
+    return ZUN_SUCCESS;
+}
+#endif
 } // namespace utils
 } // namespace th06

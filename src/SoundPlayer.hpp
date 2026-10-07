@@ -60,7 +60,7 @@ struct SoundPlayer
 {
     SoundPlayer()
     {
-        memset(this, 0, sizeof(SoundPlayer));
+        BSS_ZERO_INIT(memset(this, 0, sizeof(SoundPlayer)));
         for (i32 i = 0; i < SOUND_EFFECT_COUNT; i++)
         {
             this->unk408[i] = -1;

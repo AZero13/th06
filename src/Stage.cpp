@@ -14,17 +14,6 @@
 
 namespace th06
 {
-DIFFABLE_STATIC_ARRAY_ASSIGN(StageFile, 8, g_StageFiles) = {
-    {"dummy", "dummy"},
-    {"data/stg1bg.anm", "data/stage1.std"},
-    {"data/stg2bg.anm", "data/stage2.std"},
-    {"data/stg3bg.anm", "data/stage3.std"},
-    {"data/stg4bg.anm", "data/stage4.std"},
-    {"data/stg5bg.anm", "data/stage5.std"},
-    {"data/stg6bg.anm", "data/stage6.std"},
-    {"data/stg7bg.anm", "data/stage7.std"},
-};
-
 DIFFABLE_STATIC_SORTED(B1, i32, g_StagePad);
 DIFFABLE_STATIC_SORTED(B3, Stage, g_Stage);
 DIFFABLE_STATIC_SORTED(B5, ChainElem, g_StageCalcChain);
@@ -287,6 +276,17 @@ ChainCallbackResult Stage_OnDrawLowPrio(Stage *stage)
 
 ZunResult Stage_AddedCallback(Stage *stage)
 {
+    static StageFile g_StageFiles[] = {
+        {"dummy", "dummy"},
+        {"data/stg1bg.anm", "data/stage1.std"},
+        {"data/stg2bg.anm", "data/stage2.std"},
+        {"data/stg3bg.anm", "data/stage3.std"},
+        {"data/stg4bg.anm", "data/stage4.std"},
+        {"data/stg5bg.anm", "data/stage5.std"},
+        {"data/stg6bg.anm", "data/stage6.std"},
+        {"data/stg7bg.anm", "data/stage7.std"},
+    };
+
     stage->scriptTime = 0;
 
     stage->instructionIndex = 0;

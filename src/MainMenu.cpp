@@ -136,8 +136,6 @@ static void DrawMenuItem(AnmVm *vm, i32 itemNumber, i32 cursor, D3DCOLOR activeI
 
 DIFFABLE_STATIC(MainMenu, g_MainMenu);
 
-DIFFABLE_STATIC_ASSIGN(i16, g_LastJoystickInput) = TH_BUTTON_DOWN; // why???
-
 #define MENU_VMS_DIFFICULTY_SELECT 81
 #define MENU_VMS_CHARACTER_SELECT 86
 #define MENU_VMS_SHOTTYPE_SELECT 92
@@ -289,6 +287,7 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
 #pragma var_order(idx, controllerData)
         {
             i16 idx;
+            static i16 g_LastJoystickInput = TH_BUTTON_DOWN;
             u8 *controllerData = Controller::GetControllerState();
             for (idx = 0; idx < 32; idx++)
             {
