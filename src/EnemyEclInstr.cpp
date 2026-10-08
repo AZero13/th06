@@ -848,7 +848,7 @@ void ExInsFlandreFinalContextUpdate(Enemy *enemy, EclRawInstr *instr)
 
     if (instr->args.exInstr.i32Param == 0)
     {
-        enemy->currentContext.float3 = 2.0f - (remainingLife * 1.0f) / 6000.0f;
+        enemy->currentContext.float3 = 2.0f - (f32)((remainingLife * 1.0f) / 6000.0f);
         enemy->currentContext.counter1 = (remainingLife * 240) / 6000 + 40;
     }
     else

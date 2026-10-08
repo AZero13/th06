@@ -272,7 +272,9 @@ restart_sub_changed:
         case ECL_OPCODE_RET:
             if (enemy->flags.disableCallStack)
             {
+#if !TRIALBUILD
                 utils::DebugPrint2("error : no Stack Ret\n");
+#endif
             }
             enemy->stackDepth--;
             enemy->currentContext = enemy->savedContextStack[enemy->stackDepth];
@@ -314,7 +316,9 @@ restart_sub_changed:
         case ECL_OPCODE_ANM_SET_SLOT:
             if (curInstr->args.anmSetSlot.vmIdx >= ENEMY_ANM_SLOTS)
             {
+#if !TRIALBUILD
                 utils::DebugPrint2("error : sub anim overflow\n");
+#endif
             }
             g_AnmManager->SetAndExecuteScriptIdx(&enemy->vms[curInstr->args.anmSetSlot.vmIdx],
                                                  args->anmSetSlot.scriptIdx + ANM_SCRIPT_ENEMY_START);
