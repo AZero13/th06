@@ -681,7 +681,8 @@ static ChainCallbackResult EnemyManager_OnUpdate(EnemyManager *mgr)
                     {
                         g_EffectManager.SpawnParticles(curEnemy->deathParticle2 + 4, &curEnemy->position, 3,
                                                        COLOR_WHITE);
-                        g_ItemManager.SpawnItem(&curEnemy->position, (ItemType)curEnemy->itemDrop, (ItemState)hitByBomb);
+                        g_ItemManager.SpawnItem(&curEnemy->position, (ItemType)curEnemy->itemDrop,
+                                                (ItemState)hitByBomb);
                     }
                     else if (curEnemy->itemDrop == ITEM_RANDOM_ITEM)
                     {
@@ -690,7 +691,8 @@ static ChainCallbackResult EnemyManager_OnUpdate(EnemyManager *mgr)
                             g_EffectManager.SpawnParticles(curEnemy->deathParticle2 + 4, &curEnemy->position, 6,
                                                            COLOR_WHITE);
                             g_ItemManager.SpawnItem(&curEnemy->position,
-                                                    (ItemType)g_RandomItems[mgr->randomItemTableIndex], (ItemState)hitByBomb);
+                                                    (ItemType)g_RandomItems[mgr->randomItemTableIndex],
+                                                    (ItemState)hitByBomb);
                             mgr->randomItemTableIndex++;
                             if (mgr->randomItemTableIndex >= ARRAY_SIZE_SIGNED(g_RandomItems))
                             {
