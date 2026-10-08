@@ -1,5 +1,4 @@
 #pragma once
-#include "decomp.hpp"
 
 namespace th06
 {

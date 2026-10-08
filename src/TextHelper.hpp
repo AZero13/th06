@@ -1,8 +1,4 @@
 #pragma once
-#include "ZunColor.hpp"
-#include "decomp.hpp"
-
-#include <d3d8.h>
 
 namespace th06
 {

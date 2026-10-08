@@ -1,10 +1,4 @@
 #pragma once
-#include <Windows.h>
-
-#include "Global.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
-#include "zwave.hpp"
 
 namespace th06
 {
@@ -81,6 +75,13 @@ struct SoundPlayer
         if (this->backgroundMusic != NULL)
         {
             this->backgroundMusic->StartFadeOut(seconds);
+        }
+    }
+    void UpdateFadeOut()
+    {
+        if (this->backgroundMusic != NULL)
+        {
+            this->backgroundMusic->UpdateFadeOut();
         }
     }
 

@@ -1,9 +1,11 @@
-#include "MusicRoom.hpp"
+#include "global.h"
+
 #include "AnmManager.hpp"
 #include "AsciiManager.hpp"
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
 #include "Global.hpp"
+#include "MusicRoom.hpp"
 #include <string.h>
 
 namespace th06

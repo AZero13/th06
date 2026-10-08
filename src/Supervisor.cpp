@@ -1,4 +1,5 @@
-#include "Supervisor.hpp"
+#include "global.h"
+
 #include "AnmManager.hpp"
 #include "AsciiManager.hpp"
 #include "Chain.hpp"
@@ -12,6 +13,7 @@
 #include "ReplayManager.hpp"
 #include "ResultScreen.hpp"
 #include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 #include "TextHelper.hpp"
 #include "ZunTimer.hpp"
 #include "decomp.hpp"
@@ -19,6 +21,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "MidiOutput.hpp"
 
 // The trial's archive marker differs from its config and replay format version.
 #if !TRIALBUILD
@@ -35,10 +39,7 @@ BSS_SORT(M1) DIFFABLE_STATIC(Supervisor, g_Supervisor);
 
 ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
 {
-    if (g_SoundPlayer.backgroundMusic != NULL)
-    {
-        g_SoundPlayer.backgroundMusic->UpdateFadeOut();
-    }
+    g_SoundPlayer.UpdateFadeOut();
     g_LastFrameInput = g_CurFrameInput;
     g_CurFrameInput = Controller::GetInput();
     g_IsEigthFrameOfHeldInput = false;

@@ -1,13 +1,4 @@
 #pragma once
-#include <d3dx8math.h>
-
-#include "AnmManager.hpp"
-#include "Chain.hpp"
-#include "StageMenu.hpp"
-#include "Supervisor.hpp"
-#include "ZunResult.hpp"
-#include "ZunTimer.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

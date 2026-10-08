@@ -1,4 +1,5 @@
-#include "Stage.hpp"
+#include "global.h"
+
 #include "AnmIdx.hpp"
 #include "AnmManager.hpp"
 #include "Chain.hpp"
@@ -7,6 +8,7 @@
 #include "Global.hpp"
 #include "Gui.hpp"
 #include "ScreenEffect.hpp"
+#include "Stage.hpp"
 #include "Supervisor.hpp"
 #include "ZunColor.hpp"
 #include "ZunTimer.hpp"

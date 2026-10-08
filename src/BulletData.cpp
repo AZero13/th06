@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "AnmIdx.hpp"
 #include "Player.hpp"
 #include "SoundPlayer.hpp"

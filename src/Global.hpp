@@ -1,17 +1,4 @@
 #pragma once
-#include <d3d8.h>
-#include <d3dx8.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <windows.h>
-
-#include "ZunBool.hpp"
-#include "ZunColor.hpp"
-#include "ZunMath.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
-#include "i18n.hpp"
-#include "pbg3/Pbg3Archive.hpp"
 
 #define IS_PRESSED(key) (g_CurFrameInput & (key))
 #define WAS_PRESSED(key) (IS_PRESSED(key) && (g_CurFrameInput & (key)) != (g_LastFrameInput & (key)))

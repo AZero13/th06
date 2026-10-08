@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "Player.hpp"
 
 #include "AnmManager.hpp"

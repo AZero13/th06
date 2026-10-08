@@ -1,9 +1,4 @@
 #pragma once
-#include "Chain.hpp"
-#include "Effect.hpp"
-#include "ZunColor.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

@@ -1,6 +1,4 @@
 #pragma once
-#include "ZunBool.hpp"
-#include "ZunResult.hpp"
 
 #define REPLAYS_PER_PAGE 15
 #define NORMAL_REPLAY_COUNT REPLAYS_PER_PAGE

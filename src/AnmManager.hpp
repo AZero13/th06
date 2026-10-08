@@ -1,12 +1,4 @@
 #pragma once
-#include <d3d8.h>
-#include <d3dx8math.h>
-
-#include "AnmIdx.hpp"
-#include "AnmVm.hpp"
-#include "GameManager.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

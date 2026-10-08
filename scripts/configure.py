@@ -37,12 +37,12 @@ def configure(build_type):
         if build_type != BuildType.TRIAL:
             writer.variable(
                 "cl_flags",
-                "$cl_common_flags /Fp$builddir/pch.pch /YX /Od /Ob1 /Op /Gy /GF",
+                "$cl_common_flags /Fp$builddir/pch.pch /YXglobal.h /Od /Ob1 /Op /Gy /GF",
             )
         else:
             writer.variable(
                 "cl_flags",
-                "$cl_common_flags /Fp$builddir/pch.pch /YX /O2 /Op /Gy /GF",
+                "$cl_common_flags /Fp$builddir/pch.pch /YXglobal.h /O2 /Op /Gy /GF",
             )
         writer.variable("cl_flags_pbg3", "$cl_common_flags /O2")
 

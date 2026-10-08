@@ -1,9 +1,4 @@
 #pragma once
-#include "AnmVm.hpp"
-#include "Chain.hpp"
-#include "Enemy.hpp"
-#include "decomp.hpp"
-#include <Windows.h>
 
 namespace th06
 {

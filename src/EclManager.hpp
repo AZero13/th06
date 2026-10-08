@@ -1,13 +1,4 @@
 #pragma once
-#include "ItemManager.hpp"
-#include "SoundPlayer.hpp"
-#include "ZunBool.hpp"
-#include "ZunColor.hpp"
-#include "ZunMath.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
-#include <Windows.h>
-#include <d3dx8math.h>
 
 namespace th06
 {

@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "AnmManager.hpp"
 #include "Global.hpp"
 #include "Supervisor.hpp"

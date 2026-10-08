@@ -1,13 +1,4 @@
 #pragma once
-#include <Windows.h>
-#include <d3d8types.h>
-#include <string.h>
-
-#include "Chain.hpp"
-#include "Supervisor.hpp"
-#include "ZunResult.hpp"
-#include "ZunTimer.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

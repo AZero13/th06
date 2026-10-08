@@ -1,6 +1,4 @@
 #pragma once
-#include "AnmVm.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

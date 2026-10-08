@@ -1,13 +1,4 @@
 #pragma once
-#include <Windows.h>
-#include <d3d8.h>
-#include <d3dx8math.h>
-
-#include "Chain.hpp"
-#include "Global.hpp"
-#include "ResultScreen.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

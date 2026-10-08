@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "ItemManager.hpp"
 
 #include "AnmManager.hpp"

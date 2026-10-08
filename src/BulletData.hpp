@@ -1,6 +1,4 @@
 #pragma once
-#include "Player.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

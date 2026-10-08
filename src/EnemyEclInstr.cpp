@@ -1,8 +1,10 @@
-#include "EnemyEclInstr.hpp"
+#include "global.h"
+
 #include "BulletManager.hpp"
 #include "EclManager.hpp"
 #include "EffectManager.hpp"
 #include "Enemy.hpp"
+#include "EnemyEclInstr.hpp"
 #include "EnemyManager.hpp"
 #include "GameManager.hpp"
 #include "Global.hpp"

@@ -1,10 +1,4 @@
 #pragma once
-#include "Chain.hpp"
-#include "EclManager.hpp"
-#include "Enemy.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
-#include <Windows.h>
 
 namespace th06
 {

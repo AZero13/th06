@@ -1,10 +1,4 @@
 #pragma once
-#include "AnmVm.hpp"
-#include "Chain.hpp"
-#include "decomp.hpp"
-#include "zwave.hpp"
-#include <d3d8.h>
-#include <d3dx8math.h>
 
 namespace th06
 {

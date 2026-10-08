@@ -1,9 +1,4 @@
 #pragma once
-#include "AnmVm.hpp"
-#include "Global.hpp"
-#include "ReplayData.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

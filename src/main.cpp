@@ -1,15 +1,7 @@
+#include "global.h"
+
 #define _WIN32_WINNT 0x0500
-#include "AnmManager.hpp"
-#include "GameWindow.hpp"
-#include "Global.hpp"
-#include "ScreenEffect.hpp"
-#include "SoundPlayer.hpp"
-#include "Stage.hpp"
-#include "Supervisor.hpp"
-#include "ZunTimer.hpp"
-#include "decomp.hpp"
-#include "i18n.hpp"
-#include <stdio.h>
+#include "MidiOutput.hpp"
 
 namespace th06
 {

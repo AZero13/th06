@@ -1,6 +1,8 @@
-#include "TextHelper.hpp"
+#include "global.h"
+
 #include "GameWindow.hpp"
 #include "Supervisor.hpp"
+#include "TextHelper.hpp"
 #include "ZunTimer.hpp"
 #include "i18n.hpp"
 

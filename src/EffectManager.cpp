@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "EffectManager.hpp"
 
 #include "AnmManager.hpp"

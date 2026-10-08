@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include <D3DX8.h>
 #include <direct.h>
 #include <stdio.h>

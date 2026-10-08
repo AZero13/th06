@@ -1,12 +1,4 @@
 #pragma once
-#include <d3d8.h>
-#include <d3dx8math.h>
-
-#include "ZunColor.hpp"
-#include "ZunMath.hpp"
-#include "ZunResult.hpp"
-#include "ZunTimer.hpp"
-#include "decomp.hpp"
 
 namespace th06
 {

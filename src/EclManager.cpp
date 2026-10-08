@@ -1,5 +1,7 @@
-#include "EclManager.hpp"
+#include "global.h"
+
 #include "AnmManager.hpp"
+#include "EclManager.hpp"
 #include "EffectManager.hpp"
 #include "Enemy.hpp"
 #include "EnemyEclInstr.hpp"

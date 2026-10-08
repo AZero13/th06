@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "SoundPlayer.hpp"
 
 #include "Global.hpp"

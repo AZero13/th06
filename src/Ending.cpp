@@ -1,8 +1,10 @@
-#include "Ending.hpp"
+#include "global.h"
+
 #include "AnmIdx.hpp"
 #include "AnmManager.hpp"
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
+#include "Ending.hpp"
 #include "GameManager.hpp"
 #include "GameWindow.hpp"
 #include "Global.hpp"

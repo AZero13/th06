@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Enemy.hpp"
-
 namespace th06
 {
 void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr);

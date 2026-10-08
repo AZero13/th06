@@ -1,4 +1,5 @@
-#include "ResultScreen.hpp"
+#include "global.h"
+
 #include "AnmManager.hpp"
 #include "AsciiManager.hpp"
 #include "BulletManager.hpp"
@@ -10,6 +11,7 @@
 #include "MainMenu.hpp"
 #include "Player.hpp"
 #include "ReplayManager.hpp"
+#include "ResultScreen.hpp"
 #include "SoundPlayer.hpp"
 #include "Stage.hpp"
 #include "i18n.hpp"

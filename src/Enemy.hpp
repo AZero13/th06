@@ -1,17 +1,4 @@
 #pragma once
-#include "AnmVm.hpp"
-#include "BulletManager.hpp"
-#include "EclManager.hpp"
-#include "Effect.hpp"
-#include "ItemManager.hpp"
-#include "SoundPlayer.hpp"
-#include "ZunBool.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
-#include <Windows.h>
-#include <d3d8.h>
-#include <d3dx8math.h>
-#include <string.h>
 
 namespace th06
 {

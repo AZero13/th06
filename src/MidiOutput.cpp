@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "decomp.hpp"
 #include <Windows.h>
 #include <mmreg.h>

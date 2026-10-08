@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "Gui.hpp"
 
 #include <stdio.h>

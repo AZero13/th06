@@ -1,7 +1,4 @@
 #pragma once
-#include "decomp.hpp"
-#include <Windows.h>
-#include <d3dx8math.h>
 
 struct ZunVec2
 {

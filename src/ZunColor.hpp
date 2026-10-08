@@ -1,5 +1,4 @@
 #pragma once
-#include "decomp.hpp"
 
 // COLORS
 #define COLOR_RGB_MASK 0x00ffffff

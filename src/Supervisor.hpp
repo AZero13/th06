@@ -1,18 +1,8 @@
 #pragma once
-#include <d3d8.h>
-#include <d3dx8math.h>
-#include <dinput.h>
-
-#include "Chain.hpp"
-#include "Global.hpp"
-#include "MidiOutput.hpp"
-#include "ZunBool.hpp"
-#include "ZunResult.hpp"
-#include "decomp.hpp"
-#include "pbg3/Pbg3Archive.hpp"
 
 namespace th06
 {
+struct MidiOutput;
 #define GAME_VERSION 0x102
 
 struct GameConfigOpts

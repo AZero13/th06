@@ -1,10 +1,12 @@
-#include "GameManager.hpp"
+#include "global.h"
+
 #include "AsciiManager.hpp"
 #include "BulletManager.hpp"
 #include "ChainPriorities.hpp"
 #include "EclManager.hpp"
 #include "EffectManager.hpp"
 #include "EnemyManager.hpp"
+#include "GameManager.hpp"
 #include "Global.hpp"
 #include "Gui.hpp"
 #include "Player.hpp"

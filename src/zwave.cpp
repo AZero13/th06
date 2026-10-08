@@ -1,3 +1,5 @@
+#include "global.h"
+
 //-----------------------------------------------------------------------------
 // File: DSUtil.cpp
 //
@@ -8,12 +10,7 @@
 // Copyright (c) 1999-2000 Microsoft Corp. All rights reserved.
 //-----------------------------------------------------------------------------
 #define STRICT
-#include "zwave.hpp"
-#include "Global.hpp"
-#include <dsound.h>
 #include <dxerr8.h>
-#include <mmsystem.h>
-#include <windows.h>
 
 namespace th06
 {

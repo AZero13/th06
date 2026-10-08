@@ -1,8 +1,4 @@
 #pragma once
-#include "AnmVm.hpp"
-#include "decomp.hpp"
-
-#include <d3dx8math.h>
 
 namespace th06
 {

@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "th06.hpp"
 #include <stdio.h>
 

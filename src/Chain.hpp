@@ -1,8 +1,4 @@
 #pragma once
-#include "ZunResult.hpp"
-#include "decomp.hpp"
-
-#include <Windows.h>
 
 namespace th06
 {

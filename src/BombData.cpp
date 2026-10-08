@@ -1,3 +1,5 @@
+#include "global.h"
+
 #include "BombData.hpp"
 
 #include "EffectManager.hpp"

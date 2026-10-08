@@ -1,6 +1,8 @@
-#include "BulletManager.hpp"
+#include "global.h"
+
 #include "AnmManager.hpp"
 #include "AsciiManager.hpp"
+#include "BulletManager.hpp"
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
 #include "Enemy.hpp"

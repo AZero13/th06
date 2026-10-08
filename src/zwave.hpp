@@ -8,12 +8,6 @@
 #ifndef DSUTIL_H
 #define DSUTIL_H
 
-#include "decomp.hpp"
-#include <dsound.h>
-#include <mmreg.h>
-#include <mmsystem.h>
-#include <windows.h>
-
 namespace th06
 {
 //-----------------------------------------------------------------------------
