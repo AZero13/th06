@@ -4,194 +4,217 @@ namespace th06
 {
 FileAbstraction::FileAbstraction()
 {
-    handle = INVALID_HANDLE_VALUE;
-    access = 0;
+    this->handle = INVALID_HANDLE_VALUE;
+    this->access = 0;
 }
 
-i32 FileAbstraction::Open(const char *filename, const char *mode)
+// DUMMY FUNCTIONS FOR IAT
+struct MappedFileView
 {
-    int creationDisposition;
-    i32 goToEnd = FALSE;
+    HANDLE file;
+    HANDLE mapping;
+    void *data;
+    DWORD size;
+    BOOL writable;
+};
+BOOL CloseMappedFileView(MappedFileView *view)
+{
+    FlushViewOfFile(view->data, 0);
+    UnmapViewOfFile(view->data);
+    CloseHandle(view->mapping);
+    CloseHandle(view->file);
+    return TRUE;
+}
+BOOL OpenMappedFileView(const WCHAR *filename, BOOL writable, MappedFileView *view)
+{
+    GetFileAttributesW(filename);
+    CreateFileW(filename, 0, 0, NULL, 0, 0, NULL);
+    GetFileSize(view->file, NULL);
+    CreateFileMappingA(view->file, NULL, 0, 0, 0, NULL);
+    MapViewOfFile(view->mapping, 0, 0, 0, 0);
+    return TRUE;
+}
+BOOL Exists_Dummy(const char *filename)
+{
+    GetFileAttributesA(filename);
+    return TRUE;
+}
+// END DUMMY FUNCTIONS
 
-    this->Close();
+FileAbstraction::~FileAbstraction()
+{
+    Close();
+}
 
-    const char *curMode;
+BOOL FileAbstraction::Open(const char *filename, char *mode)
+{
+    char *curMode;
+    BOOL isAppendMode = FALSE;
+    DWORD creationDisposition;
+
+    Close();
+
     for (curMode = mode; *curMode != '\0'; curMode++)
     {
         if (*curMode == 'r')
         {
-            this->access = GENERIC_READ;
+            access = GENERIC_READ;
             creationDisposition = OPEN_EXISTING;
             break;
         }
-        else if (*curMode == 'w')
+        if (*curMode == 'w')
         {
             DeleteFile(filename);
-            this->access = GENERIC_WRITE;
+            access = GENERIC_WRITE;
             creationDisposition = OPEN_ALWAYS;
             break;
         }
-        else if (*curMode == 'a')
+        if (*curMode == 'a')
         {
-            goToEnd = true;
-            this->access = GENERIC_WRITE;
+            isAppendMode = TRUE;
+            access = GENERIC_WRITE;
             creationDisposition = OPEN_ALWAYS;
             break;
         }
     }
 
     if (*curMode == '\0')
-    {
-        return 0;
-    }
-    this->handle = CreateFile(filename, this->access, FILE_SHARE_READ, NULL, creationDisposition,
-                              FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+        return FALSE;
 
-    if (this->handle == INVALID_HANDLE_VALUE)
-        return 0;
+    handle = CreateFile(filename, this->access, FILE_SHARE_READ, NULL, creationDisposition,
+                        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
-    if (goToEnd)
-    {
+    if (INVALID_HANDLE_VALUE == this->handle)
+        return FALSE;
+
+    if (isAppendMode)
         SetFilePointer(this->handle, 0, NULL, FILE_END);
-    }
-    return 1;
+
+    return TRUE;
 }
 
-void FileAbstraction::Close()
+void FileAbstraction::Close(void)
 {
-    if (this->handle != INVALID_HANDLE_VALUE)
+    if (INVALID_HANDLE_VALUE != handle)
     {
-        CloseHandle(this->handle);
-        this->handle = INVALID_HANDLE_VALUE;
-        this->access = 0;
+        CloseHandle(handle);
+        handle = INVALID_HANDLE_VALUE;
+        access = 0;
     }
 }
 
-i32 FileAbstraction::Read(u8 *data, u32 dataLen, u32 *numBytesRead)
+BOOL FileAbstraction::Read(void *data, DWORD dataLen, DWORD *numBytesRead)
 {
-    if (this->access != GENERIC_READ)
-    {
+    if (GENERIC_READ != access)
         return FALSE;
-    }
 
-    return ReadFile(this->handle, data, dataLen, reinterpret_cast<DWORD *>(numBytesRead), NULL);
+    return ReadFile(handle, data, dataLen, numBytesRead, NULL);
 }
 
-i32 FileAbstraction::Write(u8 *data, u32 dataLen, u32 *outWritten)
+BOOL FileAbstraction::Write(void *data, DWORD dataLen, DWORD *outWritten)
 {
-    if (this->access != GENERIC_WRITE)
-    {
+    if (GENERIC_WRITE != access)
         return FALSE;
-    }
 
-    return WriteFile(this->handle, data, dataLen, reinterpret_cast<DWORD *>(outWritten), NULL);
+    return WriteFile(handle, data, dataLen, outWritten, NULL);
 }
 
-i32 FileAbstraction::ReadByte()
+int FileAbstraction::ReadByte()
 {
-    u8 data;
-    u32 outBytesRead;
+    BYTE data;
+    DWORD outBytesRead;
 
-    if (this->Read(&data, 1, &outBytesRead) == FALSE)
-    {
-        return -1;
-    }
+    if (FALSE == this->Read(&data, 1, &outBytesRead))
+        return PBG_EOF;
+    if (outBytesRead == 0)
+        return PBG_EOF;
     else
-    {
-        if (outBytesRead == 0)
-        {
-            return -1;
-        }
         return data;
-    }
 }
 
-i32 FileAbstraction::WriteByte(u32 b)
+int FileAbstraction::WriteByte(int b)
 {
-    u8 outByte;
-    u32 outBytesWritten;
+    BYTE outByte;
+    DWORD outBytesWritten;
 
     outByte = b;
-    if (this->Write(&outByte, 1, &outBytesWritten) == FALSE)
-    {
-        return -1;
-    }
+    if (FALSE == this->Write(&outByte, 1, &outBytesWritten))
+        return PBG_EOF;
+    if (outBytesWritten == 0)
+        return PBG_EOF;
     else
-    {
-        if (outBytesWritten == 0)
-        {
-            return -1;
-        }
         return b;
-    }
 }
 
-i32 FileAbstraction::Seek(u32 amount, u32 seekFrom)
+BOOL FileAbstraction::Seek(DWORD amount, DWORD seekFrom)
 {
-    if (this->handle == INVALID_HANDLE_VALUE)
-    {
-        return 0;
-    }
+    if (INVALID_HANDLE_VALUE == this->handle)
+        return FALSE;
 
     SetFilePointer(this->handle, amount, NULL, seekFrom);
-    return 1;
+    return TRUE;
 }
 
-u32 FileAbstraction::Tell()
+DWORD FileAbstraction::Tell(void)
 {
-    if (this->handle == INVALID_HANDLE_VALUE)
-    {
+    if (INVALID_HANDLE_VALUE == handle)
         return 0;
-    }
 
-    return SetFilePointer(this->handle, 0, NULL, FILE_CURRENT);
+    return SetFilePointer(handle, 0, NULL, FILE_CURRENT);
 }
 
-u32 FileAbstraction::GetSize()
+DWORD FileAbstraction::GetSize(void)
 {
-    if (this->handle == INVALID_HANDLE_VALUE)
-    {
+    if (INVALID_HANDLE_VALUE == handle)
         return 0;
-    }
 
-    return GetFileSize(this->handle, NULL);
+    return GetFileSize(handle, NULL);
 }
 
-u8 *FileAbstraction::ReadWholeFile(u32 maxSize)
+BOOL FileAbstraction::WriteString(void *buffer)
 {
-    if (this->access != GENERIC_READ)
+    DWORD Length;
+    DWORD temp;
+
+    if (GENERIC_WRITE != access)
+        return FALSE;
+
+    Length = strlen((char *)buffer);
+    return Write(buffer, Length, &temp);
+}
+
+LPVOID FileAbstraction::ReadWholeFile(DWORD maxSize)
+{
+    DWORD oldLocation, dataLen, outDataLen;
+    LPVOID data;
+
+    if (GENERIC_READ != this->access)
+        return NULL;
+
+    dataLen = this->GetSize();
+    if (dataLen > maxSize)
+        return NULL;
+
+    data = LocalAlloc(LPTR, dataLen);
+    if (NULL == data)
+        return NULL;
+
+    oldLocation = Tell();
+
+    // Pretty sure the plan here was to seek to 0, but woops the code
+    // is buggy. And yes, this case leaks the data. Amazing, I know.
+    if (FALSE == Seek(oldLocation, FILE_BEGIN))
+        return NULL;
+
+    if (FALSE == Read(data, dataLen, &outDataLen))
     {
+        LocalFree(data);
         return NULL;
     }
 
-    u32 dataLen = this->GetSize();
-    u32 outDataLen;
-    if (dataLen <= maxSize)
-    {
-        u8 *data = reinterpret_cast<u8 *>(LocalAlloc(LPTR, dataLen));
-        if (data != NULL)
-        {
-            u32 oldLocation = this->Tell();
-            // Pretty sure the plan here was to seek to 0, but woops the code
-            // is buggy.
-            if (this->Seek(oldLocation, FILE_BEGIN) != 0)
-            {
-                if (this->Read(data, dataLen, &outDataLen) == 0)
-                {
-                    LocalFree(data);
-                    return NULL;
-                }
-                this->Seek(oldLocation, FILE_BEGIN);
-                return data;
-            }
-            // Yes, this case leaks the data. Amazing, I know.
-        }
-    }
-    return NULL;
+    Seek(oldLocation, FILE_BEGIN);
+
+    return data;
 }
 
-FileAbstraction::~FileAbstraction()
-{
-    this->Close();
-}
-}; // namespace th06
+} // namespace th06

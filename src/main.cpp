@@ -7,144 +7,32 @@
 #include "Stage.hpp"
 #include "Supervisor.hpp"
 #include "ZunTimer.hpp"
-#include "diffbuild.hpp"
+#include "decomp.hpp"
 #include "i18n.hpp"
 #include <stdio.h>
 
-#include <ddraw.h>
-
 namespace th06
 {
+static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+static void GameWindow_InitD3dDevice();
+static i32 GameWindow_InitD3dRendering();
+static void GameWindow_CreateGameWindow(HINSTANCE hInstance);
+static i32 GameWindow_InitD3dInterface();
+static void GameWindow_Present();
+
 DIFFABLE_STATIC_SORTED(L1, GameWindow, g_GameWindow);
 DIFFABLE_STATIC_SORTED(L2, i32, g_TickCountToEffectiveFramerate);
 DIFFABLE_STATIC_SORTED(L3, f64, g_LastFrameTime);
 DIFFABLE_STATIC_SORTED(L4, HANDLE, g_ExclusiveMutex);
 } // namespace th06
 
-typedef HRESULT(WINAPI *DIRECTDRAWCREATE)(GUID *, LPDIRECTDRAW *, IUnknown *);
-typedef HRESULT(WINAPI *DIRECTDRAWCREATEEX)(GUID *, VOID **, REFIID, IUnknown *);
-typedef HRESULT(WINAPI *DIRECTINPUTCREATE)(HINSTANCE, DWORD, LPDIRECTINPUT *, IUnknown *);
+DWORD GetDXVersion();
 
-// intentionally unreferenced
-DWORD GetDXVersion()
-{
-    DIRECTDRAWCREATE DirectDrawCreate = NULL;
-    DIRECTDRAWCREATEEX DirectDrawCreateEx = NULL;
-    DIRECTINPUTCREATE DirectInputCreate = NULL;
-    HINSTANCE hDDrawDLL = NULL;
-    HINSTANCE hDInputDLL = NULL;
-    HINSTANCE hD3D8DLL = NULL;
-    LPDIRECTDRAW pDDraw = NULL;
-    LPDIRECTDRAW2 pDDraw2 = NULL;
-    LPDIRECTDRAWSURFACE pSurf = NULL;
-    LPDIRECTDRAWSURFACE3 pSurf3 = NULL;
-    LPDIRECTDRAWSURFACE4 pSurf4 = NULL;
-    DWORD dwDXVersion = 0;
-    HRESULT hr;
-
-    // First see if DDRAW.DLL even exists.
-    hDDrawDLL = LoadLibrary("DDRAW.DLL");
-    if (hDDrawDLL == NULL)
-    {
-        dwDXVersion = 0;
-        return dwDXVersion;
-    }
-
-    // See if we can create the DirectDraw object.
-    DirectDrawCreate = (DIRECTDRAWCREATE)GetProcAddress(hDDrawDLL, "DirectDrawCreate");
-    if (DirectDrawCreate == NULL)
-    {
-        dwDXVersion = 0;
-        FreeLibrary(hDDrawDLL);
-        OutputDebugString("Couldn't LoadLibrary DDraw\r\n");
-        return dwDXVersion;
-    }
-
-    hr = DirectDrawCreate(NULL, &pDDraw, NULL);
-    if (FAILED(hr))
-    {
-        dwDXVersion = 0;
-        FreeLibrary(hDDrawDLL);
-        OutputDebugString("Couldn't create DDraw\r\n");
-        return dwDXVersion;
-    }
-
-    // So DirectDraw exists.  We are at least DX1.
-    dwDXVersion = 0x100;
-
-    // Let's see if IID_IDirectDraw2 exists.
-    hr = pDDraw->QueryInterface(IID_IDirectDraw2, (VOID **)&pDDraw2);
-    if (FAILED(hr))
-    {
-        // No IDirectDraw2 exists... must be DX1
-        pDDraw->Release();
-        FreeLibrary(hDDrawDLL);
-        OutputDebugString("Couldn't QI DDraw2\r\n");
-        return dwDXVersion;
-    }
-
-    // IDirectDraw2 exists. We must be at least DX2
-    pDDraw2->Release();
-    dwDXVersion = 0x200;
-
-    //-------------------------------------------------------------------------
-    // DirectX 7.0 Checks
-    //-------------------------------------------------------------------------
-
-    // Check for DirectX 7 by creating a DDraw7 object
-    LPDIRECTDRAW7 pDD7;
-    DirectDrawCreateEx = (DIRECTDRAWCREATEEX)GetProcAddress(hDDrawDLL, "DirectDrawCreateEx");
-    if (NULL == DirectDrawCreateEx)
-    {
-        FreeLibrary(hDDrawDLL);
-        return dwDXVersion;
-    }
-
-    if (FAILED(DirectDrawCreateEx(NULL, (VOID **)&pDD7, IID_IDirectDraw7, NULL)))
-    {
-        FreeLibrary(hDDrawDLL);
-        return dwDXVersion;
-    }
-
-    // DDraw7 was created successfully. We must be at least DX7.0
-    dwDXVersion = 0x700;
-    pDD7->Release();
-
-    //-------------------------------------------------------------------------
-    // DirectX 8.0 Checks
-    //-------------------------------------------------------------------------
-
-    // Simply see if D3D8.dll exists.
-    hD3D8DLL = LoadLibrary("D3D8.DLL");
-    if (hD3D8DLL == NULL)
-    {
-        FreeLibrary(hDDrawDLL);
-        return dwDXVersion;
-    }
-
-    // D3D8.dll exists. We must be at least DX8.0
-    dwDXVersion = 0x800;
-
-    //-------------------------------------------------------------------------
-    // End of checking for versions of DirectX
-    //-------------------------------------------------------------------------
-
-    // Close open libraries and return
-    FreeLibrary(hDDrawDLL);
-    FreeLibrary(hD3D8DLL);
-
-    return dwDXVersion;
-}
-
-#pragma var_order(renderResult, testCoopLevelRes, msg, testResetRes)
 extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     using namespace th06;
 
-    i32 renderResult = 0;
-    HRESULT testCoopLevelRes;
-    HRESULT testResetRes;
-    MSG msg;
+    RenderResult renderResult = RENDER_RESULT_KEEP_RUNNING;
 
     if (utils::CheckForRunningGameInstance())
     {
@@ -152,6 +40,14 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
 
         return 1;
     }
+
+#if TRIALBUILD
+    if (utils::CheckDirectXVersion())
+    {
+        g_GameErrorContext.Flush();
+        return -1;
+    }
+#endif
 
     g_Supervisor.hInstance = hInstance;
 
@@ -161,7 +57,7 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
         return -1;
     }
 
-    if (GameWindow::InitD3dInterface())
+    if (GameWindow_InitD3dInterface())
     {
         g_GameErrorContext.Flush();
         return 1;
@@ -175,9 +71,9 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
     SystemParametersInfo(SPI_SETPOWEROFFACTIVE, 0, NULL, SPIF_SENDCHANGE);
 
 restart:
-    GameWindow::CreateGameWindow(hInstance);
+    GameWindow_CreateGameWindow(hInstance);
 
-    if (GameWindow::InitD3dRendering())
+    if (GameWindow_InitD3dRendering())
     {
         g_GameErrorContext.Flush();
         return 1;
@@ -189,7 +85,7 @@ restart:
 
     g_AnmManager = ZUN_NEW(AnmManager);
 
-    if (Supervisor::RegisterChain() != ZUN_SUCCESS)
+    if (Supervisor_RegisterChain() != ZUN_SUCCESS)
     {
     }
     else
@@ -201,8 +97,11 @@ restart:
 
         g_GameWindow.curFrame = 0;
 
+        HRESULT testCoopLevelRes;
+
         while (!g_GameWindow.isAppClosing)
         {
+            MSG msg;
             if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
             {
                 TranslateMessage(&msg);
@@ -214,7 +113,7 @@ restart:
                 if (testCoopLevelRes == D3D_OK)
                 {
                     renderResult = g_GameWindow.Render();
-                    if (renderResult != 0)
+                    if (renderResult != RENDER_RESULT_KEEP_RUNNING)
                     {
                         break;
                     }
@@ -222,13 +121,13 @@ restart:
                 else if (testCoopLevelRes == D3DERR_DEVICENOTRESET)
                 {
                     g_AnmManager->ReleaseSurfaces();
-                    testResetRes = g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
+                    HRESULT testResetRes = g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
                     if (testResetRes != D3D_OK)
                     {
                         break;
                     }
-                    GameWindow::InitD3dDevice();
-                    g_Supervisor.unk198 = 3;
+                    GameWindow_InitD3dDevice();
+                    g_Supervisor.forceRedrawFrames = 3;
                 }
             }
         }
@@ -244,7 +143,7 @@ restart:
     MoveWindow(g_GameWindow.window, 0, 0, 0, 0, FALSE);
     DestroyWindow(g_GameWindow.window);
 
-    if (renderResult == 2)
+    if (renderResult == RENDER_RESULT_EXIT_ERROR)
     {
         g_GameErrorContext.ResetContext();
 
@@ -273,15 +172,31 @@ namespace th06
 {
 #define FRAME_TIME (1000.0 / 60.0)
 
-#pragma var_order(res, viewport, slowdown, local_34, delta, curtime)
+// The 0.13a trial still defines GameWindow_Present above GameWindow::Render, and
+// GameWindow_WindowProc above GameWindow_InitD3dInterface. Its /O2 build compiles
+// functions in an order that follows the source, so they sit there for TRIALBUILD;
+// 1.02h has them in the places further down.
+#if TRIALBUILD
+static void GameWindow_Present()
+{
+    if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
+    {
+        g_AnmManager->ReleaseSurfaces();
+        g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
+        GameWindow_InitD3dDevice();
+        g_Supervisor.forceRedrawFrames = 2;
+    }
+    g_AnmManager->TakeScreenshotIfRequested();
+    if (g_Supervisor.forceRedrawFrames != 0)
+    {
+        g_Supervisor.forceRedrawFrames--;
+    }
+}
+#endif
+
 RenderResult GameWindow::Render()
 {
     i32 res;
-    f64 slowdown;
-    D3DVIEWPORT8 viewport;
-    f64 delta;
-    u32 curtime;
-    f64 local_34;
 
     if (!this->isAppActive)
     {
@@ -295,6 +210,7 @@ RenderResult GameWindow::Render()
         {
             if (g_Supervisor.ShouldForceBackbufferClear())
             {
+                D3DVIEWPORT8 viewport;
                 viewport.X = 0;
                 viewport.Y = 0;
                 viewport.Width = GAME_WINDOW_WIDTH;
@@ -332,24 +248,25 @@ RenderResult GameWindow::Render()
 
     if (g_Supervisor.IsWindowed() || g_Supervisor.ShouldRunAt60Fps())
     {
+#pragma var_order(curtime, delta)
         if (this->curFrame != 0)
         {
             g_Supervisor.framerateMultiplier = 1.0f;
             timeBeginPeriod(1);
-            slowdown = timeGetTime();
-            if (slowdown < g_LastFrameTime)
+            f64 curtime = timeGetTime();
+            if (curtime < g_LastFrameTime)
             {
-                g_LastFrameTime = slowdown;
+                g_LastFrameTime = curtime;
             }
-            local_34 = fabs(slowdown - g_LastFrameTime);
+            f64 delta = fabs(curtime - g_LastFrameTime);
             timeEndPeriod(1);
-            if (local_34 >= FRAME_TIME)
+            if (delta >= FRAME_TIME)
             {
                 do
                 {
                     g_LastFrameTime += FRAME_TIME;
-                    local_34 -= FRAME_TIME;
-                } while (local_34 >= FRAME_TIME);
+                    delta -= FRAME_TIME;
+                } while (delta >= FRAME_TIME);
 
                 if (g_Supervisor.cfg.frameskipConfig < this->curFrame)
                     goto I_HAVE_NO_CLUE_WHY_BUT_I_MUST_JUMP_HERE;
@@ -360,26 +277,26 @@ RenderResult GameWindow::Render()
 
     if (!g_Supervisor.IsWindowed() && !g_Supervisor.ShouldRunAt60Fps())
     {
-
         if (g_Supervisor.cfg.frameskipConfig >= this->curFrame)
         {
-            Present();
+            GameWindow_Present();
             goto LOOP_USING_GOTO_BECAUSE_WHY_NOT;
         }
 
     I_HAVE_NO_CLUE_WHY_BUT_I_MUST_JUMP_HERE:
-        Present();
+        GameWindow_Present();
         if (g_Supervisor.framerateMultiplier == 0.0f)
         {
+#pragma var_order(delta, curtime)
             if (g_TickCountToEffectiveFramerate >= 2)
             {
                 timeBeginPeriod(1);
-                curtime = timeGetTime();
+                u32 curtime = timeGetTime();
                 if (curtime < g_Supervisor.lastFrameTime)
                 {
                     g_Supervisor.lastFrameTime = curtime;
                 }
-                delta = curtime - g_Supervisor.lastFrameTime;
+                f64 delta = curtime - g_Supervisor.lastFrameTime;
                 delta = (delta * 60.0) / 2.0 / 1000.0;
                 delta /= g_Supervisor.cfg.frameskipConfig + 1;
                 if (delta >= 0.865)
@@ -410,68 +327,26 @@ RenderResult GameWindow::Render()
     return RENDER_RESULT_KEEP_RUNNING;
 }
 
-void GameWindow::Present()
+#if !TRIALBUILD
+static void GameWindow_Present()
 {
     if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
     {
         g_AnmManager->ReleaseSurfaces();
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
-        InitD3dDevice();
-        g_Supervisor.unk198 = 2;
+        GameWindow_InitD3dDevice();
+        g_Supervisor.forceRedrawFrames = 2;
     }
     g_AnmManager->TakeScreenshotIfRequested();
-    if (g_Supervisor.unk198 != 0)
+    if (g_Supervisor.forceRedrawFrames != 0)
     {
-        g_Supervisor.unk198--;
+        g_Supervisor.forceRedrawFrames--;
     }
 }
+#endif
 
-i32 GameWindow::InitD3dInterface(void)
-{
-    g_Supervisor.d3dIface = Direct3DCreate8(D3D_SDK_VERSION);
-
-    if (g_Supervisor.d3dIface == NULL)
-    {
-        g_GameErrorContext.Fatal(TH_ERR_D3D_ERR_COULD_NOT_CREATE_OBJ);
-        return 1;
-    }
-    return 0;
-}
-
-void GameWindow::CreateGameWindow(HINSTANCE hInstance)
-{
-    WNDCLASS base_class;
-    i32 width;
-    i32 height;
-
-    memset(&base_class, 0, sizeof(base_class));
-
-    base_class.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-    base_class.hCursor = LoadCursor(NULL, IDC_ARROW);
-    base_class.hInstance = hInstance;
-    base_class.lpfnWndProc = WindowProc;
-    g_GameWindow.isAppActive = false;
-    g_GameWindow.showCursor = false;
-    base_class.lpszClassName = "BASE";
-    RegisterClass(&base_class);
-    if (!g_Supervisor.IsWindowed())
-    {
-        width = GAME_WINDOW_WIDTH;
-        height = GAME_WINDOW_HEIGHT;
-        g_GameWindow.window = CreateWindow("BASE", TH_WINDOW_TITLE, WS_OVERLAPPEDWINDOW, 0, 0, width, height, NULL,
-                                           NULL, hInstance, NULL);
-    }
-    else
-    {
-        width = GetSystemMetrics(SM_CXFIXEDFRAME) * 2 + GAME_WINDOW_WIDTH;
-        height = GAME_WINDOW_HEIGHT + GetSystemMetrics(SM_CYFIXEDFRAME) * 2 + GetSystemMetrics(SM_CYCAPTION);
-        g_GameWindow.window = CreateWindow("BASE", TH_WINDOW_TITLE, WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU,
-                                           CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, hInstance, NULL);
-    }
-    g_Supervisor.hwndGameWindow = g_GameWindow.window;
-}
-
-LRESULT CALLBACK GameWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+#if TRIALBUILD
+static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
@@ -493,7 +368,7 @@ LRESULT CALLBACK GameWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         }
         break;
     case WM_SETCURSOR:
-        if (!g_Supervisor.IsWindowed())
+        if (!g_Supervisor.cfg.windowed)
         {
             if (g_GameWindow.showCursor)
             {
@@ -519,17 +394,111 @@ LRESULT CALLBACK GameWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     }
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
+#endif
+
+static i32 GameWindow_InitD3dInterface(void)
+{
+    g_Supervisor.d3dIface = Direct3DCreate8(D3D_SDK_VERSION);
+
+    if (g_Supervisor.d3dIface == NULL)
+    {
+        g_GameErrorContext.Fatal(TH_ERR_D3D_ERR_COULD_NOT_CREATE_OBJ);
+        return 1;
+    }
+    return 0;
+}
+
+static void GameWindow_CreateGameWindow(HINSTANCE hInstance)
+{
+    WNDCLASS base_class;
+    i32 width;
+    i32 height;
+
+    memset(&base_class, 0, sizeof(base_class));
+
+    base_class.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    base_class.hCursor = LoadCursor(NULL, IDC_ARROW);
+    base_class.hInstance = hInstance;
+    base_class.lpfnWndProc = GameWindow_WindowProc;
+    g_GameWindow.isAppActive = false;
+    g_GameWindow.showCursor = false;
+    base_class.lpszClassName = "BASE";
+    RegisterClass(&base_class);
+    if (!g_Supervisor.cfg.windowed)
+    {
+        width = GAME_WINDOW_WIDTH;
+        height = GAME_WINDOW_HEIGHT;
+        g_GameWindow.window = CreateWindow("BASE", TH_WINDOW_TITLE, WS_OVERLAPPEDWINDOW, 0, 0, width, height, NULL,
+                                           NULL, hInstance, NULL);
+    }
+    else
+    {
+        width = GetSystemMetrics(SM_CXFIXEDFRAME) * 2 + GAME_WINDOW_WIDTH;
+        height = GAME_WINDOW_HEIGHT + GetSystemMetrics(SM_CYFIXEDFRAME) * 2 + GetSystemMetrics(SM_CYCAPTION);
+        g_GameWindow.window = CreateWindow("BASE", TH_WINDOW_TITLE, WS_VISIBLE | WS_MINIMIZEBOX | WS_SYSMENU,
+                                           CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, hInstance, NULL);
+    }
+    g_Supervisor.hwndGameWindow = g_GameWindow.window;
+}
+
+#if !TRIALBUILD
+static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case MM_MOM_DONE:
+        if (g_Supervisor.midiOutput != NULL)
+        {
+            g_Supervisor.midiOutput->UnprepareHeader((LPMIDIHDR)lParam);
+        }
+        break;
+    case WM_ACTIVATEAPP:
+        g_GameWindow.isAppActive = wParam;
+        if (g_GameWindow.isAppActive)
+        {
+            g_GameWindow.showCursor = false;
+        }
+        else
+        {
+            g_GameWindow.showCursor = true;
+        }
+        break;
+    case WM_SETCURSOR:
+        if (!g_Supervisor.cfg.windowed)
+        {
+            if (g_GameWindow.showCursor)
+            {
+                SetCursor(LoadCursor(NULL, IDC_ARROW));
+                ShowCursor(TRUE);
+            }
+            else
+            {
+                ShowCursor(FALSE);
+                SetCursor(NULL);
+            }
+        }
+        else
+        {
+            SetCursor(LoadCursor(NULL, IDC_ARROW));
+            ShowCursor(TRUE);
+        }
+
+        return 1;
+    case WM_CLOSE:
+        g_GameWindow.isAppClosing = true;
+        return 1;
+    }
+    return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+#endif
 
 #pragma var_order(using_d3d_hal, display_mode, present_params, camera_distance, half_height, half_width, aspect_ratio, \
-                  field_of_view_y, up, at, eye, should_run_at_60_fps)
-i32 GameWindow::InitD3dRendering(void)
+                  field_of_view_y)
+static i32 GameWindow_InitD3dRendering(void)
 {
     u8 using_d3d_hal;
     D3DPRESENT_PARAMETERS present_params;
     D3DDISPLAYMODE display_mode;
-    D3DXVECTOR3 eye;
-    D3DXVECTOR3 at;
-    D3DXVECTOR3 up;
     float half_width;
     float half_height;
     float aspect_ratio;
@@ -548,7 +517,7 @@ i32 GameWindow::InitD3dRendering(void)
         }
         else if (g_Supervisor.cfg.colorMode16bit == 0xff)
         {
-            if ((display_mode.Format == D3DFMT_X8R8G8B8) || (display_mode.Format == D3DFMT_A8R8G8B8))
+            if (display_mode.Format == D3DFMT_X8R8G8B8 || display_mode.Format == D3DFMT_A8R8G8B8)
             {
                 present_params.BackBufferFormat = D3DFMT_X8R8G8B8;
                 g_Supervisor.cfg.colorMode16bit = false;
@@ -676,16 +645,8 @@ i32 GameWindow::InitD3dRendering(void)
     aspect_ratio = (float)GAME_WINDOW_WIDTH / (float)GAME_WINDOW_HEIGHT;
     field_of_view_y = ZUN_PI / 6.0f; // PI / 6.0f
     camera_distance = half_height / tanf(field_of_view_y / 2.0f);
-    up.x = 0.0f;
-    up.y = 1.0f;
-    up.z = 0.0f;
-    at.x = half_width;
-    at.y = -half_height;
-    at.z = 0.0f;
-    eye.x = half_width;
-    eye.y = -half_height;
-    eye.z = -camera_distance;
-    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix, &eye, &at, &up);
+    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix, &D3DXVECTOR3(half_width, -half_height, -camera_distance),
+                       &D3DXVECTOR3(half_width, -half_height, 0.0f), &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
     D3DXMatrixPerspectiveFovLH(&g_Supervisor.projectionMatrix, field_of_view_y, aspect_ratio, 100.0f, 10000.0f);
     g_Supervisor.d3dDevice->SetTransform(D3DTS_VIEW, &g_Supervisor.viewMatrix);
     g_Supervisor.d3dDevice->SetTransform(D3DTS_PROJECTION, &g_Supervisor.projectionMatrix);
@@ -716,8 +677,8 @@ i32 GameWindow::InitD3dRendering(void)
             g_GameErrorContext.Log(TH_ERR_D3DFMT_A8R8G8B8_UNSUPPORTED);
         }
     }
-    InitD3dDevice();
-    ScreenEffect::SetViewport(0);
+    GameWindow_InitD3dDevice();
+    ScreenEffect_SetViewport(0);
     g_GameWindow.isAppClosing = false;
     g_Supervisor.lastFrameTime = 0;
     g_Supervisor.framerateMultiplier = 0.0f;
@@ -725,7 +686,7 @@ i32 GameWindow::InitD3dRendering(void)
 }
 
 #pragma var_order(fogVal, fogDensity)
-void GameWindow::InitD3dDevice(void)
+static void GameWindow_InitD3dDevice(void)
 {
     f32 fogVal;
     f32 fogDensity;
@@ -847,5 +808,18 @@ ZunResult CheckForRunningGameInstance(void)
 
     return ZUN_SUCCESS;
 }
-}; // namespace utils
-}; // namespace th06
+
+#if TRIALBUILD
+ZunResult CheckDirectXVersion(void)
+{
+    if (GetDXVersion() != 0x800)
+    {
+        g_GameErrorContext.Fatal(TH_ERR_DIRECTX8_REQUIRED);
+        return ZUN_ERROR;
+    }
+
+    return ZUN_SUCCESS;
+}
+#endif
+} // namespace utils
+} // namespace th06

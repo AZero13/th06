@@ -1,5 +1,4 @@
 #pragma once
-
 #include <d3dx8math.h>
 
 #include "AnmManager.hpp"
@@ -8,7 +7,7 @@
 #include "Supervisor.hpp"
 #include "ZunResult.hpp"
 #include "ZunTimer.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -21,19 +20,21 @@ namespace th06
 #define ASCII_SCORE_POPUPS_START 0
 #define ASCII_PLAYER_POPUPS_START ASCII_SCORE_POPUPS_COUNT
 
+#define ASCII_STRING_COUNT 256
+
 struct AsciiManagerString
 {
     char text[64];
     D3DXVECTOR3 position;
     D3DCOLOR color;
-    D3DXVECTOR2 scale;
+    ZunVec2 scale;
     // If true, we are drawing the currently selected element of the MainMenu
     // class.
     ZunBool isSelected;
     // If true, we are drawing an element of the Gui class.
     ZunBool isGui;
 };
-ZUN_ASSERT_SIZE(AsciiManagerString, 0x60);
+ZUN_ASSERT_TYPE(AsciiManagerString, 0x60, 4);
 
 struct AsciiManagerPopup
 {
@@ -43,8 +44,9 @@ struct AsciiManagerPopup
     ZunTimer timer;
     u8 inUse;
     u8 characterCount;
+    alignment_padding(0x2);
 };
-ZUN_ASSERT_SIZE(AsciiManagerPopup, 0x28);
+ZUN_ASSERT_TYPE(AsciiManagerPopup, 0x28, 4);
 
 // The AsciiManager is responsible for drawing various textual elements on the
 // screen:
@@ -54,16 +56,22 @@ ZUN_ASSERT_SIZE(AsciiManagerPopup, 0x28);
 // - Various text elements such as the "Stage clear" prompt.
 struct AsciiManager
 {
-    static ZunResult RegisterChain();
-    static void CutChain();
+    void InitializeVms()
+    {
+        memset(this, 0, sizeof(AsciiManager));
 
-    static ChainCallbackResult OnUpdate(AsciiManager *s);
-    static ChainCallbackResult OnDrawMenus(AsciiManager *s);
-    static ChainCallbackResult OnDrawPopups(AsciiManager *s);
-    static ZunResult AddedCallback(AsciiManager *s);
-    static ZunResult DeletedCallback(AsciiManager *s);
+        this->color = COLOR_WHITE;
+        this->scale.x = 1.0f;
+        this->scale.y = 1.0f;
 
-    void InitializeVms();
+        this->vm1.flags.anchor = AnmVmAnchor_TopLeft;
+
+        g_AnmManager->InitializeAndSetSprite(&this->vm1, 0);
+        g_AnmManager->InitializeAndSetSprite(&this->vm0, 32);
+
+        this->vm1.pos.z = 0.1f;
+        this->isSelected = false;
+    }
 
     void DrawStrings();
     void DrawPopupsWithHwVertexProcessing();
@@ -79,12 +87,28 @@ struct AsciiManager
         this->color = color;
     }
 
+    void SetScale(f32 x, f32 y)
+    {
+        this->scale.x = x;
+        this->scale.y = y;
+    }
+
+    void SetIsGui(ZunBool isGui)
+    {
+        this->isGui = isGui;
+    }
+
+    void SetIsSelected(ZunBool isSelected)
+    {
+        this->isSelected = isSelected;
+    }
+
     AnmVm vm0;
     AnmVm vm1;
-    AsciiManagerString strings[256];
+    AsciiManagerString strings[ASCII_STRING_COUNT];
     i32 numStrings;
     D3DCOLOR color;
-    D3DXVECTOR2 scale;
+    ZunVec2 scale;
     // If true, we are drawing an element of the Gui class.
     ZunBool isGui;
     // If true, we are drawing the currently selected element of the MainMenu
@@ -92,14 +116,17 @@ struct AsciiManager
     ZunBool isSelected;
     i32 nextPopupIndex1;
     i32 nextPopupIndex2;
-    // Seems unused
-    u32 unk3;
+    unreferenced_fields(0x4);
     // Menu that shows up when the player presses the menu button while in-game.
     StageMenu gameMenu;
     // Menu that shows up when the player dies after losing their last life.
     StageMenu retryMenu;
     AsciiManagerPopup popups[ASCII_TOTAL_POPUPS_COUNT];
 };
-ZUN_ASSERT_SIZE(AsciiManager, 0xc1ac);
+ZUN_ASSERT_TYPE(AsciiManager, 0xc1ac, 4);
+
+ZunResult AsciiManager_RegisterChain();
+void AsciiManager_CutChain();
+
 DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);
-}; // namespace th06
+} // namespace th06

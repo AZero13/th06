@@ -10,7 +10,6 @@
 #define STRICT
 #include "zwave.hpp"
 #include "Global.hpp"
-#include "dxutil.hpp"
 #include <dsound.h>
 #include <dxerr8.h>
 #include <mmsystem.h>
@@ -97,7 +96,7 @@ HRESULT CSoundManager::SetPrimaryBufferFormat(DWORD dwPrimaryChannels, DWORD dwP
     wfx.nChannels = (WORD)dwPrimaryChannels;
     wfx.nSamplesPerSec = dwPrimaryFreq;
     wfx.wBitsPerSample = (WORD)dwPrimaryBitRate;
-    wfx.nBlockAlign = wfx.wBitsPerSample / 8 * wfx.nChannels;
+    wfx.nBlockAlign = wfx.wBitsPerSample / CHAR_BIT * wfx.nChannels;
     wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 
     if (FAILED(hr = pDSBPrimary->SetFormat(&wfx)))
@@ -105,6 +104,47 @@ HRESULT CSoundManager::SetPrimaryBufferFormat(DWORD dwPrimaryChannels, DWORD dwP
 
     SAFE_RELEASE(pDSBPrimary);
 
+    return S_OK;
+}
+
+HRESULT CSoundManager::Create(CSound **ppSound, LPTSTR strWaveFileName, DWORD dwCreationFlags, GUID guid3DAlgorithm,
+                              DWORD dwNumBuffers)
+{
+    LPDIRECTSOUNDBUFFER *apDSBuffer = new LPDIRECTSOUNDBUFFER[dwNumBuffers];
+    CWaveFile *pWaveFile = new CWaveFile();
+    pWaveFile->Open(strWaveFileName, NULL, WAVEFILE_READ);
+    DWORD dwDSBufferSize = pWaveFile->GetSize();
+    DSBUFFERDESC dsbd;
+    ZeroMemory(&dsbd, sizeof(DSBUFFERDESC));
+    dsbd.dwSize = sizeof(DSBUFFERDESC);
+    dsbd.dwFlags = dwCreationFlags;
+    dsbd.dwBufferBytes = dwDSBufferSize;
+    dsbd.guid3DAlgorithm = guid3DAlgorithm;
+    dsbd.lpwfxFormat = pWaveFile->m_pwfx;
+    m_pDS->CreateSoundBuffer(&dsbd, &apDSBuffer[0], NULL);
+    for (DWORD i = 1; i < dwNumBuffers; i++)
+        m_pDS->DuplicateSoundBuffer(apDSBuffer[0], &apDSBuffer[i]);
+    *ppSound = new CSound(apDSBuffer, dwDSBufferSize, dwNumBuffers, pWaveFile);
+    return S_OK;
+}
+
+HRESULT CSoundManager::CreateFromMemory(CSound **ppSound, BYTE *pbData, ULONG ulDataSize, LPWAVEFORMATEX pwfx,
+                                        DWORD dwCreationFlags, GUID guid3DAlgorithm, DWORD dwNumBuffers)
+{
+    LPDIRECTSOUNDBUFFER *apDSBuffer = new LPDIRECTSOUNDBUFFER[dwNumBuffers];
+    CWaveFile *pWaveFile = new CWaveFile();
+    pWaveFile->OpenFromMemory(pbData, ulDataSize, pwfx, WAVEFILE_READ);
+    DSBUFFERDESC dsbd;
+    ZeroMemory(&dsbd, sizeof(DSBUFFERDESC));
+    dsbd.dwSize = sizeof(DSBUFFERDESC);
+    dsbd.dwFlags = dwCreationFlags;
+    dsbd.dwBufferBytes = ulDataSize;
+    dsbd.guid3DAlgorithm = guid3DAlgorithm;
+    dsbd.lpwfxFormat = pwfx;
+    m_pDS->CreateSoundBuffer(&dsbd, &apDSBuffer[0], NULL);
+    for (DWORD i = 1; i < dwNumBuffers; i++)
+        m_pDS->DuplicateSoundBuffer(apDSBuffer[0], &apDSBuffer[i]);
+    *ppSound = new CSound(apDSBuffer, ulDataSize, dwNumBuffers, pWaveFile);
     return S_OK;
 }
 
@@ -379,6 +419,18 @@ LPDIRECTSOUNDBUFFER CSound::GetBuffer(DWORD dwIndex)
         return NULL;
 
     return m_apDSBuffer[dwIndex];
+}
+
+HRESULT CSound::Get3DBufferInterface(DWORD dwIndex, LPDIRECTSOUND3DBUFFER *ppDS3DBuffer)
+{
+    return m_apDSBuffer[dwIndex]->QueryInterface(IID_IDirectSound3DBuffer, (VOID **)ppDS3DBuffer);
+}
+
+BOOL CSound::IsSoundPlaying()
+{
+    DWORD dwStatus = 0;
+    m_apDSBuffer[0]->GetStatus(&dwStatus);
+    return (dwStatus & DSBSTATUS_PLAYING) != 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -894,6 +946,16 @@ DWORD CWaveFile::GetSize()
     return m_dwSize;
 }
 
+// NOTE: This doesn't match the original CWaveFile::Write at all
+// and is just speculation about a change ZUN could've made that
+// also happens to make the IAT match.
+HRESULT CWaveFile::Write(UINT size, BYTE *data, UINT *written)
+{
+    *written = 0;
+    LONG result = mmioWrite(m_hmmio, (HPSTR)data, size);
+    return result == size ? S_OK : E_FAIL;
+}
+
 //-----------------------------------------------------------------------------
 // Name: CWaveFile::ResetFile()
 // Desc: Resets the internal m_ck pointer so reading starts from the
@@ -1080,4 +1142,4 @@ HRESULT CWaveFile::Close()
     }
     return S_OK;
 }
-}; // namespace th06
+} // namespace th06

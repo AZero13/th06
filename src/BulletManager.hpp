@@ -1,10 +1,8 @@
 #pragma once
-
 #include "AnmVm.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -35,12 +33,13 @@ struct BulletTypeSprites
     D3DXVECTOR3 grazeSize;
     u8 unk_55c;
     u8 bulletHeight;
+    alignment_padding(0x2);
 };
-ZUN_ASSERT_SIZE(BulletTypeSprites, 0x560);
+ZUN_ASSERT_TYPE(BulletTypeSprites, 0x560, 4);
 
 enum BulletState
 {
-    BULLET_STATE_UNUSED,
+    BULLET_STATE_INACTIVE,
     BULLET_STATE_FIRED,
     BULLET_STATE_SPAWNING_FAST,
     BULLET_STATE_SPAWNING_NORMAL,
@@ -67,13 +66,13 @@ struct Bullet
     i32 dirChangeMaxTimes;
     u16 exFlags;
     i16 spriteOffset;
-    u16 unk_5bc;
+    unreferenced_fields(0x2);
     u16 state;
     u16 outOfBoundsTime;
     u8 unk_5c2;
     u8 isGrazed;
 };
-ZUN_ASSERT_SIZE(Bullet, 0x5c4);
+ZUN_ASSERT_TYPE(Bullet, 0x5c4, 4);
 
 struct Laser
 {
@@ -96,21 +95,17 @@ struct Laser
     u16 flags;
     i16 color;
     u8 state;
+    alignment_padding(0x3);
 };
-ZUN_ASSERT_SIZE(Laser, 0x270);
+ZUN_ASSERT_TYPE(Laser, 0x270, 4);
+
+#define NUM_ENEMY_BULLET_TYPES 16
+#define MAX_ENEMY_BULLETS 640
+#define MAX_ENEMY_LASERS 64
 
 struct BulletManager
 {
     BulletManager();
-    static ZunResult RegisterChain(const char *bulletAnmPath);
-    static void CutChain();
-    static ZunResult AddedCallback(BulletManager *mgr);
-    static ZunResult DeletedCallback(BulletManager *mgr);
-    static ChainCallbackResult OnUpdate(BulletManager *mgr);
-    static ChainCallbackResult OnDraw(BulletManager *mgr);
-
-    static void DrawBulletNoHwVertex(Bullet *bullet);
-    static void DrawBullet(Bullet *bullet);
 
     void RemoveAllBullets(ZunBool turnIntoItem);
     void InitializeToZero();
@@ -122,16 +117,19 @@ struct BulletManager
     Laser *SpawnLaserPattern(EnemyLaserShooter *bulletProps);
     u32 SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bulletIdx1, i32 bulletIdx2, f32 angle);
 
-    BulletTypeSprites bulletTypeTemplates[16];
-    Bullet bullets[640];
-    Laser lasers[64];
+    BulletTypeSprites bulletTypeTemplates[NUM_ENEMY_BULLET_TYPES];
+    Bullet bullets[MAX_ENEMY_BULLETS];
+    Laser lasers[MAX_ENEMY_LASERS];
     i32 nextBulletIndex;
     i32 bulletCount;
     ZunTimer time;
     const char *bulletAnmPath;
 };
-ZUN_ASSERT_SIZE(BulletManager, 0xf5c18);
+ZUN_ASSERT_TYPE(BulletManager, 0xf5c18, 4);
+
+ZunResult BulletManager_RegisterChain(const char *bulletAnmPath);
+void BulletManager_CutChain();
 
 DIFFABLE_EXTERN(u32 *, g_EffectsColor);
 DIFFABLE_EXTERN(BulletManager, g_BulletManager);
-}; // namespace th06
+} // namespace th06

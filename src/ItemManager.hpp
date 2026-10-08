@@ -1,8 +1,6 @@
 #pragma once
-
 #include "AnmVm.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 #include <d3dx8math.h>
 
@@ -38,10 +36,12 @@ struct Item
     ZunTimer timer;
     i8 itemType;
     i8 isInUse;
-    i8 unk_142;
+    i8 isIndicatorHidden;
     i8 state;
 };
-ZUN_ASSERT_SIZE(Item, 0x144);
+ZUN_ASSERT_TYPE(Item, 0x144, 4);
+
+#define MAX_ITEMS 512
 
 struct ItemManager
 {
@@ -50,11 +50,11 @@ struct ItemManager
     void OnDraw();
     void MagnetAllItems();
 
-    Item items[513];
+    Item items[MAX_ITEMS + 1]; // +1 dummy slot to avoid null checks for failed spawns
     i32 nextIndex;
     u32 itemCount;
 };
-ZUN_ASSERT_SIZE(ItemManager, 0x2894c);
+ZUN_ASSERT_TYPE(ItemManager, 0x2894c, 4);
 
 DIFFABLE_EXTERN(ItemManager, g_ItemManager);
-}; // namespace th06
+} // namespace th06

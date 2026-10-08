@@ -1,10 +1,8 @@
 #pragma once
-
 #include "Supervisor.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -44,9 +42,21 @@ struct ZunTimer
         return this->current <= time;
     }
 
+    i32 operator%(i32 divisor)
+    {
+        return this->current % divisor;
+    }
+
     void Initialize();
     void Increment(i32 value);
     void Decrement(i32 value);
+
+    i32 Tick()
+    {
+        this->previous = this->current;
+        g_Supervisor.TickTimer(&this->current, &this->subFrame);
+        return this->current;
+    }
 
     void operator+=(i32 value)
     {
@@ -68,7 +78,7 @@ struct ZunTimer
     void SetCurrent(i32 value)
     {
         this->current = value;
-        this->subFrame = 0;
+        this->subFrame = 0.0f;
         this->previous = -999;
     }
     void operator=(i32 value)
@@ -76,16 +86,7 @@ struct ZunTimer
         SetCurrent(value);
     }
 
-    i32 Tick()
-    {
-        this->previous = this->current;
-        g_Supervisor.TickTimer(&this->current, &this->subFrame);
-        return this->current;
-    }
-
-    // Changing this to operator f32 requires way too many
-    // casts on comparison operators to be realistic...
-    f32 AsFramesFloat()
+    operator f32()
     {
         return this->current + this->subFrame;
     }
@@ -100,5 +101,5 @@ struct ZunTimer
         return this->current != this->previous;
     }
 };
-ZUN_ASSERT_SIZE(ZunTimer, 0xc);
-}; // namespace th06
+ZUN_ASSERT_TYPE(ZunTimer, 0xc, 4);
+} // namespace th06

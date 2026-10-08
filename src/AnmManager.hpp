@@ -1,5 +1,4 @@
 #pragma once
-
 #include <d3d8.h>
 #include <d3dx8math.h>
 
@@ -7,8 +6,7 @@
 #include "AnmVm.hpp"
 #include "GameManager.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -19,42 +17,48 @@ struct VertexDiffuseXyzrwh
     float position_w;
     D3DCOLOR diffuse;
 };
+ZUN_ASSERT_TYPE(VertexDiffuseXyzrwh, 0x14, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_XYZRHW
 struct VertexTex1Xyzrwh
 {
     D3DXVECTOR4 position;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1Xyzrwh, 0x18, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZRHW
 struct VertexTex1DiffuseXyzrwh
 {
     D3DXVECTOR4 position;
     D3DCOLOR diffuse;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1DiffuseXyzrwh, 0x1c, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZ
 struct VertexTex1DiffuseXyz
 {
     D3DXVECTOR3 position;
     D3DCOLOR diffuse;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1DiffuseXyz, 0x18, 4);
 
 struct AnmRawSprite
 {
     u32 id;
-    D3DXVECTOR2 offset;
-    D3DXVECTOR2 size;
+    ZunVec2 offset;
+    ZunVec2 size;
 };
+ZUN_ASSERT_TYPE(AnmRawSprite, 0x14, 4);
 
 struct AnmRawScript
 {
     u32 id;
-    AnmRawInstr *firstInstruction;
+    u32 firstInstructionOffset;
 };
+ZUN_ASSERT_TYPE(AnmRawScript, 8, 4);
 
 struct AnmRawEntry
 {
@@ -69,32 +73,32 @@ struct AnmRawEntry
     u32 spriteIdxOffset;
     u32 mipmapNameOffset;
     u32 version;
-    u32 unk1;
+    unreferenced_fields(0x4);
     u32 textureOffset;
     u32 hasData;
     u32 nextOffset;
-    u32 unk2;
-    u32 spriteOffsets[10];
-    AnmRawScript scripts[10];
+    unreferenced_fields(0x4);
+    u32 spriteOffsets[];
 };
-ZUN_ASSERT_SIZE(AnmRawEntry, 0xb8);
+ZUN_ASSERT_TYPE(AnmRawEntry, 0x40, 4);
 
 struct RenderVertexInfo
 {
     D3DXVECTOR3 position;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
-ZUN_ASSERT_SIZE(RenderVertexInfo, 0x14);
+ZUN_ASSERT_TYPE(RenderVertexInfo, 0x14, 4);
 
-struct AnmManager
+#define MAX_ANM_SCRIPTS 2048
+#define MAX_ANM_SPRITES 2048
+
+class AnmManager
 {
+  public:
     AnmManager();
     ~AnmManager();
 
-    void ReleaseVertexBuffer()
-    {
-        SAFE_RELEASE(this->vertexBuffer);
-    }
+    void ReleaseVertexBuffer();
     void SetupVertexBuffer();
 
     ZunResult CreateEmptyTexture(i32 textureIdx, u32 width, u32 height, i32 textureFormat);
@@ -122,6 +126,12 @@ struct AnmManager
 
     void TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32 height);
 
+    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
+    {
+        vm->Initialize();
+        this->SetActiveSprite(vm, spriteIdx);
+    }
+
     void SetAndExecuteScript(AnmVm *vm, AnmRawInstr *beginingOfScript);
     void SetAndExecuteScriptIdx(AnmVm *vm, i32 anmFileIdx)
     {
@@ -129,10 +139,25 @@ struct AnmManager
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
     }
 
-    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
+    void ClearScriptRange(i32 base, i32 range)
     {
-        vm->Initialize();
-        this->SetActiveSprite(vm, spriteIdx);
+        for (i32 i = 0; i < range; i++)
+        {
+            this->scripts[i + base] = NULL;
+        }
+    }
+
+    ZunBool ShouldDraw(AnmVm *vm)
+    {
+        if (vm->sprite == NULL)
+        {
+            return false;
+        }
+        if (vm->sprite->sourceFileIndex < 0)
+        {
+            return false;
+        }
+        return this->textures[vm->sprite->sourceFileIndex] != NULL;
     }
 
     void SetCurrentVertexShader(u8 vertexShader)
@@ -177,7 +202,7 @@ struct AnmManager
     ZunResult Draw3(AnmVm *vm);
 
     void LoadSprite(u32 spriteIdx, AnmLoadedSprite *sprite);
-    ZunResult SetActiveSprite(AnmVm *vm, u32 spriteIdx);
+    ZunResult SetActiveSprite(AnmVm *vm, i32 spriteIdx);
 
     ZunResult LoadSurface(i32 surfaceIdx, const char *path);
     void ReleaseSurface(i32 surfaceIdx);
@@ -189,35 +214,41 @@ struct AnmManager
 
     void ReleaseAnm(i32 anmIdx);
     ZunResult LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset);
-    void AnmManager::ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
+    void ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
     {
         vm->anmFileIndex = anmFileIdx;
         vm->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
         vm->posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        vm->fontHeight = 15;
-        vm->fontWidth = 15;
+        vm->fontWidth = vm->fontHeight = DEFAULT_ANM_FONT_SIZE;
 
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
     }
 
     void SetRenderStateForVm(AnmVm *vm);
 
-    void RequestScreenshot()
+    void RequestScreenshot(i32 textureId = 3, i32 left = GAME_REGION_POS_X, i32 top = GAME_REGION_POS_Y,
+                           i32 width = GAME_REGION_WIDTH, i32 height = GAME_REGION_HEIGHT)
     {
-        this->screenshotTextureId = 3;
-        this->screenshotLeft = GAME_REGION_LEFT;
-        this->screenshotTop = GAME_REGION_TOP;
-        this->screenshotWidth = GAME_REGION_WIDTH;
-        this->screenshotHeight = GAME_REGION_HEIGHT;
+        this->screenshotTextureId = textureId;
+        this->screenshotLeft = left;
+        this->screenshotTop = top;
+        this->screenshotWidth = width;
+        this->screenshotHeight = height;
     }
 
-    AnmLoadedSprite sprites[2048];
+    AnmLoadedSprite *GetSprite(i32 index)
+    {
+        return &this->sprites[index];
+    }
+
+  private:
+    AnmLoadedSprite sprites[MAX_ANM_SPRITES];
     AnmVm virtualMachine;
     LPDIRECT3DTEXTURE8 textures[264];
     void *imageDataArray[256];
     i32 maybeLoadedSpriteCount;
-    AnmRawInstr *scripts[2048];
-    i32 spriteIndices[2048];
+    AnmRawInstr *scripts[MAX_ANM_SCRIPTS];
+    i32 spriteIndices[MAX_ANM_SPRITES];
     AnmRawEntry *anmFiles[128];
     u32 anmFilesSpriteIndexOffsets[128];
     LPDIRECT3DSURFACE8 surfaces[32];
@@ -238,8 +269,8 @@ struct AnmManager
     i32 screenshotWidth;
     i32 screenshotHeight;
 };
-ZUN_ASSERT_SIZE(AnmManager, 0x2112c);
+ZUN_ASSERT_TYPE(AnmManager, 0x2112c, 4);
 
 DIFFABLE_EXTERN(AnmManager *, g_AnmManager);
 DIFFABLE_EXTERN(const D3DFORMAT, g_TextureFormatD3D8Mapping[6]);
-}; // namespace th06
+} // namespace th06

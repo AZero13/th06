@@ -1,10 +1,9 @@
 #pragma once
-
 #include "Chain.hpp"
 #include "Effect.hpp"
 #include "ZunColor.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -32,35 +31,24 @@ enum ParticleEffects
     PARTICLE_EFFECT_UNK_18,
     PARTICLE_EFFECT_UNK_19,
 };
+
+#define MAX_EFFECT_COUNT 512
+
 struct EffectManager
 {
-    i32 nextIndex;
-    i32 activeEffects;
-    Effect effects[513];
+    EffectManager();
 
-    EffectManager()
-    {
-        this->Reset();
-    }
-
-    static ZunResult RegisterChain();
-    static void CutChain();
-    static ChainCallbackResult OnUpdate(EffectManager *mgr);
-    static ZunResult AddedCallback(EffectManager *mgr);
-    static ZunResult DeletedCallback(EffectManager *mgr);
-
-    static i32 EffectCallbackRandomSplash(Effect *);
-    static i32 EffectCallbackRandomSplashBig(Effect *);
-    static i32 EffectCallbackStill(Effect *);
-    static i32 EffectUpdateCallback4(Effect *);
-    static i32 EffectCallbackAttract(Effect *);
-    static i32 EffectCallbackAttractSlow(Effect *);
-
-    static ChainCallbackResult OnDraw(EffectManager *mgr);
     void Reset();
     Effect *SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count, ZunColor color);
+
+    i32 nextIndex;
+    i32 activeEffects;
+    Effect effects[MAX_EFFECT_COUNT + 1]; // +1 dummy slot to avoid null checks for failed spawns
 };
-ZUN_ASSERT_SIZE(EffectManager, 0x2f984);
+ZUN_ASSERT_TYPE(EffectManager, 0x2f984, 4);
+
+ZunResult EffectManager_RegisterChain();
+void EffectManager_CutChain();
 
 DIFFABLE_EXTERN(EffectManager, g_EffectManager);
-}; // namespace th06
+} // namespace th06

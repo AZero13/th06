@@ -7,13 +7,24 @@
 
 namespace th06
 {
+static DWORD WINAPI SoundPlayer_BackgroundMusicPlayerThread(LPVOID lpThreadParameter);
+
+FILE_BSS_SORT(S1);
 
 #define BACKGROUND_MUSIC_BUFFER_SIZE 0x8000
 #define BACKGROUND_MUSIC_WAV_NUM_CHANNELS 2
 #define BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE 16
 #define BACKGROUND_MUSIC_WAV_BLOCK_ALIGN BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE / 8 * BACKGROUND_MUSIC_WAV_NUM_CHANNELS
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(SoundBufferIdxVolume, 32, g_SoundBufferIdxVol) = {
+#ifndef TRIALBUILD
+#define BACKGROUND_MUSIC_STREAM_SECONDS 2
+#define BACKGROUND_MUSIC_STREAM_NOTIFICATIONS 4
+#else
+#define BACKGROUND_MUSIC_STREAM_SECONDS 4
+#define BACKGROUND_MUSIC_STREAM_NOTIFICATIONS 8
+#endif
+
+DIFFABLE_STATIC_ARRAY_ASSIGN(SoundEffectData, 32, g_SoundBufferIdxVol) = {
     {0, -1500, 0},   {0, -2000, 0},   {1, -1200, 5},   {1, -1400, 5},  {2, -1000, 100}, {3, -500, 100},
     {4, -500, 100},  {5, -1700, 50},  {6, -1700, 50},  {7, -1700, 50}, {8, -1000, 100}, {9, -1000, 100},
     {10, -1900, 10}, {11, -1200, 10}, {12, -900, 100}, {5, -1500, 50}, {13, -900, 50},  {14, -900, 50},
@@ -31,14 +42,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 26, g_SFXList) = {
     "data/wav/graze.wav",  "data/wav/powerup.wav",
 };
 
-struct UnknownSoundThing
-{
-    u8 unknownA[0x24];
-    ZunTimer idk;
-};
-
-DIFFABLE_STATIC_SORTED(R1, UnknownSoundThing, g_UnknownSoundThing);
-DIFFABLE_STATIC_SORTED(R2, SoundPlayer, g_SoundPlayer);
+DIFFABLE_STATIC(SoundPlayer, g_SoundPlayer);
 
 #pragma var_order(bufDesc, audioBuffer2Start, audioBuffer2Len, audioBuffer1Len, audioBuffer1Start, wavFormat)
 ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)
@@ -101,7 +105,7 @@ ZunResult SoundPlayer::Release(void)
     {
         return ZUN_SUCCESS;
     }
-    for (i = 0; i < ARRAY_SIZE_SIGNED(this->soundBuffers); i++)
+    for (i = 0; i < SOUND_EFFECT_COUNT; i++)
     {
         SAFE_RELEASE(this->duplicateSoundBuffers[i]);
         SAFE_RELEASE(this->soundBuffers[i]);
@@ -272,14 +276,15 @@ ZunResult SoundPlayer::LoadWav(char *path)
     waveFile.Close();
     blockAlign = waveFile.m_pwfx->nBlockAlign;
     numSamplesPerSec = waveFile.m_pwfx->nSamplesPerSec;
-    notifySize = numSamplesPerSec * 2 * blockAlign >> 2;
+    notifySize =
+        numSamplesPerSec * BACKGROUND_MUSIC_STREAM_SECONDS * blockAlign / BACKGROUND_MUSIC_STREAM_NOTIFICATIONS;
     notifySize -= (notifySize % blockAlign);
     this->backgroundMusicUpdateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    this->backgroundMusicThreadHandle = CreateThread(NULL, 0, SoundPlayer::BackgroundMusicPlayerThread,
+    this->backgroundMusicThreadHandle = CreateThread(NULL, 0, SoundPlayer_BackgroundMusicPlayerThread,
                                                      g_Supervisor.hwndGameWindow, 0, &this->backgroundMusicThreadId);
-    res = this->manager->CreateStreaming(&this->backgroundMusic, path,
-                                         DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY, GUID_NULL, 4,
-                                         notifySize, this->backgroundMusicUpdateEvent);
+    res = this->manager->CreateStreaming(
+        &this->backgroundMusic, path, DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY, GUID_NULL,
+        BACKGROUND_MUSIC_STREAM_NOTIFICATIONS, notifySize, this->backgroundMusicUpdateEvent);
     if (FAILED(res))
     {
         utils::DebugPrint2(TH_ERR_SOUNDPLAYER_FAILED_TO_CREATE_BGM_SOUND_BUFFER);
@@ -446,11 +451,9 @@ void SoundPlayer::PlaySoundByIdx(SoundIdx idx, i32 unused)
     this->unk408[idx] = SFXToPlay;
 }
 
-#pragma var_order(idx, sndBufIdx)
 void SoundPlayer::PlaySounds()
 {
     i32 idx;
-    i32 sndBufIdx;
 
     if (this->manager == NULL)
     {
@@ -466,7 +469,7 @@ void SoundPlayer::PlaySounds()
         {
             break;
         }
-        sndBufIdx = this->soundBuffersToPlay[idx];
+        i32 sndBufIdx = this->soundBuffersToPlay[idx];
         this->soundBuffersToPlay[idx] = -1;
         if (this->duplicateSoundBuffers[sndBufIdx] == NULL)
         {
@@ -479,12 +482,12 @@ void SoundPlayer::PlaySounds()
 }
 
 #pragma var_order(msg, looped, lpThreadParameterCopy, waitObj, res, stopped)
-DWORD WINAPI SoundPlayer::BackgroundMusicPlayerThread(LPVOID lpThreadParameter)
+static DWORD WINAPI SoundPlayer_BackgroundMusicPlayerThread(LPVOID lpThreadParameter)
 {
     DWORD waitObj;
     MSG msg;
-    u32 stopped;
-    u32 looped;
+    ZunBool stopped;
+    ZunBool looped;
     LPVOID lpThreadParameterCopy;
     HRESULT res;
 
@@ -520,4 +523,4 @@ DWORD WINAPI SoundPlayer::BackgroundMusicPlayerThread(LPVOID lpThreadParameter)
     }
     return 0;
 }
-}; // namespace th06
+} // namespace th06

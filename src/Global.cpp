@@ -15,42 +15,52 @@
 #include "ZunTimer.hpp"
 #include "i18n.hpp"
 #include "pbg3/Pbg3Archive.hpp"
+#include <ddraw.h>
 #include <dinput.h>
 #include <mmsystem.h>
 
 namespace th06
 {
+namespace Controller
+{
+static u32 SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
+                                         u32 inputButtons);
+static u32 SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
+                                            u8 *inputButtons);
+} // namespace Controller
 
-DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {0, 1, 2, 4, -1, -1, -1, -1, 3};
+DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {
+#if !TRIALBUILD
+    0,  1,  2,  4, -1,
+    -1, -1, -1, 3
+#else
+    0,  1,  0,  -1, -1,
+    -1, -1, -1, 0
+#endif
+};
 
 DIFFABLE_STATIC_SORTED(J1, Chain, g_Chain);
 
 // Controller
 DIFFABLE_STATIC_SORTED(J5, u8, g_ControllerData[128]);
+#if !TRIALBUILD
 DIFFABLE_STATIC_SORTED(I1, JOYCAPS, g_JoystickCaps);
+#endif
 DIFFABLE_STATIC_SORTED(I2, u16, g_FocusButtonConflictState);
 DIFFABLE_STATIC_SORTED(I6, u16, g_LastFrameInput);
 DIFFABLE_STATIC_SORTED(I7, u16, g_IsEigthFrameOfHeldInput);
 DIFFABLE_STATIC_SORTED(I8, u16, g_NumOfFramesInputsWereHeld);
 DIFFABLE_STATIC_SORTED(I5, u16, g_CurFrameInput);
 
-class CMyFont
-{
-  private:
-    LPD3DXFONT m_lpFont;
-
-  public:
-    CMyFont()
-    {
-        m_lpFont = NULL;
-    };
-    virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
-    virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
-    virtual void Clean();
-};
-
 // CMyFont
+#if TRIALBUILD
+// In the /O2 trial the constructor is folded into initialized .data, which
+// doesn't happen inside a bss_seg, so this one is not sorted.
+#pragma bss_seg()
+DIFFABLE_STATIC(CMyFont, g_CMyFont);
+#else
 DIFFABLE_STATIC_SORTED(J3, CMyFont, g_CMyFont);
+#endif
 
 Chain::~Chain()
 {
@@ -89,12 +99,12 @@ Chain::Chain()
     unk = 0;
 }
 
-int Chain::AddToCalcChain(ChainElem *elem, int priority)
+ZunResult Chain::AddToCalcChain(ChainElem *elem, int priority)
 {
-    ChainElem *cur;
-
-    cur = &this->calcChain;
+    ChainElem *cur = &this->calcChain;
+#if !TRIALBUILD
     utils::DebugPrint2("add calc chain (pri = %d)\n", priority);
+#endif
     elem->priority = priority;
 
     while (cur->next != NULL)
@@ -128,23 +138,23 @@ int Chain::AddToCalcChain(ChainElem *elem, int priority)
 
     if (elem->addedCallback != NULL)
     {
-        int res = elem->addedCallback(elem->arg);
+        ZunResult res = elem->addedCallback(elem->arg);
         elem->addedCallback = NULL;
 
         return res;
     }
     else
     {
-        return 0;
+        return ZUN_SUCCESS;
     }
 }
 
-int Chain::AddToDrawChain(ChainElem *elem, int priority)
+ZunResult Chain::AddToDrawChain(ChainElem *elem, int priority)
 {
-    ChainElem *cur;
-
-    cur = &this->drawChain;
+    ChainElem *cur = &this->drawChain;
+#if !TRIALBUILD
     utils::DebugPrint2("add draw chain (pri = %d)\n", priority);
+#endif
     elem->priority = priority;
 
     while (cur->next != NULL)
@@ -182,7 +192,7 @@ int Chain::AddToDrawChain(ChainElem *elem, int priority)
     }
     else
     {
-        return 0;
+        return ZUN_SUCCESS;
     }
 }
 
@@ -242,11 +252,9 @@ restart_from_first_job:
 int Chain::RunDrawChain(void)
 {
     ChainElem *tmp1;
-    ChainElem *current;
-    int updatedCount;
 
-    updatedCount = 0;
-    current = &this->drawChain;
+    int updatedCount = 0;
+    ChainElem *current = &this->drawChain;
 
     while (current != NULL)
     {
@@ -336,14 +344,9 @@ void Chain::Release(void)
 
 ChainElem *Chain::CreateElem(ChainCallback callback)
 {
-    ChainElem *elem;
+    ChainElem *elem = ZUN_NEW(ChainElem);
 
-    elem = ZUN_NEW(ChainElem);
-
-    elem->callback = callback;
-    elem->addedCallback = NULL;
-    elem->deletedCallback = NULL;
-
+    elem->SetCallback(callback);
     elem->isHeapAllocated = true;
 
     return elem;
@@ -351,17 +354,14 @@ ChainElem *Chain::CreateElem(ChainCallback callback)
 
 void Chain::Cut(ChainElem *to_remove)
 {
-    ZunBool isDrawChain;
-    ChainElem *tmp;
-
-    isDrawChain = false;
+    ZunBool isDrawChain = false;
 
     if (to_remove == NULL)
     {
         return;
     }
 
-    tmp = &this->calcChain;
+    ChainElem *tmp = &this->calcChain;
 
     while (tmp != NULL)
     {
@@ -431,25 +431,36 @@ destroy_elem:
 }
 
 // ZunMemory
+#if TRIALBUILD
+// Nothing in the trial reads g_ZunMemory, so its slot can't be checked; this is
+// the one gap in this unit's .bss that leaves every other address unchanged.
+DIFFABLE_STATIC_SORTED(J0, ZunMemory, g_ZunMemory);
+#else
 DIFFABLE_STATIC_SORTED(J4, ZunMemory, g_ZunMemory);
+#endif
 
 // FileSystem
 DIFFABLE_STATIC_SORTED(I9, u32, g_LastFileSize);
 
 u16 Controller::GetJoystickCaps(void)
 {
+    // NOTE: This isn't stubbed in trial 0.08.
+    // Current trial build is based on version 0.13.
+    // Why was winmm joystick API removed for that????
+#if !TRIALBUILD
     JOYINFOEX pji;
 
     pji.dwSize = sizeof(JOYINFOEX);
     pji.dwFlags = JOY_RETURNALL;
 
-    if (joyGetPosEx(0, &pji) != MMSYSERR_NOERROR)
+    if (joyGetPosEx(JOYSTICKID1, &pji) != JOYERR_NOERROR)
     {
         g_GameErrorContext.Log(TH_ERR_NO_PAD_FOUND);
         return 1;
     }
 
-    joyGetDevCaps(0, &g_JoystickCaps, sizeof(g_JoystickCaps));
+    joyGetDevCaps(JOYSTICKID1, &g_JoystickCaps, sizeof(g_JoystickCaps));
+#endif
     return 0;
 }
 
@@ -457,6 +468,13 @@ u16 Controller::GetJoystickCaps(void)
 #define JOYSTICK_BUTTON_PRESSED(button, x, y) (x > y ? button : 0)
 #define JOYSTICK_BUTTON_PRESSED_INVERT(button, x, y) (x < y ? button : 0)
 #define KEYBOARD_KEY_PRESSED(button, x) keyboardState[x] & 0x80 ? button : 0
+
+// The trial reads the shared mapping; release reads the loaded configuration.
+#if !TRIALBUILD
+#define CONTROLLER_MAPPING g_Supervisor.cfg.controllerMapping
+#else
+#define CONTROLLER_MAPPING g_ControllerMapping
+#endif
 
 u16 Controller::GetControllerInput(u16 buttons)
 {
@@ -469,24 +487,23 @@ u16 Controller::GetControllerInput(u16 buttons)
     u32 a2;
     HRESULT aaa;
 
+#if !TRIALBUILD
     if (g_Supervisor.controller == NULL)
     {
         memset(&aa, 0, sizeof(aa));
         aa.dwSize = sizeof(JOYINFOEX);
         aa.dwFlags = JOY_RETURNALL;
 
-        if (joyGetPosEx(0, &aa) != MMSYSERR_NOERROR)
+        if (joyGetPosEx(JOYSTICKID1, &aa) != JOYERR_NOERROR)
         {
             return buttons;
         }
 
-        ac = SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.shootButton, TH_BUTTON_SHOOT,
-                                           aa.dwButtons);
+        ac = SetButtonFromControllerInputs(&buttons, g_ControllerMapping.shootButton, TH_BUTTON_SHOOT, aa.dwButtons);
 
         if (g_ControllerMapping.shootButton != g_ControllerMapping.focusButton)
         {
-            SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.focusButton, TH_BUTTON_FOCUS,
-                                          aa.dwButtons);
+            SetButtonFromControllerInputs(&buttons, g_ControllerMapping.focusButton, TH_BUTTON_FOCUS, aa.dwButtons);
         }
         else
         {
@@ -515,20 +532,13 @@ u16 Controller::GetControllerInput(u16 buttons)
             }
         }
 
-        SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.bombButton, TH_BUTTON_BOMB,
-                                      aa.dwButtons);
-        SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.menuButton, TH_BUTTON_MENU,
-                                      aa.dwButtons);
-        SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.upButton, TH_BUTTON_UP,
-                                      aa.dwButtons);
-        SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.downButton, TH_BUTTON_DOWN,
-                                      aa.dwButtons);
-        SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.leftButton, TH_BUTTON_LEFT,
-                                      aa.dwButtons);
-        SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.rightButton, TH_BUTTON_RIGHT,
-                                      aa.dwButtons);
-        SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.skipButton, TH_BUTTON_SKIP,
-                                      aa.dwButtons);
+        SetButtonFromControllerInputs(&buttons, CONTROLLER_MAPPING.bombButton, TH_BUTTON_BOMB, aa.dwButtons);
+        SetButtonFromControllerInputs(&buttons, CONTROLLER_MAPPING.menuButton, TH_BUTTON_MENU, aa.dwButtons);
+        SetButtonFromControllerInputs(&buttons, CONTROLLER_MAPPING.upButton, TH_BUTTON_UP, aa.dwButtons);
+        SetButtonFromControllerInputs(&buttons, CONTROLLER_MAPPING.downButton, TH_BUTTON_DOWN, aa.dwButtons);
+        SetButtonFromControllerInputs(&buttons, CONTROLLER_MAPPING.leftButton, TH_BUTTON_LEFT, aa.dwButtons);
+        SetButtonFromControllerInputs(&buttons, CONTROLLER_MAPPING.rightButton, TH_BUTTON_RIGHT, aa.dwButtons);
+        SetButtonFromControllerInputs(&buttons, CONTROLLER_MAPPING.skipButton, TH_BUTTON_SKIP, aa.dwButtons);
 
         ab = ((g_JoystickCaps.wXmax - g_JoystickCaps.wXmin) / 2 / 2);
 
@@ -546,8 +556,14 @@ u16 Controller::GetControllerInput(u16 buttons)
         return buttons;
     }
     else
+#endif
     {
-        // FIXME: Next if not matching.
+#if TRIALBUILD
+        if (g_Supervisor.controller == NULL)
+        {
+            return buttons;
+        }
+#endif
         aaa = g_Supervisor.controller->Poll();
         if (FAILED(aaa))
         {
@@ -582,13 +598,16 @@ u16 Controller::GetControllerInput(u16 buttons)
                 return buttons;
             }
 
-            a2 = SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.shootButton,
-                                                  TH_BUTTON_SHOOT, a0.rgbButtons);
+            a2 = SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.shootButton, TH_BUTTON_SHOOT,
+                                                  a0.rgbButtons);
+#if TRIALBUILD
+            SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.bombButton, TH_BUTTON_BOMB, a0.rgbButtons);
+#endif
 
-            if (g_Supervisor.cfg.controllerMapping.shootButton != g_Supervisor.cfg.controllerMapping.focusButton)
+            if (g_ControllerMapping.shootButton != g_ControllerMapping.focusButton)
             {
-                SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.focusButton,
-                                                 TH_BUTTON_FOCUS, a0.rgbButtons);
+                SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.focusButton, TH_BUTTON_FOCUS,
+                                                 a0.rgbButtons);
             }
             else
             {
@@ -617,20 +636,15 @@ u16 Controller::GetControllerInput(u16 buttons)
                 }
             }
 
-            SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.bombButton, TH_BUTTON_BOMB,
-                                             a0.rgbButtons);
-            SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.menuButton, TH_BUTTON_MENU,
-                                             a0.rgbButtons);
-            SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.upButton, TH_BUTTON_UP,
-                                             a0.rgbButtons);
-            SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.downButton, TH_BUTTON_DOWN,
-                                             a0.rgbButtons);
-            SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.leftButton, TH_BUTTON_LEFT,
-                                             a0.rgbButtons);
-            SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.rightButton, TH_BUTTON_RIGHT,
-                                             a0.rgbButtons);
-            SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.skipButton, TH_BUTTON_SKIP,
-                                             a0.rgbButtons);
+#if !TRIALBUILD
+            SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.bombButton, TH_BUTTON_BOMB, a0.rgbButtons);
+#endif
+            SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.menuButton, TH_BUTTON_MENU, a0.rgbButtons);
+            SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.upButton, TH_BUTTON_UP, a0.rgbButtons);
+            SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.downButton, TH_BUTTON_DOWN, a0.rgbButtons);
+            SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.leftButton, TH_BUTTON_LEFT, a0.rgbButtons);
+            SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.rightButton, TH_BUTTON_RIGHT, a0.rgbButtons);
+            SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.skipButton, TH_BUTTON_SKIP, a0.rgbButtons);
 
             buttons |= JOYSTICK_BUTTON_PRESSED(TH_BUTTON_RIGHT, a0.lX, g_Supervisor.cfg.padXAxis);
             buttons |= JOYSTICK_BUTTON_PRESSED_INVERT(TH_BUTTON_LEFT, a0.lX, -g_Supervisor.cfg.padXAxis);
@@ -642,8 +656,10 @@ u16 Controller::GetControllerInput(u16 buttons)
     return buttons;
 }
 
-u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest,
-                                                 enum TouhouButton touhouButton, u8 *inputButtons)
+#undef CONTROLLER_MAPPING
+
+u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
+                                                 u8 *inputButtons)
 {
     if (controllerButtonToTest < 0)
     {
@@ -655,42 +671,44 @@ u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controller
     return inputButtons[controllerButtonToTest] & 0x80 ? touhouButton & 0xFFFF : 0;
 }
 
-u32 Controller::SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest,
-                                              enum TouhouButton touhouButton, u32 inputButtons)
+u32 Controller::SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
+                                              u32 inputButtons)
 {
-    DWORD mask;
-
     if (controllerButtonToTest < 0)
     {
         return 0;
     }
 
-    mask = 1 << controllerButtonToTest;
+    u32 mask = 1 << controllerButtonToTest;
 
     *outButtons |= (inputButtons & mask ? touhouButton & 0xFFFF : 0);
 
     return inputButtons & mask ? touhouButton & 0xFFFF : 0;
 }
 
-#pragma var_order(joyinfoex, joyButtonBit, joyButtonIndex, dires, dijoystate2, diRetryCount)
 // This is for rebinding keys
 u8 *th06::Controller::GetControllerState()
 {
-    JOYINFOEX joyinfoex;
-    u32 joyButtonBit;
-    u32 joyButtonIndex;
-
-    i32 dires;
-    DIJOYSTATE2 dijoystate2;
-    i32 diRetryCount;
-
     memset(&g_ControllerData, 0, sizeof(g_ControllerData));
+#if TRIALBUILD
     if (g_Supervisor.controller == NULL)
     {
+        return g_ControllerData;
+    }
+#endif
+
+#if !TRIALBUILD
+#pragma var_order(joyinfoex, joyButtonBit, joyButtonIndex)
+    if (g_Supervisor.controller == NULL)
+    {
+        JOYINFOEX joyinfoex;
+        u32 joyButtonBit;
+        u32 joyButtonIndex;
+
         memset(&joyinfoex, 0, sizeof(JOYINFOEX));
         joyinfoex.dwSize = sizeof(JOYINFOEX);
         joyinfoex.dwFlags = JOY_RETURNALL;
-        if (joyGetPosEx(0, &joyinfoex) != JOYERR_NOERROR)
+        if (joyGetPosEx(JOYSTICKID1, &joyinfoex) != JOYERR_NOERROR)
         {
             return g_ControllerData;
         }
@@ -705,11 +723,15 @@ u8 *th06::Controller::GetControllerState()
         return g_ControllerData;
     }
     else
+#endif
+#pragma var_order(dires, dijoystate2)
     {
-        dires = g_Supervisor.controller->Poll();
+        DIJOYSTATE2 dijoystate2;
+
+        HRESULT dires = g_Supervisor.controller->Poll();
         if (FAILED(dires))
         {
-            diRetryCount = 0;
+            i32 diRetryCount = 0;
             utils::DebugPrint2("error : DIERR_INPUTLOST\n");
             dires = g_Supervisor.controller->Acquire();
             while (dires == DIERR_INPUTLOST)
@@ -724,8 +746,12 @@ u8 *th06::Controller::GetControllerState()
             }
             return g_ControllerData;
         }
-        /* dires = */ g_Supervisor.controller->GetDeviceState(sizeof(DIJOYSTATE2), &dijoystate2);
-        // TODO: seems ZUN forgot "dires =" above
+#if !TRIALBUILD
+        // Release checks the earlier Poll result instead of the GetDeviceState result.
+        g_Supervisor.controller->GetDeviceState(sizeof(DIJOYSTATE2), &dijoystate2);
+#else
+        dires = g_Supervisor.controller->GetDeviceState(sizeof(DIJOYSTATE2), &dijoystate2);
+#endif
         if (FAILED(dires))
         {
             return g_ControllerData;
@@ -738,9 +764,7 @@ u8 *th06::Controller::GetControllerState()
 u16 Controller::GetInput(void)
 {
     u8 keyboardState[256];
-    u16 buttons;
-
-    buttons = 0;
+    u16 buttons = 0;
 
     if (g_Supervisor.keyboard == NULL)
     {
@@ -758,7 +782,11 @@ u16 Controller::GetInput(void)
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_UP_RIGHT, VK_NUMPAD9);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_DOWN_LEFT, VK_NUMPAD1);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_DOWN_RIGHT, VK_NUMPAD3);
+#if !TRIALBUILD
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, VK_HOME);
+#else
+        buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, VK_F12);
+#endif
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_SHOOT, 'Z');
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_BOMB, 'X');
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_FOCUS, VK_SHIFT);
@@ -793,7 +821,11 @@ u16 Controller::GetInput(void)
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_UP_RIGHT, DIK_NUMPAD9);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_DOWN_LEFT, DIK_NUMPAD1);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_DOWN_RIGHT, DIK_NUMPAD3);
+#if !TRIALBUILD
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, DIK_HOME);
+#else
+        buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, DIK_F12);
+#endif
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_SHOOT, DIK_Z);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_BOMB, DIK_X);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_FOCUS, DIK_LSHIFT);
@@ -859,11 +891,6 @@ void CMyFont::Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h)
 
 DIFFABLE_STATIC_SORTED(J6, LPDIRECT3DSURFACE8, g_TextBufferSurface);
 
-void Fake_DrawTextA()
-{
-    void *fake = (void *)&DrawText;
-}
-
 // ----------------------------------------------------------------------------
 void CMyFont::Print(char *str, int x, int y, D3DCOLOR color)
 {
@@ -889,11 +916,10 @@ u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
     u8 *data;
     FILE *file;
     size_t fsize;
-    i32 entryIdx;
     const char *entryname;
     i32 pbg3Idx;
 
-    entryIdx = -1;
+    i32 entryIdx = -1;
     if (!isExternalResource)
     {
         entryname = strrchr(filepath, '\\');
@@ -964,9 +990,7 @@ u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
 
 int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 {
-    FILE *f;
-
-    f = fopen(path, "wb");
+    FILE *f = fopen(path, "wb");
     if (f == NULL)
     {
         return -1;
@@ -987,7 +1011,14 @@ int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 }
 
 // GameErrorContext
+#if TRIALBUILD
+// In the /O2 trial the constructor is folded into initialized .data, which
+// doesn't happen inside a bss_seg, so this one is not sorted.
+#pragma bss_seg()
+DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext);
+#else
 DIFFABLE_STATIC_SORTED(J2, GameErrorContext, g_GameErrorContext);
+#endif
 
 // Rng
 DIFFABLE_STATIC_SORTED(I3, Rng, g_Rng);
@@ -1042,6 +1073,32 @@ const char *GameErrorContext::Fatal(const char *fmt, ...)
     return fmt;
 }
 
+#if TRIALBUILD
+const char *GameErrorContext::DetailedLog(const char *fmt, ...)
+{
+    char tmpBuffer[512];
+    size_t tmpBufferSize;
+    va_list args;
+
+    va_start(args, fmt);
+    vsprintf(tmpBuffer, fmt, args);
+
+    tmpBufferSize = strlen(tmpBuffer);
+
+    if (this->m_DetailedBufferEnd + tmpBufferSize < &this->m_DetailedBuffer[sizeof(this->m_DetailedBuffer) - 1])
+    {
+        strcpy(this->m_DetailedBufferEnd, tmpBuffer);
+
+        this->m_DetailedBufferEnd += tmpBufferSize;
+        *this->m_DetailedBufferEnd = '\0';
+    }
+
+    va_end(args);
+
+    return fmt;
+}
+#endif
+
 u16 Rng::GetRandomU16(void)
 {
     u16 a = (this->seed ^ 0x9630) - 0x6553;
@@ -1065,9 +1122,7 @@ namespace utils
 {
 f32 AddNormalizeAngle(f32 a, f32 b)
 {
-    i32 i;
-
-    i = 0;
+    i32 i = 0;
     a += b;
     while (a > ZUN_PI)
     {
@@ -1087,15 +1142,13 @@ f32 AddNormalizeAngle(f32 a, f32 b)
 #pragma var_order(sinOut, cosOut)
 void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle)
 {
-    f32 sinOut;
-    f32 cosOut;
-
-    sinOut = sinf(angle);
-    cosOut = cosf(angle);
+    f32 sinOut = sinf(angle);
+    f32 cosOut = cosf(angle);
     outVector->x = cosOut * point->x + sinOut * point->y;
     outVector->y = cosOut * point->y - sinOut * point->x;
 }
 
+#if !TRIALBUILD
 void DebugPrint2(const char *fmt, ...)
 {
 #ifdef DEBUG
@@ -1109,5 +1162,121 @@ void DebugPrint2(const char *fmt, ...)
     printf("DEBUG2: %s\n", tmpBuffer);
 #endif
 }
-}; // namespace utils
-}; // namespace th06
+#endif
+} // namespace utils
+} // namespace th06
+
+typedef HRESULT(WINAPI *DIRECTDRAWCREATE)(GUID *, LPDIRECTDRAW *, IUnknown *);
+typedef HRESULT(WINAPI *DIRECTDRAWCREATEEX)(GUID *, VOID **, REFIID, IUnknown *);
+typedef HRESULT(WINAPI *DIRECTINPUTCREATE)(HINSTANCE, DWORD, LPDIRECTINPUT *, IUnknown *);
+
+// Used by trial startup; unreferenced by the 1.02h startup path.
+DWORD GetDXVersion()
+{
+    DIRECTDRAWCREATE DirectDrawCreate = NULL;
+    DIRECTDRAWCREATEEX DirectDrawCreateEx = NULL;
+    DIRECTINPUTCREATE DirectInputCreate = NULL;
+    HINSTANCE hDDrawDLL = NULL;
+    HINSTANCE hDInputDLL = NULL;
+    HINSTANCE hD3D8DLL = NULL;
+    LPDIRECTDRAW pDDraw = NULL;
+    LPDIRECTDRAW2 pDDraw2 = NULL;
+    LPDIRECTDRAWSURFACE pSurf = NULL;
+    LPDIRECTDRAWSURFACE3 pSurf3 = NULL;
+    LPDIRECTDRAWSURFACE4 pSurf4 = NULL;
+    DWORD dwDXVersion = 0;
+    HRESULT hr;
+
+    // First see if DDRAW.DLL even exists.
+    hDDrawDLL = LoadLibrary("DDRAW.DLL");
+    if (hDDrawDLL == NULL)
+    {
+        dwDXVersion = 0;
+        return dwDXVersion;
+    }
+
+    // See if we can create the DirectDraw object.
+    DirectDrawCreate = (DIRECTDRAWCREATE)GetProcAddress(hDDrawDLL, "DirectDrawCreate");
+    if (DirectDrawCreate == NULL)
+    {
+        dwDXVersion = 0;
+        FreeLibrary(hDDrawDLL);
+        OutputDebugString("Couldn't LoadLibrary DDraw\r\n");
+        return dwDXVersion;
+    }
+
+    hr = DirectDrawCreate(NULL, &pDDraw, NULL);
+    if (FAILED(hr))
+    {
+        dwDXVersion = 0;
+        FreeLibrary(hDDrawDLL);
+        OutputDebugString("Couldn't create DDraw\r\n");
+        return dwDXVersion;
+    }
+
+    // So DirectDraw exists.  We are at least DX1.
+    dwDXVersion = 0x100;
+
+    // Let's see if IID_IDirectDraw2 exists.
+    hr = pDDraw->QueryInterface(IID_IDirectDraw2, (VOID **)&pDDraw2);
+    if (FAILED(hr))
+    {
+        // No IDirectDraw2 exists... must be DX1
+        pDDraw->Release();
+        FreeLibrary(hDDrawDLL);
+        OutputDebugString("Couldn't QI DDraw2\r\n");
+        return dwDXVersion;
+    }
+
+    // IDirectDraw2 exists. We must be at least DX2
+    pDDraw2->Release();
+    dwDXVersion = 0x200;
+
+    //-------------------------------------------------------------------------
+    // DirectX 7.0 Checks
+    //-------------------------------------------------------------------------
+
+    // Check for DirectX 7 by creating a DDraw7 object
+    LPDIRECTDRAW7 pDD7;
+    DirectDrawCreateEx = (DIRECTDRAWCREATEEX)GetProcAddress(hDDrawDLL, "DirectDrawCreateEx");
+    if (NULL == DirectDrawCreateEx)
+    {
+        FreeLibrary(hDDrawDLL);
+        return dwDXVersion;
+    }
+
+    if (FAILED(DirectDrawCreateEx(NULL, (VOID **)&pDD7, IID_IDirectDraw7, NULL)))
+    {
+        FreeLibrary(hDDrawDLL);
+        return dwDXVersion;
+    }
+
+    // DDraw7 was created successfully. We must be at least DX7.0
+    dwDXVersion = 0x700;
+    pDD7->Release();
+
+    //-------------------------------------------------------------------------
+    // DirectX 8.0 Checks
+    //-------------------------------------------------------------------------
+
+    // Simply see if D3D8.dll exists.
+    hD3D8DLL = LoadLibrary("D3D8.DLL");
+    if (hD3D8DLL == NULL)
+    {
+        FreeLibrary(hDDrawDLL);
+        return dwDXVersion;
+    }
+
+    // D3D8.dll exists. We must be at least DX8.0
+    dwDXVersion = 0x800;
+
+    //-------------------------------------------------------------------------
+    // End of checking for versions of DirectX
+    //-------------------------------------------------------------------------
+
+    // Close open libraries and return
+    FreeLibrary(hDDrawDLL);
+    FreeLibrary(hD3D8DLL);
+
+    return dwDXVersion;
+}

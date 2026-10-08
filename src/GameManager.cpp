@@ -30,11 +30,14 @@ struct DifficultyInfo
     u32 minRank;
     u32 maxRank;
 };
-ZUN_ASSERT_SIZE(DifficultyInfo, 0xc);
+ZUN_ASSERT_TYPE(DifficultyInfo, 0xc, 4);
 
 DIFFABLE_STATIC_SORTED(H1, GameManager, g_GameManager);
 DIFFABLE_STATIC_SORTED(H2, ChainElem, g_GameManagerCalcChain);
 DIFFABLE_STATIC_SORTED(H3, ChainElem, g_GameManagerDrawChain);
+
+ZunResult GameManager_AddedCallback(GameManager *gameManager);
+ZunResult GameManager_DeletedCallback(GameManager *gameManager);
 
 #define MAX_SCORE 999999999
 
@@ -47,19 +50,19 @@ DIFFABLE_STATIC_SORTED(H3, ChainElem, g_GameManagerDrawChain);
 
 ZunBool GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height)
 {
-    if (width / 2.0f + x < 0.0f)
+    if (width / 2.0f + x < GAME_REGION_LEFT)
     {
         return false;
     }
-    if ((x - width / 2.0f) > g_GameManager.arcadeRegionSize.x)
+    if ((x - width / 2.0f) > /*GAME_REGION_LEFT +*/ g_GameManager.gameRegionSize.x)
     {
         return false;
     }
-    if (height / 2.0f + y < 0.0f)
+    if (height / 2.0f + y < GAME_REGION_TOP)
     {
         return false;
     }
-    if (y - height / 2.0f > g_GameManager.arcadeRegionSize.y)
+    if (y - height / 2.0f > /*GAME_REGION_TOP +*/ g_GameManager.gameRegionSize.y)
     {
         return false;
     }
@@ -67,8 +70,8 @@ ZunBool GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height)
     return true;
 }
 
-#pragma var_order(score_increment, is_in_menu)
-ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
+#pragma var_order(scoreIncrement, isInMenu)
+ChainCallbackResult GameManager_OnUpdate(GameManager *gameManager)
 {
     ZunBool isInMenu;
     u32 scoreIncrement;
@@ -82,7 +85,7 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
         gameManager->demoFrames++;
         if (gameManager->demoFrames == DEMO_FADEOUT_FRAMES)
         {
-            ScreenEffect::RegisterChain(SCREEN_EFFECT_FADE_OUT, 120, 0x000000, 0, 0);
+            ScreenEffect_RegisterChain(SCREEN_EFFECT_FADE_OUT, 120, 0x000000, 0, 0);
         }
         if (gameManager->demoFrames >= DEMO_FRAMES)
         {
@@ -93,11 +96,13 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
         WAS_PRESSED(TH_BUTTON_MENU))
     {
         gameManager->isInGameMenu = 1;
-        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
-        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
-        g_Supervisor.unk198 = 3;
+        g_GameManager.gameRegionScreenPos.x = GAME_REGION_POS_X;
+        g_GameManager.gameRegionScreenPos.y = GAME_REGION_POS_Y;
+        g_GameManager.gameRegionSize.x = GAME_REGION_WIDTH;
+        g_GameManager.gameRegionSize.y = GAME_REGION_HEIGHT;
+#if !TRIALBUILD
+        g_Supervisor.forceRedrawFrames = 3;
+#endif
     }
 
     if (!gameManager->isInRetryMenu && !gameManager->isInGameMenu)
@@ -111,14 +116,14 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
 
     gameManager->isInMenu = isInMenu;
 
-    g_Supervisor.viewport.X = gameManager->arcadeRegionTopLeftPos.x;
-    g_Supervisor.viewport.Y = gameManager->arcadeRegionTopLeftPos.y;
-    g_Supervisor.viewport.Width = gameManager->arcadeRegionSize.x;
-    g_Supervisor.viewport.Height = gameManager->arcadeRegionSize.y;
+    g_Supervisor.viewport.X = gameManager->gameRegionScreenPos.x;
+    g_Supervisor.viewport.Y = gameManager->gameRegionScreenPos.y;
+    g_Supervisor.viewport.Width = gameManager->gameRegionSize.x;
+    g_Supervisor.viewport.Height = gameManager->gameRegionSize.y;
     g_Supervisor.viewport.MinZ = 0.5f;
     g_Supervisor.viewport.MaxZ = 1.0f;
 
-    SetupCamera(0);
+    GameManager_SetupCamera(0);
 
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_ZBUFFER, g_Stage.skyFog.color, 1.0f, 0);
@@ -186,7 +191,7 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult GameManager::OnDraw(GameManager *gameManager)
+ChainCallbackResult GameManager_OnDraw(GameManager *gameManager)
 {
     if (gameManager->isInGameMenu)
     {
@@ -195,33 +200,29 @@ ChainCallbackResult GameManager::OnDraw(GameManager *gameManager)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult GameManager::RegisterChain()
+ZunResult GameManager_RegisterChain()
 {
     GameManager *mgr = &g_GameManager;
 
-    g_GameManagerCalcChain.callback = (ChainCallback)GameManager::OnUpdate;
-    g_GameManagerCalcChain.addedCallback = NULL;
-    g_GameManagerCalcChain.deletedCallback = NULL;
-    g_GameManagerCalcChain.addedCallback = (ChainAddedCallback)GameManager::AddedCallback;
-    g_GameManagerCalcChain.deletedCallback = (ChainDeletedCallback)GameManager::DeletedCallback;
+    g_GameManagerCalcChain.SetCallback((ChainCallback)GameManager_OnUpdate);
+    g_GameManagerCalcChain.addedCallback = (ChainAddedCallback)GameManager_AddedCallback;
+    g_GameManagerCalcChain.deletedCallback = (ChainDeletedCallback)GameManager_DeletedCallback;
     g_GameManagerCalcChain.arg = mgr;
 
     mgr->gameFrames = 0;
 
-    if (g_Chain.AddToCalcChain(&g_GameManagerCalcChain, TH_CHAIN_PRIO_CALC_GAMEMANAGER))
+    if (g_Chain.AddToCalcChain(&g_GameManagerCalcChain, TH_CHAIN_PRIO_CALC_GAMEMANAGER) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    g_GameManagerDrawChain.callback = (ChainCallback)GameManager::OnDraw;
-    g_GameManagerDrawChain.addedCallback = NULL;
-    g_GameManagerDrawChain.deletedCallback = NULL;
+    g_GameManagerDrawChain.SetCallback((ChainCallback)GameManager_OnDraw);
     g_GameManagerDrawChain.arg = mgr;
     g_Chain.AddToDrawChain(&g_GameManagerDrawChain, TH_CHAIN_PRIO_DRAW_GAMEMANAGER);
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx, unk1, unk2, padding)
-ZunResult GameManager::AddedCallback(GameManager *mgr)
+#pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx)
+ZunResult GameManager_AddedCallback(GameManager *mgr)
 {
     static const char *g_EclFiles[] = {"dummy",
                                        "data/ecldata1.ecl",
@@ -263,23 +264,23 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     u32 catkCursor;
     i32 i;
     Catk *catk;
-    ZunBool failedToLoadReplay;
-    i32 padding[3];
 
-    failedToLoadReplay = false;
+    ZunBool failedToLoadReplay = false;
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
-    if (g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT)
+    if (g_Supervisor.curState != SUPERVISOR_STATE_NEXT_STAGE)
     {
+#if !TRIALBUILD
         g_Supervisor.defaultConfig.bombCount = g_GameManager.bombsRemaining;
         g_Supervisor.defaultConfig.lifeCount = g_GameManager.livesRemaining;
-        mgr->arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-        mgr->arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-        mgr->arcadeRegionSize.x = GAME_REGION_WIDTH;
-        mgr->arcadeRegionSize.y = GAME_REGION_HEIGHT;
-        mgr->playerMovementAreaTopLeftPos.x = 8.0f;
-        mgr->playerMovementAreaTopLeftPos.y = 16.0f;
-        mgr->playerMovementAreaSize.x = 368.0f;
-        mgr->playerMovementAreaSize.y = 416.0f;
+#endif
+        mgr->gameRegionScreenPos.x = GAME_REGION_POS_X;
+        mgr->gameRegionScreenPos.y = GAME_REGION_POS_Y;
+        mgr->gameRegionSize.x = GAME_REGION_WIDTH;
+        mgr->gameRegionSize.y = GAME_REGION_HEIGHT;
+        mgr->playerMovementAreaTopLeftPos.x = GAME_REGION_LEFT + 8.0f;
+        mgr->playerMovementAreaTopLeftPos.y = GAME_REGION_TOP + 16.0f;
+        mgr->playerMovementAreaSize.x = GAME_REGION_WIDTH - 8.0f * 2.0f;
+        mgr->playerMovementAreaSize.y = GAME_REGION_HEIGHT - 16.0f * 2.0f;
         mgr->counat = 0;
         mgr->guiScore = 0;
         mgr->score = 0;
@@ -303,7 +304,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         mgr->rank = 8;
         mgr->grazeInTotal = 0;
         mgr->pointItemsCollected = 0;
-        for (catk = mgr->catk, i = 0; i < ARRAY_SIZE_SIGNED(mgr->catk); i++, catk++)
+        for (catk = mgr->catk, i = 0; i < CATK_NUM_CAPTURES; i++, catk++)
         {
             // Randomize catk content.
             for (catkCursor = 0; catkCursor < sizeof(Catk) / sizeof(u16); catkCursor++)
@@ -320,15 +321,14 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         }
         scoredat = OpenScore("score.dat");
         g_GameManager.highScore =
-            GetHighScore(scoredat, NULL, g_GameManager.CharacterShotType(), g_GameManager.difficulty);
+            GetHighScore(scoredat, NULL, GameManager_CharacterShotType(), g_GameManager.difficulty);
         ParseCatk(scoredat, mgr->catk);
         ParseClrd(scoredat, mgr->clrd);
         ParsePscr(scoredat, (Pscr *)mgr->pscr);
         if (mgr->isInPracticeMode)
         {
             g_GameManager.highScore =
-                mgr->pscr[g_GameManager.CharacterShotType()][g_GameManager.currentStage][g_GameManager.difficulty]
-                    .score;
+                mgr->pscr[GameManager_CharacterShotType()][g_GameManager.currentStage][g_GameManager.difficulty].score;
         }
         ReleaseScoreDat(scoredat);
         mgr->rank = g_DifficultyInfo[g_GameManager.difficulty].rank;
@@ -350,7 +350,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     mgr->currentStage++;
     if (!g_GameManager.isInReplay)
     {
-        clrdIdx = g_GameManager.CharacterShotType();
+        clrdIdx = GameManager_CharacterShotType();
         if (mgr->numRetries == 0 &&
             mgr->clrd[clrdIdx].difficultyClearedWithRetries[g_GameManager.difficulty] < mgr->currentStage - 1)
         {
@@ -378,7 +378,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     g_Supervisor.LoadPbg3(ST_PBG3_INDEX, TH_ST_DAT_FILE);
     if (g_GameManager.isInReplay == TRUE)
     {
-        if (ReplayManager::RegisterChain(true, g_GameManager.replayFile) != ZUN_SUCCESS)
+        if (ReplayManager_RegisterChain(true, g_GameManager.replayFile) != ZUN_SUCCESS)
         {
             failedToLoadReplay = true;
         }
@@ -391,23 +391,23 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     }
     g_Rng.generationCount = 0;
     mgr->randomSeed = g_Rng.seed;
-    if (Stage::RegisterChain(mgr->currentStage) != ZUN_SUCCESS)
+    if (Stage_RegisterChain(mgr->currentStage) != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_STAGE);
         return ZUN_ERROR;
     }
 
-    if (Player::RegisterChain(0) != ZUN_SUCCESS)
+    if (Player_RegisterChain(0) != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_PLAYER);
         return ZUN_ERROR;
     }
-    if (BulletManager::RegisterChain("data/etama.anm") != ZUN_SUCCESS)
+    if (BulletManager_RegisterChain("data/etama.anm") != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_BULLETMANAGER);
         return ZUN_ERROR;
     }
-    if (EnemyManager::RegisterChain(g_AnmStageFiles[mgr->currentStage][0], g_AnmStageFiles[mgr->currentStage][1]) !=
+    if (EnemyManager_RegisterChain(g_AnmStageFiles[mgr->currentStage][0], g_AnmStageFiles[mgr->currentStage][1]) !=
         ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_ENEMYMANAGER);
@@ -418,19 +418,19 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_ECLMANAGER);
         return ZUN_ERROR;
     }
-    if (EffectManager::RegisterChain() != ZUN_SUCCESS)
+    if (EffectManager_RegisterChain() != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_EFFECTMANAGER);
         return ZUN_ERROR;
     }
-    if (Gui::RegisterChain() != ZUN_SUCCESS)
+    if (Gui_RegisterChain() != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_GUI);
         return ZUN_ERROR;
     }
     if (!g_GameManager.isInReplay)
     {
-        ReplayManager::RegisterChain(false, "replay/th6_00.rpy");
+        ReplayManager_RegisterChain(false, "replay/th6_00.rpy");
     }
     if (!g_GameManager.demoMode)
     {
@@ -441,7 +441,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     }
     mgr->isInRetryMenu = false;
     mgr->isInMenu = true;
-    if (g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT)
+    if (g_Supervisor.curState != SUPERVISOR_STATE_NEXT_STAGE)
     {
         g_Supervisor.unk1b4 = 0.0f;
         g_Supervisor.unk1b8 = 0.0f;
@@ -450,48 +450,46 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     mgr->score = 0;
     mgr->isGameCompleted = false;
     g_AsciiManager.InitializeVms();
+#if !TRIALBUILD
     if (failedToLoadReplay)
     {
         g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU;
     }
-    g_Supervisor.unk198 = 3;
+    g_Supervisor.forceRedrawFrames = 3;
+#endif
     return ZUN_SUCCESS;
 }
 
-ZunResult GameManager::DeletedCallback(GameManager *mgr)
+ZunResult GameManager_DeletedCallback(GameManager *mgr)
 {
-    i32 padding1, padding2, padding3;
 
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
     if (!g_GameManager.demoMode)
     {
         g_Supervisor.StopAudio();
     }
-    Stage::CutChain();
-    BulletManager::CutChain();
-    Player::CutChain();
-    EnemyManager::CutChain();
+    Stage_CutChain();
+    BulletManager_CutChain();
+    Player_CutChain();
+    EnemyManager_CutChain();
     g_EclManager.Unload();
-    EffectManager::CutChain();
-    Gui::CutChain();
-    ReplayManager::StopRecording();
+    EffectManager_CutChain();
+    Gui_CutChain();
+    StopRecordingReplay();
     mgr->isInMenu = false;
     g_AsciiManager.InitializeVms();
     return ZUN_SUCCESS;
 }
 
-void GameManager::CutChain()
+void GameManager_CutChain()
 {
     g_Chain.Cut(&g_GameManagerCalcChain);
     g_Chain.Cut(&g_GameManagerDrawChain);
 }
 
-#pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov, upVec, atVec, eyeVec)
-void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
+#pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov)
+void GameManager_SetupCameraStageBackground(f32 extraRenderDistance)
 {
-    D3DXVECTOR3 eyeVec;
-    D3DXVECTOR3 atVec;
-    D3DXVECTOR3 upVec;
     f32 fov;
     f32 aspectRatio;
     f32 viewportMiddleWidth;
@@ -502,17 +500,10 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
     viewportMiddleHeight = g_Supervisor.viewport.Height / 2.0f;
     aspectRatio = (f32)g_Supervisor.viewport.Width / (f32)g_Supervisor.viewport.Height;
     fov = D3DXToRadian(30.0f);
-    cameraDistance = viewportMiddleHeight / tanf(fov / 2.0f);
-    upVec.x = 0.0f;
-    upVec.y = 1.0f;
-    upVec.z = 0.0f;
-    atVec.x = viewportMiddleWidth;
-    atVec.y = -viewportMiddleHeight;
-    atVec.z = 0.0f;
-    eyeVec.x = viewportMiddleWidth;
-    eyeVec.y = -viewportMiddleHeight;
-    eyeVec.z = -cameraDistance;
-    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix, &eyeVec, &atVec, &upVec);
+    cameraDistance = viewportMiddleHeight / (f32)tan(fov / 2.0f);
+    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix,
+                       &D3DXVECTOR3(viewportMiddleWidth, -viewportMiddleHeight, -cameraDistance),
+                       &D3DXVECTOR3(viewportMiddleWidth, -viewportMiddleHeight, 0.0f), &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
     g_GameManager.cameraDistance = fabsf(cameraDistance);
     D3DXMatrixPerspectiveFovLH(&g_Supervisor.projectionMatrix, fov, aspectRatio, 100.0f,
                                10000.0f + extraRenderDistance);
@@ -520,41 +511,26 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
     g_Supervisor.d3dDevice->SetTransform(D3DTS_PROJECTION, &g_Supervisor.projectionMatrix);
 }
 
-#pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov, upVec, atVec, eyeVec,   \
-                  atVecY, atVecX, eyeVecZ)
-void GameManager::SetupCamera(f32 extraRenderDistance)
+#pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov)
+void GameManager_SetupCamera(f32 extraRenderDistance)
 {
-    D3DXVECTOR3 eyeVec;
-    D3DXVECTOR3 atVec;
-    D3DXVECTOR3 upVec;
     f32 fov;
     f32 aspectRatio;
     f32 viewportMiddleWidth;
     f32 viewportMiddleHeight;
     f32 cameraDistance;
 
-    f32 atVecY;
-    f32 atVecX;
-    f32 eyeVecZ;
-
     viewportMiddleWidth = g_Supervisor.viewport.Width / 2.0f;
     viewportMiddleHeight = g_Supervisor.viewport.Height / 2.0f;
     aspectRatio = (f32)g_Supervisor.viewport.Width / (f32)g_Supervisor.viewport.Height;
     fov = D3DXToRadian(30.0f);
-    cameraDistance = viewportMiddleHeight / tanf(fov / 2.0f);
-    upVec.x = 0.0f;
-    upVec.y = 1.0f;
-    upVec.z = 0.0f;
-    atVecY = -viewportMiddleHeight + (f32)g_GameManager.stageCameraFacingDir.y;
-    atVecX = viewportMiddleWidth + (f32)g_GameManager.stageCameraFacingDir.x;
-    atVec.x = atVecX;
-    atVec.y = atVecY;
-    atVec.z = 0.0f;
-    eyeVecZ = -cameraDistance * (f32)g_GameManager.stageCameraFacingDir.z;
-    eyeVec.x = viewportMiddleWidth;
-    eyeVec.y = -viewportMiddleHeight;
-    eyeVec.z = eyeVecZ;
-    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix, &eyeVec, &atVec, &upVec);
+    cameraDistance = viewportMiddleHeight / (f32)tan(fov / 2.0f);
+    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix,
+                       &D3DXVECTOR3(viewportMiddleWidth, -viewportMiddleHeight,
+                                    -cameraDistance * (f32)g_GameManager.stageCameraFacingDir.z),
+                       &D3DXVECTOR3(viewportMiddleWidth + (f32)g_GameManager.stageCameraFacingDir.x,
+                                    -viewportMiddleHeight + (f32)g_GameManager.stageCameraFacingDir.y, 0.0f),
+                       &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
     g_GameManager.cameraDistance = fabsf(cameraDistance);
     D3DXMatrixPerspectiveFovLH(&g_Supervisor.projectionMatrix, fov, aspectRatio, 100.0f,
                                10000.0f + extraRenderDistance);
@@ -594,9 +570,9 @@ GameManager::GameManager()
 {
     memset(this, 0, sizeof(GameManager));
 
-    this->arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-    this->arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-    this->arcadeRegionSize.x = GAME_REGION_WIDTH;
-    this->arcadeRegionSize.y = GAME_REGION_HEIGHT;
+    this->gameRegionScreenPos.x = GAME_REGION_POS_X;
+    this->gameRegionScreenPos.y = GAME_REGION_POS_Y;
+    this->gameRegionSize.x = GAME_REGION_WIDTH;
+    this->gameRegionSize.y = GAME_REGION_HEIGHT;
 }
-}; // namespace th06
+} // namespace th06

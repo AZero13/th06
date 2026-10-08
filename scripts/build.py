@@ -1,8 +1,8 @@
 import argparse
+import hashlib
 from pathlib import Path
 import textwrap
 import sys
-import subprocess
 import os
 
 from configure import BuildType, configure
@@ -11,9 +11,33 @@ from winhelpers import run_windows_program
 SCRIPTS_DIR = Path(__file__).parent
 
 
-def build(build_type, verbose=False, jobs=1, target=None):
-    configure(build_type)
+def get_sha256(path):
+    h = hashlib.new("sha256")
+    with open(path, "rb") as f:
+        while True:
+            data = f.read(16 * 4096 * 4096)
+            if not data:
+                break
+            h.update(data)
+    return h.hexdigest()
 
+
+def find_diff(path1, path2):
+    offset = 0
+    with open(path1, "rb") as file1, open(path2, "rb") as file2:
+        while True:
+            page1 = file1.read(0x1000)
+            if not page1:
+                return None
+            page2 = file2.read(0x1000)
+            if page1 != page2:
+                for i, (byte1, byte2) in enumerate(zip(page1, page2)):
+                    if byte1 != byte2:
+                        return (offset + i, byte1, byte2)
+            offset += 0x1000
+
+
+def build(build_type, verbose=False, jobs=1, target=None):
     ninja_args = []
     if verbose:
         ninja_args += ["-v"]
@@ -30,19 +54,17 @@ def build(build_type, verbose=False, jobs=1, target=None):
     else:
         ninja_args += ["build/th06.exe"]
 
-    # Then, run the build. We use run_windows_program to automatically go through
-    # wine if running on linux/macos. scripts/th06run.bat will setup PATH and other
-    # environment variables for the MSVC toolchain to work before calling ninja.
+    configure(build_type)
+
+    # Use the original MSVC toolchain through the project's Windows environment.
     run_windows_program(
         [str(SCRIPTS_DIR / "th06run.bat"), "ninja"] + ninja_args,
         cwd=str(SCRIPTS_DIR.parent),
     )
 
-    # Ninja is pretty hard to work with so this is the only (janky)
-    # working solution. If you can think of a better one, PRs welcome.
     if build_type == BuildType.BINARY_MATCHBUILD:
         if os.path.isfile("build/th06.exe"):
-            subprocess.run(
+            run_windows_program(
                 [
                     sys.executable,
                     str(SCRIPTS_DIR / "patch_timestamp.py"),
@@ -50,6 +72,20 @@ def build(build_type, verbose=False, jobs=1, target=None):
                     "1038721275",  # 2002-12-01 06:41:15
                 ]
             )
+        diff = find_diff("resources/th06.exe", "build/th06.exe")
+        if diff is None:
+            print("Binary matches!", file=sys.stderr)
+        else:
+            print(
+                "Diff at byte "
+                + hex(diff[0])
+                + ": "
+                + hex(diff[1])
+                + " "
+                + hex(diff[2]),
+                file=sys.stderr,
+            )
+            print("Exe hash: " + get_sha256("build/th06.exe"), file=sys.stderr)
 
 
 def main():
@@ -64,6 +100,7 @@ def main():
             "tests",
             "objdiffbuild",
             "binary_matchbuild",
+            "trial",
         ],
         default="normal",
     )
@@ -103,6 +140,8 @@ def main():
         build_type = BuildType.OBJDIFFBUILD
     elif args.build_type == "binary_matchbuild":
         build_type = BuildType.BINARY_MATCHBUILD
+    elif args.build_type == "trial":
+        build_type = BuildType.TRIAL
 
     if args.object_name is not None:
         object_name = Path(args.object_name).name

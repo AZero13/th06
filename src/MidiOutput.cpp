@@ -1,9 +1,8 @@
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 #include <mmreg.h>
 #include <mmsystem.h>
 
-#include "AnmManager.hpp"
 #include "Global.hpp"
 #include "MidiOutput.hpp"
 #include "Supervisor.hpp"
@@ -63,7 +62,7 @@ union MidiShortMsg {
         u8 midiStatus;
         i8 firstByte;
         i8 secondByte;
-        i8 unused;
+        alignment_padding(0x1);
     } msg;
     u32 dwMsg;
 };
@@ -125,10 +124,9 @@ u32 MidiTimer::StartTimer(u32 delay, LPTIMECALLBACK cb, DWORD_PTR data)
     }
     else
     {
-        this->timerId = timeSetEvent(delay, this->timeCaps.wPeriodMin, (LPTIMECALLBACK)MidiTimer::DefaultTimerCallback,
+        this->timerId = timeSetEvent(delay, this->timeCaps.wPeriodMin, (LPTIMECALLBACK)MidiTimer_DefaultTimerCallback,
                                      (DWORD_PTR)this, TIME_PERIODIC);
     }
-
     return this->timerId;
 }
 
@@ -138,21 +136,19 @@ i32 MidiTimer::StopTimer()
     {
         timeKillEvent(this->timerId);
     }
-
     timeEndPeriod(this->timeCaps.wPeriodMin);
     this->timerId = 0;
-
     return 1;
 }
 
-void CALLBACK MidiTimer::DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+void CALLBACK MidiTimer_DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
     MidiTimer *timer = (MidiTimer *)dwUser;
 
     timer->OnTimerElapsed();
 }
 
-u16 MidiOutput::Ntohs(u16 val)
+u16 Ntohs(u16 val)
 {
     u8 tmp[2];
 
@@ -162,7 +158,7 @@ u16 MidiOutput::Ntohs(u16 val)
     return *(const u16 *)(&tmp);
 }
 
-u32 MidiOutput::SkipVariableLength(u8 **curTrackDataCursor)
+u32 MidiOutput_SkipVariableLength(u8 **curTrackDataCursor)
 {
     u32 length;
     u8 tmp;
@@ -283,7 +279,7 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
 
     // Get a pointer to the end of the header chunk
     currentCursor += sizeof(hdrRaw);
-    hdrLength = MidiOutput::Ntohl(*(u32 *)(hdrRaw + 4));
+    hdrLength = Ntohl(*(u32 *)(hdrRaw + 4));
 
     endOfHeaderPointer = currentCursor;
     currentCursor += hdrLength;
@@ -294,13 +290,13 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
     //  sequence
     //  2: the file contains one or more sequentially independent single-track
     //  patterns
-    this->format = MidiOutput::Ntohs(*(u16 *)endOfHeaderPointer);
+    this->format = Ntohs(*(u16 *)endOfHeaderPointer);
 
     // Read the divisions in this track. Note that this doesn't appear to support
     // "negative SMPTE format", which happens when the MSB is set.
-    this->divisions = MidiOutput::Ntohs(*(u16 *)(endOfHeaderPointer + 4));
+    this->divisions = Ntohs(*(u16 *)(endOfHeaderPointer + 4));
     // Read the number of tracks in this midi file.
-    this->numTracks = MidiOutput::Ntohs(*(u16 *)(endOfHeaderPointer + 2));
+    this->numTracks = Ntohs(*(u16 *)(endOfHeaderPointer + 2));
 
     // Allocate this->divisions * 32 bytes.
     this->tracks = ZUN_ALLOC_ARRAY(MidiTrack, this->numTracks);
@@ -313,7 +309,7 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
         // Read a track (MTrk) chunk.
         //
         // First, read the length of the chunk
-        trackLength = MidiOutput::Ntohl(*(u32 *)(currentCursorTrack + 4));
+        trackLength = Ntohl(*(u32 *)(currentCursorTrack + 4));
         this->tracks[trackIdx].trackLength = trackLength;
         this->tracks[trackIdx].trackData = ZUN_ALLOC(trackLength);
         this->tracks[trackIdx].trackPlaying = true;
@@ -353,7 +349,7 @@ void MidiOutput::LoadTracks()
         track->curTrackDataCursor = track->trackData;
         track->startTrackDataMaybe = track->curTrackDataCursor;
         track->trackPlaying = true;
-        track->trackLengthOther = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
+        track->trackLengthOther = MidiOutput_SkipVariableLength(&track->curTrackDataCursor);
     }
 }
 
@@ -493,20 +489,13 @@ void MidiOutput::OnTimerElapsed()
     }
 }
 
-#pragma var_order(nextTrackLength, idx, arg2, lVar5, opcodeLow, opcodeHigh, opcode, arg1, curTrackLength, midiHdr,     \
-                  cVar1, unk24, local_2c, local_30)
+#pragma var_order(nextTrackLength, idx, arg2, volume, opcodeLow, opcodeHigh, opcode, arg1)
 void MidiOutput::ProcessMsg(MidiTrack *track)
 {
-    i32 lVar5;
-    i32 curTrackLength, nextTrackLength;
-    MidiTrack *local_30;
-    MidiTrack *local_2c;
+    i32 volume;
     u8 arg1, arg2;
     u8 opcode, opcodeHigh, opcodeLow;
-    u8 cVar1;
-    MIDIHDR *midiHdr;
     i32 idx;
-    i32 unk24;
 
     opcode = *track->curTrackDataCursor;
     if (opcode < MIDI_OPCODE_NOTE_OFF)
@@ -522,15 +511,16 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
     opcodeLow = opcode & 0x0f;
     switch (opcodeHigh)
     {
-    case MIDI_OPCODE_SYSTEM_EXCLUSIVE:
+    case MIDI_OPCODE_SYSTEM_EXCLUSIVE: {
+        i32 curTrackLength;
         if (opcode == MIDI_OPCODE_SYSTEM_EXCLUSIVE)
         {
             if (this->midiHeaders[this->midiHeadersCursor] != NULL)
             {
                 this->UnprepareHeader(this->midiHeaders[this->midiHeadersCursor]);
             }
-            midiHdr = this->midiHeaders[this->midiHeadersCursor] = ZUN_ALLOC_TYPE(MIDIHDR);
-            curTrackLength = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
+            MIDIHDR *midiHdr = this->midiHeaders[this->midiHeadersCursor] = ZUN_ALLOC_TYPE(MIDIHDR);
+            curTrackLength = MidiOutput_SkipVariableLength(&track->curTrackDataCursor);
             memset(midiHdr, 0, sizeof(MIDIHDR));
             midiHdr->lpData = (LPSTR)ZUN_ALLOC(curTrackLength + 1);
             midiHdr->lpData[0] = -0x10;
@@ -556,9 +546,9 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
             // sort of escape code to introducde its own meta-events system,
             // which are events that make sense in the context of a MIDI
             // file, but not in the context of the MIDI protocol itself.
-            cVar1 = *track->curTrackDataCursor;
+            u8 cVar1 = *track->curTrackDataCursor;
             track->curTrackDataCursor++;
-            curTrackLength = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
+            curTrackLength = MidiOutput_SkipVariableLength(&track->curTrackDataCursor);
             // End of Track meta-event.
             if (cVar1 == 0x2f)
             {
@@ -576,12 +566,13 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
                     this->tempo += this->tempo * 0x100 + *track->curTrackDataCursor;
                     track->curTrackDataCursor++;
                 }
-                unk24 = 60000000 / this->tempo;
+                i32 unk24 = 60000000 / this->tempo;
                 break;
             }
             track->curTrackDataCursor = track->curTrackDataCursor + curTrackLength;
         }
         break;
+    }
     case MIDI_OPCODE_NOTE_OFF:
     case MIDI_OPCODE_NOTE_ON:
     case MIDI_OPCODE_POLYPHONIC_AFTERTOUCH:
@@ -626,16 +617,16 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
         case 7:
             // Channel Volume
             this->channels[opcodeLow].channelVolume = arg2;
-            lVar5 = (f32)arg2 * this->fadeOutVolumeMultiplier;
-            if (lVar5 < 0)
+            volume = (f32)arg2 * this->fadeOutVolumeMultiplier;
+            if (volume < 0)
             {
-                lVar5 = 0;
+                volume = 0;
             }
-            else if (0x7f < lVar5)
+            else if (volume > 0x7f)
             {
-                lVar5 = 0x7f;
+                volume = 0x7f;
             }
-            arg2 = this->channels[opcodeLow].modifiedVolume = lVar5;
+            arg2 = this->channels[opcodeLow].modifiedVolume = volume;
             break;
         case 91:
             // Effects 1 Depth
@@ -649,28 +640,32 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
             // Pan
             this->channels[opcodeLow].pan = arg2;
             break;
-        case 2:
+        case 2: {
             // Breath control
-            for (local_2c = &this->tracks[0], idx = 0; idx < this->numTracks; idx++, local_2c++)
+            MidiTrack *track;
+            for (track = &this->tracks[0], idx = 0; idx < this->numTracks; idx++, track++)
             {
-                local_2c->startTrackDataMaybe = local_2c->curTrackDataCursor;
-                local_2c->unk1c = local_2c->trackLengthOther;
+                track->startTrackDataMaybe = track->curTrackDataCursor;
+                track->unk1c = track->trackLengthOther;
             }
             this->unk2ec = this->tempo;
             this->unk2f0 = this->volume;
             this->unk2f8 = this->unk130;
             break;
-        case 4:
+        }
+        case 4: {
             // Foot controller
-            for (local_30 = &this->tracks[0], idx = 0; idx < this->numTracks; idx++, local_30++)
+            MidiTrack *track;
+            for (track = &this->tracks[0], idx = 0; idx < this->numTracks; idx++, track++)
             {
-                local_30->curTrackDataCursor = (byte *)local_30->startTrackDataMaybe;
-                local_30->trackLengthOther = local_30->unk1c;
+                track->curTrackDataCursor = (byte *)track->startTrackDataMaybe;
+                track->trackLengthOther = track->unk1c;
             }
             this->tempo = this->unk2ec;
             this->volume = this->unk2f0;
             this->unk130 = this->unk2f8;
             break;
+        }
         }
         break;
     }
@@ -679,7 +674,7 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
         this->midiOutDev.SendShortMsg(opcode, arg1, arg2);
     }
     track->opcode = opcode;
-    nextTrackLength = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
+    i32 nextTrackLength = MidiOutput_SkipVariableLength(&track->curTrackDataCursor);
     track->trackLengthOther = track->trackLengthOther + nextTrackLength;
 }
 
@@ -699,7 +694,7 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
     arg1 = 7;
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->channels); idx += 1)
     {
-        midiStatus = (idx + 0xb0) & 0xff;
+        midiStatus = (u8)(idx + 0xb0);
         volumeClamped = (i32)(this->channels[idx].channelVolume * this->fadeOutVolumeMultiplier) + volume;
         if (volumeClamped < 0)
         {
@@ -714,9 +709,8 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
     }
 }
 
-// TODO: HORRIBLE FAKE LINKER HACK
-// Figure out comdat folding to fix
-AnmManager::~AnmManager()
+void MidiTimer::OnTimerElapsed()
 {
 }
+
 }; // namespace th06

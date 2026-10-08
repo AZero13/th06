@@ -1,10 +1,9 @@
 #pragma once
-
 #include "Chain.hpp"
 #include "EclManager.hpp"
 #include "Enemy.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 
 namespace th06
@@ -17,18 +16,14 @@ struct RunningSpellcardInfo
     u32 idx;
     ZunBool usedBomb;
 };
-ZUN_ASSERT_SIZE(RunningSpellcardInfo, 0x14);
+ZUN_ASSERT_TYPE(RunningSpellcardInfo, 0x14, 4);
+
+#define MAX_ENEMY_COUNT 256
 
 struct EnemyManager
 {
     void Initialize();
     EnemyManager();
-    static ZunResult RegisterChain(const char *stgEnm1, const char *stgEnm2);
-    static void CutChain();
-    static ChainCallbackResult OnUpdate(EnemyManager *enemyManager);
-    static ChainCallbackResult OnDraw(EnemyManager *enemyManager);
-    static ZunResult AddedCallback(EnemyManager *enemyManager);
-    static ZunResult DeletedCallback(EnemyManager *enemyManager);
 
     void RunEclTimeline();
     Enemy *SpawnEnemy(i32 eclSubId, D3DXVECTOR3 *pos, i16 life, i16 itemDrop, i32 score);
@@ -36,18 +31,21 @@ struct EnemyManager
     const char *stgEnmAnmFilename;
     const char *stgEnm2AnmFilename;
     Enemy enemyTemplate;
-    Enemy enemies[257];
+    Enemy enemies[MAX_ENEMY_COUNT + 1]; // +1 dummy slot to avoid null checks for failed spawns
     Enemy *bosses[8];
     u16 randomItemSpawnIndex;
     u16 randomItemTableIndex;
     i32 enemyCount;
-    i8 unk_ee5c0[4];
+    unreferenced_fields(0x4);
     RunningSpellcardInfo spellcardInfo;
-    i32 unk_ee5d8;
-    EclTimelineInstr *timelineInstr;
+    unreferenced_fields(0x4);
+    TimelineInstr *timelineInstr;
     ZunTimer timelineTime;
 };
-ZUN_ASSERT_SIZE(EnemyManager, 0xee5ec);
+ZUN_ASSERT_TYPE(EnemyManager, 0xee5ec, 4);
+
+ZunResult EnemyManager_RegisterChain(const char *stgEnm1, const char *stgEnm2);
+void EnemyManager_CutChain();
 
 DIFFABLE_EXTERN(EnemyManager, g_EnemyManager);
-}; // namespace th06
+} // namespace th06

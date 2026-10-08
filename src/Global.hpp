@@ -1,6 +1,4 @@
 #pragma once
-
-#include "dxutil.hpp"
 #include <d3d8.h>
 #include <d3dx8.h>
 #include <stdarg.h>
@@ -11,22 +9,13 @@
 #include "ZunColor.hpp"
 #include "ZunMath.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
+#include "decomp.hpp"
 #include "i18n.hpp"
-#include "inttypes.hpp"
 #include "pbg3/Pbg3Archive.hpp"
-
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#define ARRAY_SIZE_SIGNED(x) ((i32)sizeof(x) / (i32)sizeof(x[0]))
-
-#define ZUN_BIT(a) (1 << (a))
-#define ZUN_MASK(a) (ZUN_BIT(a) - 1)
-#define ZUN_RANGE(a, count) (ZUN_MASK((a) + (count)) & ~ZUN_MASK(a))
-#define ZUN_CLEAR_BITS(a, keep_mask) (a & ~keep_mask)
 
 #define IS_PRESSED(key) (g_CurFrameInput & (key))
 #define WAS_PRESSED(key) (IS_PRESSED(key) && (g_CurFrameInput & (key)) != (g_LastFrameInput & (key)))
-#define WAS_PRESSED_WEIRD(key) (WAS_PRESSED(key) || (IS_PRESSED(key) && g_IsEigthFrameOfHeldInput))
+#define WAS_PRESSED_REPEATING(key) (WAS_PRESSED(key) || (IS_PRESSED(key) && g_IsEigthFrameOfHeldInput))
 
 #define ZUN_ALLOC(size) (u8 *)g_ZunMemory.Alloc(size)
 #define ZUN_ALLOC_TYPE(type) (type *)ZUN_ALLOC(sizeof(type))
@@ -60,12 +49,26 @@ namespace th06
 namespace utils
 {
 ZunResult CheckForRunningGameInstance(void);
+#if TRIALBUILD
+ZunResult CheckDirectXVersion(void);
+#endif
+
+// TODO: Properly make these a single static header func
+#if !TRIALBUILD
 void DebugPrint(const char *fmt, ...);
 void DebugPrint2(const char *fmt, ...);
+#else
+static void DebugPrint(const char *fmt, ...)
+{
+}
+static void DebugPrint2(const char *fmt, ...)
+{
+}
+#endif
 
 f32 AddNormalizeAngle(f32 a, f32 b);
 void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle);
-}; // namespace utils
+} // namespace utils
 
 enum TouhouButton
 {
@@ -99,17 +102,11 @@ enum TouhouButton
 namespace Controller
 {
 u16 GetJoystickCaps(void);
-u32 SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
-                                  u32 inputButtons);
-
-unsigned int SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
-                                              u8 *inputButtons);
-
 u16 GetControllerInput(u16 buttons);
 u8 *GetControllerState();
 u16 GetInput(void);
 void ResetKeyboard(void);
-}; // namespace Controller
+} // namespace Controller
 
 struct ControllerMapping
 {
@@ -123,6 +120,7 @@ struct ControllerMapping
     i16 rightButton;
     i16 skipButton;
 };
+ZUN_ASSERT_TYPE(ControllerMapping, 0x12, 2);
 
 DIFFABLE_EXTERN(ControllerMapping, g_ControllerMapping);
 DIFFABLE_EXTERN(u16, g_LastFrameInput);
@@ -135,7 +133,7 @@ class ZunMemory
   public:
     ZunMemory()
     {
-        this->bRegistryInUse = false;
+        BSS_ZERO_INIT(this->bRegistryInUse = false);
     }
     ~ZunMemory()
     {
@@ -175,6 +173,7 @@ DIFFABLE_EXTERN(u32, g_LastFileSize);
 struct Rng
 {
     u16 seed;
+    alignment_padding(0x2);
     u32 generationCount;
 
     u16 GetRandomU16();
@@ -206,33 +205,67 @@ struct Rng
 DIFFABLE_EXTERN(Rng, g_Rng);
 DIFFABLE_EXTERN(HANDLE, g_ExclusiveMutex);
 
-// From GameErrorContext.hpp
-class GameErrorContext
+// From font.h
+class CMyFont
 {
+  private:
+    LPD3DXFONT m_lpFont;
+
   public:
+    CMyFont()
+    {
+        m_lpFont = NULL;
+    }
+    virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
+    virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
+    virtual void Clean();
+};
+
+// From GameErrorContext.hpp
+struct GameErrorContext
+{
     char m_Buffer[0x800];
+#if TRIALBUILD
+    char m_DetailedBuffer[0x800];
+#endif
     char *m_BufferEnd;
+#if TRIALBUILD
+    char *m_DetailedBufferEnd;
+#endif
     i8 m_ShowMessageBox;
+    alignment_padding(0x3);
+
+    // Defined before the constructor that calls it, so the /O2 trial can compile
+    // the constructor in its first pass (ahead of FileSystem::OpenPath).
+    void ResetContext()
+    {
+        m_BufferEnd = m_Buffer;
+        m_BufferEnd[0] = '\0';
+#if TRIALBUILD
+        m_DetailedBufferEnd = m_DetailedBuffer;
+        m_DetailedBufferEnd[0] = '\0';
+#endif
+    }
 
     GameErrorContext()
     {
         ResetContext();
         m_ShowMessageBox = false;
         Log(TH_ERR_LOGGER_START);
+#if TRIALBUILD
+        DetailedLog(TH_ERR_DETAILED_LOGGER_START);
+#endif
     }
 
     ~GameErrorContext()
     {
     }
 
-    void ResetContext()
-    {
-        m_BufferEnd = m_Buffer;
-        m_BufferEnd[0] = '\0';
-    }
-
     const char *Fatal(const char *fmt, ...);
     const char *Log(const char *fmt, ...);
+#if TRIALBUILD
+    const char *DetailedLog(const char *fmd, ...);
+#endif
 
     void Flush()
     {
@@ -254,8 +287,13 @@ class GameErrorContext
         }
     }
 };
+#if !TRIALBUILD
+ZUN_ASSERT_TYPE(GameErrorContext, 0x808, 4);
+#else
+ZUN_ASSERT_TYPE(GameErrorContext, 0x100C, 4);
+#endif
 
 DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
 DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives);
 DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface);
-}; // namespace th06
+} // namespace th06
