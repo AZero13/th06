@@ -831,11 +831,11 @@ restart_sub_changed:
                 pos[1] += g_Rng.GetRandomF32InRange(144.0f) - 72.0f;
                 if (g_GameManager.currentPower < MAX_POWER)
                 {
-                    g_ItemManager.SpawnItem(&pos, idx == 0 ? ITEM_POWER_BIG : ITEM_POWER_SMALL, 0);
+                    g_ItemManager.SpawnItem(&pos, idx == 0 ? ITEM_POWER_BIG : ITEM_POWER_SMALL, ITEM_STATE_FALLING);
                 }
                 else
                 {
-                    g_ItemManager.SpawnItem(&pos, ITEM_POINT, 0);
+                    g_ItemManager.SpawnItem(&pos, ITEM_POINT, ITEM_STATE_FALLING);
                 }
             }
             break;
@@ -860,7 +860,7 @@ restart_sub_changed:
             enemy->currentContext.time += *EclGetVar(enemy, &curInstr->args.timeToAdd, NULL);
             break;
         case ECL_OPCODE_DROP_ITEM_ID:
-            g_ItemManager.SpawnItem(&enemy->position, curInstr->args.itemId, 0);
+            g_ItemManager.SpawnItem(&enemy->position, curInstr->args.itemId, ITEM_STATE_FALLING);
             break;
         case ECL_OPCODE_STD_UNPAUSE:
             g_Stage.unpauseFlag = 1;

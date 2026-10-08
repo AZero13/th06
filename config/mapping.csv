@@ -225,7 +225,7 @@ th06::TextHelper_RenderTextToTexture,0x41f050,0x1e0,default,,void,i32,i32,i32,i3
 th06::ItemManager::ItemManager,0x41f230,0x5a,__thiscall,,ItemManager*,ItemManager*
 th06::ItemManager::SpawnItem,0x41f290,0x205,__thiscall,,void,ItemManager*,D3DXVECTOR3*,ItemType,i32
 th06::ItemManager::OnUpdate,0x41f4a0,0xc58,__thiscall,,void,ItemManager*
-th06::ItemManager::RemoveAllItems,0x420130,0x56,__thiscall,,void,ItemManager*
+th06::ItemManager::MagnetAllItems,0x420130,0x56,__thiscall,,void,ItemManager*
 th06::ItemManager::OnDraw,0x420190,0x198,__thiscall,,void,ItemManager*
 WinMain,0x420330,0x3af,__stdcall,,i32,HINSTANCE__*,HINSTANCE__*,char*,i32
 th06::GameWindow::Render,0x4206e0,0x466,__thiscall,,RenderResult,GameWindow*
