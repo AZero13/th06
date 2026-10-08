@@ -12,7 +12,6 @@
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
 #include "GameWindow.hpp"
-#include "Global.hpp"
 #include "Player.hpp"
 #include "ReplayData.hpp"
 #include "ReplayManager.hpp"

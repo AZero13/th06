@@ -7,7 +7,6 @@
 #include "EnemyEclInstr.hpp"
 #include "EnemyManager.hpp"
 #include "GameManager.hpp"
-#include "Global.hpp"
 #include "Gui.hpp"
 #include "Player.hpp"
 #include "ZunBool.hpp"

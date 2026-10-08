@@ -5,7 +5,6 @@
 #include <time.h>
 
 #include "GameManager.hpp"
-#include "Global.hpp"
 #include "Gui.hpp"
 #include "ReplayManager.hpp"
 #include "Supervisor.hpp"

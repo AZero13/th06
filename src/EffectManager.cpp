@@ -6,7 +6,6 @@
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
-#include "Global.hpp"
 #include "ZunResult.hpp"
 
 namespace th06

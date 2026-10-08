@@ -5,7 +5,6 @@
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
-#include "Global.hpp"
 #include "Gui.hpp"
 #include "ScreenEffect.hpp"
 #include "Stage.hpp"

@@ -4,7 +4,6 @@
 #include "AsciiManager.hpp"
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
-#include "Global.hpp"
 #include "MusicRoom.hpp"
 #include <string.h>
 

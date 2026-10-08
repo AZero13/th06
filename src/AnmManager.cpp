@@ -1,7 +1,6 @@
 #include "global.h"
 
 #include "AnmManager.hpp"
-#include "Global.hpp"
 #include "Supervisor.hpp"
 #include "TextHelper.hpp"
 #include "ZunMath.hpp"

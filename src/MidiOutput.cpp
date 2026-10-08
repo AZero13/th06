@@ -5,7 +5,6 @@
 #include <mmreg.h>
 #include <mmsystem.h>
 
-#include "Global.hpp"
 #include "MidiOutput.hpp"
 #include "Supervisor.hpp"
 #include "ZunTimer.hpp"

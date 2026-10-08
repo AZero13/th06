@@ -2,7 +2,6 @@
 
 #include "SoundPlayer.hpp"
 
-#include "Global.hpp"
 #include "Supervisor.hpp"
 #include "ZunTimer.hpp"
 #include "i18n.hpp"

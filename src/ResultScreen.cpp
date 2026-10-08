@@ -7,7 +7,6 @@
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
 #include "GameWindow.hpp"
-#include "Global.hpp"
 #include "MainMenu.hpp"
 #include "Player.hpp"
 #include "ReplayManager.hpp"

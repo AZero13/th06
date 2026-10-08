@@ -12,7 +12,6 @@
 #include "EffectManager.hpp"
 #include "EnemyManager.hpp"
 #include "GameManager.hpp"
-#include "Global.hpp"
 #include "Gui.hpp"
 #include "ItemManager.hpp"
 #include "ScreenEffect.hpp"

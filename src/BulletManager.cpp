@@ -7,7 +7,6 @@
 #include "ChainPriorities.hpp"
 #include "Enemy.hpp"
 #include "GameManager.hpp"
-#include "Global.hpp"
 #include "Gui.hpp"
 #include "ItemManager.hpp"
 #include "Player.hpp"
