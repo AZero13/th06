@@ -329,11 +329,15 @@ void TextHelper_ReleaseTextBuffer()
     SAFE_RELEASE(g_TextBufferSurface);
 }
 
-void Fake_TextOutA_SetBkMode_SetTextColor_CxxThrowException()
+// Stand-in for a TextHelper function that /OPT:REF stripped from every build. Its
+// references are still visible: 0.13a, 1.00 and 1.02h all pull DrawTextA right
+// after Global's USER32 imports (only D3DX's own text code calls it). th10's
+// TextHelper still has a DrawText-based renderer, so it was likely an early version.
+void Fake_SetBkMode_SetTextColor_DrawTextA_CxxThrowException()
 {
-    void *painA = (void *)&TextOut;
-    void *painB = (void *)&SetBkMode;
-    void *painC = (void *)&SetTextColor;
+    SetBkMode(NULL, 0);
+    SetTextColor(NULL, 0);
+    DrawText(NULL, NULL, 0, NULL, 0);
     // NOTE: Using throw instead includes TypeInfo/RTTI
     // objects, which breaks library code order.
     _CxxThrowException(NULL, NULL);
