@@ -259,7 +259,7 @@ ZunResult GameManager_AddedCallback(GameManager *mgr)
         /* EXTRA   */ {16, 14, 18},
     };
 
-    ScoreDat *scoredat;
+    void *scoredat;
     u32 clrdIdx;
     u32 catkCursor;
     i32 i;

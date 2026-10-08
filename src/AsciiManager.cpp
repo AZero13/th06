@@ -9,14 +9,11 @@
 #include "ZunTimer.hpp"
 #include <stdio.h>
 
-namespace th06
-{
-struct AsciiManager;
-
-ZunResult AsciiManager_AddedCallback(AsciiManager *s);
-ZunResult AsciiManager_DeletedCallback(AsciiManager *s);
-} // namespace th06
-
+// The release emits InitializeVms right after AddedCallback, its first user,
+// while the inlines from AnmManager.hpp land at the end of the object. MSVC
+// only does that for an inline it parsed itself rather than took from the
+// precompiled header, so AsciiManager.hpp has to come after the header stop.
+#pragma hdrstop
 #include "AsciiManager.hpp"
 
 namespace th06
@@ -26,6 +23,9 @@ DIFFABLE_STATIC_SORTED(A3, AsciiManager, g_AsciiManager);
 DIFFABLE_STATIC_SORTED(A4, ChainElem, g_AsciiManagerCalcChain);
 DIFFABLE_STATIC_SORTED(A2, ChainElem, g_AsciiManagerOnDrawMenusChain);
 DIFFABLE_STATIC_SORTED(A5, ChainElem, g_AsciiManagerOnDrawPopupsChain);
+
+ZunResult AsciiManager_AddedCallback(AsciiManager *s);
+ZunResult AsciiManager_DeletedCallback(AsciiManager *s);
 
 ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *mgr)
 {

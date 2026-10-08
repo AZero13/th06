@@ -21,6 +21,19 @@ namespace th06
 {
 FILE_BSS_SORT(Q1);
 
+struct ScoreDat
+{
+    u8 xorseed[2];
+    u16 csum;
+    u16 unk_8;
+    u8 unk_9;
+    alignment_padding(0x1);
+    u32 dataOffset;
+    ScoreListNode *scores;
+    u32 fileLen;
+};
+ZUN_ASSERT_TYPE(ScoreDat, 0x14, 4);
+
 struct ResultScreen
 {
     ResultScreen()
@@ -88,7 +101,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 6, g_CharacterList) = {TH_HAKUREI_REI
 #define DEFAULT_HIGH_SCORE_NAME "Nanashi "
 
 #pragma var_order(scoreData, bytesShifted, xorValue, checksum, bytes, remainingData, decryptedFilePointer, fileLen)
-ScoreDat *OpenScore(const char *path)
+void *OpenScore(const char *path)
 {
     u8 *bytes;
     i32 bytesShifted;
@@ -203,14 +216,14 @@ static void FreeAllScores(ScoreListNode *scores)
 }
 
 #pragma var_order(highScore, remainingSize, scoreData, dataScore, score)
-u32 GetHighScore(ScoreDat *scoreDat, ScoreListNode *node, u32 character, u32 difficulty)
+u32 GetHighScore(void *scoreDat, ScoreListNode *node, u32 character, u32 difficulty)
 {
     u32 score;
     u32 dataScore;
     i32 remainingSize;
     Hscr *highScore;
 
-    ScoreDat *scoreData = scoreDat;
+    ScoreDat *scoreData = (ScoreDat *)scoreDat;
 
     if (node == NULL)
     {
@@ -262,12 +275,12 @@ u32 GetHighScore(ScoreDat *scoreDat, ScoreListNode *node, u32 character, u32 dif
 }
 
 #pragma var_order(parsedCatk, cursor, sd)
-ZunResult ParseCatk(ScoreDat *scoreDat, Catk *outCatk)
+ZunResult ParseCatk(void *scoreDat, Catk *outCatk)
 {
     i32 cursor;
     Catk *parsedCatk;
     ScoreDat *sd;
-    sd = scoreDat;
+    sd = (ScoreDat *)scoreDat;
 
     if (outCatk == NULL)
     {
@@ -292,14 +305,14 @@ ZunResult ParseCatk(ScoreDat *scoreDat, Catk *outCatk)
 }
 
 #pragma var_order(parsedClrd, characterShotType, cursor, difficulty, sd)
-ZunResult ParseClrd(ScoreDat *scoreDat, Clrd *outClrd)
+ZunResult ParseClrd(void *scoreDat, Clrd *outClrd)
 {
     i32 cursor;
     Clrd *parsedClrd;
     ScoreDat *sd;
     i32 characterShotType;
     i32 difficulty;
-    sd = scoreDat;
+    sd = (ScoreDat *)scoreDat;
 
     if (outClrd == NULL)
     {
@@ -341,7 +354,7 @@ ZunResult ParseClrd(ScoreDat *scoreDat, Clrd *outClrd)
 }
 
 #pragma var_order(pscr, parsedPscr, character, stage, cursor, difficulty, sd)
-ZunResult ParsePscr(ScoreDat *scoreDat, Pscr *outClrd)
+ZunResult ParsePscr(void *scoreDat, Pscr *outClrd)
 {
     i32 cursor;
     Pscr *parsedPscr;
@@ -349,7 +362,7 @@ ZunResult ParsePscr(ScoreDat *scoreDat, Pscr *outClrd)
     i32 stage;
     i32 character;
     i32 difficulty;
-    sd = scoreDat;
+    sd = (ScoreDat *)scoreDat;
     Pscr *pscr;
 
     if (outClrd == NULL)
@@ -396,10 +409,10 @@ ZunResult ParsePscr(ScoreDat *scoreDat, Pscr *outClrd)
     return ZUN_SUCCESS;
 }
 
-void ReleaseScoreDat(ScoreDat *scoreDat)
+void ReleaseScoreDat(void *scoreDat)
 {
-    FreeAllScores(scoreDat->scores);
-    ZUN_FREE(scoreDat->scores);
+    FreeAllScores(((ScoreDat *)scoreDat)->scores);
+    ZUN_FREE(((ScoreDat *)scoreDat)->scores);
     ZUN_FREE(scoreDat);
 }
 
@@ -2091,7 +2104,7 @@ static ZunResult ResultScreen_AddedCallback(ResultScreen *resultScreen)
     }
 
     resultScreen->lastBestScoresCursor = 0;
-    resultScreen->scoreDat = OpenScore("score.dat");
+    resultScreen->scoreDat = (ScoreDat *)OpenScore("score.dat");
 
     for (i = 0; i < HSCR_NUM_DIFFICULTIES; i++)
     {
