@@ -132,27 +132,16 @@ struct ScoreListNode
 };
 ZUN_ASSERT_TYPE(ScoreListNode, 0xc, 4);
 
-struct ScoreDat
-{
-    u8 xorseed[2];
-    u16 csum;
-    u16 unk_8;
-    u8 unk_9;
-    alignment_padding(0x1);
-    u32 dataOffset;
-    ScoreListNode *scores;
-    u32 fileLen;
-};
-ZUN_ASSERT_TYPE(ScoreDat, 0x14, 4);
+// score.dat is opaque outside of ResultScreen.cpp: everyone else only passes
+// the handle OpenScore returns back into these functions.
+void *OpenScore(const char *path);
+void ReleaseScoreDat(void *scoreDat);
 
-ScoreDat *OpenScore(const char *path);
-void ReleaseScoreDat(ScoreDat *s);
+u32 GetHighScore(void *scoreDat, ScoreListNode *node, u32 character, u32 difficulty);
 
-u32 GetHighScore(ScoreDat *s, ScoreListNode *node, u32 character, u32 difficulty);
-
-ZunResult ParseCatk(ScoreDat *s, Catk *catk);
-ZunResult ParseClrd(ScoreDat *s, Clrd *out);
-ZunResult ParsePscr(ScoreDat *s, Pscr *out);
+ZunResult ParseCatk(void *scoreDat, Catk *catk);
+ZunResult ParseClrd(void *scoreDat, Clrd *out);
+ZunResult ParsePscr(void *scoreDat, Pscr *out);
 
 ZunResult ResultScreen_RegisterChain(ZunBool unk);
 } // namespace th06

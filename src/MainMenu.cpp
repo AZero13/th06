@@ -287,7 +287,7 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
 #pragma var_order(idx, controllerData)
         {
             i16 idx;
-            static i16 g_LastJoystickInput = TH_BUTTON_DOWN;
+            static i16 g_LastJoystickInput = TH_BUTTON_DOWN; // why???
             u8 *controllerData = Controller::GetControllerState();
             for (idx = 0; idx < 32; idx++)
             {
@@ -2328,7 +2328,7 @@ ZunResult MainMenu_AddedCallback(MainMenu *menu)
     menu->framesActive = 0;
     menu->unk_10f28 = 0x10;
     menu->currentReplay = NULL;
-    ScoreDat *scoredat = OpenScore("score.dat");
+    void *scoredat = OpenScore("score.dat");
     ParseClrd(scoredat, g_GameManager.clrd);
     ParsePscr(scoredat, (Pscr *)g_GameManager.pscr);
     ReleaseScoreDat(scoredat);
