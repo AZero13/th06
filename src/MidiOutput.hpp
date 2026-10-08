@@ -61,17 +61,21 @@ enum MidiOpcode
     MIDI_OPCODE_SYSTEM_RESET = 0xFF,
 };
 
+// pbg's MID_TRACK, plus the loop point ZUN added.
 struct MidiTrack
 {
-    u32 trackPlaying;
-    i32 trackLengthOther;
-    u32 trackLength;
-    u8 opcode;
+    ZunBool play;
+    // Tick at which the next event is due.
+    i32 count;
+    u32 size;
+    // Running status.
+    u8 status;
     alignment_padding(0x3);
-    u8 *trackData;
-    u8 *curTrackDataCursor;
-    u8 *startTrackDataMaybe;
-    i32 unk1c;
+    u8 *data;
+    u8 *work;
+    // Saved by controller 2 and restored by controller 4.
+    u8 *loopWork;
+    i32 loopCount;
 };
 ZUN_ASSERT_TYPE(MidiTrack, 0x20, 4);
 
@@ -117,7 +121,6 @@ struct MidiOutput : MidiTimer
     void ClearTracks();
     ZunResult ReadFileData(u32 idx, const char *path);
     void ReleaseFileData(u32 idx);
-    void ParseFile(u32 idx);
     void ProcessMsg(MidiTrack *track);
 
     ZunResult ParseFile(i32 idx);
@@ -143,13 +146,14 @@ struct MidiOutput : MidiTimer
     MIDIHDR *midiHeaders[32];
     i32 midiHeadersCursor;
     u8 *midiFileData[32];
+    // pbg's MID_DATA.
     i32 numTracks;
     u32 format;
-    i32 divisions;
+    i32 timebase;
     i32 tempo;
-    unreferenced_fields(0x4);
-    ULONGLONG volume;
-    LONGLONG unk130;
+    alignment_padding(0x4);
+    ULONGLONG playcount1;
+    LONGLONG playcount2;
     MidiTrack *tracks;
     MidiDevice midiOutDev;
     unreferenced_fields(0x10);
@@ -165,22 +169,22 @@ struct MidiOutput : MidiTimer
     ZunBool fadeOutFlag;
     i32 fadeOutInterval;
     i32 fadeOutElapsedMS;
-    i32 unk2ec;
-    ULONGLONG unk2f0;
-    ULONGLONG unk2f8;
+    i32 loopTempo;
+    ULONGLONG loopPlaycount1;
+    ULONGLONG loopPlaycount2;
 };
-u32 MidiOutput_SkipVariableLength(u8 **curTrackDataCursor);
+u32 GetWaitCount(u8 **data);
 
-inline u32 Ntohl(u32 val)
+inline u32 ConvDWord(u32 data)
 {
-    u8 tmp[4];
+    u32 temp;
 
-    tmp[0] = ((u8 *)&val)[3];
-    tmp[1] = ((u8 *)&val)[2];
-    tmp[2] = ((u8 *)&val)[1];
-    tmp[3] = ((u8 *)&val)[0];
+    ((u8 *)&temp)[0] = ((u8 *)&data)[3];
+    ((u8 *)&temp)[1] = ((u8 *)&data)[2];
+    ((u8 *)&temp)[2] = ((u8 *)&data)[1];
+    ((u8 *)&temp)[3] = ((u8 *)&data)[0];
 
-    return *(const u32 *)(&tmp);
+    return temp;
 }
 
 ZUN_ASSERT_TYPE(MidiOutput, 0x300, 8);

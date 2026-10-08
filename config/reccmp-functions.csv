@@ -251,8 +251,8 @@ th06::MidiTimer::~MidiTimer,0x421c60,function
 th06::MidiTimer::StartTimer,0x421c90,function
 th06::MidiTimer::StopTimer,0x421d10,function
 th06::MidiTimer::DefaultTimerCallback,0x421d50,function
-th06::Ntohs,0x421d70,function
-th06::MidiOutput_SkipVariableLength,0x421d90,function
+th06::ConvWord,0x421d70,function
+th06::GetWaitCount,0x421d90,function
 th06::MidiOutput::MidiOutput,0x421df0,function
 th06::MidiOutput::~MidiOutput,0x421f50,function
 th06::MidiOutput::ReadFileData,0x421ff0,function
