@@ -408,7 +408,7 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
         }
 
         particlePos = enemy->position;
-        particlePos.x += cosf(finalAngle) * distanceModifier;
+        particlePos.x += (f32)cos(finalAngle) * distanceModifier;
         particlePos.y += sinf(finalAngle) * distanceModifier;
         effect = g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_19, &particlePos, 1, COLOR_DEEPBLUE);
         effect->unk_11c.x = (g_Rng.GetRandomF32ZeroToOne() * 40.0f - 20.0f) / 60.0f;
@@ -417,7 +417,7 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
         effect->unk_128 = -effect->unk_11c / 120.0f;
 
         particlePos = enemy->position;
-        particlePos.x -= cosf(finalAngle) * distanceModifier;
+        particlePos.x -= (f32)cos(finalAngle) * distanceModifier;
         particlePos.y += sinf(finalAngle) * distanceModifier;
         effect = g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_19, &particlePos, 1, COLOR_DEEPBLUE);
         effect->unk_11c.x = (g_Rng.GetRandomF32ZeroToOne() * 40.0f - 20.0f) / 60.0f;
@@ -849,14 +849,14 @@ void ExInsFlandreFinalContextUpdate(Enemy *enemy, EclRawInstr *instr)
 
     if (instr->args.exInstr.i32Param == 0)
     {
-        enemy->currentContext.float3 = 2.0f - (remainingLife * 1.0f) / 6000.0f;
+        enemy->currentContext.float3 = 2.0f - (f32)((remainingLife * 1.0f) / 6000.0f);
         enemy->currentContext.counter1 = (remainingLife * 240) / 6000 + 40;
     }
     else
     {
-        float rangeModifier = 320.0f - (remainingLife * 160.0f) / 6000.0f;
+        float rangeModifier = 320.0f - (f32)((remainingLife * 160.0f) / 6000.0f);
         enemy->currentContext.float2 = g_Rng.GetRandomF32InRange(rangeModifier) + (192.0f - rangeModifier / 2.0f);
-        rangeModifier = 128.0f - (remainingLife * 64.0f) / 6000.0f;
+        rangeModifier = 128.0f - (f32)((remainingLife * 64.0f) / 6000.0f);
         enemy->currentContext.float3 = g_Rng.GetRandomF32InRange(rangeModifier) + (96.0f - rangeModifier / 2.0f);
     }
 }
