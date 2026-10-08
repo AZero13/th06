@@ -180,11 +180,11 @@ ChainCallbackResult Stage_OnUpdate(Stage *stage)
                                          (f32)COLOR_GET_COMPONENT(stage->skyFogInterpInitial.color, idx)));
             }
             stage->skyFog.nearPlane =
-                (stage->skyFogInterpFinal.nearPlane - stage->skyFogInterpInitial.nearPlane) * skyFogInterpRatio +
-                stage->skyFogInterpInitial.nearPlane;
+                (f32)((stage->skyFogInterpFinal.nearPlane - stage->skyFogInterpInitial.nearPlane) * skyFogInterpRatio +
+                      stage->skyFogInterpInitial.nearPlane);
             stage->skyFog.farPlane =
-                (stage->skyFogInterpFinal.farPlane - stage->skyFogInterpInitial.farPlane) * skyFogInterpRatio +
-                stage->skyFogInterpInitial.farPlane;
+                (f32)((stage->skyFogInterpFinal.farPlane - stage->skyFogInterpInitial.farPlane) * skyFogInterpRatio +
+                      stage->skyFogInterpInitial.farPlane);
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&stage->skyFog.nearPlane);
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&stage->skyFog.farPlane);

@@ -250,8 +250,8 @@ th06::MidiTimer::~MidiTimer,0x421c60,0x29,__thiscall,,void,MidiTimer*
 th06::MidiTimer::StartTimer,0x421c90,0x73,__thiscall,,u32,MidiTimer*,u32,TIMECALLBACK*,unsigned long
 th06::MidiTimer::StopTimer,0x421d10,0x3d,__thiscall,,i32,MidiTimer*
 th06::MidiTimer_DefaultTimerCallback,0x421d50,0x1a,__stdcall,,void,u32,u32,unsigned long,unsigned long,unsigned long
-th06::Ntohs,0x421d70,0x18,__stdcall,,u16,u16
-th06::MidiOutput_SkipVariableLength,0x421d90,0x55,default,,i32,u8**
+th06::ConvWord,0x421d70,0x18,__stdcall,,u16,u16
+th06::GetDeltaTime,0x421d90,0x55,default,,i32,u8**
 th06::MidiOutput::MidiOutput,0x421df0,0x155,__thiscall,,MidiOutput*,MidiOutput*
 th06::MidiOutput::~MidiOutput,0x421f50,0x93,__thiscall,,void,MidiOutput*
 th06::MidiOutput::ReadFileData,0x421ff0,0x79,__thiscall,,ZunResult,MidiOutput*,u32,char*

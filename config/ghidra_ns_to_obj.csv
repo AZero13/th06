@@ -14,7 +14,7 @@ Gui,th06::Gui,th06::GuiImpl,th06::Gui_RegisterChain,th06::Gui_CutChain,th06::Gui
 IPbg3Parser,th06::IPbg3Parser
 ItemManager,th06::ItemManager
 MainMenu,th06::MainMenu,th06::LoadTitleAnm,th06::LoadReplayMenu,th06::MainMenu_OnUpdate,th06::MainMenu_OnDraw,th06::MainMenu_AddedCallback,th06::MainMenu_DeletedCallback,th06::LoadDiffCharSelect,th06::ReleaseTitleAnm,th06::MainMenu_RegisterChain,th06::MoveCursor,th06::SwapMapping,th06::DrawMenuItem
-MidiOutput,th06::MidiDevice,th06::MidiTimer,th06::MidiOutput,th06::MidiTimer_DefaultTimerCallback,th06::Ntohs,th06::MidiOutput_SkipVariableLength,th06::MidiOutput_Ntohl
+MidiOutput,th06::MidiDevice,th06::MidiTimer,th06::MidiOutput,th06::MidiTimer_DefaultTimerCallback,th06::ConvWord,th06::GetDeltaTime,th06::ConvDWord
 MusicRoom,th06::MusicRoom,th06::MusicRoom_AddedCallback,th06::MusicRoom_DeletedCallback,th06::MusicRoom_OnDraw,th06::MusicRoom_OnUpdate,th06::MusicRoom_RegisterChain
 Pbg3Archive,th06::Pbg3Archive
 Pbg3Parser,th06::Pbg3Parser
