@@ -2328,7 +2328,7 @@ ZunResult MainMenu_AddedCallback(MainMenu *menu)
     menu->framesActive = 0;
     menu->unk_10f28 = 0x10;
     menu->currentReplay = NULL;
-    void *scoredat = OpenScore("score.dat");
+    ScoreDat *scoredat = OpenScore("score.dat");
     ParseClrd(scoredat, g_GameManager.clrd);
     ParsePscr(scoredat, (Pscr *)g_GameManager.pscr);
     ReleaseScoreDat(scoredat);
