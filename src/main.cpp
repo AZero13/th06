@@ -13,11 +13,7 @@ static i32 GameWindow_InitD3dInterface();
 static void GameWindow_Present();
 
 DIFFABLE_STATIC_SORTED(L1, GameWindow, g_GameWindow);
-#if TRIALBUILD
 DIFFABLE_STATIC_SORTED(L2, static i32, g_TickCountToEffectiveFramerate);
-#else
-DIFFABLE_STATIC_SORTED(L2, i32, g_TickCountToEffectiveFramerate);
-#endif
 DIFFABLE_STATIC_SORTED(L3, f64, g_LastFrameTime);
 DIFFABLE_STATIC_SORTED(L4, HANDLE, g_ExclusiveMutex);
 } // namespace th06

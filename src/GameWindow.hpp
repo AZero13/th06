@@ -31,8 +31,5 @@ ZUN_ASSERT_TYPE(GameWindow, 0x20, 4);
 
 DIFFABLE_EXTERN(GameWindow, g_GameWindow);
 
-#if !TRIALBUILD
-DIFFABLE_EXTERN(i32, g_TickCountToEffectiveFramerate);
-#endif
 DIFFABLE_EXTERN(double, g_LastFrameTime);
 } // namespace th06
