@@ -33,7 +33,5 @@ struct GameWindow
 ZUN_ASSERT_TYPE(GameWindow, 0x20, 4);
 
 extern GameWindow g_GameWindow;
-
-extern i32 g_TickCountToEffectiveFramerate;
 extern double g_LastFrameTime;
 } // namespace th06
