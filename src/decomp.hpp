@@ -91,6 +91,16 @@
 #define BSS_SORT(sort) __declspec(allocate(MACRO_STR(MACRO_CAT(.bss$, sort))))
 #endif
 
+// File-local (static) globals stay out of the diff build's extern "C" mapping;
+// this only places them in their sorted .bss slot.
+#ifdef DIFFBUILD
+#define STATIC_SORTED(sort, type, name) static type name
+#else
+#define STATIC_SORTED(sort, type, name)                                                                                \
+    __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                        \
+        __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort, name)))) static type name
+#endif
+
 // The trial is built with /O2, which drops the zero stores a dynamic initializer
 // makes to an object in the default .bss, since that memory starts out zeroed.
 // Any bss_seg or allocate on the object turns this off, even one naming ".bss",
