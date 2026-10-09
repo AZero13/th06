@@ -634,7 +634,7 @@ void ExInsStage6Func9(Enemy *enemy, EclRawInstr *instr)
     }
 }
 
-#pragma var_order(unusedBulletProps, i, currentBullet, unusedRandomAngle)
+#pragma var_order(unusedShooter, i, currentBullet, unusedRandomAngle)
 void ExInsStage6Func11(Enemy *enemy, EclRawInstr *instr)
 {
     Bullet *currentBullet = g_BulletManager.bullets;
@@ -772,7 +772,7 @@ void ExInsStageXFunc14(Enemy *enemy, EclRawInstr *instr)
     }
 }
 
-#pragma var_order(unusedBulletProps, totalIterations, i, innerBullet, enemyAngle, distance, currentBullet,             \
+#pragma var_order(unusedShooter, totalIterations, i, innerBullet, enemyAngle, distance, currentBullet,             \
                   bulletsAngle, j)
 void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr)
 {
