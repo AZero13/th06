@@ -731,14 +731,14 @@ ZunResult GuiImpl::RunMsg()
             }
             if (
 #if !TRIALBUILD
-                g_GameManager.currentStage < 5 || (g_GameManager.difficulty != EASY && g_GameManager.currentStage == 5))
+                g_GameManager.currentStage < 5 || (g_GameManager.difficulty != EASY && g_GameManager.currentStage == 5)
 #else
                 g_GameManager.currentStage < 3
 #endif
-                )
-                {
-                    g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
-                }
+            )
+            {
+                g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
+            }
             else if (!g_GameManager.isInReplay)
             {
 #if !TRIALBUILD
