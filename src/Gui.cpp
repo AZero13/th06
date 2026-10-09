@@ -736,9 +736,9 @@ ZunResult GuiImpl::RunMsg()
                 g_GameManager.currentStage < 3
 #endif
                 )
-            {
-                g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
-            }
+                {
+                    g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
+                }
             else if (!g_GameManager.isInReplay)
             {
 #if !TRIALBUILD

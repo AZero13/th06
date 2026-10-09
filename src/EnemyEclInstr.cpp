@@ -212,8 +212,7 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
 
                 if (currentBullet->sprites.spriteBullet.sprite != NULL &&
                     currentBullet->sprites.spriteBullet.sprite->heightPx >= BULLET_SIZE_MEDIUM &&
-                    currentBullet->color != BULLET_GREEN8 &&
-                    (g_Rng.GetRandomU16() % 4 == 0))
+                    currentBullet->color != BULLET_GREEN8 && (g_Rng.GetRandomU16() % 4 == 0))
                 {
                     currentBullet->color = BULLET_GREEN8;
                     g_AnmManager->SetActiveSprite(&currentBullet->sprites.spriteBullet,
@@ -256,8 +255,7 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
 
                 if (currentBullet->sprites.spriteBullet.sprite != NULL &&
                     currentBullet->sprites.spriteBullet.sprite->heightPx >= BULLET_SIZE_MEDIUM &&
-                    currentBullet->color != BULLET_GREEN8 &&
-                    (g_Rng.GetRandomU16() % 4 == 0))
+                    currentBullet->color != BULLET_GREEN8 && (g_Rng.GetRandomU16() % 4 == 0))
                 {
                     currentBullet->color = BULLET_GREEN8;
                     g_AnmManager->SetActiveSprite(&currentBullet->sprites.spriteBullet,
@@ -608,8 +606,7 @@ void ExInsStage6Func9(Enemy *enemy, EclRawInstr *instr)
         }
 
         if (currentBullet->sprites.spriteBullet.sprite != NULL &&
-            currentBullet->sprites.spriteBullet.sprite->heightPx < BULLET_SIZE_MEDIUM &&
-            currentBullet->speed == 0.0f)
+            currentBullet->sprites.spriteBullet.sprite->heightPx < BULLET_SIZE_MEDIUM && currentBullet->speed == 0.0f)
         {
             currentBullet->exFlags |= EX_ACCELERATION;
             currentBullet->color = BULLET_RED;
@@ -652,8 +649,7 @@ void ExInsStage6Func11(Enemy *enemy, EclRawInstr *instr)
         }
 
         if (currentBullet->sprites.spriteBullet.sprite != NULL &&
-            currentBullet->sprites.spriteBullet.sprite->heightPx < BULLET_SIZE_MEDIUM &&
-            currentBullet->speed == 0.0f)
+            currentBullet->sprites.spriteBullet.sprite->heightPx < BULLET_SIZE_MEDIUM && currentBullet->speed == 0.0f)
         {
             currentBullet->exFlags |= EX_ACCELERATION;
             currentBullet->color = BULLET_RED;
@@ -772,8 +768,7 @@ void ExInsStageXFunc14(Enemy *enemy, EclRawInstr *instr)
     }
 }
 
-#pragma var_order(unusedShooter, totalIterations, i, innerBullet, enemyAngle, distance, currentBullet,             \
-                  bulletsAngle, j)
+#pragma var_order(unusedShooter, totalIterations, i, innerBullet, enemyAngle, distance, currentBullet, bulletsAngle, j)
 void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr)
 {
     f32 bulletsAngle;

@@ -603,7 +603,7 @@ Laser *BulletManager::SpawnLaserPattern(EnemyShooter *bulletProps)
         g_AnmManager->SetActiveSprite(&laser->vm, laser->vm.activeSpriteIndex + bulletProps->color);
 
         g_AnmManager->InitializeAndSetSprite(&laser->baseGlowVm, g_BulletSpawnEffects16Colors[bulletProps->color] +
-                                                              ANM_SPRITE_BULLET3_SPAWN_BIG_BALL);
+                                                                     ANM_SPRITE_BULLET3_SPAWN_BIG_BALL);
 
         laser->baseGlowVm.flags.blendMode = AnmBlendMode_Additive;
         laser->pos = bulletProps->position;

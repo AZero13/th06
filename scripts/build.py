@@ -37,14 +37,16 @@ def find_diff(path1, path2):
             offset += 0x1000
 
 
-def build(build_type, build_version, ver_suffix, timestamp, verbose=False, jobs=1, target=None):
+def build(
+    build_type, build_version, ver_suffix, timestamp, verbose=False, jobs=1, target=None
+):
     ninja_args = []
     if verbose:
         ninja_args += ["-v"]
 
     if jobs != 0:
         ninja_args += ["-j" + str(jobs)]
-    
+
     build_exe = "build/th06" + ver_suffix + ".exe"
     original_exe = "resources/th06" + ver_suffix + ".exe"
 
@@ -97,12 +99,7 @@ def main():
     )
     parser.add_argument(
         "--build-type",
-        choices=[
-            "normal",
-            "tests",
-            "objdiffbuild",
-            "binary_matchbuild"
-        ],
+        choices=["normal", "tests", "objdiffbuild", "binary_matchbuild"],
         default="normal",
     )
     parser.add_argument(
@@ -121,9 +118,9 @@ def main():
             "1.02e",
             "1.02f",
             "1.02g",
-            "1.02h"
+            "1.02h",
         ],
-        default="1.02h"
+        default="1.02h",
     )
     parser.add_argument(
         "-j",
@@ -159,7 +156,7 @@ def main():
         build_type = BuildType.OBJDIFFBUILD
     elif args.build_type == "binary_matchbuild":
         build_type = BuildType.BINARY_MATCHBUILD
-        
+
     if args.build_version == "0.08p":
         build_version = BuildVersion.VER_008p
         ver_suffix = "_008p"
@@ -225,7 +222,15 @@ def main():
     elif args.target is not None:
         target = args.target
 
-    build(build_type, build_version, ver_suffix, timestamp, args.verbose, args.jobs, target=target)
+    build(
+        build_type,
+        build_version,
+        ver_suffix,
+        timestamp,
+        args.verbose,
+        args.jobs,
+        target=target,
+    )
 
 
 if __name__ == "__main__":

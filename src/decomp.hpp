@@ -15,7 +15,7 @@
 #define _MACRO_STR(arg) #arg
 #define MACRO_STR(arg) _MACRO_STR(arg)
 
-//#define DISABLE_BSS_HACK 1
+// #define DISABLE_BSS_HACK 1
 
 #if !DISABLE_BSS_HACK
 #define AUTO_BSS_SORT(sort) __pragma(bss_seg(MACRO_STR(MACRO_CAT(.bss$, sort))))
