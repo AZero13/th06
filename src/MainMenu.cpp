@@ -26,7 +26,7 @@ namespace th06
 {
 // This is the final section, so force it into the same group as
 // all the library stuff to prevent an extra 16 bytes of padding
-FILE_BSS_SORT(zzzzzzzzzz);
+AUTO_BSS_SORT(zzzzzzzzzz);
 
 enum GameState
 {
@@ -134,7 +134,7 @@ static void SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBool 
 static void DrawMenuItem(AnmVm *vm, i32 itemNumber, i32 cursor, D3DCOLOR activeItemColor, D3DCOLOR inactiveItemColor,
                          i32 spriteIdx /* I think*/);
 
-DIFFABLE_STATIC(MainMenu, g_MainMenu);
+MainMenu g_MainMenu;
 
 #define MENU_VMS_DIFFICULTY_SELECT 81
 #define MENU_VMS_CHARACTER_SELECT 86
@@ -1145,9 +1145,8 @@ ZunBool MainMenu::WeirdSecondInputCheck()
 #pragma var_order(i, drawVm)
 ZunResult MainMenu::DrawStartMenu(void)
 {
-    i32 i;
-    i = MoveCursor(this, 8);
-#ifndef TRIALBUILD
+    i32 i = MoveCursor(this, 8);
+#if !TRIALBUILD
     if (this->cursor == 1 && !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_A) &&
         !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_B) &&
         !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_A) &&
@@ -1512,7 +1511,7 @@ i32 MainMenu::ReplayHandling()
             }
         }
         if (WAS_PRESSED(TH_BUTTON_SELECTMENU) && this->currentReplay[this->cursor].stageReplayData
-#ifdef TRIALBUILD
+#if TRIALBUILD
             && this->cursor < 3
 #endif
         )
@@ -1523,7 +1522,7 @@ i32 MainMenu::ReplayHandling()
             g_GameManager.difficulty = (Difficulty)this->currentReplay->difficulty;
             g_GameManager.character = this->currentReplay->shottypeChara / 2;
             g_GameManager.shotType = this->currentReplay->shottypeChara % 2;
-#ifndef TRIALBUILD
+#if !TRIALBUILD
             cur = 0;
             while (this->currentReplay->stageReplayData[cur] == NULL)
             {
@@ -1625,7 +1624,7 @@ ZunResult MainMenu::DrawReplayMenu()
         vmRef = &this->vm[114];
         g_AsciiManager.AddFormatText(&vmRef->pos, "Stage  LastScore");
 
-#ifndef TRIALBUILD
+#if !TRIALBUILD
         for (i = 0; i < 7; i++)
 #else
         // The trial predates the fix for stage details on later replay pages.

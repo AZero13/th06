@@ -6,8 +6,7 @@
 
 namespace th06
 {
-struct EnemyBulletShooter;
-struct EnemyLaserShooter;
+struct EnemyShooter;
 
 enum BulletAimMode
 {
@@ -20,6 +19,87 @@ enum BulletAimMode
     RANDOM_ANGLE,
     RANDOM_SPEED,
     RANDOM,
+};
+enum LaserAimMode
+{
+    LASER_AIMED,
+    LASER_UNAIMED
+};
+
+// Pellets
+// 16 colors
+#define BULLET_SIZE_TINY 8.0f
+// Everything else
+// 16 colors
+#define BULLET_SIZE_SMALL 16.0f
+// Fireballs
+// 4 "colors"
+#define BULLET_SIZE_MEDIUM 30.0f
+// Big balls, daggers
+// 8 colors
+#define BULLET_SIZE_LARGE 32.0f
+// Bubbles
+// 4 colors
+#define BULLET_SIZE_HUGE 64.0f
+
+enum BulletType
+{
+    // 16 colors
+    BULLET_PELLET = 0,
+    BULLET_RING_BALL = 1,
+    BULLET_RICE = 2,
+    BULLET_BALL = 3,
+    BULLET_KUNAI = 4,
+    BULLET_SHARD = 5,
+    // 8 colors
+    BULLET_BIG_BALL = 6,
+    BULLET_DAGGER = 8,
+    // 4 colors
+    BULLET_FIREBALL = 7,
+    BULLET_BUBBLE = 9,
+};
+enum LaserSprite
+{
+    LASER_LINE = 0, // Dedicated laser sprite
+    LASER_BEAM = 1, // Stretched ball sprite
+};
+
+enum BulletColor16
+{
+    BULLET_GRAY,
+    BULLET_DARK_RED,
+    BULLET_RED,
+    BULLET_DARK_PURPLE,
+    BULLET_PURPLE,
+    BULLET_DARK_BLUE,
+    BULLET_BLUE,
+    BULLET_DARK_CYAN,
+    BULLET_CYAN,
+    BULLET_DARK_GREEN,
+    BULLET_GREEN,
+    BULLET_LIME,
+    BULLET_DARK_YELLOW,
+    BULLET_YELLOW,
+    BULLET_ORANGE,
+    BULLET_WHITE
+};
+enum BulletColor8
+{
+    BULLET_GRAY8,
+    BULLET_RED8,
+    BULLET_PURPLE8,
+    BULLET_BLUE8,
+    BULLET_CYAN8,
+    BULLET_GREEN8,
+    BULLET_YELLOW8,
+    BULLET_WHITE8
+};
+enum BulletColor4
+{
+    BULLET_RED4,
+    BULLET_BLUE4,
+    BULLET_GREEN4,
+    BULLET_YELLOW4
 };
 
 struct BulletTypeSprites
@@ -46,6 +126,33 @@ enum BulletState
     BULLET_STATE_SPAWNING_SLOW,
     BULLET_STATE_DESPAWNING,
 };
+enum LaserState
+{
+    LASER_STATE_START_DELAY,
+    LASER_STATE_ACTIVE,
+    LASER_STATE_DESPAWNING
+};
+
+enum BulletEffectType
+{
+    EX_SPEEDUP = 0x1,
+    EX_SPAWN_EFFECT_SHORT = 0x2,
+    EX_SPAWN_EFFECT = 0x4,
+    EX_SPAWN_EFFECT_LONG = 0x8,
+    EX_ACCELERATION = 0x10,
+    EX_VELOCITY = 0x20,
+    EX_ANGLE_ADD = 0x40,
+    EX_ANGLE_PLAYER = 0x80,
+    EX_ANGLE_SET = 0x100,
+    EX_SPAWN_SOUND = 0x200,
+    EX_BOUNCE_TBLR = 0x400,
+    EX_BOUNCE_TLR = 0x800
+};
+enum LaserFlags
+{
+    LASER_FLAG_FADE_IN_OUT = 0x1,
+    LASER_FLAG_UNUSED = 0x2
+};
 
 struct Bullet
 {
@@ -54,18 +161,18 @@ struct Bullet
     D3DXVECTOR3 velocity;
     D3DXVECTOR3 ex4Acceleration;
     f32 speed;
-    f32 ex5Float0;
+    f32 exVelSpeed;
     f32 dirChangeSpeed;
     f32 angle;
-    f32 ex5Float1;
+    f32 exVelAngle;
     f32 dirChangeRotation;
     ZunTimer timer;
-    i32 ex5Int0;
+    i32 exDuration;
     i32 dirChangeInterval;
     i32 dirChangeNumTimes;
     i32 dirChangeMaxTimes;
     u16 exFlags;
-    i16 spriteOffset;
+    i16 color;
     unreferenced_fields(0x2);
     u16 state;
     u16 outOfBoundsTime;
@@ -76,8 +183,8 @@ ZUN_ASSERT_TYPE(Bullet, 0x5c4, 4);
 
 struct Laser
 {
-    AnmVm vm0;
-    AnmVm vm1;
+    AnmVm vm;
+    AnmVm baseGlowVm;
     D3DXVECTOR3 pos;
     f32 angle;
     f32 startOffset;
@@ -113,9 +220,9 @@ struct BulletManager
     void TurnAllBulletsIntoPoints();
 
     i32 DespawnBullets(i32 maxBonusScore, ZunBool awardPoints);
-    ZunResult SpawnBulletPattern(EnemyBulletShooter *bulletProps);
-    Laser *SpawnLaserPattern(EnemyLaserShooter *bulletProps);
-    u32 SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bulletIdx1, i32 bulletIdx2, f32 angle);
+    ZunResult SpawnBulletPattern(EnemyShooter *bulletProps);
+    Laser *SpawnLaserPattern(EnemyShooter *bulletProps);
+    u32 SpawnSingleBullet(EnemyShooter *bulletProps, i32 bulletIdx1, i32 bulletIdx2, f32 angle);
 
     BulletTypeSprites bulletTypeTemplates[NUM_ENEMY_BULLET_TYPES];
     Bullet bullets[MAX_ENEMY_BULLETS];
@@ -130,6 +237,6 @@ ZUN_ASSERT_TYPE(BulletManager, 0xf5c18, 4);
 ZunResult BulletManager_RegisterChain(const char *bulletAnmPath);
 void BulletManager_CutChain();
 
-DIFFABLE_EXTERN(u32 *, g_EffectsColor);
-DIFFABLE_EXTERN(BulletManager, g_BulletManager);
+extern D3DCOLOR *g_EffectsColor;
+extern BulletManager g_BulletManager;
 } // namespace th06

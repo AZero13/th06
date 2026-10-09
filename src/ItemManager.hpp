@@ -56,5 +56,5 @@ struct ItemManager
 };
 ZUN_ASSERT_TYPE(ItemManager, 0x2894c, 4);
 
-DIFFABLE_EXTERN(ItemManager, g_ItemManager);
+extern ItemManager g_ItemManager;
 } // namespace th06

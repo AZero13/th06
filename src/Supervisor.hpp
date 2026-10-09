@@ -13,7 +13,25 @@
 
 namespace th06
 {
-#define GAME_VERSION 0x102
+#define BUILD_VERSION_008p 0x00081
+#define BUILD_VERSION_013  0x00130
+#define BUILD_VERSION_013a 0x00131
+#define BUILD_VERSION_100  0x01000
+#define BUILD_VERSION_101  0x01010
+#define BUILD_VERSION_102  0x01020
+#define BUILD_VERSION_102b 0x01022
+#define BUILD_VERSION_102c 0x01023
+#define BUILD_VERSION_102d 0x01024
+#define BUILD_VERSION_102f 0x01026
+#define BUILD_VERSION_102g 0x01027
+#define BUILD_VERSION_102h 0x01028
+
+#ifndef BUILD_VERSION
+#define BUILD_VERSION BUILD_VERSION_102h
+#endif
+#ifndef GAME_VERSION
+#define GAME_VERSION 0x0102
+#endif
 
 struct GameConfigOpts
 {
@@ -205,7 +223,7 @@ struct Supervisor
     D3DVIEWPORT8 viewport;
     D3DPRESENT_PARAMETERS presentParameters;
     GameConfiguration cfg;
-#if !TRIALBUILD
+#if BUILD_VERSION >= BUILD_VERSION_102h
     // NOTE: This is not even close to a default config
     GameConfiguration defaultConfig;
 #endif
@@ -241,12 +259,12 @@ struct Supervisor
 };
 ZunResult Supervisor_RegisterChain();
 
-#if !TRIALBUILD
+#if BUILD_VERSION >= BUILD_VERSION_102h
 ZUN_ASSERT_SIZE(Supervisor, 0x4d8);
 #else
 ZUN_ASSERT_SIZE(Supervisor, 0x4a0);
 #endif
 
-DIFFABLE_EXTERN(Supervisor, g_Supervisor);
+extern Supervisor g_Supervisor;
 
 } // namespace th06

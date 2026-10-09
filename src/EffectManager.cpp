@@ -21,7 +21,7 @@ EffectCallbackResult Effect_Callback4(Effect *effect);
 EffectCallbackResult Effect_Attract(Effect *effect);
 EffectCallbackResult Effect_AttractSlow(Effect *effect);
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
+EffectInfo g_Effects[] = {
     {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SMALL, NULL},
     {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SPIRAL, NULL},
     {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_NORMAL, NULL},
@@ -44,9 +44,9 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
     {ANM_SCRIPT_BULLET4_SCRIPT_19, Effect_Still},
 };
 
-DIFFABLE_STATIC_SORTED(D1, EffectManager, g_EffectManager);
-DIFFABLE_STATIC_SORTED(D2, ChainElem, g_EffectManagerCalcChain);
-DIFFABLE_STATIC_SORTED(D3, ChainElem, g_EffectManagerDrawChain);
+BSS_SORT(D1) EffectManager g_EffectManager;
+BSS_SORT(D2) ChainElem g_EffectManagerCalcChain;
+BSS_SORT(D3) ChainElem g_EffectManagerDrawChain;
 
 void EffectManager::Reset()
 {

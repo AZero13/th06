@@ -122,11 +122,11 @@ struct ControllerMapping
 };
 ZUN_ASSERT_TYPE(ControllerMapping, 0x12, 2);
 
-DIFFABLE_EXTERN(ControllerMapping, g_ControllerMapping);
-DIFFABLE_EXTERN(u16, g_LastFrameInput);
-DIFFABLE_EXTERN(u16, g_CurFrameInput);
-DIFFABLE_EXTERN(u16, g_IsEigthFrameOfHeldInput);
-DIFFABLE_EXTERN(u16, g_NumOfFramesInputsWereHeld);
+extern ControllerMapping g_ControllerMapping;
+extern u16 g_LastFrameInput;
+extern u16 g_CurFrameInput;
+extern u16 g_IsEigthFrameOfHeldInput;
+extern u16 g_NumOfFramesInputsWereHeld;
 
 class ZunMemory
 {
@@ -157,7 +157,7 @@ class ZunMemory
   private:
     ZunBool bRegistryInUse;
 };
-DIFFABLE_EXTERN(ZunMemory, g_ZunMemory);
+extern ZunMemory g_ZunMemory;
 
 // From FileSystem.hpp
 namespace FileSystem
@@ -167,7 +167,7 @@ namespace FileSystem
 u8 *OpenPath(const char *filepath, ZunBool isExternalResource = false);
 int WriteDataToFile(const char *path, const void *data, size_t size);
 } // namespace FileSystem
-DIFFABLE_EXTERN(u32, g_LastFileSize);
+extern u32 g_LastFileSize;
 
 // From Rng.hpp
 struct Rng
@@ -202,8 +202,8 @@ struct Rng
     }
 };
 
-DIFFABLE_EXTERN(Rng, g_Rng);
-DIFFABLE_EXTERN(HANDLE, g_ExclusiveMutex);
+extern Rng g_Rng;
+extern HANDLE g_ExclusiveMutex;
 
 // From font.h
 class CMyFont
@@ -293,7 +293,7 @@ ZUN_ASSERT_TYPE(GameErrorContext, 0x808, 4);
 ZUN_ASSERT_TYPE(GameErrorContext, 0x100C, 4);
 #endif
 
-DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
-DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives);
-DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface);
+extern GameErrorContext g_GameErrorContext;
+extern Pbg3Archive **g_Pbg3Archives;
+extern LPDIRECT3DSURFACE8 g_TextBufferSurface;
 } // namespace th06

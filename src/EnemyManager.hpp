@@ -47,5 +47,5 @@ ZUN_ASSERT_TYPE(EnemyManager, 0xee5ec, 4);
 ZunResult EnemyManager_RegisterChain(const char *stgEnm1, const char *stgEnm2);
 void EnemyManager_CutChain();
 
-DIFFABLE_EXTERN(EnemyManager, g_EnemyManager);
+extern EnemyManager g_EnemyManager;
 } // namespace th06

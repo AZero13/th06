@@ -138,5 +138,5 @@ ZUN_ASSERT_TYPE(Stage, 0x2f4, 4);
 ZunResult Stage_RegisterChain(u32 stage);
 void Stage_CutChain();
 
-DIFFABLE_EXTERN(Stage, g_Stage);
+extern Stage g_Stage;
 } // namespace th06

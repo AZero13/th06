@@ -50,5 +50,5 @@ ZUN_ASSERT_TYPE(EffectManager, 0x2f984, 4);
 ZunResult EffectManager_RegisterChain();
 void EffectManager_CutChain();
 
-DIFFABLE_EXTERN(EffectManager, g_EffectManager);
+extern EffectManager g_EffectManager;
 } // namespace th06

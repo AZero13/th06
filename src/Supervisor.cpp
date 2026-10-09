@@ -29,9 +29,9 @@
 
 namespace th06
 {
-FILE_BSS_SORT(M1);
+AUTO_BSS_SORT(M1);
 
-BSS_SORT(M1) DIFFABLE_STATIC(Supervisor, g_Supervisor);
+MANUAL_BSS_SORT(M1) Supervisor g_Supervisor;
 
 ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
 {
@@ -464,9 +464,9 @@ static void Supervisor_DrawFpsCounter()
     float elapsed;
     float fps;
 
-    BSS_SORT(M1) static DWORD g_LastTime = timeGetTime();
-    BSS_SORT(M1) static u32 g_NumFramesSinceLastTime = 0;
-    BSS_SORT(M1) static char g_FpsCounterBuffer[256];
+    MANUAL_BSS_SORT(M1) static DWORD g_LastTime = timeGetTime();
+    MANUAL_BSS_SORT(M1) static u32 g_NumFramesSinceLastTime = 0;
+    MANUAL_BSS_SORT(M1) static char g_FpsCounterBuffer[256];
 
     curTime = timeGetTime();
     g_NumFramesSinceLastTime = g_NumFramesSinceLastTime + 1 + (u32)g_Supervisor.cfg.frameskipConfig;

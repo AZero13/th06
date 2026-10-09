@@ -11,11 +11,11 @@
 
 namespace th06
 {
-FILE_BSS_SORT(K1); // This is necessary to position the guard variable for g_ItemSize
+AUTO_BSS_SORT(K1); // This is necessary to position the guard variable for g_ItemSize
 
-DIFFABLE_STATIC_SORTED(K3, ItemManager, g_ItemManager);
-DIFFABLE_STATIC_SORTED(K4, ChainElem, g_ItemManagerCalcChain);                      // unused
-DIFFABLE_STATIC_SORTED(K2, __declspec(align(8)) ChainElem, g_ItemManagerDrawChain); // unused
+BSS_SORT(K3) ItemManager g_ItemManager;
+BSS_SORT(K4) ChainElem g_ItemManagerCalcChain;                      // unused
+BSS_SORT(K2) __declspec(align(8)) ChainElem g_ItemManagerDrawChain; // unused
 
 void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, ItemState state)
 {
@@ -68,10 +68,12 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, ItemState 
     }
 }
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 31, g_PowerItemScore) = {
+i32 g_PowerItemScore[] = {
     10,  20,  30,   40,   50,   60,   70,   80,   90,   100,  200,  300,   400,   500,   600,  700,
-    800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 51200};
-DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 11, g_PowerUpThresholds) = {8, 16, 32, 48, 64, 80, 96, 128, 999, 1, 0};
+    800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 51200,
+};
+// Why are there a 1 and 0 at the end of this???
+i32 g_PowerUpThresholds[] = {8, 16, 32, 48, 64, 80, 96, 128, 999, 1, 0};
 
 #define PIV_LINE 128
 #define ITEM_SPRITE_SIZE 16.0f
@@ -161,9 +163,9 @@ void ItemManager::OnUpdate()
                 if (g_GameManager.currentPower >= MAX_POWER)
                 {
                     g_GameManager.powerItemCountForScore++;
-                    if (g_GameManager.powerItemCountForScore >= 31u)
+                    if (g_GameManager.powerItemCountForScore >= ARRAY_SIZE(g_PowerItemScore))
                     {
-                        g_GameManager.powerItemCountForScore = 30;
+                        g_GameManager.powerItemCountForScore = ARRAY_SIZE(g_PowerItemScore) - 1;
                     }
                     itemScore = g_PowerItemScore[g_GameManager.powerItemCountForScore];
                     g_GameManager.AddScore(itemScore);
@@ -195,7 +197,7 @@ void ItemManager::OnUpdate()
                     }
                     if (powerLevel != prevPowerLevel)
                     {
-                        g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, 0xff80c0ff);
+                        g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, COLOR_BABY_BLUE);
                         g_SoundPlayer.PlaySoundByIdx(SOUND_POWERUP);
                     }
                     else
@@ -247,9 +249,9 @@ void ItemManager::OnUpdate()
                 if (g_GameManager.currentPower >= MAX_POWER)
                 {
                     g_GameManager.powerItemCountForScore += 8;
-                    if (g_GameManager.powerItemCountForScore >= 31u)
+                    if (g_GameManager.powerItemCountForScore >= ARRAY_SIZE(g_PowerItemScore))
                     {
-                        g_GameManager.powerItemCountForScore = 30;
+                        g_GameManager.powerItemCountForScore = ARRAY_SIZE(g_PowerItemScore) - 1;
                     }
                     itemScore = g_PowerItemScore[g_GameManager.powerItemCountForScore];
                     g_GameManager.AddScore(itemScore);
@@ -280,7 +282,7 @@ void ItemManager::OnUpdate()
                     }
                     if (powerLevel != prevPowerLevel)
                     {
-                        g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, 0xff80c0ff);
+                        g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, COLOR_BABY_BLUE);
                         g_SoundPlayer.PlaySoundByIdx(SOUND_POWERUP);
                     }
                     else
@@ -312,7 +314,7 @@ void ItemManager::OnUpdate()
                     g_BulletManager.TurnAllBulletsIntoPoints();
                     g_Gui.ShowFullPowerMode(0);
                     g_SoundPlayer.PlaySoundByIdx(SOUND_POWERUP);
-                    g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, 0xff80c0ff);
+                    g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, COLOR_BABY_BLUE);
                 }
                 g_GameManager.currentPower = MAX_POWER;
                 g_GameManager.AddScore(1000);

@@ -48,9 +48,8 @@ static ChainCallbackResult ReplayManager_OnUpdateDemoLowPrio(ReplayManager *mgr)
 static ChainCallbackResult ReplayManager_OnUpdateDemoHighPrio(ReplayManager *mgr);
 static ChainCallbackResult ReplayManager_OnUpdate(ReplayManager *mgr);
 
-FILE_BSS_SORT(P1);
-
-DIFFABLE_STATIC(ReplayManager *, g_ReplayManager);
+AUTO_BSS_SORT(P1);
+ReplayManager *g_ReplayManager;
 
 #pragma var_order(idx, decryptedData, obfOffset, obfuscateCursor, checksum, checksumCursor)
 ZunResult ValidateReplayData(ReplayData *data, i32 fileSize)

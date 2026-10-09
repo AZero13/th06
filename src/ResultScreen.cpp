@@ -19,7 +19,7 @@
 
 namespace th06
 {
-FILE_BSS_SORT(Q1);
+AUTO_BSS_SORT(Q1);
 
 struct ScoreDat
 {
@@ -92,11 +92,15 @@ static ZunResult ResultScreen_DeletedCallback(ResultScreen *r);
 static void MoveResultCursor(ResultScreen *r, i32 len);
 static ZunBool MoveResultCursorHorizontally(ResultScreen *r, i32 len);
 
-DIFFABLE_STATIC_ASSIGN(const char *, g_AlphabetList) = TH_KEYBOARD;
+const char *g_AlphabetList = TH_KEYBOARD;
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 6, g_CharacterList) = {TH_HAKUREI_REIMU_SPIRIT,  TH_HAKUREI_REIMU_DREAM,
-                                                                  TH_KIRISAME_MARISA_DEVIL, TH_KIRISAME_MARISA_LOVE,
-                                                                  TH_SATSUKI_RIN_FLOWER,    TH_SATSUKI_RIN_WIND};
+// clang-format off
+const char *g_CharacterList[] = {
+    TH_HAKUREI_REIMU_SPIRIT,  TH_HAKUREI_REIMU_DREAM,
+    TH_KIRISAME_MARISA_DEVIL, TH_KIRISAME_MARISA_LOVE,
+    TH_SATSUKI_RIN_FLOWER,    TH_SATSUKI_RIN_WIND,
+};
+// clang-format on
 
 #define DEFAULT_HIGH_SCORE_NAME "Nanashi "
 

@@ -18,11 +18,11 @@
 
 namespace th06
 {
-DIFFABLE_STATIC_ARRAY_SORTED(A1, i32, 4, g_AsciiManagerPad);
-DIFFABLE_STATIC_SORTED(A3, AsciiManager, g_AsciiManager);
-DIFFABLE_STATIC_SORTED(A4, ChainElem, g_AsciiManagerCalcChain);
-DIFFABLE_STATIC_SORTED(A2, ChainElem, g_AsciiManagerOnDrawMenusChain);
-DIFFABLE_STATIC_SORTED(A5, ChainElem, g_AsciiManagerOnDrawPopupsChain);
+BSS_SORT(A1) i32 g_AsciiManagerPad[4];
+BSS_SORT(A3) AsciiManager g_AsciiManager;
+BSS_SORT(A4) ChainElem g_AsciiManagerCalcChain;
+BSS_SORT(A2) ChainElem g_AsciiManagerOnDrawMenusChain;
+BSS_SORT(A5) ChainElem g_AsciiManagerOnDrawPopupsChain;
 
 ZunResult AsciiManager_AddedCallback(AsciiManager *s);
 ZunResult AsciiManager_DeletedCallback(AsciiManager *s);
@@ -732,7 +732,7 @@ i32 StageMenu::OnUpdateRetryMenu()
             g_GameManager.guiScore = g_GameManager.numRetries;
             g_GameManager.nextScoreIncrement = 0;
             g_GameManager.score = g_GameManager.guiScore;
-#if !TRIALBUILD
+#if BUILD_VERSION >= BUILD_VERSION_102h
             g_GameManager.livesRemaining = g_Supervisor.defaultConfig.lifeCount;
             g_GameManager.bombsRemaining = g_Supervisor.defaultConfig.bombCount;
 #else

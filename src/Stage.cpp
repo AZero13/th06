@@ -14,11 +14,11 @@
 
 namespace th06
 {
-DIFFABLE_STATIC_SORTED(B1, i32, g_StagePad);
-DIFFABLE_STATIC_SORTED(B3, Stage, g_Stage);
-DIFFABLE_STATIC_SORTED(B5, ChainElem, g_StageCalcChain);
-DIFFABLE_STATIC_SORTED(B2, ChainElem, g_StageOnDrawHighPrioChain);
-DIFFABLE_STATIC_SORTED(B4, ChainElem, g_StageOnDrawLowPrioChain);
+BSS_SORT(B1) i32 g_StagePad;
+BSS_SORT(B3) Stage g_Stage;
+BSS_SORT(B5) ChainElem g_StageCalcChain;
+BSS_SORT(B2) ChainElem g_StageOnDrawHighPrioChain;
+BSS_SORT(B4) ChainElem g_StageOnDrawLowPrioChain;
 
 ZunResult Stage_AddedCallback(Stage *stage);
 ZunResult Stage_DeletedCallback(Stage *stage);

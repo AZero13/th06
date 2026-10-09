@@ -57,7 +57,7 @@ enum StageNumber
 
 struct GameManager;
 
-DIFFABLE_EXTERN(GameManager, g_GameManager);
+extern GameManager g_GameManager;
 struct GameManager
 {
     GameManager();
