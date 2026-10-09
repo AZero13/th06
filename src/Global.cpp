@@ -29,7 +29,7 @@ static u32 SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButto
                                             u8 *inputButtons);
 } // namespace Controller
 
-DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {
+ControllerMapping g_ControllerMapping = {
 #if !TRIALBUILD
     0,  1,  2,  4, -1,
     -1, -1, -1, 3
@@ -39,28 +39,28 @@ DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {
 #endif
 };
 
-DIFFABLE_STATIC_SORTED(J1, Chain, g_Chain);
+BSS_SORT(J1) Chain g_Chain;
 
 // Controller
-DIFFABLE_STATIC_SORTED(J5, u8, g_ControllerData[128]);
+BSS_SORT(J5) u8 g_ControllerData[128];
 #if !TRIALBUILD
-DIFFABLE_STATIC_SORTED(I1, JOYCAPS, g_JoystickCaps);
+BSS_SORT(I1) JOYCAPS g_JoystickCaps;
 #endif
-DIFFABLE_STATIC_SORTED(I2, u16, g_FocusButtonConflictState);
-DIFFABLE_STATIC_SORTED(I6, u16, g_LastFrameInput);
-DIFFABLE_STATIC_SORTED(I7, u16, g_IsEigthFrameOfHeldInput);
-DIFFABLE_STATIC_SORTED(I8, u16, g_NumOfFramesInputsWereHeld);
-DIFFABLE_STATIC_SORTED(I5, u16, g_CurFrameInput);
+BSS_SORT(I2) u16 g_FocusButtonConflictState;
+BSS_SORT(I6) u16 g_LastFrameInput;
+BSS_SORT(I7) u16 g_IsEigthFrameOfHeldInput;
+BSS_SORT(I8) u16 g_NumOfFramesInputsWereHeld;
+BSS_SORT(I5) u16 g_CurFrameInput;
 
 // CMyFont
 #if TRIALBUILD
 // In the /O2 trial the constructor is folded into initialized .data, which
 // doesn't happen inside a bss_seg, so this one is not sorted.
 #pragma bss_seg()
-DIFFABLE_STATIC(CMyFont, g_CMyFont);
 #else
-DIFFABLE_STATIC_SORTED(J3, CMyFont, g_CMyFont);
+BSS_SORT(J3)
 #endif
+CMyFont g_CMyFont;
 
 Chain::~Chain()
 {
@@ -434,13 +434,14 @@ destroy_elem:
 #if TRIALBUILD
 // Nothing in the trial reads g_ZunMemory, so its slot can't be checked; this is
 // the one gap in this unit's .bss that leaves every other address unchanged.
-DIFFABLE_STATIC_SORTED(J0, ZunMemory, g_ZunMemory);
+BSS_SORT(J0)
 #else
-DIFFABLE_STATIC_SORTED(J4, ZunMemory, g_ZunMemory);
+BSS_SORT(J4)
 #endif
+ZunMemory g_ZunMemory;
 
 // FileSystem
-DIFFABLE_STATIC_SORTED(I9, u32, g_LastFileSize);
+BSS_SORT(I9) u32 g_LastFileSize;
 
 u16 Controller::GetJoystickCaps(void)
 {
@@ -487,9 +488,9 @@ u16 Controller::GetControllerInput(u16 buttons)
     u32 a2;
     HRESULT aaa;
 
-#if !TRIALBUILD
     if (g_Supervisor.controller == NULL)
     {
+#if !TRIALBUILD
         memset(&aa, 0, sizeof(aa));
         aa.dwSize = sizeof(JOYINFOEX);
         aa.dwFlags = JOY_RETURNALL;
@@ -553,17 +554,11 @@ u16 Controller::GetControllerInput(u16 buttons)
         buttons |= JOYSTICK_BUTTON_PRESSED(
             TH_BUTTON_UP, JOYSTICK_MIDPOINT(g_JoystickCaps.wYmin, g_JoystickCaps.wYmax) - ab, aa.dwYpos);
 
+#endif
         return buttons;
     }
     else
-#endif
     {
-#if TRIALBUILD
-        if (g_Supervisor.controller == NULL)
-        {
-            return buttons;
-        }
-#endif
         aaa = g_Supervisor.controller->Poll();
         if (FAILED(aaa))
         {
@@ -690,17 +685,11 @@ u32 Controller::SetButtonFromControllerInputs(u16 *outButtons, i16 controllerBut
 u8 *th06::Controller::GetControllerState()
 {
     memset(&g_ControllerData, 0, sizeof(g_ControllerData));
-#if TRIALBUILD
-    if (g_Supervisor.controller == NULL)
-    {
-        return g_ControllerData;
-    }
-#endif
 
-#if !TRIALBUILD
-#pragma var_order(joyinfoex, joyButtonBit, joyButtonIndex)
     if (g_Supervisor.controller == NULL)
+#pragma var_order(joyinfoex, joyButtonBit, joyButtonIndex)
     {
+#if !TRIALBUILD
         JOYINFOEX joyinfoex;
         u32 joyButtonBit;
         u32 joyButtonIndex;
@@ -720,10 +709,10 @@ u8 *th06::Controller::GetControllerState()
                 g_ControllerData[joyButtonIndex] = 0x80;
             }
         }
+#endif
         return g_ControllerData;
     }
     else
-#endif
 #pragma var_order(dires, dijoystate2)
     {
         DIJOYSTATE2 dijoystate2;
@@ -889,7 +878,7 @@ void CMyFont::Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h)
     DeleteObject(hFont);
 }
 
-DIFFABLE_STATIC_SORTED(J6, LPDIRECT3DSURFACE8, g_TextBufferSurface);
+BSS_SORT(J6) LPDIRECT3DSURFACE8 g_TextBufferSurface;
 
 // ----------------------------------------------------------------------------
 void CMyFont::Print(char *str, int x, int y, D3DCOLOR color)
@@ -908,7 +897,7 @@ void CMyFont::Clean()
     RELEASE(m_lpFont);
 }
 
-DIFFABLE_STATIC_SORTED(I4, Pbg3Archive **, g_Pbg3Archives);
+BSS_SORT(I4) Pbg3Archive **g_Pbg3Archives;
 
 #pragma var_order(pbg3Idx, entryname, entryIdx, fsize, data, file)
 u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
@@ -1015,13 +1004,13 @@ int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 // In the /O2 trial the constructor is folded into initialized .data, which
 // doesn't happen inside a bss_seg, so this one is not sorted.
 #pragma bss_seg()
-DIFFABLE_STATIC(GameErrorContext, g_GameErrorContext);
 #else
-DIFFABLE_STATIC_SORTED(J2, GameErrorContext, g_GameErrorContext);
+BSS_SORT(J2);
 #endif
+GameErrorContext g_GameErrorContext;
 
 // Rng
-DIFFABLE_STATIC_SORTED(I3, Rng, g_Rng);
+BSS_SORT(I3) Rng g_Rng;
 
 const char *GameErrorContext::Log(const char *fmt, ...)
 {

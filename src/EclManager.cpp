@@ -27,36 +27,52 @@ static void EclMoveDirTime(Enemy *enemy, EclRawInstr *instr);
 static void EclMovePosTime(Enemy *enemy, EclRawInstr *instr);
 static void EclMoveTime(Enemy *enemy, EclRawInstr *instr);
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 64, g_SpellcardScore) = {
-    200000, 200000, 200000, 200000, 200000, 200000, 200000, 250000, 250000, 250000, 250000, 250000, 250000,
-    250000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000,
-    300000, 300000, 300000, 300000, 300000, 300000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
-    400000, 500000, 500000, 500000, 500000, 500000, 500000, 600000, 600000, 600000, 600000, 600000, 700000,
-    700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000};
-typedef void (*ExInsn)(Enemy *, EclRawInstr *);
-DIFFABLE_STATIC_ARRAY_ASSIGN(ExInsn, 17, g_EclExInsn) = {ExInsCirnoRainbowBallJank,
-                                                         ExInsShootAtRandomArea,
-                                                         ExInsShootStarPattern,
-                                                         ExInsPatchouliShottypeSetVars,
-                                                         ExInsStage56Func4,
-                                                         ExInsStage5Func5,
-                                                         ExInsBatWingEffect,
-                                                         ExInsStage6Func7,
-                                                         ExInsStage6Func8,
-                                                         ExInsStage6Func9,
-                                                         ExInsHandleBatTransformation,
-                                                         ExInsStage6Func11,
-                                                         ExInsStage4Func12,
-                                                         ExInsStageXFunc13,
-                                                         ExInsStageXFunc14,
-                                                         ExInsStageXFunc15,
-                                                         ExInsFlandreFinalContextUpdate};
+// clang-format off
+i32 g_SpellcardScore[] = {
+    // Stage 1
+    200000, 200000, 200000,
+    // Stage 2
+    200000, 200000, 200000, 200000,
+    // Stage 3
+    250000, 250000, 250000, 250000, 250000, 250000, 250000,
+    // Stage 4
+    300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000,
+    300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000, 300000,
+    // Stage 5
+    400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
+    // Stage 6
+    500000, 500000, 500000, 500000, 500000, 500000, 600000, 600000, 600000, 600000, 600000,
+    // Extra
+    700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000,
+};
+// clang-format on
 
-DIFFABLE_STATIC_SORTED(C5, ChainElem, g_EclManagerCalcChain); // unused
-DIFFABLE_STATIC_SORTED(C4, EclManager, g_EclManager);
-DIFFABLE_STATIC_SORTED(C1, i32, g_PlayerShot);
-DIFFABLE_STATIC_SORTED(C2, f32, g_PlayerDistance);
-DIFFABLE_STATIC_SORTED(C3, f32, g_PlayerAngle);
+typedef void (*ExInsn)(Enemy *, EclRawInstr *);
+ExInsn g_EclExInsn[] = {
+    ExInsCirnoRainbowBallJank,
+    ExInsShootAtRandomArea,
+    ExInsShootStarPattern,
+    ExInsPatchouliShottypeSetVars,
+    ExInsStage56Func4,
+    ExInsStage5Func5,
+    ExInsBatWingEffect,
+    ExInsStage6Func7,
+    ExInsStage6Func8,
+    ExInsStage6Func9,
+    ExInsHandleBatTransformation,
+    ExInsStage6Func11,
+    ExInsStage4Func12,
+    ExInsStageXFunc13,
+    ExInsStageXFunc14,
+    ExInsStageXFunc15,
+    ExInsFlandreFinalContextUpdate,
+};
+
+BSS_SORT(C5) ChainElem g_EclManagerCalcChain; // unused
+BSS_SORT(C4) EclManager g_EclManager;
+BSS_SORT(C1) i32 g_PlayerShot;
+BSS_SORT(C2) f32 g_PlayerDistance;
+BSS_SORT(C3) f32 g_PlayerAngle;
 
 ZunResult EclManager::Load(const char *eclPath)
 {
@@ -270,12 +286,12 @@ restart_sub_changed:
             enemy->currentContext.float0 = curInstr->args.call.float0;
             goto restart_sub_changed;
         case ECL_OPCODE_RET:
+#if !TRIALBUILD
             if (enemy->flags.disableCallStack)
             {
-#if !TRIALBUILD
                 utils::DebugPrint2("error : no Stack Ret\n");
-#endif
             }
+#endif
             enemy->stackDepth--;
             enemy->currentContext = enemy->savedContextStack[enemy->stackDepth];
             goto restart_sub_changed;
@@ -314,12 +330,12 @@ restart_sub_changed:
                                                  curInstr->args.anmMainScriptIdx + ANM_SCRIPT_ENEMY_START);
             break;
         case ECL_OPCODE_ANM_SET_SLOT:
+#if !TRIALBUILD
             if (curInstr->args.anmSetSlot.vmIdx >= ENEMY_ANM_SLOTS)
             {
-#if !TRIALBUILD
                 utils::DebugPrint2("error : sub anim overflow\n");
-#endif
             }
+#endif
             g_AnmManager->SetAndExecuteScriptIdx(&enemy->vms[curInstr->args.anmSetSlot.vmIdx],
                                                  args->anmSetSlot.scriptIdx + ANM_SCRIPT_ENEMY_START);
             break;
@@ -381,7 +397,7 @@ restart_sub_changed:
 #pragma var_order(args, shooter)
         {
             EclRawInstrBulletArgs *args = &curInstr->args.bullet;
-            EnemyBulletShooter *shooter = &enemy->bulletProps;
+            EnemyShooter *shooter = &enemy->bulletProps;
             shooter->sprite = args->sprite;
             shooter->aimMode = curInstr->opCode - ECL_OPCODE_BULLET_FAN_AIMED;
             shooter->count1 = *EclGetVar(enemy, &args->count1, NULL);
@@ -419,7 +435,7 @@ restart_sub_changed:
             shooter->unk_4a = 0;
             shooter->flags = args->flags;
             genericInt = args->color;
-            shooter->spriteOffset = *EclGetVar(enemy, (EclVarId *)&genericInt, NULL);
+            shooter->color = *EclGetVar(enemy, (EclVarId *)&genericInt, NULL);
             if (!enemy->flags.shootingDisabled)
             {
                 g_BulletManager.SpawnBulletPattern(shooter);
@@ -476,12 +492,12 @@ restart_sub_changed:
 #pragma var_order(shooter, args)
         {
             EclRawInstrLaserArgs *args = &curInstr->args.laser;
-            EnemyLaserShooter *shooter = &enemy->laserProps;
+            EnemyShooter *shooter = &enemy->laserProps;
             shooter->position = enemy->position + enemy->shootOffset;
             shooter->sprite = args->sprite;
-            shooter->spriteOffset = args->color;
-            shooter->angle = *EclGetVarFloat(enemy, &args->angle, NULL);
-            shooter->speed = *EclGetVarFloat(enemy, &args->speed, NULL);
+            shooter->color = args->color;
+            shooter->angle1 = *EclGetVarFloat(enemy, &args->angle, NULL);
+            shooter->speed1 = *EclGetVarFloat(enemy, &args->speed, NULL);
             shooter->startOffset = *EclGetVarFloat(enemy, &args->startOffset, NULL);
             shooter->endOffset = *EclGetVarFloat(enemy, &args->endOffset, NULL);
             shooter->startLength = *EclGetVarFloat(enemy, &args->startLength, NULL);
@@ -494,11 +510,11 @@ restart_sub_changed:
             shooter->flags = args->flags;
             if (curInstr->opCode == ECL_OPCODE_LASER_CREATE_AIMED)
             {
-                shooter->type = 0;
+                shooter->aimMode = LASER_AIMED;
             }
             else
             {
-                shooter->type = 1;
+                shooter->aimMode = LASER_UNAIMED;
             }
             enemy->lasers[enemy->laserStore] = g_BulletManager.SpawnLaserPattern(shooter);
             break;
@@ -542,9 +558,9 @@ restart_sub_changed:
         case ECL_OPCODE_LASER_CANCEL:
             if (enemy->lasers[curInstr->args.laserOp.laserIdx] != NULL &&
                 enemy->lasers[curInstr->args.laserOp.laserIdx]->inUse &&
-                enemy->lasers[curInstr->args.laserOp.laserIdx]->state < 2)
+                enemy->lasers[curInstr->args.laserOp.laserIdx]->state < LASER_STATE_DESPAWNING)
             {
-                enemy->lasers[curInstr->args.laserOp.laserIdx]->state = 2;
+                enemy->lasers[curInstr->args.laserOp.laserIdx]->state = LASER_STATE_DESPAWNING;
                 enemy->lasers[curInstr->args.laserOp.laserIdx]->timer = 0;
             }
             break;
@@ -918,11 +934,11 @@ restart_sub_changed:
             if (curInstr->args.bulletSound >= 0)
             {
                 enemy->bulletProps.sfx = curInstr->args.bulletSound;
-                enemy->bulletProps.flags |= 0x200;
+                enemy->bulletProps.flags |= EX_SPAWN_SOUND;
             }
             else
             {
-                enemy->bulletProps.flags &= ~0x200;
+                enemy->bulletProps.flags &= ~EX_SPAWN_SOUND;
             }
             break;
         case ECL_OPCODE_ENEMY_FLAG_DISABLE_CALLSTACK:

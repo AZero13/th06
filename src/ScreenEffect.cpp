@@ -8,9 +8,8 @@
 
 namespace th06
 {
-FILE_BSS_SORT(R1);
-
-DIFFABLE_STATIC(ScreenEffect, g_ScreenEffect); // UNUSED FOREVER
+AUTO_BSS_SORT(R1);
+ScreenEffect g_ScreenEffect; // UNUSED FOREVER
 
 ZunResult ScreenEffect_AddedCallback(ScreenEffect *effect);
 ZunResult ScreenEffect_DeletedCallback(ScreenEffect *effect);

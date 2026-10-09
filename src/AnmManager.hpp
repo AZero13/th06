@@ -271,6 +271,5 @@ class AnmManager
 };
 ZUN_ASSERT_TYPE(AnmManager, 0x2112c, 4);
 
-DIFFABLE_EXTERN(AnmManager *, g_AnmManager);
-DIFFABLE_EXTERN(const D3DFORMAT, g_TextureFormatD3D8Mapping[6]);
+extern AnmManager *g_AnmManager;
 } // namespace th06

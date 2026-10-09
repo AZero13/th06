@@ -90,5 +90,5 @@ ZUN_ASSERT_TYPE(Gui, 0x2c, 4);
 ZunResult Gui_RegisterChain();
 void Gui_CutChain();
 
-DIFFABLE_EXTERN(Gui, g_Gui);
+extern Gui g_Gui;
 } // namespace th06

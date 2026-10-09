@@ -17,22 +17,41 @@ namespace th06
 {
 struct Enemy;
 
-struct EnemyBulletShooter
+struct EnemyShooter
 {
-    EnemyBulletShooter()
+    EnemyShooter()
     {
-        memset(this, 0, sizeof(EnemyBulletShooter));
+        memset(this, 0, sizeof(EnemyShooter));
     }
+
     i16 sprite;
-    i16 spriteOffset;
+    i16 color;
     D3DXVECTOR3 position;
     f32 angle1;
     f32 angle2;
     f32 speed1;
     f32 speed2;
-    f32 exFloats[4];
-    i32 exInts[4];
-    unreferenced_fields(0x4);
+    union {
+        f32 exFloats[4];
+        struct
+        {
+            f32 startOffset;
+            f32 endOffset;
+            f32 startLength;
+            f32 width;
+        };
+    };
+    union {
+        i32 exInts[4];
+        struct
+        {
+            i32 startTime;
+            i32 duration;
+            i32 despawnDuration;
+            i32 hitboxStartTime;
+            i32 hitboxEndDelay;
+        };
+    };
     i16 count1;
     i16 count2;
     u16 aimMode;
@@ -40,36 +59,7 @@ struct EnemyBulletShooter
     u32 flags;
     SoundIdx sfx;
 };
-ZUN_ASSERT_TYPE(EnemyBulletShooter, 0x54, 4);
-
-struct EnemyLaserShooter
-{
-    EnemyLaserShooter()
-    {
-        memset(this, 0, sizeof(EnemyLaserShooter));
-    }
-    i16 sprite;
-    i16 spriteOffset;
-    D3DXVECTOR3 position;
-    f32 angle;
-    unreferenced_fields(0x4);
-    f32 speed;
-    unreferenced_fields(0x4);
-    f32 startOffset;
-    f32 endOffset;
-    f32 startLength;
-    f32 width;
-    i32 startTime;
-    i32 duration;
-    i32 despawnDuration;
-    i32 hitboxStartTime;
-    i32 hitboxEndDelay;
-    unreferenced_fields(0x4);
-    u16 type;
-    u32 flags;
-    unreferenced_fields(0x4);
-};
-ZUN_ASSERT_TYPE(EnemyLaserShooter, 0x54, 4);
+ZUN_ASSERT_TYPE(EnemyShooter, 0x54, 4);
 
 struct EnemyEclContext
 {
@@ -237,10 +227,10 @@ struct Enemy
     i32 score;
     ZunTimer phaseTimer;
     ZunColor color;
-    EnemyBulletShooter bulletProps;
+    EnemyShooter bulletProps;
     i32 shootInterval;
     ZunTimer shootIntervalTimer;
-    EnemyLaserShooter laserProps;
+    EnemyShooter laserProps;
     Laser *lasers[MAX_LASERS_PER_ENEMY];
     i32 laserStore;
     u8 deathParticle1;

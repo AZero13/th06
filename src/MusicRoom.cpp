@@ -8,7 +8,7 @@
 
 namespace th06
 {
-FILE_BSS_SORT(N1);
+AUTO_BSS_SORT(N1);
 
 struct TrackDescriptor
 {
@@ -74,7 +74,7 @@ ZunBool MusicRoom::ProcessInput()
         // Vertical wrap-around
         if (this->cursor < 0)
         {
-#ifndef TRIALBUILD
+#if !TRIALBUILD
             this->cursor = this->numDescriptors - 1;
             this->listingOffset = this->numDescriptors - 10;
 #else
@@ -93,7 +93,7 @@ ZunBool MusicRoom::ProcessInput()
     {
         this->cursor++;
         // Vertical wrap-around
-#ifndef TRIALBUILD
+#if !TRIALBUILD
         if (this->cursor >= this->numDescriptors)
 #else
         if (this->cursor >= 7)

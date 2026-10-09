@@ -34,8 +34,8 @@ th06::g_RandomItems,0x476338,global,32
 th06::g_EffectsColorWithTextureBlending,0x476358,global,112
 th06::g_EffectsColorWithoutTextureBlending,0x4763c8,global,112
 th06::g_EffectsColor,0x476438,global,4
-th06::g_BulletSpriteOffset16Px,0x476440,global,64
-th06::g_BulletSpriteOffset32Px,0x476480,global,32
+th06::g_BulletSpawnEffects16Colors,0x476440,global,64
+th06::g_BulletSpawnEffects8Colors,0x476480,global,32
 th06::g_ExtraLivesScores,0x4764b0,global,20
 th06::g_EclFiles,0x4764c4,global,36
 th06::g_AnmStageFiles,0x4764e8,global,64

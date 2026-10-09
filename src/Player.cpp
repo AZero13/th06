@@ -28,16 +28,15 @@ static ChainCallbackResult Player_OnDrawLowPrio(Player *p);
 static ChainCallbackResult Player_OnDrawHighPrio(Player *p);
 static ChainCallbackResult Player_OnUpdate(Player *p);
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(BombData, 4, g_BombData) = {
+BombData g_BombData[] = {
     /* ReimuA  */ {BombReimuACalc, BombReimuADraw},
     /* ReimuB  */ {BombReimuBCalc, BombReimuBDraw},
     /* MarisaA */ {BombMarisaACalc, BombMarisaADraw},
     /* MarisaB */ {BombMarisaBCalc, BombMarisaBDraw},
 };
 
-FILE_BSS_SORT(O1);
-
-DIFFABLE_STATIC(Player, g_Player);
+AUTO_BSS_SORT(O1);
+Player g_Player;
 
 #pragma var_order(bulletData, bulletFrame, pad)
 static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i32 bulletIdx, i32 framesSinceLastBullet,
@@ -54,7 +53,7 @@ static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i
 
     bulletData = powerData->bullets + bulletIdx;
 
-    if (bulletData->bulletType == BULLET_TYPE_LASER)
+    if (bulletData->bulletType == PLAYER_LASER)
     {
         bulletFrame = bulletData->bulletFrame;
         if (!(i32)player->laserTimer[bulletFrame])
@@ -139,7 +138,7 @@ static FireBulletResult FireBulletMarisaB(Player *player, PlayerBullet *bullet, 
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataMarisaB);
 }
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 5, g_CharData) = {
+CharacterData g_CharData[] = {
     /* ReimuA  */ {4.0f, 2.0f, 4.0f, 2.0f, FireBulletReimuA, FireBulletReimuA},
     /* ReimuB  */ {4.0f, 2.0f, 4.0f, 2.0f, FireBulletReimuB, FireBulletReimuB},
     /* MarisaA */ {5.0f, 2.5f, 5.0f, 2.5f, FireBulletMarisaA, FireBulletMarisaA},
@@ -170,7 +169,7 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
     for (idx = 0; idx < MAX_PLAYER_BULLETS; idx++, bullet++)
     {
         if (bullet->bulletState == PLAYER_BULLET_STATE_INACTIVE ||
-            bullet->bulletState != PLAYER_BULLET_STATE_FIRED && bullet->bulletType != BULLET_TYPE_2)
+            bullet->bulletState != PLAYER_BULLET_STATE_FIRED && bullet->bulletType != PLAYER_BULLET_TYPE_2)
         {
             continue;
         }
@@ -192,7 +191,7 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
             damage += bullet->damage / 3 != 0 ? bullet->damage / 3 : 1;
         }
 
-        if (bullet->bulletType == BULLET_TYPE_2)
+        if (bullet->bulletType == PLAYER_BULLET_TYPE_2)
         {
             bullet->damage = bullet->damage / 4;
             if (bullet->damage == 0)
@@ -223,7 +222,7 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
             }
         }
 
-        if (bullet->bulletType != BULLET_TYPE_LASER)
+        if (bullet->bulletType != PLAYER_LASER)
         {
             if (bullet->bulletState == PLAYER_BULLET_STATE_FIRED)
             {
@@ -886,7 +885,7 @@ static void UpdatePlayerBullets(Player *player)
 
         switch (bullet->bulletType)
         {
-        case BULLET_TYPE_1:
+        case PLAYER_BULLET_TYPE_1:
             if (bullet->bulletState == PLAYER_BULLET_STATE_FIRED)
             {
                 if (player->positionOfLastEnemyHit.x > -100.0f && (i32)bullet->lifetime < 40 &&
@@ -932,13 +931,13 @@ static void UpdatePlayerBullets(Player *player)
 
             break;
 
-        case BULLET_TYPE_2:
+        case PLAYER_BULLET_TYPE_2:
             if (bullet->bulletState == PLAYER_BULLET_STATE_FIRED)
             {
                 bullet->velocity.y -= 0.3f;
             }
             break;
-        case BULLET_TYPE_LASER:
+        case PLAYER_LASER:
 
             if (player->laserTimer[bullet->bulletFrame] == 70)
             {
@@ -965,7 +964,7 @@ static void UpdatePlayerBullets(Player *player)
         bullet->sprite.pos.y = bullet->position[1] += bullet->velocity.y * g_Supervisor.effectiveFramerateMultiplier;
         bullet->sprite.pos.z = bullet->position.z;
 
-        if (bullet->bulletType != BULLET_TYPE_LASER &&
+        if (bullet->bulletType != PLAYER_LASER &&
             !g_GameManager.IsInBounds(bullet->position.x, bullet->position.y, bullet->sprite.sprite->widthPx,
                                       bullet->sprite.sprite->heightPx))
         {
@@ -1150,7 +1149,7 @@ static ChainCallbackResult Player_OnUpdate(Player *p)
                     g_Gui.flags.flag0 = 2;
                     if (g_GameManager.difficulty < EXTRA && !g_GameManager.isInPracticeMode)
                     {
-#if !TRIALBUILD
+#if BUILD_VERSION >= BUILD_VERSION_102h
                         g_GameManager.bombsRemaining = g_Supervisor.defaultConfig.bombCount;
 #else
                         g_GameManager.bombsRemaining = g_Supervisor.cfg.bombCount;

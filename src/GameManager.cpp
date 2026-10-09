@@ -22,7 +22,7 @@
 namespace th06
 {
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(u32, 5, g_ExtraLivesScores) = {10000000, 20000000, 40000000, 60000000, 1900000000};
+u32 g_ExtraLivesScores[] = {10000000, 20000000, 40000000, 60000000, 1900000000};
 
 struct DifficultyInfo
 {
@@ -32,9 +32,9 @@ struct DifficultyInfo
 };
 ZUN_ASSERT_TYPE(DifficultyInfo, 0xc, 4);
 
-DIFFABLE_STATIC_SORTED(H1, GameManager, g_GameManager);
-DIFFABLE_STATIC_SORTED(H2, ChainElem, g_GameManagerCalcChain);
-DIFFABLE_STATIC_SORTED(H3, ChainElem, g_GameManagerDrawChain);
+BSS_SORT(H1) GameManager g_GameManager;
+BSS_SORT(H2) ChainElem g_GameManagerCalcChain;
+BSS_SORT(H3) ChainElem g_GameManagerDrawChain;
 
 ZunResult GameManager_AddedCallback(GameManager *gameManager);
 ZunResult GameManager_DeletedCallback(GameManager *gameManager);
@@ -269,7 +269,7 @@ ZunResult GameManager_AddedCallback(GameManager *mgr)
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
     if (g_Supervisor.curState != SUPERVISOR_STATE_NEXT_STAGE)
     {
-#if !TRIALBUILD
+#if BUILD_VERSION >= BUILD_VERSION_102h
         g_Supervisor.defaultConfig.bombCount = g_GameManager.bombsRemaining;
         g_Supervisor.defaultConfig.lifeCount = g_GameManager.livesRemaining;
 #endif

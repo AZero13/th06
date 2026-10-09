@@ -9,14 +9,14 @@ namespace th06
 {
 static DWORD WINAPI SoundPlayer_BackgroundMusicPlayerThread(LPVOID lpThreadParameter);
 
-FILE_BSS_SORT(S1);
+AUTO_BSS_SORT(S1);
 
 #define BACKGROUND_MUSIC_BUFFER_SIZE 0x8000
 #define BACKGROUND_MUSIC_WAV_NUM_CHANNELS 2
 #define BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE 16
 #define BACKGROUND_MUSIC_WAV_BLOCK_ALIGN BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE / 8 * BACKGROUND_MUSIC_WAV_NUM_CHANNELS
 
-#ifndef TRIALBUILD
+#if !TRIALBUILD
 #define BACKGROUND_MUSIC_STREAM_SECONDS 2
 #define BACKGROUND_MUSIC_STREAM_NOTIFICATIONS 4
 #else
@@ -24,7 +24,7 @@ FILE_BSS_SORT(S1);
 #define BACKGROUND_MUSIC_STREAM_NOTIFICATIONS 8
 #endif
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(SoundEffectData, 32, g_SoundBufferIdxVol) = {
+SoundEffectData g_SoundBufferIdxVol[] = {
     {0, -1500, 0},   {0, -2000, 0},   {1, -1200, 5},   {1, -1400, 5},  {2, -1000, 100}, {3, -500, 100},
     {4, -500, 100},  {5, -1700, 50},  {6, -1700, 50},  {7, -1700, 50}, {8, -1000, 100}, {9, -1000, 100},
     {10, -1900, 10}, {11, -1200, 10}, {12, -900, 100}, {5, -1500, 50}, {13, -900, 50},  {14, -900, 50},
@@ -32,7 +32,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(SoundEffectData, 32, g_SoundBufferIdxVol) = {
     {7, -1800, 20},  {19, -300, 50},  {20, -600, 50},  {21, -800, 50}, {22, -100, 140}, {23, -500, 100},
     {24, -1000, 20}, {25, -1000, 90},
 };
-DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 26, g_SFXList) = {
+const char *g_SFXList[] = {
     "data/wav/plst00.wav", "data/wav/enep00.wav",   "data/wav/pldead00.wav", "data/wav/power0.wav",
     "data/wav/power1.wav", "data/wav/tan00.wav",    "data/wav/tan01.wav",    "data/wav/tan02.wav",
     "data/wav/ok00.wav",   "data/wav/cancel00.wav", "data/wav/select00.wav", "data/wav/gun00.wav",
@@ -42,7 +42,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 26, g_SFXList) = {
     "data/wav/graze.wav",  "data/wav/powerup.wav",
 };
 
-DIFFABLE_STATIC(SoundPlayer, g_SoundPlayer);
+SoundPlayer g_SoundPlayer;
 
 #pragma var_order(bufDesc, audioBuffer2Start, audioBuffer2Len, audioBuffer1Len, audioBuffer1Start, wavFormat)
 ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)

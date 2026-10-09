@@ -32,8 +32,8 @@ struct GameWindow
 
 ZUN_ASSERT_TYPE(GameWindow, 0x20, 4);
 
-DIFFABLE_EXTERN(GameWindow, g_GameWindow);
+extern GameWindow g_GameWindow;
 
-DIFFABLE_EXTERN(i32, g_TickCountToEffectiveFramerate);
-DIFFABLE_EXTERN(double, g_LastFrameTime);
+extern i32 g_TickCountToEffectiveFramerate;
+extern double g_LastFrameTime;
 } // namespace th06

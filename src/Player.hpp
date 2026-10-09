@@ -40,12 +40,12 @@ enum ShotType
     SHOT_TYPE_B,
 };
 
-enum BulletType
+enum PlayerBulletType
 {
-    BULLET_TYPE_0,
-    BULLET_TYPE_1,
-    BULLET_TYPE_2,
-    BULLET_TYPE_LASER
+    PLAYER_BULLET_TYPE_0,
+    PLAYER_BULLET_TYPE_1,
+    PLAYER_BULLET_TYPE_2,
+    PLAYER_LASER
 };
 
 enum PlayerState
@@ -239,5 +239,5 @@ ZUN_ASSERT_TYPE(Player, 0x98f0, 4);
 ZunResult Player_RegisterChain(u8 unk);
 void Player_CutChain();
 
-DIFFABLE_EXTERN(Player, g_Player);
+extern Player g_Player;
 } // namespace th06

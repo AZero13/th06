@@ -20,3 +20,22 @@ targets:
       ignore_variables: []
       icon:
     marker_aliases: {}
+  th06_013a:
+    filename: th06_013a.exe
+    source_root: src
+    hash:
+      sha256: 5644a84820254cbb63525b887e9880007e752774a541dd75aebe0d7285a39ff6
+    data_sources:
+      - config/reccmp-functions-013a.csv
+    encoding:
+    ghidra:
+      ignore_types: []
+      ignore_functions: []
+      name_substitutions: []
+      allow_hash_mismatch: false
+    report:
+      ignore_functions: []
+      ignore_variables: []
+      icon:
+    marker_aliases: {}
+    

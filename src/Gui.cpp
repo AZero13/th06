@@ -108,9 +108,9 @@ struct GuiImpl
 };
 ZUN_ASSERT_TYPE(GuiImpl, 0x2c44, 4);
 
-DIFFABLE_STATIC_SORTED(G1, Gui, g_Gui);
-DIFFABLE_STATIC_SORTED(G3, ChainElem, g_GuiCalcChain);
-DIFFABLE_STATIC_SORTED(G2, ChainElem, g_GuiDrawChain);
+BSS_SORT(G1) Gui g_Gui;
+BSS_SORT(G3) ChainElem g_GuiCalcChain;
+BSS_SORT(G2) ChainElem g_GuiDrawChain;
 
 ZunBool Gui::IsStageFinished()
 {
@@ -236,7 +236,7 @@ ChainCallbackResult Gui_OnDraw(Gui *gui)
         stringPos.y += 16.0f;
         if (g_GameManager.difficulty < EXTRA && !g_GameManager.isInPracticeMode)
         {
-#if !TRIALBUILD
+#if BUILD_VERSION >= BUILD_VERSION_102h
             switch (g_Supervisor.defaultConfig.lifeCount)
 #else
             switch (g_Supervisor.cfg.lifeCount)
@@ -729,13 +729,19 @@ ZunResult GuiImpl::RunMsg()
                 g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
                 goto break_skip_time;
             }
-#ifndef TRIALBUILD
-            if (g_GameManager.currentStage < 5 || (g_GameManager.difficulty != EASY && g_GameManager.currentStage == 5))
+            if (
+#if !TRIALBUILD
+                g_GameManager.currentStage < 5 || (g_GameManager.difficulty != EASY && g_GameManager.currentStage == 5)
+#else
+                g_GameManager.currentStage < 3
+#endif
+            )
             {
                 g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
             }
             else if (!g_GameManager.isInReplay)
             {
+#if !TRIALBUILD
                 if (g_GameManager.difficulty == EXTRA)
                 {
                     g_GameManager.isGameCompleted = true;
@@ -747,25 +753,14 @@ ZunResult GuiImpl::RunMsg()
                 {
                     g_Supervisor.curState = SUPERVISOR_STATE_ENDING;
                 }
-            }
-            else
-            {
-                g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
-            }
 #else
-            if (g_GameManager.currentStage < 3)
-            {
-                g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
-            }
-            else if (!g_GameManager.isInReplay)
-            {
                 g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
+#endif
             }
             else
             {
                 g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
             }
-#endif
             goto break_skip_time;
         case MSG_OPCODE_MSG_FLAG_WAIT_SKIPPABLE:
             this->msg.dialogueSkippable = *(i32 *)this->msg.currentInstr->args;
@@ -1037,7 +1032,7 @@ void Gui::UpdateStageElements()
             stageScore -= stageScore % 10;
             break;
         }
-#if !TRIALBUILD
+#if BUILD_VERSION >= BUILD_VERSION_102h
         switch (g_Supervisor.defaultConfig.lifeCount)
 #else
         switch (g_Supervisor.cfg.lifeCount)

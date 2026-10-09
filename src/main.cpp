@@ -20,10 +20,10 @@ static void GameWindow_CreateGameWindow(HINSTANCE hInstance);
 static i32 GameWindow_InitD3dInterface();
 static void GameWindow_Present();
 
-DIFFABLE_STATIC_SORTED(L1, GameWindow, g_GameWindow);
-DIFFABLE_STATIC_SORTED(L2, i32, g_TickCountToEffectiveFramerate);
-DIFFABLE_STATIC_SORTED(L3, f64, g_LastFrameTime);
-DIFFABLE_STATIC_SORTED(L4, HANDLE, g_ExclusiveMutex);
+BSS_SORT(L1) GameWindow g_GameWindow;
+BSS_SORT(L2) i32 g_TickCountToEffectiveFramerate;
+BSS_SORT(L3) f64 g_LastFrameTime;
+BSS_SORT(L4) HANDLE g_ExclusiveMutex;
 } // namespace th06
 
 DWORD GetDXVersion();

@@ -128,5 +128,5 @@ ZUN_ASSERT_TYPE(AsciiManager, 0xc1ac, 4);
 ZunResult AsciiManager_RegisterChain();
 void AsciiManager_CutChain();
 
-DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);
+extern AsciiManager g_AsciiManager;
 } // namespace th06
