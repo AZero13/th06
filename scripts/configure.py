@@ -14,19 +14,19 @@ class BuildType(Enum):
     BINARY_MATCHBUILD = 4
 
 class BuildVersion(Enum):
-    VER_008p = 0x00081,
-    VER_013  = 0x00130,
-    VER_013a = 0x00131,
-    VER_100  = 0x01000,
-    VER_101  = 0x01010,
-    VER_102  = 0x01020,
+    VER_008p = 0x00081
+    VER_013  = 0x00130
+    VER_013a = 0x00131
+    VER_100  = 0x01000
+    VER_101  = 0x01010
+    VER_102  = 0x01020
     # 1.02a is the same binary as 1.02
-    VER_102b = 0x01022,
-    VER_102c = 0x01023,
-    VER_102d = 0x01024,
+    VER_102b = 0x01022
+    VER_102c = 0x01023
+    VER_102d = 0x01024
     # 1.02e is the same binary as 1.02d
-    VER_102f = 0x01026,
-    VER_102g = 0x01027,
+    VER_102f = 0x01026
+    VER_102g = 0x01027
     VER_102h = 0x01028
 
 def configure(build_type, build_version, ver_suffix):
