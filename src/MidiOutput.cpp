@@ -257,7 +257,7 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
     fileData = currentCursor;
     if (currentCursor == NULL)
     {
-        utils::DebugPrint2(TH_JP_ERR_MIDI_NOT_LOADED);
+        DebugPrint(TH_JP_ERR_MIDI_NOT_LOADED);
         return ZUN_ERROR;
     }
 
@@ -381,12 +381,12 @@ ZunResult MidiOutput::UnprepareHeader(LPMIDIHDR pmh)
 {
     if (pmh == NULL)
     {
-        utils::DebugPrint2("error :\n");
+        DebugPrint("error :\n");
     }
 
     if (this->midiOutDev.handle == 0)
     {
-        utils::DebugPrint2("error :\n");
+        DebugPrint("error :\n");
     }
 
     i32 i;
@@ -405,7 +405,7 @@ success:
     MMRESULT res = midiOutUnprepareHeader(this->midiOutDev.handle, pmh, sizeof(*pmh));
     if (res != MMSYSERR_NOERROR)
     {
-        utils::DebugPrint2("error :\n");
+        DebugPrint("error :\n");
     }
 
     ZUN_FREE(pmh->lpData);
@@ -688,5 +688,4 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
 void MidiTimer::OnTimerElapsed()
 {
 }
-
 }; // namespace th06

@@ -21,7 +21,6 @@ ZUN_ASSERT_TYPE(GuiFlags, 0x4, 4);
 
 struct Gui
 {
-
     ZunResult ActualAddedCallback();
     ZunResult LoadMsg(const char *path);
     void FreeMsgFile();

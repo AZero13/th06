@@ -20,9 +20,6 @@ BSS_SORT(B5) ChainElem g_StageCalcChain;
 BSS_SORT(B2) ChainElem g_StageOnDrawHighPrioChain;
 BSS_SORT(B4) ChainElem g_StageOnDrawLowPrioChain;
 
-ZunResult Stage_AddedCallback(Stage *stage);
-ZunResult Stage_DeletedCallback(Stage *stage);
-
 #define GET_ARG(type, num) ((type *)curInstr->args)[num]
 #define GET_INT_ARG(num) GET_ARG(i32, num)
 #define GET_FLOAT_ARG(num) GET_ARG(float, num)
@@ -317,6 +314,14 @@ ZunResult Stage_AddedCallback(Stage *stage)
     return ZUN_SUCCESS;
 }
 
+static ZunResult Stage_DeletedCallback(Stage *s)
+{
+    g_AnmManager->ReleaseAnm(ANM_FILE_STAGEBG);
+    ZUN_SAFE_FREE(s->quadVms);
+    ZUN_SAFE_FREE(s->stdData);
+    return ZUN_SUCCESS;
+}
+
 ZunResult Stage_RegisterChain(u32 stage)
 {
     Stage *stg = &g_Stage;
@@ -349,14 +354,6 @@ ZunResult Stage_RegisterChain(u32 stage)
     g_StageOnDrawLowPrioChain.arg = stg;
     g_Chain.AddToDrawChain(&g_StageOnDrawLowPrioChain, TH_CHAIN_PRIO_DRAW_LOW_PRIO_STAGE);
 
-    return ZUN_SUCCESS;
-}
-
-ZunResult Stage_DeletedCallback(Stage *s)
-{
-    g_AnmManager->ReleaseAnm(ANM_FILE_STAGEBG);
-    ZUN_SAFE_FREE(s->quadVms);
-    ZUN_SAFE_FREE(s->stdData);
     return ZUN_SUCCESS;
 }
 

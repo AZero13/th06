@@ -56,7 +56,7 @@ void BombReimuACalc(Player *player)
                 player->bombInfo.reimuABombProjectilesRelated[i] = 4.0f;
                 player->bombInfo.bombRegionPositions[i] = player->positionCenter;
 
-                angleX = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
+                angleX = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
 
                 player->bombInfo.bombRegionVelocities[i].x =
                     cosf(angleX) * player->bombInfo.reimuABombProjectilesRelated[i];

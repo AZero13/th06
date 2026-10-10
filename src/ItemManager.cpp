@@ -54,9 +54,9 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, ItemState 
         if (state == ITEM_STATE_SPAWNED_BY_PLAYER_DEATH)
         {
             // From 48.0f to 336.0f
-            item->targetPosition.x = g_Rng.GetRandomF32ZeroToOne() * 288.0f + 48.0f;
+            item->targetPosition.x = g_Rng.GetRandomF32InRange(288.0f) + 48.0f;
             // From -64.0 to 128.0f
-            item->targetPosition.y = g_Rng.GetRandomF32ZeroToOne() * 192.0f - 64.0f;
+            item->targetPosition.y = g_Rng.GetRandomF32InRange(192.0f) - 64.0f;
             item->targetPosition.z = 0.0f;
             // start position
             item->startPositionVelocity = item->currentPosition;

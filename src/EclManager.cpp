@@ -289,7 +289,7 @@ restart_sub_changed:
 #if !TRIALBUILD
             if (enemy->flags.disableCallStack)
             {
-                utils::DebugPrint2("error : no Stack Ret\n");
+                DebugPrint("error : no Stack Ret\n");
             }
 #endif
             enemy->stackDepth--;
@@ -333,7 +333,7 @@ restart_sub_changed:
 #if !TRIALBUILD
             if (curInstr->args.anmSetSlot.vmIdx >= ENEMY_ANM_SLOTS)
             {
-                utils::DebugPrint2("error : sub anim overflow\n");
+                DebugPrint("error : sub anim overflow\n");
             }
 #endif
             g_AnmManager->SetAndExecuteScriptIdx(&enemy->vms[curInstr->args.anmSetSlot.vmIdx],
@@ -461,11 +461,13 @@ restart_sub_changed:
         }
         case ECL_OPCODE_SHOOT_INTERVAL:
             enemy->shootInterval = curInstr->args.setInt;
+            // TODO: Different codegen here in trial
             enemy->shootInterval += g_GameManager.RankLerpInt(enemy->shootInterval / 5, -enemy->shootInterval / 5);
             enemy->shootIntervalTimer = 0;
             break;
         case ECL_OPCODE_SHOOT_INTERVAL_DELAYED:
             enemy->shootInterval = curInstr->args.setInt;
+            // TODO: Different codegen here in trial
             enemy->shootInterval += g_GameManager.RankLerpInt(enemy->shootInterval / 5, -enemy->shootInterval / 5);
             if (enemy->shootInterval != 0)
             {
@@ -525,6 +527,7 @@ restart_sub_changed:
         case ECL_OPCODE_LASER_ROTATE:
             if (enemy->lasers[curInstr->args.laserOp.laserIdx] != NULL)
             {
+                // TODO: Different codegen here in trial
                 enemy->lasers[curInstr->args.laserOp.laserIdx]->angle +=
                     *EclGetVarFloat(enemy, &curInstr->args.laserOp.arg1.x, NULL);
             }
@@ -766,6 +769,7 @@ restart_sub_changed:
                 length = strlen(catk->name);
                 while (length > 0)
                 {
+                    // TODO: Different codegen here in trial
                     csum += catk->name[--length];
                 }
                 if (catk->nameCsum != (u8)csum)
@@ -1006,6 +1010,7 @@ restart_sub_changed:
         if (enemy->moveInterpTimer <= 0)
         {
             enemy->flags.movementMode = EnemyMove_AxisSpeed;
+            // TODO: Different codegen here in trial
             enemy->position = enemy->moveInterpStartPos + enemy->moveInterp;
             enemy->axisSpeed = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
         }

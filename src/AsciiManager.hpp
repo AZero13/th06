@@ -64,12 +64,13 @@ struct AsciiManager
         this->scale.x = 1.0f;
         this->scale.y = 1.0f;
 
-        this->vm1.flags.anchor = AnmVmAnchor_TopLeft;
+        this->scorePopupVm.flags.anchor = AnmVmAnchor_TopLeft;
 
-        g_AnmManager->InitializeAndSetSprite(&this->vm1, 0);
-        g_AnmManager->InitializeAndSetSprite(&this->vm0, 32);
+        g_AnmManager->InitializeAndSetSprite(&this->scorePopupVm, 0);
+        // BUG: That's not how your sprite numbers work ZUN
+        g_AnmManager->InitializeAndSetSprite(&this->fontVm, ' ');
 
-        this->vm1.pos.z = 0.1f;
+        this->scorePopupVm.pos.z = 0.1f;
         this->isSelected = false;
     }
 
@@ -103,8 +104,8 @@ struct AsciiManager
         this->isSelected = isSelected;
     }
 
-    AnmVm vm0;
-    AnmVm vm1;
+    AnmVm fontVm;
+    AnmVm scorePopupVm;
     AsciiManagerString strings[ASCII_STRING_COUNT];
     i32 numStrings;
     D3DCOLOR color;

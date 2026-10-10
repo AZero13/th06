@@ -48,11 +48,6 @@ struct MusicRoom
 };
 ZUN_ASSERT_TYPE(MusicRoom, 0x3434, 4);
 
-static ZunResult MusicRoom_AddedCallback(MusicRoom *musicRoom);
-static ZunResult MusicRoom_DeletedCallback(MusicRoom *musicRoom);
-static ChainCallbackResult MusicRoom_OnDraw(MusicRoom *musicRoom);
-static ChainCallbackResult MusicRoom_OnUpdate(MusicRoom *musicRoom);
-
 ZunResult MusicRoom::CheckInputEnable()
 {
     if (this->waitFramesCount >= 8)
@@ -154,31 +149,6 @@ ZunBool MusicRoom::ProcessInput()
     }
 
     return false;
-}
-
-ZunResult MusicRoom_RegisterChain()
-{
-    static MusicRoom g_MusicRoom;
-    MusicRoom *musicRoom;
-
-    musicRoom = &g_MusicRoom;
-    memset(musicRoom, 0, sizeof(MusicRoom));
-
-    musicRoom->calc_chain = g_Chain.CreateElem((ChainCallback)MusicRoom_OnUpdate);
-    musicRoom->calc_chain->arg = musicRoom;
-    musicRoom->calc_chain->addedCallback = (ChainAddedCallback)MusicRoom_AddedCallback;
-    musicRoom->calc_chain->deletedCallback = (ChainDeletedCallback)MusicRoom_DeletedCallback;
-
-    if (g_Chain.AddToCalcChain(musicRoom->calc_chain, TH_CHAIN_PRIO_CALC_MAINMENU) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-
-    musicRoom->draw_chain = g_Chain.CreateElem((ChainCallback)MusicRoom_OnDraw);
-    musicRoom->draw_chain->arg = musicRoom;
-    g_Chain.AddToDrawChain(musicRoom->draw_chain, TH_CHAIN_PRIO_DRAW_MAINMENU);
-
-    return ZUN_SUCCESS;
 }
 
 static ChainCallbackResult MusicRoom_OnUpdate(MusicRoom *musicRoom)
@@ -462,6 +432,29 @@ static ZunResult MusicRoom_DeletedCallback(MusicRoom *musicRoom)
     g_AnmManager->ReleaseAnm(ANM_FILE_MUSIC02);
     g_Chain.Cut(musicRoom->draw_chain);
     musicRoom->draw_chain = NULL;
+
+    return ZUN_SUCCESS;
+}
+
+ZunResult MusicRoom_RegisterChain()
+{
+    static MusicRoom g_MusicRoom;
+    MusicRoom *musicRoom = &g_MusicRoom;
+    memset(musicRoom, 0, sizeof(MusicRoom));
+
+    musicRoom->calc_chain = g_Chain.CreateElem((ChainCallback)MusicRoom_OnUpdate);
+    musicRoom->calc_chain->arg = musicRoom;
+    musicRoom->calc_chain->addedCallback = (ChainAddedCallback)MusicRoom_AddedCallback;
+    musicRoom->calc_chain->deletedCallback = (ChainDeletedCallback)MusicRoom_DeletedCallback;
+
+    if (g_Chain.AddToCalcChain(musicRoom->calc_chain, TH_CHAIN_PRIO_CALC_MAINMENU) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+
+    musicRoom->draw_chain = g_Chain.CreateElem((ChainCallback)MusicRoom_OnDraw);
+    musicRoom->draw_chain->arg = musicRoom;
+    g_Chain.AddToDrawChain(musicRoom->draw_chain, TH_CHAIN_PRIO_DRAW_MAINMENU);
 
     return ZUN_SUCCESS;
 }
