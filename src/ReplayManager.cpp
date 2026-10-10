@@ -484,7 +484,7 @@ void SaveReplay(const char *replayPath, const char *replayName)
                 if (g_ReplayManager->replayData->stageReplayData[stageIdx] != NULL)
                 {
                     DebugPrint("Replay Size %d\n", (i32)mgr->replayInputStageBookmarks[stageIdx] -
-                                                               (i32)mgr->replayData->stageReplayData[stageIdx]);
+                                                       (i32)mgr->replayData->stageReplayData[stageIdx]);
                     ZUN_FREE(g_ReplayManager->replayData->stageReplayData[stageIdx]);
                 }
             }

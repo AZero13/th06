@@ -1231,8 +1231,7 @@ break_parser:
         for (i32 i = 0; i < 4; i++)
         {
             colorInterp =
-                ((f32)COLOR_GET_COMPONENT(colors[1], i) - (f32)COLOR_GET_COMPONENT(colors[0], i)) *
-                    alphaInterpVal +
+                ((f32)COLOR_GET_COMPONENT(colors[1], i) - (f32)COLOR_GET_COMPONENT(colors[0], i)) * alphaInterpVal +
                 COLOR_GET_COMPONENT(colors[0], i);
             if (colorInterp < 0)
             {

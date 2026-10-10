@@ -1017,8 +1017,7 @@ HRESULT CWaveFile::ResetFile(bool loop)
                         }
                         if (mmioinfoIn.pchNext == mmioinfoIn.pchEndRead)
                         {
-                            DebugPrint(
-                                "error : mmioinfoIn.pchNext == mmioinfoIn.pchEndRead in CWaveFile::ResetFile\n");
+                            DebugPrint("error : mmioinfoIn.pchNext == mmioinfoIn.pchEndRead in CWaveFile::ResetFile\n");
                             return E_FAIL;
                         }
                     }

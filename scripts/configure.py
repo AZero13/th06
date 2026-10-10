@@ -165,14 +165,8 @@ def configure(build_type, build_version, ver_suffix):
             "MainMenu",
             "zwave",
         ]
-        
-        force_ob1_sources = set(
-            [
-                "GameManager",
-                "Supervisor",
-                "MainMenu"
-            ]
-        )
+
+        force_ob1_sources = set(["GameManager", "Supervisor", "MainMenu"])
 
         small_codegen_sources = set(
             [
