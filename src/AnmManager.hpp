@@ -108,9 +108,9 @@ class AnmManager
 
     void ReleaseSurfaces(void)
     {
-        for (i32 idx = 0; idx < ARRAY_SIZE_SIGNED(this->surfaces); idx++)
+        for (i32 i = 0; i < ARRAY_SIZE_SIGNED(this->surfaces); i++)
         {
-            SAFE_RELEASE(this->surfaces[idx]);
+            SAFE_RELEASE(this->surfaces[i]);
         }
     }
 

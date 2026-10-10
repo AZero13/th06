@@ -41,7 +41,7 @@ void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
             currentBullet->exFlags |= EX_ACCELERATION;
             currentBullet->exDuration = 220;
             currentBullet->timer = 0;
-            sincosmul(&currentBullet->ex4Acceleration, g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI, 0.01f);
+            sincosmul(&currentBullet->ex4Acceleration, g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI, 0.01f);
             break;
         }
     }
@@ -53,11 +53,9 @@ void ExInsShootAtRandomArea(Enemy *enemy, EclRawInstr *instr)
 
     bulletSpeed = instr->args.exInstr.i32Param;
     enemy->bulletProps.position = enemy->position + enemy->shootOffset;
-    enemy->bulletProps.position.x =
-        (g_Rng.GetRandomF32ZeroToOne() * bulletSpeed + enemy->position.x) - bulletSpeed / 2.0f;
+    enemy->bulletProps.position.x = (g_Rng.GetRandomF32InRange(bulletSpeed) + enemy->position.x) - bulletSpeed / 2.0f;
     bulletSpeed *= 0.75f;
-    enemy->bulletProps.position.y =
-        (g_Rng.GetRandomF32ZeroToOne() * bulletSpeed + enemy->position.y) - bulletSpeed / 2.0f;
+    enemy->bulletProps.position.y = (g_Rng.GetRandomF32InRange(bulletSpeed) + enemy->position.y) - bulletSpeed / 2.0f;
     g_BulletManager.SpawnBulletPattern(&enemy->bulletProps);
 }
 
@@ -78,7 +76,7 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
     {
         g_EclManager.extra.coords[ENEMY_POS] = enemy->position;
         g_EclManager.extra.coords[PLAYER_POS] = g_Player.positionCenter;
-        g_EclManager.extra.starAngleTable[0] = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
+        g_EclManager.extra.starAngleTable[0] = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
         g_EclManager.extra.starAngleTable[1] =
             utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4.0f * ZUN_PI / 5.0f);
     }
@@ -225,8 +223,7 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
                     if (sqrtf(playerBulletOffsetX * playerBulletOffsetX + playerBulletOffsetY * playerBulletOffsetY) >
                         128.0f)
                     {
-                        currentBullet->angle =
-                            g_Rng.GetRandomF32ZeroToOne() * ((ZUN_PI * 3.0f) / 4.0f) + (ZUN_PI / 4.0f);
+                        currentBullet->angle = g_Rng.GetRandomF32InRange((ZUN_PI * 3.0f) / 4.0f) + (ZUN_PI / 4.0f);
                     }
                     else
                     {
@@ -268,7 +265,7 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
                     if (sqrtf(playerBulletOffsetX * playerBulletOffsetX + playerBulletOffsetY * playerBulletOffsetY) >
                         128.0f)
                     {
-                        currentBullet->angle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI;
+                        currentBullet->angle = g_Rng.GetRandomF32InRange(ZUN_2PI);
                     }
                     else
                     {
@@ -409,16 +406,17 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
         particlePos.x += cosf(finalAngle) * distanceModifier;
         particlePos.y += sinf(finalAngle) * distanceModifier;
         effect = g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_19, &particlePos, 1, COLOR_DEEPBLUE);
-        effect->unk_11c.x = (g_Rng.GetRandomF32ZeroToOne() * 40.0f - 20.0f) / 60.0f;
+        effect->unk_11c.x = (g_Rng.GetRandomF32InRange(40.0f) - 20.0f) / 60.0f;
         effect->unk_11c.y = (8.0f * baseAngleModifier) / 60.0f - (4.0f / 15.0f);
         effect->unk_11c.z = 0.0f;
         effect->unk_128 = -effect->unk_11c / 120.0f;
 
+        // TODO: Different codegen here in trial
         particlePos = enemy->position;
         particlePos.x -= cosf(finalAngle) * distanceModifier;
         particlePos.y += sinf(finalAngle) * distanceModifier;
         effect = g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_19, &particlePos, 1, COLOR_DEEPBLUE);
-        effect->unk_11c.x = (g_Rng.GetRandomF32ZeroToOne() * 40.0f - 20.0f) / 60.0f;
+        effect->unk_11c.x = (g_Rng.GetRandomF32InRange(40.0f) - 20.0f) / 60.0f;
         effect->unk_11c.y = (8.0f * baseAngleModifier) / 60.0f - (4.0f / 15.0f);
         effect->unk_11c.z = 0.0f;
         effect->unk_128 = -effect->unk_11c / 120.0f;
@@ -444,7 +442,7 @@ void ExInsStage6Func7(Enemy *enemy, EclRawInstr *instr)
     D3DXVECTOR3 positionVectors[8];
 
     attackType = instr->args.exInstr.i32Param;
-    randomAngleModifier = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI;
+    randomAngleModifier = g_Rng.GetRandomF32InRange(ZUN_2PI);
 
     for (outerLoopCount = 0; outerLoopCount < 2; outerLoopCount++)
     {

@@ -14,36 +14,6 @@ inline EffectManager::EffectManager()
     this->Reset();
 }
 
-EffectCallbackResult Effect_RandomSplash(Effect *effect);
-EffectCallbackResult Effect_RandomSplashBig(Effect *effect);
-EffectCallbackResult Effect_Still(Effect *effect);
-EffectCallbackResult Effect_Callback4(Effect *effect);
-EffectCallbackResult Effect_Attract(Effect *effect);
-EffectCallbackResult Effect_AttractSlow(Effect *effect);
-
-EffectInfo g_Effects[] = {
-    {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SMALL, NULL},
-    {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SPIRAL, NULL},
-    {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_NORMAL, NULL},
-    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_1, Effect_RandomSplashBig},
-    {ANM_SCRIPT_BULLET4_SPAWN_WHITE_PARTICLE, Effect_RandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_RED_PARTICLE, Effect_RandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE, Effect_RandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE, Effect_RandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_WHITE_PARTICLE_SMALL, Effect_RandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_RED_PARTICLE_SMALL, Effect_RandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE_SMALL, Effect_RandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE_SMALL, Effect_RandomSplash},
-    {ANM_SCRIPT_BULLET4_SCRIPT_17, NULL},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
-    {ANM_SCRIPT_EFFECTS_SPELLCARD_BACKGROUND, NULL},
-    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_2, Effect_Attract},
-    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_3, Effect_AttractSlow},
-    {ANM_SCRIPT_BULLET4_SCRIPT_19, Effect_Still},
-};
-
 BSS_SORT(D1) EffectManager g_EffectManager;
 BSS_SORT(D2) ChainElem g_EffectManagerCalcChain;
 BSS_SORT(D3) ChainElem g_EffectManagerDrawChain;
@@ -57,8 +27,8 @@ EffectCallbackResult Effect_RandomSplash(Effect *effect)
 {
     if (effect->timer == 0 && effect->timer.HasTicked())
     {
-        effect->unk_11c.x = (g_Rng.GetRandomF32ZeroToOne() * 256.0f - 128.0f) / 12.0f;
-        effect->unk_11c.y = (g_Rng.GetRandomF32ZeroToOne() * 256.0f - 128.0f) / 12.0f;
+        effect->unk_11c.x = (g_Rng.GetRandomF32InRange(256.0f) - 128.0f) / 12.0f;
+        effect->unk_11c.y = (g_Rng.GetRandomF32InRange(256.0f) - 128.0f) / 12.0f;
         effect->unk_11c.z = 0.0f;
 
         effect->unk_128 = -effect->unk_11c / 19.0f;
@@ -74,8 +44,8 @@ EffectCallbackResult Effect_RandomSplashBig(Effect *effect)
 {
     if (effect->timer == 0 && effect->timer.HasTicked())
     {
-        effect->unk_11c.x = (g_Rng.GetRandomF32ZeroToOne() * 256.0f - 128.0f) * 4.0f / 33.0f;
-        effect->unk_11c.y = (g_Rng.GetRandomF32ZeroToOne() * 256.0f - 128.0f) * 4.0f / 33.0f;
+        effect->unk_11c.x = (g_Rng.GetRandomF32InRange(256.0f) - 128.0f) * 4.0f / 33.0f;
+        effect->unk_11c.y = (g_Rng.GetRandomF32InRange(256.0f) - 128.0f) * 4.0f / 33.0f;
         effect->unk_11c.z = 0.0f;
 
         effect->unk_128 = -effect->unk_11c / 20.0f;
@@ -161,7 +131,7 @@ EffectCallbackResult Effect_Attract(Effect *effect)
     {
         effect->position = effect->pos1;
 
-        angle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
+        angle = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
         effect->pos2.x = cosf(angle);
         effect->pos2.y = sinf(angle);
         effect->pos2.z = 0.0;
@@ -182,7 +152,7 @@ EffectCallbackResult Effect_AttractSlow(Effect *effect)
     {
         effect->position = effect->pos1;
 
-        angle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
+        angle = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
         effect->pos2.x = cosf(angle);
         effect->pos2.y = sinf(angle);
         effect->pos2.z = 0.0;
@@ -195,14 +165,33 @@ EffectCallbackResult Effect_AttractSlow(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-#pragma var_order(effect, idx)
+EffectInfo g_Effects[] = {
+    {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SMALL, NULL},
+    {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SPIRAL, NULL},
+    {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_NORMAL, NULL},
+    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_1, Effect_RandomSplashBig},
+    {ANM_SCRIPT_BULLET4_SPAWN_WHITE_PARTICLE, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_RED_PARTICLE, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_WHITE_PARTICLE_SMALL, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_RED_PARTICLE_SMALL, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE_SMALL, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE_SMALL, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SCRIPT_17, NULL},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
+    {ANM_SCRIPT_EFFECTS_SPELLCARD_BACKGROUND, NULL},
+    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_2, Effect_Attract},
+    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_3, Effect_AttractSlow},
+    {ANM_SCRIPT_BULLET4_SCRIPT_19, Effect_Still},
+};
+
 Effect *EffectManager::SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count, ZunColor color)
 {
-    i32 idx;
-    Effect *effect;
-
-    effect = &this->effects[this->nextIndex];
-    for (idx = 0; idx < MAX_EFFECT_COUNT; idx++)
+    Effect *effect = &this->effects[this->nextIndex];
+    for (i32 i = 0; i < MAX_EFFECT_COUNT; i++)
     {
         this->nextIndex++;
         if (this->nextIndex >= MAX_EFFECT_COUNT)
@@ -248,17 +237,14 @@ Effect *EffectManager::SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count
         }
     }
 
-    return idx >= MAX_EFFECT_COUNT ? &this->effects[MAX_EFFECT_COUNT] : effect;
+    return i >= MAX_EFFECT_COUNT ? &this->effects[MAX_EFFECT_COUNT] : effect;
 }
 
 ChainCallbackResult EffectManager_OnUpdate(EffectManager *mgr)
 {
-    i32 effectIdx;
-    Effect *effect;
-
-    effect = &mgr->effects[0];
+    Effect *effect = &mgr->effects[0];
     mgr->activeEffects = 0;
-    for (effectIdx = 0; effectIdx < MAX_EFFECT_COUNT; effectIdx++, effect++)
+    for (i32 i = 0; i < MAX_EFFECT_COUNT; i++, effect++)
     {
         if (!effect->inUseFlag)
         {
@@ -284,11 +270,8 @@ ChainCallbackResult EffectManager_OnUpdate(EffectManager *mgr)
 
 ChainCallbackResult EffectManager_OnDraw(EffectManager *mgr)
 {
-    i32 effectIdx;
-    Effect *effect;
-
-    effect = &mgr->effects[0];
-    for (effectIdx = 0; effectIdx < MAX_EFFECT_COUNT; effectIdx++, effect++)
+    Effect *effect = &mgr->effects[0];
+    for (i32 i = 0; i < MAX_EFFECT_COUNT; i++, effect++)
     {
         if (!effect->inUseFlag)
         {

@@ -162,6 +162,8 @@ def configure(build_type, build_version, ver_suffix):
             "zwave",
         ]
 
+        force_ob1_sources = set(["GameManager", "Supervisor", "MainMenu"])
+
         small_codegen_sources = set(
             [
                 "GameManager",
@@ -215,6 +217,8 @@ def configure(build_type, build_version, ver_suffix):
                 variables["cl_flags"] += " /Oi-"
             else:
                 variables["cl_flags"] += " /Oi"
+            if rule in force_ob1_sources:
+                variables["cl_flags"] += " /Ob1"
 
             writer.build(
                 "$builddir/" + rule + ".obj",

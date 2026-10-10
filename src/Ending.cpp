@@ -95,11 +95,6 @@ struct Ending
 };
 ZUN_ASSERT_TYPE(Ending, 0x1170, 4);
 
-static ChainCallbackResult Ending_OnUpdate(Ending *ending);
-static ChainCallbackResult Ending_OnDraw(Ending *ending);
-static ZunResult Ending_AddedCallback(Ending *ending);
-static ZunResult Ending_DeletedCallback(Ending *ending);
-
 i32 Ending::ReadEndFileParameter()
 {
     i32 readResult = atoi(this->endFileDataPtr);
@@ -506,25 +501,6 @@ ZunResult Ending::LoadEnding(const char *endFilePath)
     }
 }
 
-ZunResult Ending_RegisterChain()
-{
-    Ending *ending = ZUN_NEW(Ending);
-    ending->calcChain = g_Chain.CreateElem((ChainCallback)Ending_OnUpdate);
-    ending->calcChain->arg = ending;
-    ending->calcChain->addedCallback = (ChainAddedCallback)Ending_AddedCallback;
-    ending->calcChain->deletedCallback = (ChainDeletedCallback)Ending_DeletedCallback;
-    if (g_Chain.AddToCalcChain(ending->calcChain, TH_CHAIN_PRIO_CALC_ENDING) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-
-    ending->drawChain = g_Chain.CreateElem((ChainCallback)Ending_OnDraw);
-    ending->drawChain->arg = ending;
-    g_Chain.AddToDrawChain(ending->drawChain, TH_CHAIN_PRIO_DRAW_ENDING);
-
-    return ZUN_SUCCESS;
-}
-
 #pragma var_order(framesPressed, idx)
 static ChainCallbackResult Ending_OnUpdate(Ending *ending)
 {
@@ -680,6 +656,25 @@ static ZunResult Ending_DeletedCallback(Ending *ending)
 
     g_Supervisor.isInEnding = false;
     g_Supervisor.ReleasePbg3(ED_PBG3_INDEX);
+    return ZUN_SUCCESS;
+}
+
+ZunResult Ending_RegisterChain()
+{
+    Ending *ending = ZUN_NEW(Ending);
+    ending->calcChain = g_Chain.CreateElem((ChainCallback)Ending_OnUpdate);
+    ending->calcChain->arg = ending;
+    ending->calcChain->addedCallback = (ChainAddedCallback)Ending_AddedCallback;
+    ending->calcChain->deletedCallback = (ChainDeletedCallback)Ending_DeletedCallback;
+    if (g_Chain.AddToCalcChain(ending->calcChain, TH_CHAIN_PRIO_CALC_ENDING) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+
+    ending->drawChain = g_Chain.CreateElem((ChainCallback)Ending_OnDraw);
+    ending->drawChain->arg = ending;
+    g_Chain.AddToDrawChain(ending->drawChain, TH_CHAIN_PRIO_DRAW_ENDING);
+
     return ZUN_SUCCESS;
 }
 } // namespace th06

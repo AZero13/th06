@@ -20,13 +20,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// The trial's archive marker differs from its config and replay format version.
-#if !TRIALBUILD
-#define ARCHIVE_VERSION GAME_VERSION
-#else
-#define ARCHIVE_VERSION 0x013
-#endif
-
 namespace th06
 {
 AUTO_BSS_SORT(M1);
@@ -223,7 +216,7 @@ ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-static void Supervisor_DrawFpsCounter();
+void DrawFpsCounter();
 
 ChainCallbackResult Supervisor_OnDraw(Supervisor *s)
 {
@@ -234,14 +227,11 @@ ChainCallbackResult Supervisor_OnDraw(Supervisor *s)
     g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
     g_AnmManager->SetCurrentZWriteDisable(AnmZWriteState_NotSet);
 
-    Supervisor_DrawFpsCounter();
+    DrawFpsCounter();
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-static ZunResult Supervisor_AddedCallback(Supervisor *s);
-static ZunResult Supervisor_DeletedCallback(Supervisor *s);
-
-static BOOL CALLBACK Supervisor_EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext)
+static BOOL CALLBACK EnumGameControllerDevicesCallback(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext)
 {
     if (!g_Supervisor.controller)
     {
@@ -256,7 +246,7 @@ static BOOL CALLBACK Supervisor_EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidIn
 }
 
 #pragma var_order(diprange, pvRefBackup)
-BOOL CALLBACK Supervisor_ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
+BOOL CALLBACK EnumGameControllerObjectsCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
     DIPROPRANGE diprange;
     LPVOID pvRefBackup = pvRef;
@@ -276,32 +266,6 @@ BOOL CALLBACK Supervisor_ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LP
         }
     }
     return TRUE;
-}
-
-#pragma var_order(chain, supervisor)
-ZunResult Supervisor_RegisterChain()
-{
-    ChainElem *chain;
-    Supervisor *supervisor = &g_Supervisor;
-
-    supervisor->wantedState = 0;
-    supervisor->curState = -1;
-    supervisor->calcCount = 0;
-
-    chain = g_Chain.CreateElem((ChainCallback)Supervisor_OnUpdate);
-    chain->arg = supervisor;
-    chain->addedCallback = (ChainAddedCallback)Supervisor_AddedCallback;
-    chain->deletedCallback = (ChainDeletedCallback)Supervisor_DeletedCallback;
-    if (g_Chain.AddToCalcChain(chain, TH_CHAIN_PRIO_CALC_SUPERVISOR) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-
-    chain = g_Chain.CreateElem((ChainCallback)Supervisor_OnDraw);
-    chain->arg = supervisor;
-    g_Chain.AddToDrawChain(chain, TH_CHAIN_PRIO_DRAW_SUPERVISOR);
-
-    return ZUN_SUCCESS;
 }
 
 static ZunResult SetupDInput(Supervisor *supervisor)
@@ -354,7 +318,7 @@ static ZunResult SetupDInput(Supervisor *supervisor)
     supervisor->keyboard->Acquire();
     g_GameErrorContext.Log(TH_ERR_DIRECTINPUT_INITIALIZED);
 
-    supervisor->dinputIface->EnumDevices(DI8DEVCLASS_GAMECTRL, Supervisor_EnumGameControllersCb, NULL,
+    supervisor->dinputIface->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumGameControllerDevicesCallback, NULL,
                                          DIEDFL_ATTACHEDONLY);
     if (supervisor->controller)
     {
@@ -364,7 +328,7 @@ static ZunResult SetupDInput(Supervisor *supervisor)
         g_Supervisor.controllerCaps.dwSize = sizeof(DIDEVCAPS);
 
         supervisor->controller->GetCapabilities(&g_Supervisor.controllerCaps);
-        supervisor->controller->EnumObjects(Supervisor_ControllerCallback, NULL, DIDFT_ALL);
+        supervisor->controller->EnumObjects(EnumGameControllerObjectsCallback, NULL, DIDFT_ALL);
 
         g_GameErrorContext.Log(TH_ERR_PAD_FOUND);
     }
@@ -456,8 +420,34 @@ static ZunResult Supervisor_DeletedCallback(Supervisor *s)
     return ZUN_SUCCESS;
 }
 
+#pragma var_order(chain, supervisor)
+ZunResult Supervisor_RegisterChain()
+{
+    ChainElem *chain;
+    Supervisor *supervisor = &g_Supervisor;
+
+    supervisor->wantedState = 0;
+    supervisor->curState = -1;
+    supervisor->calcCount = 0;
+
+    chain = g_Chain.CreateElem((ChainCallback)Supervisor_OnUpdate);
+    chain->arg = supervisor;
+    chain->addedCallback = (ChainAddedCallback)Supervisor_AddedCallback;
+    chain->deletedCallback = (ChainDeletedCallback)Supervisor_DeletedCallback;
+    if (g_Chain.AddToCalcChain(chain, TH_CHAIN_PRIO_CALC_SUPERVISOR) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+
+    chain = g_Chain.CreateElem((ChainCallback)Supervisor_OnDraw);
+    chain->arg = supervisor;
+    g_Chain.AddToDrawChain(chain, TH_CHAIN_PRIO_DRAW_SUPERVISOR);
+
+    return ZUN_SUCCESS;
+}
+
 #pragma var_order(curTime, framerate, fps, elapsed)
-static void Supervisor_DrawFpsCounter()
+void DrawFpsCounter()
 {
     DWORD curTime;
     float framerate;
@@ -606,13 +596,13 @@ BOOL Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
     {
         this->ReleasePbg3(pbg3FileIdx);
         this->pbg3Archives[pbg3FileIdx] = ZUN_NEW(Pbg3Archive);
-        utils::DebugPrint("%s open ...\n", filename);
+        DebugPrint("%s open ...\n", filename);
         if (this->pbg3Archives[pbg3FileIdx]->Load(filename))
         {
             strcpy(this->pbg3ArchiveNames[pbg3FileIdx], filename);
 
             char verPath[128];
-            sprintf(verPath, "ver%.4x.dat", ARCHIVE_VERSION);
+            sprintf(verPath, "ver%.4x.dat", GAME_VERSION);
             i32 res = this->pbg3Archives[pbg3FileIdx]->FindEntry(verPath);
             if (res < 0)
             {
@@ -643,7 +633,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
         g_Supervisor.cfg.lifeCount = 2;
         g_Supervisor.cfg.bombCount = 3;
         g_Supervisor.cfg.colorMode16bit = 0xff;
-        g_Supervisor.cfg.version = GAME_VERSION;
+        g_Supervisor.cfg.version = CONFIG_VERSION;
         g_Supervisor.cfg.padXAxis = 600;
         g_Supervisor.cfg.padYAxis = 600;
         FILE *wavFile = fopen("bgm/th06_01.wav", "rb");
@@ -655,7 +645,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
         else
         {
             g_Supervisor.cfg.musicMode = MIDI;
-            utils::DebugPrint(TH_ERR_NO_WAVE_FILE);
+            DebugPrint(TH_ERR_NO_WAVE_FILE);
         }
         g_Supervisor.cfg.playSounds = true;
         g_Supervisor.cfg.defaultDifficulty = NORMAL;
@@ -671,12 +661,12 @@ ZunResult Supervisor::LoadConfig(const char *path)
             g_Supervisor.cfg.colorMode16bit >= 2 || g_Supervisor.cfg.musicMode >= 3 ||
             g_Supervisor.cfg.defaultDifficulty >= 5 || g_Supervisor.cfg.playSounds >= 2 ||
             g_Supervisor.cfg.windowed >= 2 || g_Supervisor.cfg.frameskipConfig >= 3 ||
-            g_Supervisor.cfg.version != GAME_VERSION || g_LastFileSize != sizeof(GameConfiguration))
+            g_Supervisor.cfg.version != CONFIG_VERSION || g_LastFileSize != sizeof(GameConfiguration))
         {
             g_Supervisor.cfg.lifeCount = 2;
             g_Supervisor.cfg.bombCount = 3;
             g_Supervisor.cfg.colorMode16bit = 0xff;
-            g_Supervisor.cfg.version = GAME_VERSION;
+            g_Supervisor.cfg.version = CONFIG_VERSION;
             g_Supervisor.cfg.padXAxis = 600;
             g_Supervisor.cfg.padYAxis = 600;
             FILE *wavFile = fopen("bgm/th06_01.wav", "rb");
@@ -688,7 +678,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
             else
             {
                 g_Supervisor.cfg.musicMode = MIDI;
-                utils::DebugPrint(TH_ERR_NO_WAVE_FILE);
+                DebugPrint(TH_ERR_NO_WAVE_FILE);
             }
             g_Supervisor.cfg.playSounds = true;
             g_Supervisor.cfg.defaultDifficulty = NORMAL;

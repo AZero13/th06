@@ -53,22 +53,23 @@ ZunResult CheckForRunningGameInstance(void);
 ZunResult CheckDirectXVersion(void);
 #endif
 
-// TODO: Properly make these a single static header func
-#if !TRIALBUILD
-void DebugPrint(const char *fmt, ...);
-void DebugPrint2(const char *fmt, ...);
-#else
-static void DebugPrint(const char *fmt, ...)
-{
-}
-static void DebugPrint2(const char *fmt, ...)
-{
-}
-#endif
-
 f32 AddNormalizeAngle(f32 a, f32 b);
 void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle);
 } // namespace utils
+
+static void DebugPrint(const char *fmt, ...)
+{
+#ifdef DEBUG
+    char tmpBuffer[512];
+    va_list args;
+
+    va_start(args, fmt);
+    vsprintf(tmpBuffer, fmt, args);
+    va_end(args);
+
+    printf("DEBUG: %s\n", tmpBuffer);
+#endif
+}
 
 enum TouhouButton
 {
@@ -203,7 +204,8 @@ struct Rng
 };
 
 extern Rng g_Rng;
-extern HANDLE g_ExclusiveMutex;
+
+#define MULTIPLE_OF(val, mult) !((i32)(val) % (mult))
 
 // From font.h
 class CMyFont

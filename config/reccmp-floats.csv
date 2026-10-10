@@ -157,9 +157,6 @@ address,type,size
 0x46c4d8,float,4
 0x46c4dc,float,4
 0x474884,float,4
-0x487e48,float,4
-0x487e4c,float,4
-0x6c6bf8,float,8
 0x46A550,float,4
 0x46A55C,float,4
 0x46A544,float,4

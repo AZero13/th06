@@ -36,9 +36,6 @@ BSS_SORT(H1) GameManager g_GameManager;
 BSS_SORT(H2) ChainElem g_GameManagerCalcChain;
 BSS_SORT(H3) ChainElem g_GameManagerDrawChain;
 
-ZunResult GameManager_AddedCallback(GameManager *gameManager);
-ZunResult GameManager_DeletedCallback(GameManager *gameManager);
-
 #define MAX_SCORE 999999999
 
 #define DEMO_FADEOUT_FRAMES 3600
@@ -200,29 +197,8 @@ ChainCallbackResult GameManager_OnDraw(GameManager *gameManager)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult GameManager_RegisterChain()
-{
-    GameManager *mgr = &g_GameManager;
-
-    g_GameManagerCalcChain.SetCallback((ChainCallback)GameManager_OnUpdate);
-    g_GameManagerCalcChain.addedCallback = (ChainAddedCallback)GameManager_AddedCallback;
-    g_GameManagerCalcChain.deletedCallback = (ChainDeletedCallback)GameManager_DeletedCallback;
-    g_GameManagerCalcChain.arg = mgr;
-
-    mgr->gameFrames = 0;
-
-    if (g_Chain.AddToCalcChain(&g_GameManagerCalcChain, TH_CHAIN_PRIO_CALC_GAMEMANAGER) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-    g_GameManagerDrawChain.SetCallback((ChainCallback)GameManager_OnDraw);
-    g_GameManagerDrawChain.arg = mgr;
-    g_Chain.AddToDrawChain(&g_GameManagerDrawChain, TH_CHAIN_PRIO_DRAW_GAMEMANAGER);
-    return ZUN_SUCCESS;
-}
-
 #pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx)
-ZunResult GameManager_AddedCallback(GameManager *mgr)
+static ZunResult GameManager_AddedCallback(GameManager *mgr)
 {
     static const char *g_EclFiles[] = {"dummy",
                                        "data/ecldata1.ecl",
@@ -460,7 +436,7 @@ ZunResult GameManager_AddedCallback(GameManager *mgr)
     return ZUN_SUCCESS;
 }
 
-ZunResult GameManager_DeletedCallback(GameManager *mgr)
+static ZunResult GameManager_DeletedCallback(GameManager *mgr)
 {
 
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
@@ -478,6 +454,27 @@ ZunResult GameManager_DeletedCallback(GameManager *mgr)
     StopRecordingReplay();
     mgr->isInMenu = false;
     g_AsciiManager.InitializeVms();
+    return ZUN_SUCCESS;
+}
+
+ZunResult GameManager_RegisterChain()
+{
+    GameManager *mgr = &g_GameManager;
+
+    g_GameManagerCalcChain.SetCallback((ChainCallback)GameManager_OnUpdate);
+    g_GameManagerCalcChain.addedCallback = (ChainAddedCallback)GameManager_AddedCallback;
+    g_GameManagerCalcChain.deletedCallback = (ChainDeletedCallback)GameManager_DeletedCallback;
+    g_GameManagerCalcChain.arg = mgr;
+
+    mgr->gameFrames = 0;
+
+    if (g_Chain.AddToCalcChain(&g_GameManagerCalcChain, TH_CHAIN_PRIO_CALC_GAMEMANAGER) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+    g_GameManagerDrawChain.SetCallback((ChainCallback)GameManager_OnDraw);
+    g_GameManagerDrawChain.arg = mgr;
+    g_Chain.AddToDrawChain(&g_GameManagerDrawChain, TH_CHAIN_PRIO_DRAW_GAMEMANAGER);
     return ZUN_SUCCESS;
 }
 

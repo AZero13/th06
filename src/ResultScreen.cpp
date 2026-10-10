@@ -34,6 +34,39 @@ struct ScoreDat
 };
 ZUN_ASSERT_TYPE(ScoreDat, 0x14, 4);
 
+enum ResultScreenState
+{
+    RESULT_SCREEN_STATE_INIT = 0,
+    RESULT_SCREEN_STATE_CHOOSING_DIFFICULTY,
+    RESULT_SCREEN_STATE_EXITING,
+    RESULT_SCREEN_STATE_BEST_SCORES_EASY,
+    RESULT_SCREEN_STATE_BEST_SCORES_NORMAL,
+    RESULT_SCREEN_STATE_BEST_SCORES_HARD,
+    RESULT_SCREEN_STATE_BEST_SCORES_LUNATIC,
+    RESULT_SCREEN_STATE_BEST_SCORES_EXTRA,
+    RESULT_SCREEN_STATE_SPELLCARDS,
+    RESULT_SCREEN_STATE_WRITING_HIGHSCORE_NAME,
+    RESULT_SCREEN_STATE_SAVE_REPLAY_QUESTION,
+    RESULT_SCREEN_STATE_CANT_SAVE_REPLAY,
+    RESULT_SCREEN_STATE_CHOOSING_REPLAY_FILE,
+    RESULT_SCREEN_STATE_WRITING_REPLAY_NAME,
+    RESULT_SCREEN_STATE_OVERWRITE_REPLAY_FILE,
+    RESULT_SCREEN_STATE_STATS_SCREEN,
+    RESULT_SCREEN_STATE_STATS_TO_SAVE_TRANSITION,
+    RESULT_SCREEN_STATE_EXIT,
+};
+
+enum ResultScreenMainMenuCursor
+{
+    RESULT_SCREEN_CURSOR_EASY,
+    RESULT_SCREEN_CURSOR_NORMAL,
+    RESULT_SCREEN_CURSOR_HARD,
+    RESULT_SCREEN_CURSOR_LUNATIC,
+    RESULT_SCREEN_CURSOR_EXTRA,
+    RESULT_SCREEN_CURSOR_SPELLCARDS,
+    RESULT_SCREEN_CURSOR_EXIT
+};
+
 struct ResultScreen
 {
     ResultScreen()
@@ -83,11 +116,6 @@ struct ResultScreen
     ReplayData defaultReplay;
 };
 ZUN_ASSERT_TYPE(ResultScreen, 0x56b0, 4);
-
-static ChainCallbackResult ResultScreen_OnUpdate(ResultScreen *r);
-static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *r);
-static ZunResult ResultScreen_AddedCallback(ResultScreen *r);
-static ZunResult ResultScreen_DeletedCallback(ResultScreen *r);
 
 static void MoveResultCursor(ResultScreen *r, i32 len);
 static ZunBool MoveResultCursorHorizontally(ResultScreen *r, i32 len);
@@ -758,6 +786,7 @@ i32 ResultScreen::HandleResultKeyboard()
     return 0;
 }
 
+// TODO: Different codegen here in trial
 #pragma var_order(sprite, saveInterrupt, idx)
 i32 ResultScreen::HandleReplaySaveKeyboard()
 {
@@ -908,7 +937,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
             _strdate(this->defaultReplay.date);
             this->defaultReplay.score = g_GameManager.score;
             if (*(u32 *)this->replays[this->cursor].magic != *(u32 *)REPLAY_MAGIC ||
-                this->replays[this->cursor].version != GAME_VERSION)
+                this->replays[this->cursor].version != REPLAY_VERSION)
             {
                 sprite = &this->unk_40[0];
                 for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->unk_40); idx++, sprite++)
@@ -1197,8 +1226,15 @@ ZunResult ResultScreen::CheckConfirmButton()
 #pragma var_order(viewport, strPos, unknownFloat, completion, slowdownRate, color)
 u32 ResultScreen::DrawFinalStats()
 {
-    static const char *g_RightAlignedDifficultyList[] = {"     Easy", "   Normal", "     Hard", "  Lunatic",
-                                                         "    Extra"};
+    // clang-format off
+    static const char *g_RightAlignedDifficultyList[] = {
+        "     Easy",
+        "   Normal",
+        "     Hard",
+        "  Lunatic",
+        "    Extra"
+    };
+    // clang-format on
     static const f32 g_DifficultyWeightsList[] = {-30.0f, -10.0f, 20.0f, 30.0f, 30.0f};
     static f32 g_SpellcardsWeightsList[] = {1.0f, 1.5f, 1.5f, 2.0f, 2.5f};
 
@@ -1321,42 +1357,6 @@ u32 ResultScreen::DrawFinalStats()
         g_AsciiManager.SetColor(COLOR_WHITE);
     }
     return 0;
-}
-
-ZunResult ResultScreen_RegisterChain(i32 unk)
-{
-    ResultScreen *resultScreen;
-    resultScreen = ZUN_NEW(ResultScreen);
-
-    utils::DebugPrint(TH_DBG_RESULTSCREEN_COUNAT, g_GameManager.counat);
-
-    resultScreen->calcChain = g_Chain.CreateElem((ChainCallback)ResultScreen_OnUpdate);
-    resultScreen->calcChain->addedCallback = (ChainAddedCallback)ResultScreen_AddedCallback;
-    resultScreen->calcChain->deletedCallback = (ChainDeletedCallback)ResultScreen_DeletedCallback;
-    resultScreen->calcChain->arg = resultScreen;
-
-    if (unk)
-    {
-        if (!g_GameManager.isInPracticeMode)
-        {
-            resultScreen->resultScreenState = RESULT_SCREEN_STATE_WRITING_HIGHSCORE_NAME;
-        }
-        else
-        {
-            resultScreen->resultScreenState = RESULT_SCREEN_STATE_EXIT;
-        }
-    }
-
-    if (g_Chain.AddToCalcChain(resultScreen->calcChain, TH_CHAIN_PRIO_CALC_RESULTSCREEN) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-
-    resultScreen->drawChain = g_Chain.CreateElem((ChainCallback)ResultScreen_OnDraw);
-    resultScreen->drawChain->arg = resultScreen;
-    g_Chain.AddToDrawChain(resultScreen->drawChain, TH_CHAIN_PRIO_DRAW_RESULTSCREEN);
-
-    return ZUN_SUCCESS;
 }
 
 #pragma var_order(i, vm)
@@ -1704,17 +1704,13 @@ static ChainCallbackResult ResultScreen_OnUpdate(ResultScreen *resultScreen)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(strPos, row, name, sprite, ShootScoreListNodeA, column, ShootScoreListNodeB, spritePos,              \
-                  spellcardIdx, charPosY, charPosX, keyboardCharacter)
+#pragma var_order(strPos, row, name, sprite, ShootScoreListNodeA, column, ShootScoreListNodeB, spritePos)
 static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
 {
     static const char *g_ShortCharacterList2[] = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
 
     AnmVm *sprite;
-    f32 charPosX;
-    f32 charPosY;
 
-    i32 spellcardIdx;
     D3DXVECTOR3 spritePos;
     ScoreListNode *ShootScoreListNodeB;
     i32 column;
@@ -1875,7 +1871,7 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
 
             for (row = 0; row < 10; row++)
             {
-                spellcardIdx = resultScreen->lastSpellcardSelected * 10 + row;
+                i32 spellcardIdx = resultScreen->lastSpellcardSelected * 10 + row;
                 if (spellcardIdx >= CATK_NUM_CAPTURES)
                 {
                     break;
@@ -1916,10 +1912,11 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
 
         for (row = 0; row < RESULT_KEYBOARD_ROWS; row++)
         {
+#pragma var_order(charPosY, charPosX, keyboardCharacter)
             for (column = 0; column < RESULT_KEYBOARD_COLUMNS; column++)
             {
-                charPosY = 0.0f;
-                charPosX = 0.0f;
+                f32 charPosY = 0.0f;
+                f32 charPosX = 0.0f;
                 if (resultScreen->selectedCharacter == row * RESULT_KEYBOARD_COLUMNS + column)
                 {
                     g_AsciiManager.SetColor(COLOR_PASTEL_YELLOW);
@@ -2008,7 +2005,7 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                 g_AsciiManager.AddFormatText(&spritePos, "      %8s", &name);
             }
             else if (*(u32 *)resultScreen->replays[row].magic != *(u32 *)REPLAY_MAGIC ||
-                     resultScreen->replays[row].version != GAME_VERSION)
+                     resultScreen->replays[row].version != REPLAY_VERSION)
             {
                 g_AsciiManager.AddFormatText(&spritePos, "No.%.2d -------- --/--/-- -------         0", row + 1);
             }
@@ -2170,22 +2167,39 @@ static ZunResult ResultScreen_DeletedCallback(ResultScreen *resultScreen)
     return ZUN_SUCCESS;
 }
 
-#if !TRIALBUILD
-namespace utils
+ZunResult ResultScreen_RegisterChain(i32 unk)
 {
-void DebugPrint(const char *fmt, ...)
-{
-#ifdef DEBUG
-    char tmpBuffer[512];
-    va_list args;
+    ResultScreen *resultScreen;
+    resultScreen = ZUN_NEW(ResultScreen);
 
-    va_start(args, fmt);
-    vsprintf(tmpBuffer, fmt, args);
-    va_end(args);
+    DebugPrint(TH_DBG_RESULTSCREEN_COUNAT, g_GameManager.counat);
 
-    printf("DEBUG2: %s\n", tmpBuffer);
-#endif
+    resultScreen->calcChain = g_Chain.CreateElem((ChainCallback)ResultScreen_OnUpdate);
+    resultScreen->calcChain->addedCallback = (ChainAddedCallback)ResultScreen_AddedCallback;
+    resultScreen->calcChain->deletedCallback = (ChainDeletedCallback)ResultScreen_DeletedCallback;
+    resultScreen->calcChain->arg = resultScreen;
+
+    if (unk)
+    {
+        if (!g_GameManager.isInPracticeMode)
+        {
+            resultScreen->resultScreenState = RESULT_SCREEN_STATE_WRITING_HIGHSCORE_NAME;
+        }
+        else
+        {
+            resultScreen->resultScreenState = RESULT_SCREEN_STATE_EXIT;
+        }
+    }
+
+    if (g_Chain.AddToCalcChain(resultScreen->calcChain, TH_CHAIN_PRIO_CALC_RESULTSCREEN) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+
+    resultScreen->drawChain = g_Chain.CreateElem((ChainCallback)ResultScreen_OnDraw);
+    resultScreen->drawChain->arg = resultScreen;
+    g_Chain.AddToDrawChain(resultScreen->drawChain, TH_CHAIN_PRIO_DRAW_RESULTSCREEN);
+
+    return ZUN_SUCCESS;
 }
-} // namespace utils
-#endif
 } // namespace th06

@@ -14,11 +14,6 @@
 
 namespace th06
 {
-static ZunResult BulletManager_DeletedCallback(BulletManager *mgr);
-static ZunResult BulletManager_AddedCallback(BulletManager *mgr);
-static void DrawBullet(Bullet *bullet);
-static void DrawBulletNoHwVertex(Bullet *bullet);
-
 D3DCOLOR g_EffectsColorWithTextureBlending[] = {
     0xff000000, 0xff303030, 0xff606060, 0xff500000, 0xff900000, 0xffff2020, 0xff400040,
     0xff800080, 0xffff30ff, 0xff000050, 0xff000090, 0xff2020ff, 0xff203060, 0xff304090,
@@ -680,6 +675,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
             }
             goto HELL;
         case BULLET_STATE_SPAWNING_NORMAL:
+            // TODO: Different codegen here in trial
             curBullet->pos += curBullet->velocity / 2.5f * g_Supervisor.effectiveFramerateMultiplier;
 
             if (g_AnmManager->ExecuteScript(&curBullet->sprites.spriteSpawnEffectNormal) == 0)
@@ -688,6 +684,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
             }
             goto HELL;
         case BULLET_STATE_SPAWNING_SLOW:
+            // TODO: Different codegen here in trial
             curBullet->pos += curBullet->velocity / 3.0f * g_Supervisor.effectiveFramerateMultiplier;
 
             if (g_AnmManager->ExecuteScript(&curBullet->sprites.spriteSpawnEffectSlow) == 0)
@@ -1090,6 +1087,78 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
+static void DrawBullet(Bullet *bullet)
+{
+    AnmVm *anmVm;
+
+    switch (bullet->state)
+    {
+    case BULLET_STATE_SPAWNING_FAST:
+        anmVm = &bullet->sprites.spriteSpawnEffectFast;
+        break;
+    case BULLET_STATE_SPAWNING_NORMAL:
+        anmVm = &bullet->sprites.spriteSpawnEffectNormal;
+        break;
+    case BULLET_STATE_SPAWNING_SLOW:
+        anmVm = &bullet->sprites.spriteSpawnEffectSlow;
+        break;
+    case BULLET_STATE_DESPAWNING:
+        anmVm = &bullet->sprites.spriteSpawnEffectDonut;
+        break;
+    default:
+        anmVm = &bullet->sprites.spriteBullet;
+        break;
+    }
+
+    anmVm->pos.x = bullet->pos.x;
+    anmVm->pos.y = bullet->pos.y;
+    anmVm->pos.z = 0.0f;
+    anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
+
+    if (anmVm->autoRotate != 0)
+    {
+        anmVm->rotation.z = ZUN_HALF_PI - bullet->angle;
+    }
+
+    g_AnmManager->Draw2(anmVm);
+}
+
+static void DrawBulletNoHwVertex(Bullet *bullet)
+{
+    AnmVm *anmVm;
+
+    switch (bullet->state)
+    {
+    case BULLET_STATE_SPAWNING_FAST:
+        anmVm = &bullet->sprites.spriteSpawnEffectFast;
+        break;
+    case BULLET_STATE_SPAWNING_NORMAL:
+        anmVm = &bullet->sprites.spriteSpawnEffectNormal;
+        break;
+    case BULLET_STATE_SPAWNING_SLOW:
+        anmVm = &bullet->sprites.spriteSpawnEffectSlow;
+        break;
+    case BULLET_STATE_DESPAWNING:
+        anmVm = &bullet->sprites.spriteSpawnEffectDonut;
+        break;
+    default:
+        anmVm = &bullet->sprites.spriteBullet;
+        break;
+    }
+
+    anmVm->pos.x = g_GameManager.gameRegionScreenPos.x + bullet->pos.x;
+    anmVm->pos.y = g_GameManager.gameRegionScreenPos.y + bullet->pos.y;
+    anmVm->pos.z = 0.0f;
+    anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
+
+    if (anmVm->autoRotate != 0)
+    {
+        anmVm->rotation.z = ZUN_HALF_PI - bullet->angle;
+    }
+
+    g_AnmManager->Draw(anmVm);
+}
+
 #pragma var_order(idx, sine, curLaser, laserOffset, cosine)
 static ChainCallbackResult BulletManager_OnDraw(BulletManager *mgr)
 {
@@ -1262,113 +1331,6 @@ static ChainCallbackResult BulletManager_OnDraw(BulletManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult BulletManager_RegisterChain(const char *bulletAnmPath)
-{
-    BulletManager *mgr = &g_BulletManager;
-
-    if (!g_Supervisor.IsHardwareBlendingDisabled())
-    {
-        g_EffectsColor = g_EffectsColorWithTextureBlending;
-    }
-    else
-    {
-        g_EffectsColor = g_EffectsColorWithoutTextureBlending;
-    }
-
-    mgr->InitializeToZero();
-    mgr->bulletAnmPath = bulletAnmPath;
-    g_BulletManagerCalcChain.callback = (ChainCallback)BulletManager_OnUpdate;
-    g_BulletManagerCalcChain.addedCallback = NULL;
-    g_BulletManagerCalcChain.deletedCallback = NULL;
-    g_BulletManagerCalcChain.addedCallback = (ChainAddedCallback)BulletManager_AddedCallback;
-    g_BulletManagerCalcChain.deletedCallback = (ChainDeletedCallback)BulletManager_DeletedCallback;
-    g_BulletManagerCalcChain.arg = mgr;
-
-    if (g_Chain.AddToCalcChain(&g_BulletManagerCalcChain, TH_CHAIN_PRIO_CALC_BULLETMANAGER) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-
-    g_BulletManagerDrawChain.callback = (ChainCallback)BulletManager_OnDraw;
-    g_BulletManagerDrawChain.addedCallback = NULL;
-    g_BulletManagerDrawChain.deletedCallback = NULL;
-    g_BulletManagerDrawChain.arg = mgr;
-    g_Chain.AddToDrawChain(&g_BulletManagerDrawChain, TH_CHAIN_PRIO_DRAW_BULLETMANAGER);
-    return ZUN_SUCCESS;
-}
-
-static void DrawBullet(Bullet *bullet)
-{
-    AnmVm *anmVm;
-
-    switch (bullet->state)
-    {
-    case BULLET_STATE_SPAWNING_FAST:
-        anmVm = &bullet->sprites.spriteSpawnEffectFast;
-        break;
-    case BULLET_STATE_SPAWNING_NORMAL:
-        anmVm = &bullet->sprites.spriteSpawnEffectNormal;
-        break;
-    case BULLET_STATE_SPAWNING_SLOW:
-        anmVm = &bullet->sprites.spriteSpawnEffectSlow;
-        break;
-    case BULLET_STATE_DESPAWNING:
-        anmVm = &bullet->sprites.spriteSpawnEffectDonut;
-        break;
-    default:
-        anmVm = &bullet->sprites.spriteBullet;
-        break;
-    }
-
-    anmVm->pos.x = bullet->pos.x;
-    anmVm->pos.y = bullet->pos.y;
-    anmVm->pos.z = 0.0f;
-    anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
-
-    if (anmVm->autoRotate != 0)
-    {
-        anmVm->rotation.z = ZUN_HALF_PI - bullet->angle;
-    }
-
-    g_AnmManager->Draw2(anmVm);
-}
-
-static void DrawBulletNoHwVertex(Bullet *bullet)
-{
-    AnmVm *anmVm;
-
-    switch (bullet->state)
-    {
-    case BULLET_STATE_SPAWNING_FAST:
-        anmVm = &bullet->sprites.spriteSpawnEffectFast;
-        break;
-    case BULLET_STATE_SPAWNING_NORMAL:
-        anmVm = &bullet->sprites.spriteSpawnEffectNormal;
-        break;
-    case BULLET_STATE_SPAWNING_SLOW:
-        anmVm = &bullet->sprites.spriteSpawnEffectSlow;
-        break;
-    case BULLET_STATE_DESPAWNING:
-        anmVm = &bullet->sprites.spriteSpawnEffectDonut;
-        break;
-    default:
-        anmVm = &bullet->sprites.spriteBullet;
-        break;
-    }
-
-    anmVm->pos.x = g_GameManager.gameRegionScreenPos.x + bullet->pos.x;
-    anmVm->pos.y = g_GameManager.gameRegionScreenPos.y + bullet->pos.y;
-    anmVm->pos.z = 0.0f;
-    anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
-
-    if (anmVm->autoRotate != 0)
-    {
-        anmVm->rotation.z = ZUN_HALF_PI - bullet->angle;
-    }
-
-    g_AnmManager->Draw(anmVm);
-}
-
 static ZunResult BulletManager_AddedCallback(BulletManager *mgr)
 {
     u32 idx;
@@ -1465,6 +1427,41 @@ static ZunResult BulletManager_DeletedCallback(BulletManager *arg)
         g_AnmManager->ReleaseAnm(ANM_FILE_BULLET4);
     }
 
+    return ZUN_SUCCESS;
+}
+
+ZunResult BulletManager_RegisterChain(const char *bulletAnmPath)
+{
+    BulletManager *mgr = &g_BulletManager;
+
+    if (!g_Supervisor.IsHardwareBlendingDisabled())
+    {
+        g_EffectsColor = g_EffectsColorWithTextureBlending;
+    }
+    else
+    {
+        g_EffectsColor = g_EffectsColorWithoutTextureBlending;
+    }
+
+    mgr->InitializeToZero();
+    mgr->bulletAnmPath = bulletAnmPath;
+    g_BulletManagerCalcChain.callback = (ChainCallback)BulletManager_OnUpdate;
+    g_BulletManagerCalcChain.addedCallback = NULL;
+    g_BulletManagerCalcChain.deletedCallback = NULL;
+    g_BulletManagerCalcChain.addedCallback = (ChainAddedCallback)BulletManager_AddedCallback;
+    g_BulletManagerCalcChain.deletedCallback = (ChainDeletedCallback)BulletManager_DeletedCallback;
+    g_BulletManagerCalcChain.arg = mgr;
+
+    if (g_Chain.AddToCalcChain(&g_BulletManagerCalcChain, TH_CHAIN_PRIO_CALC_BULLETMANAGER) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+
+    g_BulletManagerDrawChain.callback = (ChainCallback)BulletManager_OnDraw;
+    g_BulletManagerDrawChain.addedCallback = NULL;
+    g_BulletManagerDrawChain.deletedCallback = NULL;
+    g_BulletManagerDrawChain.arg = mgr;
+    g_Chain.AddToDrawChain(&g_BulletManagerDrawChain, TH_CHAIN_PRIO_DRAW_BULLETMANAGER);
     return ZUN_SUCCESS;
 }
 

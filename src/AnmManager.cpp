@@ -33,9 +33,9 @@ AnmManager::AnmManager()
 
     memset(this, 0, sizeof(AnmManager));
 
-    for (i32 spriteIndex = 0; spriteIndex < MAX_ANM_SPRITES; spriteIndex++)
+    for (i32 i = 0; i < MAX_ANM_SPRITES; i++)
     {
-        this->sprites[spriteIndex].sourceFileIndex = -1;
+        this->sprites[i].sourceFileIndex = -1;
     }
 
     g_PrimitivesToDrawVertexBuf[0].position.w = g_PrimitivesToDrawVertexBuf[1].position.w =
@@ -211,48 +211,45 @@ ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textur
     // into account the texture format.
     switch (surfaceDesc.Format)
     {
-#pragma var_order(dstData, srcData, y, x)
+#pragma var_order(dstData, srcData)
     case D3DFMT_A8R8G8B8: {
-        i32 x, y;
         u8 *dstData, *srcData;
-        for (y = 0; y < surfaceDesc.Height; y++)
+        for (i32 y = 0; y < surfaceDesc.Height; y++)
         {
             dstData = (u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch;
             srcData = (u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch;
 
-            for (x = 0; x < surfaceDesc.Width; x++, srcData += 4, dstData += 4)
+            for (i32 x = 0; x < surfaceDesc.Width; x++, srcData += 4, dstData += 4)
             {
                 dstData[3] = srcData[0];
             }
         }
         break;
     }
-#pragma var_order(dstData, srcData, y, x)
+#pragma var_order(dstData, srcData)
     case D3DFMT_A1R5G5B5: {
-        i32 x, y;
         Argb1555Pixel *dstData, *srcData;
-        for (y = 0; y < surfaceDesc.Height; y++)
+        for (i32 y = 0; y < surfaceDesc.Height; y++)
         {
             dstData = (Argb1555Pixel *)((u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch);
             srcData = (Argb1555Pixel *)((u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch);
 
-            for (x = 0; x < surfaceDesc.Width; x++, srcData++, dstData++)
+            for (i32 x = 0; x < surfaceDesc.Width; x++, srcData++, dstData++)
             {
                 dstData->a = srcData->b >> 4;
             }
         }
         break;
     }
-#pragma var_order(dstData, srcData, y, x)
+#pragma var_order(dstData, srcData)
     case D3DFMT_A4R4G4B4: {
-        i32 x, y;
         Argb4444Pixel *dstData, *srcData;
-        for (y = 0; y < surfaceDesc.Height; y++)
+        for (i32 y = 0; y < surfaceDesc.Height; y++)
         {
             dstData = (Argb4444Pixel *)((u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch);
             srcData = (Argb4444Pixel *)((u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch);
 
-            for (x = 0; x < surfaceDesc.Width; x++, srcData++, dstData++)
+            for (i32 x = 0; x < surfaceDesc.Width; x++, srcData++, dstData++)
             {
                 dstData->a = srcData->b;
             }
@@ -284,7 +281,7 @@ ZunResult AnmManager::CreateEmptyTexture(i32 textureIdx, u32 width, u32 height, 
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(anm, anmName, rawSprite, index, curOffset)
+#pragma var_order(anm, anmName, rawSprite, i, curOffset)
 ZunResult AnmManager::LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset)
 {
     this->ReleaseAnm(anmIdx);
@@ -326,10 +323,10 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset)
 
     u32 *curOffset = anm->spriteOffsets;
 
-    i32 index;
     AnmRawSprite *rawSprite;
 
-    for (index = 0; index < this->anmFiles[anmIdx]->numSprites; index++, curOffset++)
+    i32 i;
+    for (i = 0; i < this->anmFiles[anmIdx]->numSprites; i++, curOffset++)
     {
         rawSprite = (AnmRawSprite *)((u8 *)anm + *curOffset);
 
@@ -344,7 +341,7 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset)
         this->LoadSprite(rawSprite->id + spriteIdxOffset, &loadedSprite);
     }
 
-    for (index = 0; index < anm->numScripts; index++, curOffset += 2)
+    for (i = 0; i < anm->numScripts; i++, curOffset += 2)
     {
         this->scripts[curOffset[0] + spriteIdxOffset] = (AnmRawInstr *)((u8 *)anm + curOffset[1]);
         this->spriteIndices[curOffset[0] + spriteIdxOffset] = spriteIdxOffset;
@@ -361,9 +358,10 @@ void AnmManager::ReleaseAnm(i32 anmIdx)
     if (this->anmFiles[anmIdx] != NULL)
     {
         i32 *spriteIdx;
-        i32 i;
         i32 spriteIdxOffset = this->anmFilesSpriteIndexOffsets[anmIdx];
         u32 *byteOffset = this->anmFiles[anmIdx]->spriteOffsets;
+
+        i32 i;
         for (i = 0; i < this->anmFiles[anmIdx]->numSprites; i++, byteOffset++)
         {
             spriteIdx = (i32 *)((u8 *)this->anmFiles[anmIdx] + *byteOffset);
@@ -1217,7 +1215,7 @@ break_parser:
         vm->scaleX = g_Supervisor.effectiveFramerateMultiplier * vm->scaleInterpFinalX + vm->scaleX;
     }
 
-#pragma var_order(colors, alphaInterpVal, colorInterp, colorIdx)
+#pragma var_order(colors, alphaInterpVal, colorInterp)
     if (vm->alphaInterpEndTime > 0)
     {
         vm->alphaInterpTime++;
@@ -1229,19 +1227,17 @@ break_parser:
         {
             alphaInterpVal = 1.0f;
         }
-        i32 colorIdx;
         i32 colorInterp;
-        for (colorIdx = 0; colorIdx < 4; colorIdx++)
+        for (i32 i = 0; i < 4; i++)
         {
             colorInterp =
-                ((f32)COLOR_GET_COMPONENT(colors[1], colorIdx) - (f32)COLOR_GET_COMPONENT(colors[0], colorIdx)) *
-                    alphaInterpVal +
-                COLOR_GET_COMPONENT(colors[0], colorIdx);
+                ((f32)COLOR_GET_COMPONENT(colors[1], i) - (f32)COLOR_GET_COMPONENT(colors[0], i)) * alphaInterpVal +
+                COLOR_GET_COMPONENT(colors[0], i);
             if (colorInterp < 0)
             {
                 colorInterp = 0;
             }
-            COLOR_SET_COMPONENT(colors[0], colorIdx, colorInterp >= 256 ? 255 : colorInterp);
+            COLOR_SET_COMPONENT(colors[0], i, colorInterp >= 256 ? 255 : colorInterp);
         }
         vm->color = colors[0];
         if ((i32)vm->alphaInterpTime >= vm->alphaInterpEndTime)

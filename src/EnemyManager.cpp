@@ -12,11 +12,6 @@
 
 namespace th06
 {
-static ZunResult EnemyManager_DeletedCallback(EnemyManager *enemyManager);
-static ZunResult EnemyManager_AddedCallback(EnemyManager *enemyManager);
-static ChainCallbackResult EnemyManager_OnDraw(EnemyManager *enemyManager);
-static ChainCallbackResult EnemyManager_OnUpdate(EnemyManager *enemyManager);
-
 #define ITEM_SPAWNS 3
 #define ITEM_TABLES 8
 
@@ -505,33 +500,6 @@ void Enemy::ClampPos()
     }
 }
 
-ZunResult EnemyManager_RegisterChain(const char *stgEnm1, const char *stgEnm2)
-{
-    EnemyManager *mgr = &g_EnemyManager;
-    mgr->Initialize();
-    mgr->stgEnmAnmFilename = stgEnm1;
-    mgr->stgEnm2AnmFilename = stgEnm2;
-    g_EnemyManagerCalcChain.callback = (ChainCallback)EnemyManager_OnUpdate;
-    g_EnemyManagerCalcChain.addedCallback = NULL;
-    g_EnemyManagerCalcChain.deletedCallback = NULL;
-    g_EnemyManagerCalcChain.addedCallback = (ChainAddedCallback)EnemyManager_AddedCallback;
-    g_EnemyManagerCalcChain.deletedCallback = (ChainAddedCallback)EnemyManager_DeletedCallback;
-    g_EnemyManagerCalcChain.arg = mgr;
-    if (g_Chain.AddToCalcChain(&g_EnemyManagerCalcChain, TH_CHAIN_PRIO_CALC_ENEMYMANAGER) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-    g_EnemyManagerDrawChain.callback = (ChainCallback)EnemyManager_OnDraw;
-    g_EnemyManagerDrawChain.addedCallback = NULL;
-    g_EnemyManagerDrawChain.deletedCallback = NULL;
-    g_EnemyManagerDrawChain.arg = mgr;
-    if (g_Chain.AddToDrawChain(&g_EnemyManagerDrawChain, TH_CHAIN_PRIO_DRAW_ENEMYMANAGER) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-    return ZUN_SUCCESS;
-}
-
 #pragma var_order(hitByBomb, damage, enemyIdx, enemyHitbox, enemyVmIdx, enemyLifeBeforeDmg, curEnemy)
 static ChainCallbackResult EnemyManager_OnUpdate(EnemyManager *mgr)
 {
@@ -839,6 +807,33 @@ static ZunResult EnemyManager_DeletedCallback(EnemyManager *mgr)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_ENEMY2);
     g_AnmManager->ReleaseAnm(ANM_FILE_ENEMY);
+    return ZUN_SUCCESS;
+}
+
+ZunResult EnemyManager_RegisterChain(const char *stgEnm1, const char *stgEnm2)
+{
+    EnemyManager *mgr = &g_EnemyManager;
+    mgr->Initialize();
+    mgr->stgEnmAnmFilename = stgEnm1;
+    mgr->stgEnm2AnmFilename = stgEnm2;
+    g_EnemyManagerCalcChain.callback = (ChainCallback)EnemyManager_OnUpdate;
+    g_EnemyManagerCalcChain.addedCallback = NULL;
+    g_EnemyManagerCalcChain.deletedCallback = NULL;
+    g_EnemyManagerCalcChain.addedCallback = (ChainAddedCallback)EnemyManager_AddedCallback;
+    g_EnemyManagerCalcChain.deletedCallback = (ChainAddedCallback)EnemyManager_DeletedCallback;
+    g_EnemyManagerCalcChain.arg = mgr;
+    if (g_Chain.AddToCalcChain(&g_EnemyManagerCalcChain, TH_CHAIN_PRIO_CALC_ENEMYMANAGER) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+    g_EnemyManagerDrawChain.callback = (ChainCallback)EnemyManager_OnDraw;
+    g_EnemyManagerDrawChain.addedCallback = NULL;
+    g_EnemyManagerDrawChain.deletedCallback = NULL;
+    g_EnemyManagerDrawChain.arg = mgr;
+    if (g_Chain.AddToDrawChain(&g_EnemyManagerDrawChain, TH_CHAIN_PRIO_DRAW_ENEMYMANAGER) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
     return ZUN_SUCCESS;
 }
 

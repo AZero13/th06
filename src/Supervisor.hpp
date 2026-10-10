@@ -33,6 +33,16 @@ namespace th06
 #define GAME_VERSION 0x0102
 #endif
 
+// The 0.13a trial's archive marker differs from its config and replay format version.
+// TODO: Check 0.08p and 0.13
+#if BUILD_VERSION == BUILD_VERSION_013a
+#define CONFIG_VERSION 0x0102
+#define REPLAY_VERSION 0x0102
+#else
+#define CONFIG_VERSION GAME_VERSION
+#define REPLAY_VERSION GAME_VERSION
+#endif
+
 struct GameConfigOpts
 {
     u32 useSwTextureBlending : 1;

@@ -22,12 +22,6 @@
 
 namespace th06
 {
-static ZunResult Player_DeletedCallback(Player *p);
-static ZunResult Player_AddedCallback(Player *p);
-static ChainCallbackResult Player_OnDrawLowPrio(Player *p);
-static ChainCallbackResult Player_OnDrawHighPrio(Player *p);
-static ChainCallbackResult Player_OnUpdate(Player *p);
-
 BombData g_BombData[] = {
     /* ReimuA  */ {BombReimuACalc, BombReimuADraw},
     /* ReimuB  */ {BombReimuBCalc, BombReimuBDraw},
@@ -835,30 +829,6 @@ f32 Player::AngleToPlayer(D3DXVECTOR3 *pos)
     return atan2f(relY, relX);
 }
 
-ZunResult Player_RegisterChain(u8 unk)
-{
-    Player *p = &g_Player;
-    memset(p, 0, sizeof(Player));
-
-    p->invulnerabilityTimer = 0;
-    p->unk_9e1 = unk;
-    p->chainCalc = g_Chain.CreateElem((ChainCallback)Player_OnUpdate);
-    p->chainDraw1 = g_Chain.CreateElem((ChainCallback)Player_OnDrawHighPrio);
-    p->chainDraw2 = g_Chain.CreateElem((ChainCallback)Player_OnDrawLowPrio);
-    p->chainCalc->arg = p;
-    p->chainDraw1->arg = p;
-    p->chainDraw2->arg = p;
-    p->chainCalc->addedCallback = (ChainAddedCallback)Player_AddedCallback;
-    p->chainCalc->deletedCallback = (ChainDeletedCallback)Player_DeletedCallback;
-    if (g_Chain.AddToCalcChain(p->chainCalc, TH_CHAIN_PRIO_CALC_PLAYER) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-    g_Chain.AddToDrawChain(p->chainDraw1, TH_CHAIN_PRIO_DRAW_LOW_PRIO_PLAYER);
-    g_Chain.AddToDrawChain(p->chainDraw2, TH_CHAIN_PRIO_DRAW_HIGH_PRIO_PLAYER);
-    return ZUN_SUCCESS;
-}
-
 #pragma var_order(vectorY, vectorX, idx, vecLength, bullet)
 static void UpdatePlayerBullets(Player *player)
 {
@@ -1381,6 +1351,30 @@ static ZunResult Player_DeletedCallback(Player *p)
     {
         g_AnmManager->ReleaseAnm(ANM_FILE_PLAYER);
     }
+    return ZUN_SUCCESS;
+}
+
+ZunResult Player_RegisterChain(u8 unk)
+{
+    Player *p = &g_Player;
+    memset(p, 0, sizeof(Player));
+
+    p->invulnerabilityTimer = 0;
+    p->unk_9e1 = unk;
+    p->chainCalc = g_Chain.CreateElem((ChainCallback)Player_OnUpdate);
+    p->chainDraw1 = g_Chain.CreateElem((ChainCallback)Player_OnDrawHighPrio);
+    p->chainDraw2 = g_Chain.CreateElem((ChainCallback)Player_OnDrawLowPrio);
+    p->chainCalc->arg = p;
+    p->chainDraw1->arg = p;
+    p->chainDraw2->arg = p;
+    p->chainCalc->addedCallback = (ChainAddedCallback)Player_AddedCallback;
+    p->chainCalc->deletedCallback = (ChainDeletedCallback)Player_DeletedCallback;
+    if (g_Chain.AddToCalcChain(p->chainCalc, TH_CHAIN_PRIO_CALC_PLAYER) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+    g_Chain.AddToDrawChain(p->chainDraw1, TH_CHAIN_PRIO_DRAW_LOW_PRIO_PLAYER);
+    g_Chain.AddToDrawChain(p->chainDraw2, TH_CHAIN_PRIO_DRAW_HIGH_PRIO_PLAYER);
     return ZUN_SUCCESS;
 }
 

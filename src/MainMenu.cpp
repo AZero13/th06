@@ -122,12 +122,7 @@ ZUN_ASSERT_TYPE(MainMenu, 0x10f34, 4);
 
 ZunResult LoadTitleAnm(MainMenu *menu);
 ZunResult LoadReplayMenu(MainMenu *menu);
-ChainCallbackResult MainMenu_OnUpdate(MainMenu *s);
-ChainCallbackResult MainMenu_OnDraw(MainMenu *s);
-ZunResult MainMenu_AddedCallback(MainMenu *s);
-ZunResult MainMenu_DeletedCallback(MainMenu *s);
 ZunResult LoadDiffCharSelect(MainMenu *s);
-void ReleaseTitleAnm();
 
 static CursorMovement MoveCursor(MainMenu *menu, i32 menuLength);
 static void SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBool unk);
@@ -283,12 +278,13 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
             vmList->baseSpriteIndex = vmList->activeSpriteIndex;
             DrawMenuItem(vmList, i / 2, menu->cursor, menu->color2, menu->color1, ARRAY_SIZE_SIGNED(menu->vm));
         }
-        if (menu->stateTimer >= 32)
 #pragma var_order(idx, controllerData)
+        if (menu->stateTimer >= 32)
         {
-            i16 idx;
             static i16 g_LastJoystickInput = TH_BUTTON_DOWN; // why???
+
             u8 *controllerData = Controller::GetControllerState();
+            i16 idx;
             for (idx = 0; idx < 32; idx++)
             {
                 if (controllerData[idx] & 0x80)
@@ -822,7 +818,7 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
                     refreshRate = 60.0f / 70.0f;
                 else
                     refreshRate = 1.0f;
-                utils::DebugPrint("Reflesh Rate = %f\n", 60.0f / refreshRate);
+                DebugPrint("Reflesh Rate = %f\n", 60.0f / refreshRate);
                 g_Supervisor.framerateMultiplier = refreshRate;
                 g_Supervisor.StopAudio();
                 return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
@@ -2247,34 +2243,7 @@ ZunResult LoadReplayMenu(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-ZunResult MainMenu_RegisterChain(ZunBool isDemo)
-{
-    MainMenu *menu = &g_MainMenu;
-
-    memset(menu, 0, sizeof(MainMenu));
-    g_GameManager.isInGameMenu = 0;
-    utils::DebugPrint(TH_DBG_MAINMENU_VRAM, g_Supervisor.d3dDevice->GetAvailableTextureMem());
-    menu->gameState = isDemo ? STATE_REPLAY_LOAD : STATE_STARTUP;
-    g_Supervisor.framerateMultiplier = 0.0f;
-    menu->chainCalc = g_Chain.CreateElem((ChainCallback)MainMenu_OnUpdate);
-    menu->chainCalc->arg = menu;
-    menu->chainCalc->addedCallback = (ChainAddedCallback)MainMenu_AddedCallback;
-    menu->chainCalc->deletedCallback = (ChainDeletedCallback)MainMenu_DeletedCallback;
-    menu->stateTimer = 0;
-    if (g_Chain.AddToCalcChain(menu->chainCalc, TH_CHAIN_PRIO_CALC_MAINMENU) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-    menu->chainDraw = g_Chain.CreateElem((ChainCallback)MainMenu_OnDraw);
-    menu->chainDraw->arg = menu;
-    g_Chain.AddToDrawChain(menu->chainDraw, TH_CHAIN_PRIO_DRAW_MAINMENU);
-    menu->lastFrameTime = 0;
-    menu->stateTimer = 60;
-    menu->frameCountForRefreshRateCalc = 0;
-    return ZUN_SUCCESS;
-}
-
-ZunResult MainMenu_AddedCallback(MainMenu *menu)
+static ZunResult MainMenu_AddedCallback(MainMenu *menu)
 {
 #if !TRIALBUILD
     if (!g_GameManager.demoMode)
@@ -2348,7 +2317,18 @@ ZunResult MainMenu_AddedCallback(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-ZunResult MainMenu_DeletedCallback(MainMenu *menu)
+static void ReleaseTitleAnm()
+{
+    // There's a bit of an off-by-one error here, where it frees
+    // ANM_FILE_SELECT01 in addition to the titles. I'm pretty sure this is
+    // unintentional.
+    for (i32 i = ANM_FILE_TITLE01; i <= ANM_FILE_SELECT01; i++)
+    {
+        g_AnmManager->ReleaseAnm(i);
+    }
+}
+
+static ZunResult MainMenu_DeletedCallback(MainMenu *menu)
 {
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
     ReleaseTitleAnm();
@@ -2365,14 +2345,30 @@ ZunResult MainMenu_DeletedCallback(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-void ReleaseTitleAnm()
+ZunResult MainMenu_RegisterChain(ZunBool isDemo)
 {
-    // There's a bit of an off-by-one error here, where it frees
-    // ANM_FILE_SELECT01 in addition to the titles. I'm pretty sure this is
-    // unintentional.
-    for (i32 i = ANM_FILE_TITLE01; i <= ANM_FILE_SELECT01; i++)
+    MainMenu *menu = &g_MainMenu;
+
+    memset(menu, 0, sizeof(MainMenu));
+    g_GameManager.isInGameMenu = 0;
+    DebugPrint(TH_DBG_MAINMENU_VRAM, g_Supervisor.d3dDevice->GetAvailableTextureMem());
+    menu->gameState = isDemo ? STATE_REPLAY_LOAD : STATE_STARTUP;
+    g_Supervisor.framerateMultiplier = 0.0f;
+    menu->chainCalc = g_Chain.CreateElem((ChainCallback)MainMenu_OnUpdate);
+    menu->chainCalc->arg = menu;
+    menu->chainCalc->addedCallback = (ChainAddedCallback)MainMenu_AddedCallback;
+    menu->chainCalc->deletedCallback = (ChainDeletedCallback)MainMenu_DeletedCallback;
+    menu->stateTimer = 0;
+    if (g_Chain.AddToCalcChain(menu->chainCalc, TH_CHAIN_PRIO_CALC_MAINMENU) != ZUN_SUCCESS)
     {
-        g_AnmManager->ReleaseAnm(i);
+        return ZUN_ERROR;
     }
+    menu->chainDraw = g_Chain.CreateElem((ChainCallback)MainMenu_OnDraw);
+    menu->chainDraw->arg = menu;
+    g_Chain.AddToDrawChain(menu->chainDraw, TH_CHAIN_PRIO_DRAW_MAINMENU);
+    menu->lastFrameTime = 0;
+    menu->stateTimer = 60;
+    menu->frameCountForRefreshRateCalc = 0;
+    return ZUN_SUCCESS;
 }
 } // namespace th06
