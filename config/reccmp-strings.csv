@@ -230,7 +230,7 @@ address,type,x-text
 0x46BB74,string,"霧雨 魔理沙 (魔)"
 0x46BB88,string,"博麗 霊夢 (夢)"
 0x46BB98,string,"博麗 霊夢 (霊)"
-0x46BBA8,string,"ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:;･@abcdefghijklmnopqrstuvwxyz+-/*=%0123456789(){}[]<>#!?'"$      --"
+0x46BBA8,string,"ABCDEFGHIJKLMNOPQRSTUVWXYZ.\,:;･@abcdefghijklmnopqrstuvwxyz+-/*=%0123456789(){}[]<>#!?'\"$      --"
 0x46BC09,string,""
 0x46bc0c,string,"        "
 0x46BC18,string,"HSCR"
