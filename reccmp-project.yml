@@ -27,6 +27,9 @@ targets:
       sha256: 5644a84820254cbb63525b887e9880007e752774a541dd75aebe0d7285a39ff6
     data_sources:
       - config/reccmp-functions-013a.csv
+      - config/reccmp-globals-013a.csv
+      - config/reccmp-floats-013a.csv
+      - config/reccmp-strings-013a.csv
     encoding:
     ghidra:
       ignore_types: []
