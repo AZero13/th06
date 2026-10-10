@@ -584,9 +584,8 @@ void Supervisor::ReleasePbg3(i32 pbg3FileIdx)
     // Pbg3Archive to be freed multiple times, which can result in crashes.
     //
     // For some reason, this double-free doesn't cause crashes in the original
-    // game. However, this can cause problems in dllbuilds of the game. Maybe
-    // some accuracy improvements in the PBG3 handling will remove this
-    // difference.
+    // game. Maybe some accuracy improvements in the PBG3 handling will show
+    // why.
     this->pbg3Archives[pbg3FileIdx]->Release();
     ZUN_DELETE(this->pbg3Archives[pbg3FileIdx]);
 }

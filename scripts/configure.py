@@ -128,10 +128,6 @@ def configure(build_type, build_version, ver_suffix):
             "python scripts/generate_i18n.py $in $out",
         )
         writer.rule(
-            "gendef",
-            "python scripts/gendef.py --output $out $in",
-        )
-        writer.rule(
             "rename_symbols",
             "python scripts/generate_objdiff_objs.py $in",
         )
@@ -289,12 +285,6 @@ def configure(build_type, build_version, ver_suffix):
             "rc",
             inputs="resources/th06.rc",
             implicit="$builddir/icon.ico",
-        )
-        writer.build(
-            "$builddir/th06.def",
-            "gendef",
-            inputs=["$builddir/" + x + ".obj" for x in (cxx_sources + pbg3_sources)],
-            implicit=["scripts/gendef.py"],
         )
         objfiles = (
             ["$builddir/" + src + ".obj" for src in cxx_sources]
