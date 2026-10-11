@@ -299,14 +299,17 @@ static ZunResult GameManager_AddedCallback(GameManager *mgr)
         }
         scoredat = OpenScore("score.dat");
         g_GameManager.highScore =
-            GetHighScore(scoredat, NULL, (g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType), g_GameManager.difficulty);
+            GetHighScore(scoredat, NULL, (g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType),
+                         g_GameManager.difficulty);
         ParseCatk(scoredat, mgr->catk);
         ParseClrd(scoredat, mgr->clrd);
         ParsePscr(scoredat, (Pscr *)mgr->pscr);
         if (mgr->isInPracticeMode)
         {
             g_GameManager.highScore =
-                mgr->pscr[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)][g_GameManager.currentStage][g_GameManager.difficulty].score;
+                mgr->pscr[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)]
+                         [g_GameManager.currentStage][g_GameManager.difficulty]
+                             .score;
         }
         ReleaseScoreDat(scoredat);
         mgr->rank = g_DifficultyInfo[g_GameManager.difficulty].rank;
