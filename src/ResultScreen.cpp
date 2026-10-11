@@ -2014,7 +2014,8 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
             {
                 g_AsciiManager.AddFormatText(
                     &pos, "No.%.2d %8s %8s %7s %9d", i + 1, resultScreen->replayName, resultScreen->defaultReplay.date,
-                    g_ShortCharacterList2[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)], resultScreen->defaultReplay.score);
+                    g_ShortCharacterList2[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)],
+                    resultScreen->defaultReplay.score);
                 g_AsciiManager.SetColor(COLOR_BARELY_BLUE);
 
                 *(u32 *)&name[0] = *(u32 *)"    ";
@@ -2144,10 +2145,14 @@ static ZunResult ResultScreen_AddedCallback(ResultScreen *resultScreen)
     }
 
     if (resultScreen->resultScreenState == RESULT_SCREEN_STATE_EXIT &&
-        g_GameManager.pscr[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)][g_GameManager.currentStage - 1][g_GameManager.difficulty]
+        g_GameManager
+                .pscr[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)]
+                     [g_GameManager.currentStage - 1][g_GameManager.difficulty]
                 .score < g_GameManager.score)
     {
-        g_GameManager.pscr[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)][g_GameManager.currentStage - 1][g_GameManager.difficulty]
+        g_GameManager
+            .pscr[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)]
+                 [g_GameManager.currentStage - 1][g_GameManager.difficulty]
             .score = g_GameManager.score;
     }
 

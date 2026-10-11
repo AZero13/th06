@@ -111,7 +111,10 @@ def configure(build_type, build_version, ver_suffix):
         writer.pool("vc7_pch", 1)
         writer.variable(
             "pchdir",
-            "$builddir/pch/" + build_type.name.lower() + "-" + format(build_version.value, "05x"),
+            "$builddir/pch/"
+            + build_type.name.lower()
+            + "-"
+            + format(build_version.value, "05x"),
         )
         writer.rule(
             "cc_pch_create",

@@ -815,7 +815,8 @@ restart_sub_changed:
                             {
                                 catk->characterShotType[idx] = catk->characterShotType[idx - 1];
                             }
-                            catk->characterShotType[0] = (g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType);
+                            catk->characterShotType[0] =
+                                (g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType);
                         }
                         g_GameManager.spellcardsCaptured++;
                     }

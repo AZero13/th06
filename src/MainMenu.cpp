@@ -852,7 +852,8 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
             menu->cursor = g_GameManager.menuCursorBackup;
 
             i32 stagesCleared =
-                min(6, g_GameManager.clrd[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)].stagesCleared[g_GameManager.difficulty]);
+                min(6, g_GameManager.clrd[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)]
+                           .stagesCleared[g_GameManager.difficulty]);
             if (g_GameManager.difficulty == EASY && stagesCleared == 6)
             {
                 stagesCleared = 5;
@@ -865,7 +866,8 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
         break;
     case STATE_PRACTICE_LVL_SELECT: {
         u32 chosenStage =
-            min(6, g_GameManager.clrd[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)].stagesCleared[g_GameManager.difficulty]);
+            min(6, g_GameManager.clrd[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)]
+                       .stagesCleared[g_GameManager.difficulty]);
         if (g_GameManager.difficulty == EASY && chosenStage == 6)
         {
             chosenStage = 5;

@@ -14,7 +14,7 @@
 namespace th06
 {
 BSS_SORT(K3) ItemManager g_ItemManager;
-BSS_SORT(K4) ChainElem g_ItemManagerCalcChain; // unused
+BSS_SORT(K4) ChainElem g_ItemManagerCalcChain;          // unused
 BSS_SORT_FIRST(K2, 8) ChainElem g_ItemManagerDrawChain; // unused
 
 void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, ItemState state)
