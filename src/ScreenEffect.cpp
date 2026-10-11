@@ -1,4 +1,7 @@
+#include "stdafx.h"
+
 #include "ScreenEffect.hpp"
+#include "GameManager.hpp"
 #include "AnmManager.hpp"
 #include "ChainPriorities.hpp"
 #include "GameWindow.hpp"

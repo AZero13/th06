@@ -4,6 +4,7 @@
 #include <d3dx8math.h>
 
 #include "Chain.hpp"
+#include "GameWindow.hpp"
 #include "Global.hpp"
 #include "ResultScreen.hpp"
 #include "ZunResult.hpp"
@@ -30,21 +31,6 @@ enum StageNumber
     FINAL_STAGE,
     EXTRA_STAGE,
 };
-
-#define GAME_REGION_POS_X 32.0f
-#define GAME_REGION_POS_Y 16.0f
-
-#define GAME_REGION_WIDTH 384.0f
-#define GAME_REGION_HEIGHT 448.0f
-
-#define GAME_REGION_POS_RIGHT (GAME_REGION_POS_X + GAME_REGION_WIDTH)
-#define GAME_REGION_POS_BOTTOM (GAME_REGION_POS_Y + GAME_REGION_HEIGHT)
-
-#define GAME_REGION_LEFT 0.0f
-#define GAME_REGION_TOP 0.0f
-
-#define GAME_REGION_RIGHT (GAME_REGION_LEFT + GAME_REGION_WIDTH)
-#define GAME_REGION_BOTTOM (GAME_REGION_TOP + GAME_REGION_HEIGHT)
 
 #define MAX_POWER 128
 
@@ -139,11 +125,6 @@ ZunResult GameManager_RegisterChain();
 void GameManager_CutChain();
 void GameManager_SetupCamera(f32 extraRenderDistance);
 void GameManager_SetupCameraStageBackground(f32 extraRenderDistance);
-
-inline i32 GameManager_CharacterShotType()
-{
-    return g_GameManager.shotType + g_GameManager.character * SHOTTYPES_PER_CHARACTER;
-}
 
 ZUN_ASSERT_TYPE(GameManager, 0x1a80, 4);
 } // namespace th06

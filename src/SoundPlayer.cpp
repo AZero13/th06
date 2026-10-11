@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "SoundPlayer.hpp"
 
 #include "Global.hpp"

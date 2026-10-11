@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Supervisor.hpp"
 #include "AnmManager.hpp"
 #include "AsciiManager.hpp"

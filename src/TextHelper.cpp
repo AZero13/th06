@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "TextHelper.hpp"
 #include "GameWindow.hpp"
 #include "Supervisor.hpp"

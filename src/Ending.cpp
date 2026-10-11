@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Ending.hpp"
 #include "AnmIdx.hpp"
 #include "AnmManager.hpp"

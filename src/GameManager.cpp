@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "GameManager.hpp"
 #include "AsciiManager.hpp"
 #include "BulletManager.hpp"
@@ -297,14 +299,14 @@ static ZunResult GameManager_AddedCallback(GameManager *mgr)
         }
         scoredat = OpenScore("score.dat");
         g_GameManager.highScore =
-            GetHighScore(scoredat, NULL, GameManager_CharacterShotType(), g_GameManager.difficulty);
+            GetHighScore(scoredat, NULL, (g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType), g_GameManager.difficulty);
         ParseCatk(scoredat, mgr->catk);
         ParseClrd(scoredat, mgr->clrd);
         ParsePscr(scoredat, (Pscr *)mgr->pscr);
         if (mgr->isInPracticeMode)
         {
             g_GameManager.highScore =
-                mgr->pscr[GameManager_CharacterShotType()][g_GameManager.currentStage][g_GameManager.difficulty].score;
+                mgr->pscr[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)][g_GameManager.currentStage][g_GameManager.difficulty].score;
         }
         ReleaseScoreDat(scoredat);
         mgr->rank = g_DifficultyInfo[g_GameManager.difficulty].rank;
@@ -326,7 +328,7 @@ static ZunResult GameManager_AddedCallback(GameManager *mgr)
     mgr->currentStage++;
     if (!g_GameManager.isInReplay)
     {
-        clrdIdx = GameManager_CharacterShotType();
+        clrdIdx = (g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType);
         if (mgr->numRetries == 0 &&
             mgr->clrd[clrdIdx].stagesClearedWithoutContinues[g_GameManager.difficulty] < mgr->currentStage - 1)
         {

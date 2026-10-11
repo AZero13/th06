@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ItemManager.hpp"
 
 #include "AnmManager.hpp"
@@ -13,11 +15,7 @@ namespace th06
 {
 BSS_SORT(K3) ItemManager g_ItemManager;
 BSS_SORT(K4) ChainElem g_ItemManagerCalcChain; // unused
-BSS_SORT(K2)
-#if !DISABLE_BSS_HACK
-__declspec(align(8))
-#endif
-ChainElem g_ItemManagerDrawChain; // unused
+BSS_SORT_FIRST(K2, 8) ChainElem g_ItemManagerDrawChain; // unused
 
 void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, ItemState state)
 {

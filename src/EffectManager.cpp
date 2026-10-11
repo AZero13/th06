@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "EffectManager.hpp"
 
 #include "AnmManager.hpp"

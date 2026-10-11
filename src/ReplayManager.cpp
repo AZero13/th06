@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <time.h>

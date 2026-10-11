@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "AnmIdx.hpp"
 #include "Player.hpp"
 #include "SoundPlayer.hpp"

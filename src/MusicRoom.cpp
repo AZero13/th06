@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "MusicRoom.hpp"
 #include "AnmManager.hpp"
 #include "AsciiManager.hpp"

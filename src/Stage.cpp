@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Stage.hpp"
 #include "AnmIdx.hpp"
 #include "AnmManager.hpp"
@@ -14,12 +16,9 @@
 
 namespace th06
 {
-#if !DISABLE_BSS_HACK
-BSS_SORT(B1) i32 g_StagePad;
-#endif
 BSS_SORT(B3) Stage g_Stage;
 BSS_SORT(B5) ChainElem g_StageCalcChain;
-BSS_SORT(B2) ChainElem g_StageOnDrawHighPrioChain;
+BSS_SORT_FIRST(B2, 8) ChainElem g_StageOnDrawHighPrioChain;
 BSS_SORT(B4) ChainElem g_StageOnDrawLowPrioChain;
 
 #define GET_ARG(type, num) ((type *)curInstr->args)[num]

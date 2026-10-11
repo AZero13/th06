@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 //-----------------------------------------------------------------------------
 // File: DSUtil.cpp
 //
@@ -7,7 +9,6 @@
 //
 // Copyright (c) 1999-2000 Microsoft Corp. All rights reserved.
 //-----------------------------------------------------------------------------
-#define STRICT
 #include "zwave.hpp"
 #include "Global.hpp"
 #include <dsound.h>

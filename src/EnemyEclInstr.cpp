@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "EnemyEclInstr.hpp"
 #include "BulletManager.hpp"
 #include "EclManager.hpp"

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <D3DX8.h>
 #include <direct.h>
 #include <stdio.h>
@@ -6,7 +8,6 @@
 #include "MainMenu.hpp"
 
 #include "AnmManager.hpp"
-#include "AsciiManager.hpp"
 #include "ChainPriorities.hpp"
 #include "GameManager.hpp"
 #include "GameWindow.hpp"
@@ -21,11 +22,11 @@
 #include "ZunColor.hpp"
 #include "ZunTimer.hpp"
 #include "i18n.hpp"
+#include "AsciiManager.hpp"
 
 namespace th06
 {
-// This is the final section, so force it into the same group as
-// all the library stuff to prevent an extra 16 bytes of padding
+// g_MainMenu has no sort key of its own: it goes in the final group with the library data.
 AUTO_BSS_SORT(zzzzzzzzzz);
 
 enum GameState
@@ -851,7 +852,7 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
             menu->cursor = g_GameManager.menuCursorBackup;
 
             i32 stagesCleared =
-                min(6, g_GameManager.clrd[GameManager_CharacterShotType()].stagesCleared[g_GameManager.difficulty]);
+                min(6, g_GameManager.clrd[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)].stagesCleared[g_GameManager.difficulty]);
             if (g_GameManager.difficulty == EASY && stagesCleared == 6)
             {
                 stagesCleared = 5;
@@ -864,7 +865,7 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
         break;
     case STATE_PRACTICE_LVL_SELECT: {
         u32 chosenStage =
-            min(6, g_GameManager.clrd[GameManager_CharacterShotType()].stagesCleared[g_GameManager.difficulty]);
+            min(6, g_GameManager.clrd[(g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType)].stagesCleared[g_GameManager.difficulty]);
         if (g_GameManager.difficulty == EASY && chosenStage == 6)
         {
             chosenStage = 5;
@@ -1130,7 +1131,7 @@ ZunBool MainMenu::WeirdSecondInputCheck()
     return false;
 }
 
-#pragma var_order(i, drawVm)
+#pragma var_order(i, vm)
 ZunResult MainMenu::DrawStartMenu(void)
 {
     i32 i = MoveCursor(this, 8);
@@ -1990,17 +1991,17 @@ ZunResult MainMenu::ChoosePracticeLevel()
         {
             if (i == this->cursor)
             {
-                g_AsciiManager.SetColor(alpha << 24 | 0x00C0F0F0);
+                g_AsciiManager.color = alpha << 24 | 0x00C0F0F0;
             }
             else
             {
-                g_AsciiManager.SetColor((alpha >> 1) << 24 | 0x0080C0C0);
+                g_AsciiManager.color = (alpha >> 1) << 24 | 0x0080C0C0;
             }
             g_AsciiManager.AddFormatText(&textPos, "STAGE %d  %.9d", i + 1,
                                          g_GameManager.pscr[shottype][i][g_GameManager.difficulty].score);
             textPos.y += 24.0f;
         }
-        g_AsciiManager.SetColor(COLOR_WHITE);
+        g_AsciiManager.color = COLOR_WHITE;
     }
     return ZUN_SUCCESS;
 }

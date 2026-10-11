@@ -1,4 +1,5 @@
-#define DIRECTINPUT_VERSION 0x0800
+#include "stdafx.h"
+
 #include <d3d8.h>
 #include <stdio.h>
 #include <string.h>
