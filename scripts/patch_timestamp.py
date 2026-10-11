@@ -3,6 +3,7 @@
 
 import sys
 
+
 def patch_timestamp(exe_path, timestamp_value):
     with open(exe_path, "r+b") as exe:
         # Offset for pointer to PE header.
