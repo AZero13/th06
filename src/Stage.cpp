@@ -16,9 +16,9 @@
 
 namespace th06
 {
-BSS_SORT(B3) Stage g_Stage;
+MANUAL_BSS_SORT(B3) Stage g_Stage;
 BSS_SORT(B5) ChainElem g_StageCalcChain;
-BSS_SORT_FIRST(B2, 8) ChainElem g_StageOnDrawHighPrioChain;
+MANUAL_BSS_SORT(B3) ChainElem g_StageOnDrawHighPrioChain;
 BSS_SORT(B4) ChainElem g_StageOnDrawLowPrioChain;
 
 #define GET_ARG(type, num) ((type *)curInstr->args)[num]

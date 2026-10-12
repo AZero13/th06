@@ -122,7 +122,7 @@ ZUN_ASSERT_TYPE(ResultScreen, 0x56b0, 4);
 static void MoveResultCursor(ResultScreen *r, i32 len);
 static ZunBool MoveResultCursorHorizontally(ResultScreen *r, i32 len);
 
-const char *g_AlphabetList = TH_KEYBOARD;
+static const char *g_AlphabetList = TH_KEYBOARD;
 
 // clang-format off
 const char *g_CharacterList[] = {

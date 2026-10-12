@@ -31,7 +31,7 @@ u8 g_RandomItems[] = {
 // clang-format on
 
 BSS_SORT(E4) ChainElem g_EnemyManagerCalcChain;
-BSS_SORT_FIRST(E2, 8) ChainElem g_EnemyManagerDrawChain;
+BSS_SORT(E3) ChainElem g_EnemyManagerDrawChain;
 BSS_SORT(E3) EnemyManager g_EnemyManager;
 
 #pragma var_order(i, enemy)

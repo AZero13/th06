@@ -70,7 +70,7 @@ SpawnEffectColors g_BulletSpawnEffects8Colors[] = {
 };
 
 BSS_SORT(F4) ChainElem g_BulletManagerCalcChain;
-BSS_SORT_FIRST(F2, 8) ChainElem g_BulletManagerDrawChain;
+BSS_SORT(F3) ChainElem g_BulletManagerDrawChain;
 BSS_SORT(F3) BulletManager g_BulletManager;
 
 struct BulletTypeInfo
