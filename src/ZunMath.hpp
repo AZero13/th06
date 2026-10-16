@@ -22,8 +22,8 @@ struct ZunVec3
     }
 };
 
-inline void ZunVec3_SetVecCorners(ZunVec3 *topLeftCorner, ZunVec3 *bottomRightCorner, const D3DXVECTOR3 *centerPosition,
-                                  const D3DXVECTOR3 *size)
+inline void SetVecCorners(D3DXVECTOR3 *topLeftCorner, D3DXVECTOR3 *bottomRightCorner,
+                                  const D3DXVECTOR3 *centerPosition, const D3DXVECTOR3 *size)
 {
     topLeftCorner->x = centerPosition->x - size->x / 2.0f;
     topLeftCorner->y = centerPosition->y - size->y / 2.0f;
