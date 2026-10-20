@@ -26,7 +26,7 @@ ControllerMapping g_ControllerMapping = {
 BSS_SORT(J1) Chain g_Chain;
 
 // Controller
-BSS_SORT(J5) u8 g_ControllerData[128];
+extern u8 g_ControllerData[128];
 #if !TRIALBUILD
 BSS_SORT(I1) JOYCAPS g_JoystickCaps;
 #endif
@@ -861,8 +861,6 @@ void CMyFont::Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h)
     SelectObject(hTextDC, hOldFont);
     DeleteObject(hFont);
 }
-
-BSS_SORT(J6) LPDIRECT3DSURFACE8 g_TextBufferSurface;
 
 // ----------------------------------------------------------------------------
 void CMyFont::Print(char *str, int x, int y, D3DCOLOR color)

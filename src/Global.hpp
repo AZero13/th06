@@ -190,6 +190,16 @@ struct Rng
         this->generationCount = 0;
     }
 
+    void ResetGenerationCount()
+    {
+        this->generationCount = 0;
+    }
+
+    u16 GetSeed()
+    {
+        return this->seed;
+    }
+
     u16 GetRandomU16InRange(u16 range)
     {
         return range != 0 ? this->GetRandomU16() % range : 0;

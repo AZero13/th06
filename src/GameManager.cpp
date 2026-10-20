@@ -342,8 +342,8 @@ static ZunResult GameManager_AddedCallback(GameManager *mgr)
         mgr->minRank = g_DifficultyInfoForReplay[g_GameManager.difficulty].minRank;
         mgr->maxRank = g_DifficultyInfoForReplay[g_GameManager.difficulty].maxRank;
     }
-    g_Rng.generationCount = 0;
-    mgr->randomSeed = g_Rng.seed;
+    g_Rng.ResetGenerationCount();
+    mgr->randomSeed = g_Rng.GetSeed();
     if (Stage_RegisterChain(mgr->currentStage) != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_STAGE);

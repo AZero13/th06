@@ -324,7 +324,7 @@ ZunResult SoundPlayer::LoadPos(const char *path)
     {
         return ZUN_ERROR;
     }
-    bgmFile = this->backgroundMusic->m_pWaveFile;
+    bgmFile = this->backgroundMusic->GetWaveFile();
     loopEnd = *(i32 *)(fileData + 4) * 4;
     loopStart = *(i32 *)(fileData) * 4;
     bgmFile->m_loopStartPoint = loopStart;

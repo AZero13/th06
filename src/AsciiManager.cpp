@@ -54,7 +54,7 @@ ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *mgr)
 ChainCallbackResult AsciiManager_OnDrawMenus(AsciiManager *mgr)
 {
     mgr->DrawStrings();
-    mgr->numStrings = 0;
+    mgr->ResetStrings();
     mgr->gameMenu.OnDrawGameMenu();
     mgr->retryMenu.OnDrawRetryMenu();
     return CHAIN_CALLBACK_RESULT_CONTINUE;

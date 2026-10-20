@@ -5,6 +5,8 @@
 
 namespace th06
 {
+BSS_SORT(J5) u8 g_ControllerData[128];
+BSS_SORT(J6) LPDIRECT3DSURFACE8 g_TextBufferSurface;
 
 // Reconstruction of discarded font utilities, based on TH10 at 0x436890
 // and 0x4372a0/0x437380. Names and the exact TH06 implementation remain uncertain.

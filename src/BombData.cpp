@@ -7,6 +7,9 @@
 
 namespace th06
 {
+BSS_SORT(C1) i32 g_PlayerShot;
+BSS_SORT(C2) f32 g_PlayerDistance;
+BSS_SORT(C3) f32 g_PlayerAngle;
 
 #pragma var_order(angleY, angleX, i, bombSprite, vecLength, bombPivot, bombIdx)
 void BombReimuACalc(Player *player)

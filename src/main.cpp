@@ -735,9 +735,9 @@ static void GameWindow_InitD3dDevice(void)
     g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTADDRESS_WRAP);
     if (g_AnmManager != NULL)
     {
-        g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
-        g_AnmManager->SetCurrentColorOp(AnmColorOp_NotSet);
-        g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
+        g_AnmManager->ClearBlendMode();
+        g_AnmManager->ClearColorOp();
+        g_AnmManager->ClearVertexShader();
         g_AnmManager->ClearTexture();
     }
     g_Stage.skyFogNeedsSetup = true;

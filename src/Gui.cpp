@@ -838,10 +838,10 @@ ZunResult GuiImpl::DrawDialogue()
     }
     g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_DIFFUSE | D3DFVF_XYZRHW);
     g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertices, sizeof(VertexDiffuseXyzrwh));
-    g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
-    g_AnmManager->SetCurrentColorOp(AnmColorOp_NotSet);
-    g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
-    g_AnmManager->SetCurrentZWriteDisable(AnmZWriteState_NotSet);
+    g_AnmManager->ClearVertexShader();
+    g_AnmManager->ClearColorOp();
+    g_AnmManager->ClearBlendMode();
+    g_AnmManager->ClearZWrite();
     if (!g_Supervisor.IsColorCompositingDisabled())
     {
         g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
@@ -1249,10 +1249,10 @@ void Gui::DrawGameScene()
             }
             g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_DIFFUSE | D3DFVF_XYZRHW);
             g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vertices, sizeof(VertexDiffuseXyzrwh));
-            g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
-            g_AnmManager->SetCurrentColorOp(AnmColorOp_NotSet);
-            g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
-            g_AnmManager->SetCurrentZWriteDisable(AnmZWriteState_NotSet);
+            g_AnmManager->ClearVertexShader();
+            g_AnmManager->ClearColorOp();
+            g_AnmManager->ClearBlendMode();
+            g_AnmManager->ClearZWrite();
             if (!g_Supervisor.IsColorCompositingDisabled())
             {
                 g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);

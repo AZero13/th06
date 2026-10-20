@@ -66,9 +66,9 @@ ExInsn g_EclExInsn[] = {
 
 BSS_SORT(C5) ChainElem g_EclManagerCalcChain; // unused
 BSS_SORT(C4) EclManager g_EclManager;
-BSS_SORT(C1) i32 g_PlayerShot;
-BSS_SORT(C2) f32 g_PlayerDistance;
-BSS_SORT(C3) f32 g_PlayerAngle;
+extern i32 g_PlayerShot;
+extern f32 g_PlayerDistance;
+extern f32 g_PlayerAngle;
 
 ZunResult EclManager::Load(const char *eclPath)
 {
@@ -581,14 +581,14 @@ restart_sub_changed:
             if (GET_INSTR_INT_ARG(0) >= 0)
             {
                 g_EnemyManager.bosses[GET_INSTR_INT_ARG(0)] = enemy;
-                g_Gui.bossPresent = true;
+                g_Gui.SetBossPresent(true);
                 g_Gui.SetBossHealthBar(1.0f);
                 enemy->flags.isBoss = true;
                 enemy->bossId = GET_INSTR_INT_ARG(0);
             }
             else
             {
-                g_Gui.bossPresent = false;
+                g_Gui.SetBossPresent(false);
                 g_EnemyManager.bosses[enemy->bossId] = NULL;
                 enemy->flags.isBoss = false;
             }
@@ -759,8 +759,7 @@ restart_sub_changed:
             g_EnemyManager.spellcardInfo.idx = GET_INSTR_SHORT_ARG(1);
             g_EnemyManager.spellcardInfo.captureScore = g_SpellcardScore[g_EnemyManager.spellcardInfo.idx];
             g_BulletManager.TurnAllBulletsIntoPoints();
-            g_Stage.spellcardState = RUNNING;
-            g_Stage.ticksSinceSpellcardStarted = 0;
+            g_Stage.StartSpellcard();
             enemy->ResetRank();
             Catk *catk = &g_GameManager.catk[g_EnemyManager.spellcardInfo.idx];
             i32 csum = 0;
@@ -821,7 +820,7 @@ restart_sub_changed:
                 }
                 g_EnemyManager.spellcardInfo.isActive = 0;
             }
-            g_Stage.spellcardState = NOT_RUNNING;
+            g_Stage.EndSpellcard();
             break;
         case ECL_OPCODE_PHASE_TIMER_SET:
             enemy->phaseTimer = GET_INSTR_INT_ARG(0);

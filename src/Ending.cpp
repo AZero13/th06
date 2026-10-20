@@ -545,8 +545,8 @@ static ZunResult Ending_AddedCallback(Ending *ending)
 
     g_AnmManager->ClearTexture();
     g_AnmManager->ClearSprite();
-    g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
-    g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
+    g_AnmManager->ClearBlendMode();
+    g_AnmManager->ClearVertexShader();
 
     i32 shottype = CURRENT_SHOTTYPE();
     ending->hasSeenEnding = false;

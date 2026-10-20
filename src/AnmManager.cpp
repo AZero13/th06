@@ -375,9 +375,9 @@ void AnmManager::ReleaseAnm(i32 anmIdx)
         this->ReleaseTexture(entry->textureIdx);
         ZUN_FREE(this->anmFiles[anmIdx]);
         this->anmFiles[anmIdx] = NULL;
-        this->SetCurrentBlendMode(AnmBlendMode_NotSet);
-        this->SetCurrentColorOp(AnmColorOp_NotSet);
-        this->SetCurrentVertexShader(AnmVertexShader_NotSet);
+        this->ClearBlendMode();
+        this->ClearColorOp();
+        this->ClearVertexShader();
         this->ClearTexture();
     }
 }
