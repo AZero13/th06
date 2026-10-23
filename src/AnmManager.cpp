@@ -373,10 +373,10 @@ void AnmManager::ReleaseAnm(i32 anmIdx)
         this->ReleaseTexture(entry->textureIdx);
         ZUN_FREE(this->anmFiles[anmIdx]);
         this->anmFiles[anmIdx] = NULL;
-        this->ClearBlendMode();
-        this->ClearColorOp();
-        this->ClearVertexShader();
-        this->ClearTexture();
+        this->currentBlendMode = AnmBlendMode_NotSet;
+        this->currentColorOp = AnmColorOp_NotSet;
+        this->currentVertexShader = AnmVertexShader_NotSet;
+        this->currentTexture = NULL;
     }
 }
 
@@ -1055,8 +1055,8 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
                 vm->posOffset = D3DXVECTOR3(GET_FLOAT_ARG(0), GET_FLOAT_ARG(1), GET_FLOAT_ARG(2));
             }
             break;
-        case ANM_OPCODE_MOVE_POSITION_INTERP_ACCELERATE_SLOW:
-            vm->flags.moveInterpMode = AnmVmInterp_AccelerateSlow;
+        case ANM_OPCODE_MOVE_POSITION_INTERP_DECELERATE_FAST:
+            vm->flags.moveInterpMode = AnmVmInterp_DecelerateFast;
             goto move_position_interp_common;
         case ANM_OPCODE_MOVE_POSITION_INTERP_DECELERATE_SLOW:
             vm->flags.moveInterpMode = AnmVmInterp_DecelerateSlow;
@@ -1254,7 +1254,7 @@ break_parser:
             interpVal *= interpVal;
             interpVal = 1.0f - interpVal;
             break;
-        case AnmVmInterp_AccelerateSlow:
+        case AnmVmInterp_DecelerateFast:
             interpVal = 1.0f - interpVal;
             interpVal = interpVal * interpVal * interpVal * interpVal;
             interpVal = 1.0f - interpVal;

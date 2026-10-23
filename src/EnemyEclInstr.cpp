@@ -137,12 +137,16 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *curInstr)
 #undef PLAYER_POS
 }
 
-#define FIRE_EARTH_SIGN_LAVA_CROMLECH 0
-#define WOOD_FIRE_SIGN_FOREST_BLAZE 1
-#define WATER_WOOD_SIGN_WATER_ELF 2
-#define METAL_WATER_SIGN_MERCURY_POISON 3
-#define EARTH_METAL_SIGN_EMERALD_MEGALITH 4
+enum PatchouliSpells
+{
+    FIRE_EARTH_SIGN_LAVA_CROMLECH,
+    WOOD_FIRE_SIGN_FOREST_BLAZE,
+    WATER_WOOD_SIGN_WATER_ELF,
+    METAL_WATER_SIGN_MERCURY_POISON,
+    EARTH_METAL_SIGN_EMERALD_MEGALITH
+};
 
+#if BUILT_SINCE(100)
 // clang-format off
 // NOTE: The CI will try to reformat this into unreadable mess
 i32 g_PatchouliShottypeVars[CHARACTER_COUNT][SHOTTYPES_PER_CHARACTER][3] = {
@@ -172,12 +176,49 @@ i32 g_PatchouliShottypeVars[CHARACTER_COUNT][SHOTTYPES_PER_CHARACTER][3] = {
     }
 };
 // clang-format on
+#endif
 
 void ExInsPatchouliShottypeSetVars(Enemy *enemy, EclRawInstr *curInstr)
 {
+#if BUILT_SINCE(100)
     enemy->currentContext.int1 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][0];
     enemy->currentContext.int2 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][1];
     enemy->currentContext.int3 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][2];
+#else
+    // This kinda explains why this was originally an
+    // ex instruction and not just some ECL if statements
+
+    // clang-format off
+    u8 spells[] = {
+        FIRE_EARTH_SIGN_LAVA_CROMLECH,
+        WOOD_FIRE_SIGN_FOREST_BLAZE,
+        WATER_WOOD_SIGN_WATER_ELF,
+        METAL_WATER_SIGN_MERCURY_POISON,
+        EARTH_METAL_SIGN_EMERALD_MEGALITH,
+    };
+    // clang-format on
+
+    i32 spell1 = g_Rng.GetRandomU16InRange(ARRAY_SIZE(spells));
+    enemy->currentContext.int1 = spell1;
+    if (spell1 != 4)
+    {
+        u8 temp = spells[spell1];
+        spells[spell1] = spells[4];
+        spells[4] = temp;
+    }
+
+    u32 spell2 = spells[g_Rng.GetRandomU16InRange(ARRAY_SIZE(spells) - 1)];
+    enemy->currentContext.int2 = spell2;
+    if (spell2 != 3)
+    {
+        u8 temp = spells[spell2];
+        spells[spell2] = spells[3];
+        spells[3] = temp;
+    }
+
+    u32 spell3 = g_Rng.GetRandomU16InRange(ARRAY_SIZE(spells) - 2);
+    enemy->currentContext.int3 = spells[spell3];
+#endif
 }
 
 #pragma var_order(playerBulletOffsetY, playerBulletOffsetX, bulletsLeft, i, currentBullet)

@@ -9,50 +9,41 @@ static LPDIRECT3DSURFACE8 g_TextBufferSurface;
 
 // Reconstruction of discarded font utilities, based on TH10 at 0x436890
 // and 0x4372a0/0x437380. Names and the exact TH06 implementation remain uncertain.
-struct TextFont
+TextFont::TextFont()
 {
-    HFONT font;
-    i32 width;
-    i32 height;
-    std::string name;
-    i32 weight;
+    font = NULL;
+    width = 0;
+    height = 16;
+    weight = FW_SEMIBOLD;
+    name = TH_FONT_NAME;
+}
 
-    TextFont()
+TextFont::~TextFont()
+{
+    Release();
+}
+
+void TextFont::SetName(const char *value)
+{
+    name = value;
+}
+
+void TextFont::Release()
+{
+    if (font != NULL)
     {
+        DeleteObject(font);
         font = NULL;
-        width = 0;
-        height = 16;
-        weight = FW_SEMIBOLD;
-        name = TH_FONT_NAME;
     }
+}
 
-    ~TextFont()
-    {
-        Release();
-    }
-
-    void SetName(const char *value)
-    {
-        name = value;
-    }
-
-    void Release()
-    {
-        if (font != NULL)
-        {
-            DeleteObject(font);
-            font = NULL;
-        }
-    }
-
-    HFONT Create()
-    {
-        Release();
-        font = CreateFont(height, width, 0, 0, weight, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
-                          CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_MODERN | DEFAULT_PITCH, name.c_str());
-        return font;
-    }
-};
+HFONT TextFont::Create()
+{
+    Release();
+    font = CreateFont(height, width, 0, 0, weight, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+                      CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_MODERN | DEFAULT_PITCH, name.c_str());
+    return font;
+}
 
 struct FormatInfo
 {

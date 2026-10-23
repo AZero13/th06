@@ -6,6 +6,15 @@
 
 namespace th06
 {
+IPbg3Writer::IPbg3Writer()
+{
+    this->Reset();
+}
+
+IPbg3Writer::~IPbg3Writer()
+{
+}
+
 void IPbg3Writer::Reset()
 {
     this->bitMask = 0x80;
@@ -70,4 +79,5 @@ BOOL IPbg3Writer::WriteInt(u32 value)
     u8 *bytes = (u8 *)&value;
     return this->WriteBits(MAKE_INV_DWORD(bytes[0], bytes[1], bytes[2], bytes[3]), 32);
 }
+
 } // namespace th06

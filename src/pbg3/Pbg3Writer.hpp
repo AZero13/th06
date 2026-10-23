@@ -9,7 +9,6 @@ namespace th06
 class Pbg3Writer : public IPbg3Writer, public FileAbstraction
 {
   public:
-    Pbg3Writer();
     BOOL OpenArchive(const char *path);
     virtual void Close();
     virtual BOOL WriteBit(BOOL bit);
@@ -18,6 +17,7 @@ class Pbg3Writer : public IPbg3Writer, public FileAbstraction
     virtual BOOL SeekToOffset(DWORD fileOffset);
     virtual BOOL SeekToNextByte();
     virtual BOOL Write(void *data, DWORD length);
+    Pbg3Writer();
     ~Pbg3Writer();
 };
 ZUN_ASSERT_SIZE(Pbg3Writer, 0x24);
