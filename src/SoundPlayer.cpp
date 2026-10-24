@@ -94,14 +94,31 @@ ZunResult SoundPlayer::Release(void)
     }
     for (i = 0; i < SOUND_EFFECT_COUNT; i++)
     {
+#if BUILT_SINCE(101)
         SAFE_RELEASE(this->duplicateSoundBuffers[i]);
+#endif
+        // 1.00 never releases the duplicated buffers.
         SAFE_RELEASE(this->soundBuffers[i]);
     }
     KillTimer(this->gameWindow, 1);
+#if BUILT_SINCE(101)
     StopBGM();
+#else
+    // 1.00 only stops the streaming thread here, and never releases initSoundBuffer.
+    if (this->backgroundMusicThreadHandle != NULL)
+    {
+        PostThreadMessage(this->backgroundMusicThreadId, WM_QUIT, 0, 0);
+        WaitForSingleObject(this->backgroundMusicThreadHandle, INFINITE);
+        CloseHandle(this->backgroundMusicThreadHandle);
+        CloseHandle(this->backgroundMusicUpdateEvent);
+        this->backgroundMusicThreadHandle = NULL;
+    }
+#endif
     this->dsoundHdl = NULL;
     this->initSoundBuffer->Stop();
+#if BUILT_SINCE(101)
     SAFE_RELEASE(this->initSoundBuffer);
+#endif
     SAFE_DELETE(this->backgroundMusic);
     SAFE_DELETE(this->manager);
     return ZUN_SUCCESS;
@@ -216,15 +233,19 @@ ZunResult SoundPlayer::LoadWav(char *path)
 {
     HRESULT res;
     CWaveFile waveFile;
+#if BUILT_SINCE(101)
     DWORD startTime;
     DWORD curTime;
     u32 waitTime;
+#endif
     u32 blockAlign;
     u32 numSamplesPerSec;
     u32 notifySize;
+#if BUILT_SINCE(101)
     DWORD startTime2;
     DWORD curTime2;
     u32 waitTime2;
+#endif
 
     if (this->manager == NULL)
     {
@@ -252,7 +273,8 @@ ZunResult SoundPlayer::LoadWav(char *path)
         waveFile.Close();
         return ZUN_ERROR;
     }
-    // Sleep 100ms?
+#if BUILT_SINCE(101)
+    // Sleep 100ms? 1.00 has neither of these waits.
     startTime = timeGetTime();
     curTime = startTime;
     waitTime = 100;
@@ -260,15 +282,22 @@ ZunResult SoundPlayer::LoadWav(char *path)
     {
         curTime = timeGetTime();
     }
+#endif
     waveFile.Close();
     blockAlign = waveFile.m_pwfx->nBlockAlign;
     numSamplesPerSec = waveFile.m_pwfx->nSamplesPerSec;
     notifySize =
         numSamplesPerSec * BACKGROUND_MUSIC_STREAM_SECONDS * blockAlign / BACKGROUND_MUSIC_STREAM_NOTIFICATIONS;
     notifySize -= (notifySize % blockAlign);
+#if BUILT_SINCE(101)
     this->backgroundMusicUpdateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+#endif
     this->backgroundMusicThreadHandle = CreateThread(NULL, 0, SoundPlayer_BackgroundMusicPlayerThread,
                                                      g_Supervisor.hwndGameWindow, 0, &this->backgroundMusicThreadId);
+#if BUILT_BEFORE(101)
+    // 1.00 starts the streaming thread before creating the event it waits on.
+    this->backgroundMusicUpdateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+#endif
     res = this->manager->CreateStreaming(
         &this->backgroundMusic, path, DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY, GUID_NULL,
         BACKGROUND_MUSIC_STREAM_NOTIFICATIONS, notifySize, this->backgroundMusicUpdateEvent);
@@ -278,6 +307,7 @@ ZunResult SoundPlayer::LoadWav(char *path)
         return ZUN_ERROR;
     }
     DebugPrint("comp\n");
+#if BUILT_SINCE(101)
     startTime2 = timeGetTime();
     curTime2 = startTime2;
     waitTime2 = 100;
@@ -285,6 +315,7 @@ ZunResult SoundPlayer::LoadWav(char *path)
     {
         curTime2 = timeGetTime();
     }
+#endif
     return ZUN_SUCCESS;
 }
 

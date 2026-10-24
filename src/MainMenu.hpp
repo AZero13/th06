@@ -65,7 +65,11 @@ struct MainMenu
 
     i32 ReplayHandling();
 
+#if BUILT_SINCE(102)
     AnmVm vm[122];
+#else
+    AnmVm vm[118];
+#endif
     i32 cursor;
     unreferenced_fields(0x40);
     u32 unk_81e4;
@@ -83,7 +87,7 @@ struct MainMenu
     u32 framesInactive;
     unreferenced_fields(0x4);
     ControllerMapping controlMapping;
-    unreferenced_fields(0x2);
+    unreferenced_fields(sizeof(ControllerButton));
     u8 colorMode16bit;
     u8 windowed;
     u8 frameskipConfig;
@@ -101,6 +105,10 @@ struct MainMenu
     i32 frameCountForRefreshRateCalc;
     u32 lastFrameTime;
 };
+#if BUILT_SINCE(102)
 ZUN_ASSERT_TYPE(MainMenu, 0x10f34, 4);
+#else
+ZUN_ASSERT_TYPE(MainMenu, 0x10b04, 4);
+#endif
 
 } // namespace th06

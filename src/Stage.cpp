@@ -6,6 +6,12 @@
 
 namespace th06
 {
+ChainCallbackResult Stage_OnUpdate(Stage *stage);
+ChainCallbackResult Stage_OnDrawHighPrio(Stage *stage);
+ChainCallbackResult Stage_OnDrawLowPrio(Stage *stage);
+ZunResult Stage_AddedCallback(Stage *stage);
+ZunResult Stage_DeletedCallback(Stage *stage);
+
 Stage g_Stage;
 ChainElem g_StageCalcChain;
 ChainElem g_StageDrawHighPrioChain;
@@ -305,14 +311,6 @@ ZunResult Stage_AddedCallback(Stage *stage)
     return ZUN_SUCCESS;
 }
 
-static ZunResult Stage_DeletedCallback(Stage *s)
-{
-    g_AnmManager->ReleaseAnm(ANM_FILE_STAGEBG);
-    ZUN_SAFE_FREE(s->quadVms);
-    ZUN_SAFE_FREE(s->stdData);
-    return ZUN_SUCCESS;
-}
-
 ZunResult Stage_RegisterChain(u32 stage)
 {
     Stage *stg = &g_Stage;
@@ -339,6 +337,14 @@ ZunResult Stage_RegisterChain(u32 stage)
     g_StageOnDrawLowPrioChain.arg = stg;
     g_FuncChain.AddToDrawChain(&g_StageOnDrawLowPrioChain, TH_CHAIN_PRIO_DRAW_LOW_PRIO_STAGE);
 
+    return ZUN_SUCCESS;
+}
+
+ZunResult Stage_DeletedCallback(Stage *s)
+{
+    g_AnmManager->ReleaseAnm(ANM_FILE_STAGEBG);
+    ZUN_SAFE_FREE(s->quadVms);
+    ZUN_SAFE_FREE(s->stdData);
     return ZUN_SUCCESS;
 }
 

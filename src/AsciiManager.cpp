@@ -294,6 +294,14 @@ void AsciiManager::CreatePopup1(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
     popup->color = color;
     popup->timer = 0;
     popup->position = *position;
+#if BUILT_BEFORE(102)
+    // 1.00 and 1.01 move popups into the game region when they are created, for the software vertex path.
+    if (!g_Supervisor.hasD3dHardwareVertexProcessing)
+    {
+        popup->position.x += g_GameManager.gameRegionScreenPos.x;
+        popup->position.y += g_GameManager.gameRegionScreenPos.y;
+    }
+#endif
 
     this->nextPopupIndex1++;
 }
@@ -332,6 +340,14 @@ void AsciiManager::CreatePopup2(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
     popup->color = color;
     popup->timer = 0;
     popup->position = *position;
+#if BUILT_BEFORE(102)
+    // 1.00 and 1.01 move popups into the game region when they are created, for the software vertex path.
+    if (!g_Supervisor.hasD3dHardwareVertexProcessing)
+    {
+        popup->position.x += g_GameManager.gameRegionScreenPos.x;
+        popup->position.y += g_GameManager.gameRegionScreenPos.y;
+    }
+#endif
 
     this->nextPopupIndex2++;
 }

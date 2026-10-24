@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "MidiOutput.hpp"
+#include "MidiSub.hpp"
 
 namespace th06
 {
@@ -150,46 +151,35 @@ void CALLBACK MidiTimer_DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR
     timer->OnTimerElapsed();
 }
 
-// NOTE: would be static inline according to KOG,
-// but cannot be either because of release build link
-// order. MoF also links the outlined function body at
-// this exact location, so it must be defined here
-u16 ConvWord(u16 data)
+// These bodies and Win32 types follow SSG PBGMIDI.C and KOG MidiSub.h.
+// KOG makes all three static inline in MidiSub.h. ConvDWord remains inline
+// here because removing it changes ParseFile in the retail /Ob1 build.
+WORD ConvWord(WORD data)
 {
-    u16 temp;
+    WORD temp;
 
-    ((u8 *)&temp)[0] = ((u8 *)&data)[1];
-    ((u8 *)&temp)[1] = ((u8 *)&data)[0];
+    ((BYTE *)&temp)[0] = ((BYTE *)&data)[1];
+    ((BYTE *)&temp)[1] = ((BYTE *)&data)[0];
 
     return temp;
 }
 
-// NOTE: would be static inline according to KOG,
-// but currently no way is known to differentiate
-// it from just normal inline. MoF also links the
-// outlined function body at this exact location,
-// so it must be defined here
-static inline u32 ConvDWord(u32 data)
+inline DWORD ConvDWord(DWORD data)
 {
-    u32 temp;
+    DWORD temp;
 
-    ((u8 *)&temp)[0] = ((u8 *)&data)[3];
-    ((u8 *)&temp)[1] = ((u8 *)&data)[2];
-    ((u8 *)&temp)[2] = ((u8 *)&data)[1];
-    ((u8 *)&temp)[3] = ((u8 *)&data)[0];
+    ((BYTE *)&temp)[0] = ((BYTE *)&data)[3];
+    ((BYTE *)&temp)[1] = ((BYTE *)&data)[2];
+    ((BYTE *)&temp)[2] = ((BYTE *)&data)[1];
+    ((BYTE *)&temp)[3] = ((BYTE *)&data)[0];
 
     return temp;
 }
 
-// NOTE: would be header static inline according to KOG,
-// but cannot be static because of trial build register
-// allocation and cannot be inline because of release
-// build fake padding. MoF also links the outlined function
-// body at this exact location, so it must be defined here
-u32 GetDeltaTime(u8 **data)
+DWORD GetDeltaTime(LPBYTE *data)
 {
-    u8 temp;
-    u32 count = 0;
+    BYTE temp;
+    DWORD count = 0;
 
     do
     {

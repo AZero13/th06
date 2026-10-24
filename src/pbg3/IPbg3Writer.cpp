@@ -1,4 +1,3 @@
-#include <limits.h>
 #include "pbg3/IPbg3Writer.hpp"
 
 #define MAKE_DWORD(a, b, c, d) ((DWORD)(MAKEWORD(c, d) << 16) | (DWORD)MAKEWORD(a, b))
@@ -71,7 +70,7 @@ BOOL IPbg3Writer::WriteString(const char *value)
 
 BOOL IPbg3Writer::WriteChar(u8 value)
 {
-    return this->WriteBits(value, CHAR_BIT);
+    return this->WriteBits(value, 8);
 }
 
 BOOL IPbg3Writer::WriteInt(u32 value)

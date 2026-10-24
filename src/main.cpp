@@ -40,9 +40,9 @@ static void GameWindow_Present();
 GameWindow g_GameWindow;
 } // namespace th06
 
-DWORD GetDXVersion();
+extern DWORD GetDXVersion();
 
-extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     using namespace th06;
 
@@ -491,7 +491,7 @@ static i32 GameWindow_InitD3dRendering(void)
         {
             present_params.BackBufferFormat = D3DFMT_R5G6B5;
         }
-        if (!g_Supervisor.cfg.opts.force60Fps)
+        if (!g_Supervisor.IsForced60Fps())
         {
             present_params.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_ONE;
         }
@@ -552,7 +552,7 @@ static i32 GameWindow_InitD3dRendering(void)
                                                                    &g_Supervisor.d3dDevice)))
                     {
 #if BUILT_SINCE(102f)
-                        if (g_Supervisor.cfg.opts.force60Fps && !g_Supervisor.vsyncEnabled)
+                        if (g_Supervisor.IsForced60Fps() && !g_Supervisor.vsyncEnabled)
                         {
                             g_GameErrorContext.Log(TH_ERR_CANT_CHANGE_REFRESH_RATE_FORCE_VSYNC);
                             present_params.FullScreen_RefreshRateInHz = 0;
@@ -774,9 +774,9 @@ ZunResult CheckForRunningGameInstance(void)
     return ZUN_SUCCESS;
 }
 
+#if BUILT_BEFORE(102g)
 // Adapted from the DirectX 8 SDK's getdxver sample (dxver.cpp). Returns true when DirectX 8 is missing;
 // 1.02f is the only build that doesn't inline it, so its code shows this form.
-#if BUILT_BEFORE(102g)
 ZunBool CheckDirectXVersion(void)
 {
     DWORD dwDXVersion = GetDXVersion();

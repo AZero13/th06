@@ -112,19 +112,38 @@ u16 GetInput(void);
 void ResetKeyboard(void);
 } // namespace Controller
 
+// 1.00/1.01 store a button bitmask; 1.02 switches to signed button indices.
+#if BUILT_SINCE(102)
+typedef i16 ControllerButton;
+#define CONTROLLER_BUTTON(n) (n)
+#define INVALID_BUTTON -1
+#define IS_INVALID_BUTTON(button) ((button) < 0)
+#else
+typedef u32 ControllerButton;
+#define CONTROLLER_BUTTON(n) (1 << (n))
+#define INVALID_BUTTON 0
+#define IS_INVALID_BUTTON(button) ((button) == 0)
+#endif
+
 struct ControllerMapping
 {
-    i16 shootButton;
-    i16 bombButton;
-    i16 focusButton;
-    i16 menuButton;
-    i16 upButton;
-    i16 downButton;
-    i16 leftButton;
-    i16 rightButton;
-    i16 skipButton;
+    ControllerButton shootButton;
+    ControllerButton bombButton;
+    ControllerButton focusButton;
+    ControllerButton menuButton;
+    ControllerButton upButton;
+    ControllerButton downButton;
+    ControllerButton leftButton;
+    ControllerButton rightButton;
+#if BUILT_SINCE(102)
+    ControllerButton skipButton;
+#endif
 };
+#if BUILT_SINCE(102)
 ZUN_ASSERT_TYPE(ControllerMapping, 0x12, 2);
+#else
+ZUN_ASSERT_TYPE(ControllerMapping, 0x20, 4);
+#endif
 
 extern ControllerMapping g_ControllerMapping;
 extern u16 g_PreviousFrameKeys;

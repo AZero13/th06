@@ -75,11 +75,8 @@ def configure(build_type, build_version, ver_suffix):
         if build_type == BuildType.BINARY_MATCHBUILD:
             cl_common_flags += " /DBINARYMATCHBUILD"
 
-        if (
-            build_version != BuildVersion.VER_008p
-            and build_version != BuildVersion.VER_013
-            and build_version != BuildVersion.VER_013a
-        ):
+        # Stack cookies first appear in 1.02d: every earlier executable has only the CRT's own cookie checks.
+        if build_version.value >= BuildVersion.VER_102d.value:
             cl_common_flags += " /GS"
 
         writer.variable("cl_common_flags", cl_common_flags)

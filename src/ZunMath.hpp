@@ -18,6 +18,9 @@ struct ZunVec3
 };
 ZUN_ASSERT_SIZE(ZunVec3, 0xC);
 
+// The argument is evaluated twice.
+#define ZUN_SQUARE(x) ((x) * (x))
+
 inline void SetVecCorners(D3DXVECTOR3 *topLeftCorner, D3DXVECTOR3 *bottomRightCorner, const D3DXVECTOR3 *centerPosition,
                           const D3DXVECTOR3 *size)
 {

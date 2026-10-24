@@ -7,26 +7,29 @@ namespace th06
 {
 namespace Controller
 {
-static u32 SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
-                                         u32 inputButtons);
-static u32 SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
-                                            u8 *inputButtons);
+static u32 SetButtonFromControllerInputs(u16 *outButtons, ControllerButton controllerButtonToTest,
+                                         TouhouButton touhouButton, u32 inputButtons);
+static u32 SetButtonFromDirectInputJoystate(u16 *outButtons, ControllerButton controllerButtonToTest,
+                                            TouhouButton touhouButton, u8 *inputButtons);
 } // namespace Controller
 
 ControllerMapping g_ControllerMapping = {
 #if BUILT_SINCE(102g)
     0,  1,  2,  4, -1,
     -1, -1, -1, 3
-#else
+#elif BUILT_SINCE(102)
     0,  1,  0,  -1, -1,
     -1, -1, -1, -1
+#else
+    1, 2, 1, 0, 0,
+    0, 0, 0
 #endif
 };
 
 Chain g_FuncChain;
 
 // Controller
-#if BUILT_SINCE(102g)
+#if BUILT_SINCE(102g) || BUILT_BEFORE(101)
 JOYCAPS g_JoystickDevCaps;
 #endif
 u16 g_FocusButtonConflictState;
@@ -423,7 +426,8 @@ u16 Controller::GetJoystickCaps(void)
     // NOTE: This isn't stubbed in trial 0.08.
     // Current trial build is based on version 0.13.
     // Why was winmm joystick API removed for that????
-#if BUILT_SINCE(102g)
+// 1.00 and 1.02g+ probe the joystick; 1.01 to 1.02f return early.
+#if BUILT_SINCE(102g) || BUILT_BEFORE(101)
     JOYINFOEX pji;
 
     pji.dwSize = sizeof(JOYINFOEX);
@@ -444,6 +448,7 @@ u16 Controller::GetJoystickCaps(void)
 #define JOYSTICK_BUTTON_PRESSED(button, x, y) (x > y ? button : 0)
 #define JOYSTICK_BUTTON_PRESSED_INVERT(button, x, y) (x < y ? button : 0)
 #define KEYBOARD_KEY_PRESSED(button, x) keyboardState[x] & 0x80 ? button : 0
+#define JOYSTICK_MASK_PRESSED(button, mask, held) ((held) & (mask) ? (button) : 0)
 
 // The trial reads the shared mapping; release reads the loaded configuration.
 #if BUILT_SINCE(102g)
@@ -456,15 +461,22 @@ u16 Controller::GetControllerInput(u16 buttons)
 {
     // NOTE: Those names are like this to get perfect stack frame matching
     // TODO: Give meaningfull names that still match.
-#if BUILT_SINCE(102g)
+#if BUILT_SINCE(102g) || BUILT_BEFORE(102)
     JOYINFOEX aa;
+#endif
+#if BUILT_SINCE(102g) || BUILT_BEFORE(101)
     u32 ab;
+#endif
+#if BUILT_SINCE(102g)
     u32 ac;
 #endif
     DIJOYSTATE2 a0;
     u32 a2;
     HRESULT aaa;
 
+#if BUILT_BEFORE(102)
+    memset(&aa, 0, sizeof(aa));
+#endif
     if (g_Supervisor.controller == NULL)
     {
 #if BUILT_SINCE(102g)
@@ -531,8 +543,43 @@ u16 Controller::GetControllerInput(u16 buttons)
         buttons |= JOYSTICK_BUTTON_PRESSED(
             TH_BUTTON_UP, JOYSTICK_MIDPOINT(g_JoystickDevCaps.wYmin, g_JoystickDevCaps.wYmax) - ab, aa.dwYpos);
 
+#elif BUILT_BEFORE(101)
+        // 1.00's mapping holds joystick button masks; the axes are checked after both paths.
+        aa.dwSize = sizeof(JOYINFOEX);
+        aa.dwFlags = JOY_RETURNALL;
+
+        if (joyGetPosEx(JOYSTICKID1, &aa) != JOYERR_NOERROR)
+        {
+            return buttons;
+        }
+
+        buttons |= JOYSTICK_MASK_PRESSED(TH_BUTTON_SHOOT, g_ControllerMapping.shootButton, aa.dwButtons);
+        buttons |= JOYSTICK_MASK_PRESSED(TH_BUTTON_BOMB, g_ControllerMapping.bombButton, aa.dwButtons);
+        if (g_ControllerMapping.shootButton != g_ControllerMapping.focusButton)
+        {
+            buttons |= JOYSTICK_MASK_PRESSED(TH_BUTTON_FOCUS, g_ControllerMapping.focusButton, aa.dwButtons);
+        }
+        else if (aa.dwButtons & g_ControllerMapping.focusButton)
+        {
+            g_FocusButtonConflictState++;
+            if (g_FocusButtonConflictState >= 8)
+            {
+                buttons |= TH_BUTTON_FOCUS;
+            }
+        }
+        else
+        {
+            g_FocusButtonConflictState = 0;
+        }
+        buttons |= JOYSTICK_MASK_PRESSED(TH_BUTTON_MENU, g_ControllerMapping.menuButton, aa.dwButtons);
+        buttons |= JOYSTICK_MASK_PRESSED(TH_BUTTON_UP, g_ControllerMapping.upButton, aa.dwButtons);
+        buttons |= JOYSTICK_MASK_PRESSED(TH_BUTTON_DOWN, g_ControllerMapping.downButton, aa.dwButtons);
+        buttons |= JOYSTICK_MASK_PRESSED(TH_BUTTON_LEFT, g_ControllerMapping.leftButton, aa.dwButtons);
+        buttons |= JOYSTICK_MASK_PRESSED(TH_BUTTON_RIGHT, g_ControllerMapping.rightButton, aa.dwButtons);
 #endif
+#if BUILT_SINCE(101)
         return buttons;
+#endif
     }
     else
     {
@@ -542,11 +589,16 @@ u16 Controller::GetControllerInput(u16 buttons)
             i32 retryCount = 0;
 
             DebugPrint("error : DIERR_INPUTLOST\n");
+#if BUILT_SINCE(102)
             aaa = g_Supervisor.controller->Acquire();
 
             while (aaa == DIERR_INPUTLOST)
             {
                 aaa = g_Supervisor.controller->Acquire();
+#else
+            while (g_Supervisor.controller->Acquire() == DIERR_INPUTLOST)
+            {
+#endif
                 DebugPrint("error : DIERR_INPUTLOST %d\n", retryCount);
 
                 retryCount++;
@@ -571,7 +623,12 @@ u16 Controller::GetControllerInput(u16 buttons)
             memset(&a0, 0, sizeof(a0));
 #endif
 
+#if BUILT_SINCE(102)
             aaa = g_Supervisor.controller->GetDeviceState(sizeof(a0), &a0);
+#else
+            // Before 1.02 the result is dropped and the check below still tests Poll's.
+            g_Supervisor.controller->GetDeviceState(sizeof(a0), &a0);
+#endif
 
             if (FAILED(aaa))
             {
@@ -624,23 +681,48 @@ u16 Controller::GetControllerInput(u16 buttons)
             SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.downButton, TH_BUTTON_DOWN, a0.rgbButtons);
             SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.leftButton, TH_BUTTON_LEFT, a0.rgbButtons);
             SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.rightButton, TH_BUTTON_RIGHT, a0.rgbButtons);
+#if BUILT_SINCE(102)
             SetButtonFromDirectInputJoystate(&buttons, CONTROLLER_MAPPING.skipButton, TH_BUTTON_SKIP, a0.rgbButtons);
 
             buttons |= JOYSTICK_BUTTON_PRESSED(TH_BUTTON_RIGHT, a0.lX, g_Supervisor.cfg.padXAxis);
             buttons |= JOYSTICK_BUTTON_PRESSED_INVERT(TH_BUTTON_LEFT, a0.lX, -g_Supervisor.cfg.padXAxis);
             buttons |= JOYSTICK_BUTTON_PRESSED(TH_BUTTON_DOWN, a0.lY, g_Supervisor.cfg.padYAxis);
             buttons |= JOYSTICK_BUTTON_PRESSED_INVERT(TH_BUTTON_UP, a0.lY, -g_Supervisor.cfg.padYAxis);
+#elif BUILT_SINCE(101)
+            buttons |= JOYSTICK_BUTTON_PRESSED(TH_BUTTON_RIGHT, a0.lX, 900);
+            buttons |= JOYSTICK_BUTTON_PRESSED_INVERT(TH_BUTTON_LEFT, a0.lX, -900);
+            buttons |= JOYSTICK_BUTTON_PRESSED(TH_BUTTON_DOWN, a0.lY, 900);
+            buttons |= JOYSTICK_BUTTON_PRESSED_INVERT(TH_BUTTON_UP, a0.lY, -900);
+#endif
+#if BUILT_BEFORE(102)
+            // 1.00 checks these after both paths; 1.01 keeps the copy without using it.
+            aa.dwXpos = a0.lX;
+            aa.dwYpos = a0.lY;
+#endif
         }
     }
 
+#if BUILT_BEFORE(101)
+    ab = (g_JoystickDevCaps.wXmax - g_JoystickDevCaps.wXmin) / 2 / 2;
+    buttons |= JOYSTICK_BUTTON_PRESSED(TH_BUTTON_RIGHT, aa.dwXpos,
+                                       JOYSTICK_MIDPOINT(g_JoystickDevCaps.wXmin, g_JoystickDevCaps.wXmax) + ab);
+    buttons |= JOYSTICK_BUTTON_PRESSED(
+        TH_BUTTON_LEFT, JOYSTICK_MIDPOINT(g_JoystickDevCaps.wXmin, g_JoystickDevCaps.wXmax) - ab, aa.dwXpos);
+    ab = (g_JoystickDevCaps.wYmax - g_JoystickDevCaps.wYmin) / 2 / 2;
+    buttons |= JOYSTICK_BUTTON_PRESSED(TH_BUTTON_DOWN, aa.dwYpos,
+                                       JOYSTICK_MIDPOINT(g_JoystickDevCaps.wYmin, g_JoystickDevCaps.wYmax) + ab);
+    buttons |= JOYSTICK_BUTTON_PRESSED(
+        TH_BUTTON_UP, JOYSTICK_MIDPOINT(g_JoystickDevCaps.wYmin, g_JoystickDevCaps.wYmax) - ab, aa.dwYpos);
+#endif
     return buttons;
 }
 
 #undef CONTROLLER_MAPPING
 
-u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
-                                                 u8 *inputButtons)
+u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, ControllerButton controllerButtonToTest,
+                                                 TouhouButton touhouButton, u8 *inputButtons)
 {
+#if BUILT_SINCE(102)
     if (controllerButtonToTest < 0)
     {
         return 0;
@@ -649,10 +731,33 @@ u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controller
     *outButtons |= (inputButtons[controllerButtonToTest] & 0x80 ? touhouButton & 0xFFFF : 0);
 
     return inputButtons[controllerButtonToTest] & 0x80 ? touhouButton & 0xFFFF : 0;
+#else
+    if (controllerButtonToTest == 0)
+    {
+        return 0;
+    }
+    i32 buttonIndex;
+    for (buttonIndex = 0; buttonIndex < 32; buttonIndex++, controllerButtonToTest >>= 1)
+    {
+        if (controllerButtonToTest & 1)
+        {
+            break;
+        }
+    }
+    // 1.00 has no bounds check and reads inputButtons[32] when no bit is set.
+#if BUILT_SINCE(101)
+    if (buttonIndex >= 32)
+    {
+        return 0;
+    }
+#endif
+    *outButtons |= (inputButtons[buttonIndex] & 0x80 ? touhouButton & 0xFFFF : 0);
+    return inputButtons[buttonIndex] & 0x80 ? touhouButton & 0xFFFF : 0;
+#endif
 }
 
-u32 Controller::SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
-                                              u32 inputButtons)
+u32 Controller::SetButtonFromControllerInputs(u16 *outButtons, ControllerButton controllerButtonToTest,
+                                              TouhouButton touhouButton, u32 inputButtons)
 {
     if (controllerButtonToTest < 0)
     {

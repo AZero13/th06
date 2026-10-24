@@ -1,6 +1,5 @@
 #pragma once
 #include "decomp.hpp"
-#include <limits.h>
 #include <Windows.h>
 
 namespace th06
@@ -25,7 +24,7 @@ class IPbg3Reader
     u32 ReadInt();
     char ReadChar()
     {
-        return this->ReadBits(CHAR_BIT);
+        return this->ReadBits(8);
     }
     BOOL ReadString(char *out, u32 maxSize);
     virtual BOOL ReadBit() = 0;

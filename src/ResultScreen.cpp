@@ -1590,7 +1590,12 @@ u32 ResultScreen::DrawFinalStats()
         g_AsciiManager.SetColor(vm->color);
         rating = 0.0f;
 
+#if BUILT_SINCE(013)
         completion = g_GameManager.difficulty < 4 ? g_GameManager.counat / 89500.0f : g_GameManager.counat / 39600.0f;
+#else
+        // Until 1.02c the Extra stage's completion divides by 36000.
+        completion = g_GameManager.difficulty < 4 ? g_GameManager.counat / 89500.0f : g_GameManager.counat / 36000.0f;
+#endif
         strPos = vm->pos;
         strPos.x += 224.0f;
         strPos.y += 32.0f;
