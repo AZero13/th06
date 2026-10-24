@@ -9,10 +9,7 @@ namespace th06
 class IPbg3Writer
 {
   public:
-    IPbg3Writer()
-    {
-        this->Reset();
-    }
+    IPbg3Writer();
     void Reset();
     BOOL WriteVarInt(u32 value);
     BOOL WriteString(const char *value);
@@ -32,9 +29,7 @@ class IPbg3Writer
     virtual BOOL SeekToOffset(DWORD fileOffset) = 0;
     virtual BOOL SeekToNextByte() = 0;
     virtual BOOL Write(void *data, DWORD length) = 0;
-    virtual ~IPbg3Writer()
-    {
-    }
+    virtual ~IPbg3Writer();
 
   protected:
     u32 offset;

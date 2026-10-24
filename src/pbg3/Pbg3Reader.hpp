@@ -8,7 +8,6 @@ namespace th06
 class Pbg3Reader : public IPbg3Reader, public FileAbstraction
 {
   public:
-    Pbg3Reader();
     BOOL OpenArchive(const char *path);
     virtual void Close();
     virtual BOOL ReadBit();
@@ -19,6 +18,7 @@ class Pbg3Reader : public IPbg3Reader, public FileAbstraction
     virtual BOOL Read(void *data, DWORD bytesToRead);
     virtual BOOL GetLastWriteTime(LPFILETIME lastWriteTime);
 
+    Pbg3Reader();
     ~Pbg3Reader();
 };
 ZUN_ASSERT_SIZE(Pbg3Reader, 0x24);

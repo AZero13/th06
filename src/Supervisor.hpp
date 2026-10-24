@@ -139,6 +139,11 @@ struct Supervisor
         return this->effectiveFramerateMultiplier;
     }
 
+    i32 GetMusicMode()
+    {
+        return this->cfg.musicMode;
+    }
+
     ZunBool IsHardwareBlendingDisabled()
     {
         return this->cfg.opts.useSwTextureBlending;
@@ -184,7 +189,7 @@ struct Supervisor
         return this->cfg.opts.clearBackBufferOnRefresh | this->cfg.opts.displayMinimumGraphics;
     }
 
-    u32 IsSoftwareTexturing()
+    ZunBool IsSoftwareTexturing()
     {
         return this->cfg.opts.disableColorCompositing | this->cfg.opts.useSwTextureBlending;
     }

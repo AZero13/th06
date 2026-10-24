@@ -16,7 +16,9 @@ namespace th06
 AsciiManager g_AsciiManager;
 ChainElem g_AsciiMgrCalcChain;
 ChainElem g_AsciiManagerOnDrawMenusChain;
+#if BUILT_SINCE(100)
 ChainElem g_AsciiManagerOnDrawPopupsChainElem;
+#endif
 
 ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *mgr)
 {
@@ -53,13 +55,25 @@ ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *mgr)
 
 ChainCallbackResult AsciiManager_OnDrawMenus(AsciiManager *mgr)
 {
+#if BUILT_BEFORE(100)
+    // 0.08 draws popups and menus from a single chain callback.
+    if (g_Supervisor.hasD3dHardwareVertexProcessing)
+    {
+        mgr->DrawPopupsWithHwVertexProcessing();
+    }
+    else
+    {
+        mgr->DrawPopupsWithoutHwVertexProcessing();
+    }
+#endif
     mgr->DrawStrings();
-    mgr->numStrings = 0;
+    mgr->ResetStrings();
     mgr->gameMenu.OnDrawGameMenu();
     mgr->retryMenu.OnDrawRetryMenu();
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
+#if BUILT_SINCE(100)
 ChainCallbackResult AsciiManager_OnDrawPopups(AsciiManager *mgr)
 {
     if (g_Supervisor.hasD3dHardwareVertexProcessing)
@@ -72,6 +86,7 @@ ChainCallbackResult AsciiManager_OnDrawPopups(AsciiManager *mgr)
     }
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
+#endif
 
 static ZunResult AsciiManager_AddedCallback(AsciiManager *s)
 {
@@ -116,9 +131,11 @@ ZunResult AsciiManager_RegisterChain()
     g_AsciiManagerOnDrawMenusChain.arg = mgr;
     g_FuncChain.AddToDrawChain(&g_AsciiManagerOnDrawMenusChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_MENUS);
 
+#if BUILT_SINCE(100)
     g_AsciiManagerOnDrawPopupsChainElem.SetCallback((ChainCallback)AsciiManager_OnDrawPopups);
     g_AsciiManagerOnDrawPopupsChainElem.arg = mgr;
     g_FuncChain.AddToDrawChain(&g_AsciiManagerOnDrawPopupsChainElem, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_POPUPS);
+#endif
 
     return ZUN_SUCCESS;
 }
@@ -127,8 +144,10 @@ void AsciiManager_CutChain()
 {
     g_FuncChain.Cut(&g_AsciiMgrCalcChain);
     g_FuncChain.Cut(&g_AsciiManagerOnDrawMenusChain);
+
     // What about g_AsciiManagerOnDrawPopupsChainElem? It looks like zun forgot
     // to free it!
+    // Since 1.00, this misses the separate popup chain added by the draw split.
 }
 
 void AsciiManager::AddString(D3DXVECTOR3 *position, const char *text)

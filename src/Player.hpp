@@ -108,18 +108,6 @@ struct PlayerBullet
     i16 bulletFrame;
     i16 spawnPositionIdx;
     alignment_padding(0x2);
-
-    void MoveHorizontal(f32 *position)
-    {
-        *position += this->velocity.x * g_Supervisor.effectiveFramerateMultiplier;
-        this->sprite.pos.x = *position;
-    }
-
-    void MoveVertical(f32 *position)
-    {
-        *position += this->velocity.y * g_Supervisor.effectiveFramerateMultiplier;
-        this->sprite.pos.y = *position;
-    }
 };
 ZUN_ASSERT_TYPE(PlayerBullet, 0x158, 4);
 
