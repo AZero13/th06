@@ -776,6 +776,7 @@ ZunResult CheckForRunningGameInstance(void)
 
 // Adapted from the DirectX 8 SDK's getdxver sample (dxver.cpp). Returns true when DirectX 8 is missing;
 // 1.02f is the only build that doesn't inline it, so its code shows this form.
+#if BUILT_BEFORE(102g)
 ZunBool CheckDirectXVersion(void)
 {
     DWORD dwDXVersion = GetDXVersion();
@@ -791,5 +792,6 @@ ZunBool CheckDirectXVersion(void)
 
     return false;
 }
+#endif
 } // namespace utils
 } // namespace th06
