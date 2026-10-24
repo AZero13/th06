@@ -52,7 +52,9 @@ namespace th06
 namespace utils
 {
 ZunResult CheckForRunningGameInstance(void);
+#if BUILT_BEFORE(102g)
 ZunBool CheckDirectXVersion(void);
+#endif
 
 f32 AddNormalizeAngle(f32 a, f32 b);
 void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle);
