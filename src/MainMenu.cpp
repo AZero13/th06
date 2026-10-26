@@ -17,17 +17,33 @@ ZunResult LoadReplayMenu(MainMenu *menu);
 ZunResult LoadDiffCharSelect(MainMenu *s);
 
 static CursorMovement MoveCursor(MainMenu *menu, i32 menuLength);
-static void SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBool unk);
+static void SwapMapping(MainMenu *menu, ControllerButton btnPressed, ControllerButton oldMapping, ZunBool unk);
 static void DrawMenuItem(AnmVm *vm, i32 itemNumber, i32 cursor, D3DCOLOR activeItemColor, D3DCOLOR inactiveItemColor,
                          i32 spriteIdx /* I think*/);
 
 MainMenu g_MainMenu;
 
+#if BUILT_SINCE(102)
+#define KEY_CONFIG_BUTTON_COUNT 9
+#define MENU_VMS_SCREEN_MODE 72
+#define MENU_VMS_TITLE_COUNT 80
 #define MENU_VMS_DIFFICULTY_SELECT 81
 #define MENU_VMS_CHARACTER_SELECT 86
 #define MENU_VMS_SHOTTYPE_SELECT 92
+#define MENU_VMS_REPLAY 96
+#define MENU_KEY_CONFIG_HIGHLIGHT_OFFSET 115
+#else
+#define KEY_CONFIG_BUTTON_COUNT 8
+#define MENU_VMS_SCREEN_MODE 68
+#define MENU_VMS_TITLE_COUNT 76
+#define MENU_VMS_DIFFICULTY_SELECT 77
+#define MENU_VMS_CHARACTER_SELECT 82
+#define MENU_VMS_SHOTTYPE_SELECT 88
+#define MENU_VMS_REPLAY 92
+#define MENU_KEY_CONFIG_HIGHLIGHT_OFFSET 111
+#endif
 
-#pragma var_order(i, vmList, time, deltaTime, deltaTimeAsFrames, deltaTimeAsMs, mapping, startedUp)
+#pragma var_order(i, vmList, time, deltaTime, deltaTimeAsFrames, deltaTimeAsMs, mapping, idx, startedUp)
 ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
 {
     i32 i;
@@ -36,7 +52,10 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
     i32 deltaTime;
     f32 deltaTimeAsFrames;
     f32 deltaTimeAsMs;
-    i16 mapping;
+    ControllerButton mapping;
+#if BUILT_BEFORE(102)
+    ControllerButton idx;
+#endif
     ZunResult startedUp;
 
     if (menu->timeRelatedArrSize < ARRAY_SIZE_SIGNED(menu->timeRelatedArr))
@@ -148,31 +167,42 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
         }
         break;
     case STATE_KEYCONFIG:
-        MoveCursor(menu, 11);
+        MoveCursor(menu, KEY_CONFIG_BUTTON_COUNT + 2);
         vmList = &menu->vm[34];
-        for (i = 0; i < 11; i++, vmList++)
+        for (i = 0; i < KEY_CONFIG_BUTTON_COUNT + 2; i++, vmList++)
         {
-            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, 115);
+            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, MENU_KEY_CONFIG_HIGHLIGHT_OFFSET);
         }
-        for (i = 0; i < 9; i++, vmList++)
+        for (i = 0; i < KEY_CONFIG_BUTTON_COUNT; i++, vmList++)
         {
-            if (((i16 *)&menu->controlMapping)[i] < 0)
+            if (IS_INVALID_BUTTON(((ControllerButton *)&menu->controlMapping)[i]))
             {
                 vmList->flags.isVisibleOverride = false;
                 continue;
             }
             vmList->flags.isVisibleOverride = true;
-            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, 115);
+            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, MENU_KEY_CONFIG_HIGHLIGHT_OFFSET);
         }
-        for (i = 0; i < 18; i++, vmList++)
+        for (i = 0; i < KEY_CONFIG_BUTTON_COUNT * 2; i++, vmList++)
         {
-            if (((i16 *)&menu->controlMapping)[i / 2] < 0)
+            if (IS_INVALID_BUTTON(((ControllerButton *)&menu->controlMapping)[i / 2]))
             {
                 vmList->flags.isVisibleOverride = false;
                 continue;
             }
             vmList->flags.isVisibleOverride = true;
-            mapping = ((i16 *)&menu->controlMapping)[i / 2];
+#if BUILT_SINCE(102)
+            mapping = ((ControllerButton *)&menu->controlMapping)[i / 2];
+#else
+            idx = ((ControllerButton *)&menu->controlMapping)[i / 2];
+            mapping = 0;
+            while (!(idx & 1))
+            {
+                mapping++;
+                idx >>= 1;
+            }
+            mapping++;
+#endif
             if (i % 2 == 0)
             {
                 g_AnmManager->SetActiveSprite(vmList, mapping / 10 + ANM_SPRITE_TITLE01_START);
@@ -187,10 +217,11 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
 #pragma var_order(idx, controllerData)
         if (menu->stateTimer >= 32)
         {
-            static i16 g_LastJoystickInput = TH_BUTTON_DOWN; // why???
+#if BUILT_SINCE(102)
+            static ControllerButton g_LastJoystickInput = TH_BUTTON_DOWN; // why???
 
             u8 *controllerData = Controller::GetControllerState();
-            i16 idx;
+            ControllerButton idx;
             for (idx = 0; idx < 32; idx++)
             {
                 if (controllerData[idx] & 0x80)
@@ -198,6 +229,24 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
             }
             if (idx < 32 && g_LastJoystickInput != idx)
             {
+#else
+            static u32 g_LastJoystickInput;
+            JOYINFOEX joyinfo;
+            joyinfo.dwSize = sizeof(JOYINFOEX);
+            joyinfo.dwFlags = JOY_RETURNALL;
+            if (joyGetPosEx(JOYSTICKID1, &joyinfo) == JOYERR_NOERROR)
+            {
+                idx = g_LastJoystickInput ^ joyinfo.dwButtons;
+                if (idx != 0)
+                {
+                    mapping = 0;
+                    while (!(idx & 1))
+                    {
+                        mapping++;
+                        idx >>= 1;
+                    }
+                    idx = 1 << mapping;
+#endif
                 g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
                 switch (menu->cursor)
                 {
@@ -233,38 +282,56 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
                     SwapMapping(menu, idx, menu->controlMapping.rightButton, false);
                     menu->controlMapping.rightButton = idx;
                     break;
+#if BUILT_SINCE(102)
                 case 8:
                     SwapMapping(menu, idx, menu->controlMapping.skipButton, false);
                     menu->controlMapping.skipButton = idx;
+#endif
                 }
             }
+#if BUILT_SINCE(102)
             g_LastJoystickInput = idx;
+#else
+                g_LastJoystickInput = joyinfo.dwButtons;
+            }
+#endif
             if (WAS_PRESSED(TH_BUTTON_SELECTMENU))
             {
                 switch (menu->cursor)
                 {
-                case 9: {
+                case KEY_CONFIG_BUTTON_COUNT: {
                     ControllerMapping mappingData;
-                    mappingData.shootButton = 0;
-                    mappingData.bombButton = 1;
-                    mappingData.focusButton = 0;
-                    mappingData.menuButton = 0xffff;
-                    mappingData.upButton = 0xffff;
-                    mappingData.downButton = 0xffff;
-                    mappingData.leftButton = 0xffff;
-                    mappingData.rightButton = 0xffff;
-                    mappingData.skipButton = 0xffff;
+                    mappingData.shootButton = CONTROLLER_BUTTON(0);
+                    mappingData.bombButton = CONTROLLER_BUTTON(1);
+                    mappingData.focusButton = CONTROLLER_BUTTON(0);
+                    mappingData.menuButton = INVALID_BUTTON;
+                    mappingData.upButton = INVALID_BUTTON;
+                    mappingData.downButton = INVALID_BUTTON;
+                    mappingData.leftButton = INVALID_BUTTON;
+                    mappingData.rightButton = INVALID_BUTTON;
+#if BUILT_SINCE(102)
+                    mappingData.skipButton = INVALID_BUTTON;
+#endif
                     menu->controlMapping = mappingData;
                     break;
                 }
-                case 10:
+                case KEY_CONFIG_BUTTON_COUNT + 1:
                     menu->gameState = STATE_OPTIONS;
                     menu->stateTimer = 0;
+#if BUILT_SINCE(102)
                     for (idx = 0; idx < ARRAY_SIZE_SIGNED(menu->vm); idx++)
                     {
                         menu->vm[idx].pendingInterrupt = 3;
                     }
                     menu->cursor = 7;
+#else
+                    for (i = 0; i < ARRAY_SIZE_SIGNED(menu->vm); i++)
+                    {
+                        menu->vm[i].pendingInterrupt = 3;
+                    }
+                    // Before 1.02 leaving key config puts the cursor on the screen mode option.
+                    menu->cursor = 5;
+#endif
                     g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
                     g_ControllerMapping = menu->controlMapping;
                     g_Supervisor.cfg.controllerMapping = menu->controlMapping;
@@ -756,6 +823,8 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
             }
             menu->cursor = g_GameManager.menuCursorBackup;
 
+#if BUILT_SINCE(102)
+            // Before 1.02 the restored cursor is not clamped to the stages cleared.
             i32 stagesCleared = min(6, g_GameManager.clrd[CURRENT_SHOTTYPE()].stagesCleared[g_GameManager.difficulty]);
             if (g_GameManager.difficulty == EASY && stagesCleared == 6)
             {
@@ -765,6 +834,7 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
             {
                 menu->cursor = 0;
             }
+#endif
         }
         break;
     case STATE_PRACTICE_LVL_SELECT: {
@@ -886,7 +956,7 @@ static CursorMovement MoveCursor(MainMenu *menu, i32 menuLength)
     return CURSOR_DONT_MOVE;
 }
 
-static void SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBool unk)
+static void SwapMapping(MainMenu *menu, ControllerButton btnPressed, ControllerButton oldMapping, ZunBool unk)
 {
     if (!unk && menu->controlMapping.shootButton == btnPressed)
     {
@@ -920,10 +990,12 @@ static void SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBool 
     {
         menu->controlMapping.menuButton = oldMapping;
     }
+#if BUILT_SINCE(102)
     if (menu->controlMapping.skipButton == btnPressed)
     {
         menu->controlMapping.skipButton = oldMapping;
     }
+#endif
 }
 
 static void DrawMenuItem(AnmVm *vm, int itemNumber, int cursor, D3DCOLOR currentItemColor, D3DCOLOR otherItemColor,
@@ -1322,12 +1394,12 @@ i32 MainMenu::ReplayHandling()
             if (WAS_PRESSED(TH_BUTTON_SELECTMENU))
             {
                 this->gameState = STATE_REPLAY_SELECT;
-                anmVm = &(this->vm[97]);
+                anmVm = &(this->vm[MENU_VMS_REPLAY + 1]);
                 for (cur = 0; cur < 25; cur++, anmVm++)
                 {
                     anmVm->pendingInterrupt = 17;
                 }
-                anmVm = &this->vm[99 + this->chosenReplay];
+                anmVm = &this->vm[(MENU_VMS_REPLAY + 3) + this->chosenReplay];
                 anmVm->pendingInterrupt = 16;
                 this->stateTimer = 0;
                 this->cursor = 0;
@@ -1458,7 +1530,7 @@ ZunResult MainMenu::DrawReplayMenu()
     i32 i;
     AnmVm *vmRef;
 
-    vmRef = &this->vm[98];
+    vmRef = &this->vm[MENU_VMS_REPLAY + 2];
     g_AsciiManager.AddFormatText(&vmRef->pos, "No.   Name      Date     Player   Rank");
 
     for (i = this->chosenReplay - this->chosenReplay % REPLAYS_PER_PAGE, replayAmount = i;
@@ -1473,11 +1545,11 @@ ZunResult MainMenu::DrawReplayMenu()
         {
             if (i == this->chosenReplay)
             {
-                g_AsciiManager.SetColor(COLOR_LIGHT_RED);
+                g_AsciiManager.color = COLOR_LIGHT_RED;
             }
             else
             {
-                g_AsciiManager.SetColor(COLOR_GREY);
+                g_AsciiManager.color = COLOR_GREY;
             }
         }
         else
@@ -1487,11 +1559,11 @@ ZunResult MainMenu::DrawReplayMenu()
 
             if (i == this->chosenReplay)
             {
-                g_AsciiManager.SetColor(COLOR_WHITE);
+                g_AsciiManager.color = COLOR_WHITE;
             }
             else
             {
-                g_AsciiManager.SetColor(COLOR_GREY);
+                g_AsciiManager.color = COLOR_GREY;
             }
         }
 
@@ -1502,13 +1574,13 @@ ZunResult MainMenu::DrawReplayMenu()
     }
     if (this->gameState == STATE_REPLAY_SELECT && this->currentReplay)
     {
-        g_AsciiManager.SetColor(COLOR_WHITE);
+        g_AsciiManager.color = COLOR_WHITE;
         g_AsciiManager.SetIsSelected(false);
 
-        vmRef = &this->vm[97];
+        vmRef = &this->vm[MENU_VMS_REPLAY + 1];
         g_AsciiManager.AddFormatText(&vmRef->pos, "       %2.3f%%", this->currentReplay->slowdownRate);
 
-        vmRef = &this->vm[114];
+        vmRef = &this->vm[MENU_VMS_REPLAY + 18];
         g_AsciiManager.AddFormatText(&vmRef->pos, "Stage  LastScore");
 
 #if BUILT_SINCE(102g)
@@ -1523,11 +1595,11 @@ ZunResult MainMenu::DrawReplayMenu()
             {
                 if (i == this->cursor)
                 {
-                    g_AsciiManager.SetColor(COLOR_LIGHT_RED);
+                    g_AsciiManager.color = COLOR_LIGHT_RED;
                 }
                 else
                 {
-                    g_AsciiManager.SetColor(COLOR_GREY);
+                    g_AsciiManager.color = COLOR_GREY;
                 }
             }
             else
@@ -1536,11 +1608,11 @@ ZunResult MainMenu::DrawReplayMenu()
                 g_AsciiManager.SetIsSelected(isSelected);
                 if (i == this->cursor)
                 {
-                    g_AsciiManager.SetColor(COLOR_WHITE);
+                    g_AsciiManager.color = COLOR_WHITE;
                 }
                 else
                 {
-                    g_AsciiManager.SetColor(COLOR_GREY);
+                    g_AsciiManager.color = COLOR_GREY;
                 }
             }
             if (this->currentReplay->stageReplayData[i])
@@ -1554,7 +1626,7 @@ ZunResult MainMenu::DrawReplayMenu()
             }
         }
     }
-    g_AsciiManager.SetColor(COLOR_WHITE);
+    g_AsciiManager.color = COLOR_WHITE;
     g_AsciiManager.SetIsSelected(false);
     return ZUN_SUCCESS;
 }
@@ -1632,7 +1704,7 @@ u32 MainMenu::OnUpdateOptionsMenu()
     {
         if (i >= 5 && i <= 7)
         {
-            this->ColorMenuItem(&this->vm[i + 67], i, i, this->cursor);
+            this->ColorMenuItem(&this->vm[i + (MENU_VMS_SCREEN_MODE - 5)], i, i, this->cursor);
         }
         else
         {
@@ -1658,13 +1730,13 @@ u32 MainMenu::OnUpdateOptionsMenu()
     {
         this->ColorMenuItem(optionsVm, CURSOR_OPTIONS_POS_PLAYSOUNDS, i, g_Supervisor.cfg.playSounds);
     }
-    optionsVm = &this->vm[77];
+    optionsVm = &this->vm[MENU_VMS_SCREEN_MODE + 5];
 
     for (i = 0; i < 3; i++, optionsVm++)
     {
         this->ColorMenuItem(optionsVm, CURSOR_OPTIONS_POS_MUSICMODE, i, g_Supervisor.cfg.musicMode);
     }
-    optionsVm = &this->vm[75];
+    optionsVm = &this->vm[MENU_VMS_SCREEN_MODE + 3];
     for (i = 0; i < 2; i++, optionsVm++)
     {
         this->ColorMenuItem(optionsVm, CURSOR_OPTIONS_POS_SCREENMODE, i, this->windowed);
@@ -1824,8 +1896,8 @@ u32 MainMenu::OnUpdateOptionsMenu()
 
                 this->controlMapping = g_ControllerMapping;
 
-                g_ControllerMapping.upButton = -1;
-                g_ControllerMapping.downButton = -1;
+                g_ControllerMapping.upButton = INVALID_BUTTON;
+                g_ControllerMapping.downButton = INVALID_BUTTON;
                 break;
 
             case CURSOR_OPTIONS_POS_SETDEFAULT:
@@ -1947,7 +2019,7 @@ ChainCallbackResult MainMenu_OnDraw(MainMenu *menu)
             COLOR_SET_ALPHA(menu->menuTextColor, targetOpacity * menu->numFramesSinceActive / menu->framesInactive +
                                                      COLOR_ALPHA(menu->minimumOpacity)));
     }
-    for (i = 0; i < 98; i++, vm++)
+    for (i = 0; i < MENU_VMS_REPLAY + 2; i++, vm++)
     {
         if (g_AnmManager->ShouldDraw(vm))
         {
@@ -2003,7 +2075,7 @@ ZunResult LoadTitleAnm(MainMenu *menu)
         return ZUN_ERROR;
     }
 
-    for (i = 0; i < 80; i++)
+    for (i = 0; i < MENU_VMS_TITLE_COUNT; i++)
     {
         g_AnmManager->ExecuteAnmIdx(&menu->vm[i], ANM_SCRIPT_TITLE01_START + i);
         menu->vm[i].flags.isVisible = false;
@@ -2068,7 +2140,7 @@ ZunResult LoadDiffCharSelect(MainMenu *menu)
     {
         return ZUN_ERROR;
     }
-    for (vm = &menu->vm[80], i = ANM_SCRIPT_SELECT01_START; i <= ANM_SCRIPT_SELECT01_END; i++, vm++)
+    for (vm = &menu->vm[MENU_VMS_TITLE_COUNT], i = ANM_SCRIPT_SELECT01_START; i <= ANM_SCRIPT_SELECT01_END; i++, vm++)
     {
         g_AnmManager->ExecuteAnmIdx(vm, i);
         vm->flags.isVisible = false;
@@ -2109,7 +2181,7 @@ ZunResult LoadReplayMenu(MainMenu *menu)
         return ZUN_ERROR;
     }
 
-    vm = &menu->vm[96];
+    vm = &menu->vm[MENU_VMS_REPLAY];
     for (i = ANM_SCRIPT_REPLAY_START; i <= ANM_SCRIPT_REPLAY_END; i++, vm++)
     {
         g_AnmManager->ExecuteAnmIdx(vm, i);

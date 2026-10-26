@@ -95,7 +95,7 @@ void BombReimuACalc(Player *player)
                 angleX = bombPivot.x - player->bombInfo.bombRegionPositions[i].x;
                 angleY = bombPivot.y - player->bombInfo.bombRegionPositions[i].y;
 
-                vecLength = sqrtf(angleX * angleX + angleY * angleY) /
+                vecLength = sqrtf(ZUN_SQUARE(angleX) + ZUN_SQUARE(angleY)) /
                             (player->bombInfo.reimuABombProjectilesRelated[i] / 8.0f);
                 if (vecLength < 1.0f)
                 {
@@ -103,7 +103,7 @@ void BombReimuACalc(Player *player)
                 }
                 angleX = angleX / vecLength + player->bombInfo.bombRegionVelocities[i].x;
                 angleY = angleY / vecLength + player->bombInfo.bombRegionVelocities[i].y;
-                vecLength = sqrtf(angleX * angleX + angleY * angleY);
+                vecLength = sqrtf(ZUN_SQUARE(angleX) + ZUN_SQUARE(angleY));
 
                 player->bombInfo.reimuABombProjectilesRelated[i] = ZUN_MIN(vecLength, 10.0f);
 

@@ -260,8 +260,7 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *curInstr)
                     playerBulletOffsetX = (currentBullet->pos.x) - g_Player.positionCenter.x;
                     playerBulletOffsetY = (currentBullet->pos.y) - g_Player.positionCenter.y;
 
-                    if (sqrtf(playerBulletOffsetX * playerBulletOffsetX + playerBulletOffsetY * playerBulletOffsetY) >
-                        128.0f)
+                    if (sqrtf(ZUN_SQUARE(playerBulletOffsetX) + ZUN_SQUARE(playerBulletOffsetY)) > 128.0f)
                     {
                         currentBullet->angle = g_Rng.GetRandomF32InRange((ZUN_PI * 3.0f) / 4.0f) + (ZUN_PI / 4.0f);
                     }
@@ -302,8 +301,7 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *curInstr)
                     playerBulletOffsetX = (currentBullet->pos.x) - g_Player.positionCenter.x;
                     playerBulletOffsetY = (currentBullet->pos.y) - g_Player.positionCenter.y;
 
-                    if (sqrtf(playerBulletOffsetX * playerBulletOffsetX + playerBulletOffsetY * playerBulletOffsetY) >
-                        128.0f)
+                    if (sqrtf(ZUN_SQUARE(playerBulletOffsetX) + ZUN_SQUARE(playerBulletOffsetY)) > 128.0f)
                     {
                         currentBullet->angle = g_Rng.GetRandomF32InRange(ZUN_2PI);
                     }
@@ -623,7 +621,9 @@ void ExInsStage6Func8(Enemy *enemy, EclRawInstr *curInstr)
 void ExInsStage6Func9(Enemy *enemy, EclRawInstr *curInstr)
 {
     Bullet *currentBullet;
+#if BUILT_SINCE(013)
     f32 distance;
+#endif
     i32 i;
     f32 randomAngleModifier;
 
@@ -650,8 +650,9 @@ void ExInsStage6Func9(Enemy *enemy, EclRawInstr *curInstr)
             currentBullet->speed = 0.01f;
             currentBullet->timer = 0;
             currentBullet->exDuration = 120;
-            distance = (enemy->position.x - currentBullet->pos.x) * (enemy->position.x - currentBullet->pos.x) +
-                       (enemy->position.y - currentBullet->pos.y) * (enemy->position.y - currentBullet->pos.y);
+#if BUILT_SINCE(013)
+            distance = ZUN_SQUARE(enemy->position.x - currentBullet->pos.x) +
+                       ZUN_SQUARE(enemy->position.y - currentBullet->pos.y);
             if (distance > 0.1f)
             {
                 distance = sqrtf(distance);
@@ -662,6 +663,16 @@ void ExInsStage6Func9(Enemy *enemy, EclRawInstr *curInstr)
             }
 
             sincosmul(&currentBullet->ex4Acceleration, (distance * ZUN_PI) / 256.0f + randomAngleModifier, 0.01f);
+#else
+            // Builds before 2002-08-25 take the square root of any distance, including zero.
+            sincosmul(&currentBullet->ex4Acceleration,
+                      (sqrtf(ZUN_SQUARE(enemy->position.x - currentBullet->pos.x) +
+                             ZUN_SQUARE(enemy->position.y - currentBullet->pos.y)) *
+                       ZUN_PI) /
+                              256.0f +
+                          randomAngleModifier,
+                      0.01f);
+#endif
         }
     }
 }
@@ -701,10 +712,13 @@ void ExInsStage6Func11(Enemy *enemy, EclRawInstr *curInstr)
 
 void ExInsHandleBatTransformation(Enemy *enemy, EclRawInstr *curInstr)
 {
+#if BUILT_SINCE(101)
+    // 1.00 keeps transforming after the enemy dies.
     if (enemy->life <= 0)
     {
         return;
     }
+#endif
 
     ExInsBatWingEffect(enemy, curInstr);
     if (g_Player.bombInfo.isInUse)
@@ -842,10 +856,8 @@ void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *curInstr)
                 if (innerBullet->sprites.spriteBullet.sprite != NULL &&
                     innerBullet->sprites.spriteBullet.sprite->heightPx < BULLET_SIZE_MEDIUM &&
                     innerBullet->speed == 0.0f &&
-                    (distance = sqrtf(
-                         (innerBullet->pos.x - currentBullet->pos.x) * (innerBullet->pos.x - currentBullet->pos.x) +
-                         (innerBullet->pos.y - currentBullet->pos.y) * (innerBullet->pos.y - currentBullet->pos.y))) <
-                        64.0f)
+                    (distance = sqrtf(ZUN_SQUARE(innerBullet->pos.x - currentBullet->pos.x) +
+                                      ZUN_SQUARE(innerBullet->pos.y - currentBullet->pos.y))) < 64.0f)
                 {
                     innerBullet->exFlags |= EX_ACCELERATION;
                     innerBullet->speed = 0.01f;

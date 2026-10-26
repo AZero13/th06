@@ -11,7 +11,7 @@
 
 namespace th06
 {
-BombData g_BombData[] = {
+static BombData g_BombData[] = {
     /* ReimuA  */ {BombReimuACalc, BombReimuADraw},
     /* ReimuB  */ {BombReimuBCalc, BombReimuBDraw},
     /* MarisaA */ {BombMarisaACalc, BombMarisaADraw},
@@ -208,7 +208,7 @@ static void UpdatePlayerBullets(Player *player)
                     vectorX = player->positionOfLastEnemyHit.x - bullet->position[0];
                     vectorY = player->positionOfLastEnemyHit.y - bullet->position[1];
 
-                    vecLength = sqrtf(vectorX * vectorX + vectorY * vectorY) / (bullet->speed / 4.0f);
+                    vecLength = sqrtf(ZUN_SQUARE(vectorX) + ZUN_SQUARE(vectorY)) / (bullet->speed / 4.0f);
                     if (vecLength < 1.0f)
                     {
                         vecLength = 1.0f;
@@ -217,7 +217,7 @@ static void UpdatePlayerBullets(Player *player)
                     vectorX = vectorX / vecLength + bullet->velocity.x;
                     vectorY = vectorY / vecLength + bullet->velocity.y;
 
-                    vecLength = sqrtf(vectorX * vectorX + vectorY * vectorY);
+                    vecLength = sqrtf(ZUN_SQUARE(vectorX) + ZUN_SQUARE(vectorY));
 
                     bullet->speed = ZUN_MIN(vecLength, 10.0f);
 
@@ -236,7 +236,7 @@ static void UpdatePlayerBullets(Player *player)
                         bullet->speed += 0.33333333f;
                         vectorX = bullet->velocity.x;
                         vectorY = bullet->velocity.y;
-                        vecLength = sqrtf(vectorX * vectorX + vectorY * vectorY);
+                        vecLength = sqrtf(ZUN_SQUARE(vectorX) + ZUN_SQUARE(vectorY));
                         bullet->velocity.x = vectorX * bullet->speed / vecLength;
                         bullet->velocity.y = vectorY * bullet->speed / vecLength;
                     }
@@ -666,8 +666,11 @@ void Player::ScoreGraze(D3DXVECTOR3 *center)
 {
     D3DXVECTOR3 particlePosition;
 
+#if BUILT_SINCE(102)
     if (!g_Player.bombInfo.isInUse)
+#endif
     {
+        // 1.00 and 1.01 also count graze while a bomb is active.
         if (g_GameManager.grazeInStage < 9999)
         {
             g_GameManager.grazeInStage++;

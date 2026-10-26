@@ -19,6 +19,10 @@ struct MidiOutput;
 #if BUILD_VERSION == BUILD_VERSION_013 || BUILD_VERSION == BUILD_VERSION_013a
 #define CONFIG_VERSION 0x0102
 #define REPLAY_VERSION 0x0102
+#elif BUILD_VERSION == BUILD_VERSION_101
+// 1.01 keeps 1.00's replay version, so 1.00 replays still load.
+#define CONFIG_VERSION GAME_VERSION
+#define REPLAY_VERSION 0x0100
 #else
 #define CONFIG_VERSION GAME_VERSION
 #define REPLAY_VERSION GAME_VERSION
@@ -70,8 +74,10 @@ enum MusicMode
 struct GameConfiguration
 {
     ControllerMapping controllerMapping;
+#if BUILT_SINCE(102)
     // Always 0x102 for 1.02
     i32 version;
+#endif
     u8 lifeCount;
     u8 bombCount;
     u8 colorMode16bit;
@@ -81,13 +87,19 @@ struct GameConfiguration
     u8 windowed;
     // 0 = fullspeed, 1 = 1/2 speed, 2 = 1/4 speed.
     u8 frameskipConfig;
+#if BUILT_SINCE(102)
     i16 padXAxis;
     i16 padYAxis;
     unreferenced_fields(0x10);
+#endif
     // GameConfigOpts bitfield.
     GameConfigOpts opts;
 };
+#if BUILT_SINCE(102)
 ZUN_ASSERT_TYPE(GameConfiguration, 0x38, 4);
+#else
+ZUN_ASSERT_TYPE(GameConfiguration, 0x2c, 4);
+#endif
 
 #define IN_PBG3_INDEX 0
 #define MD_PBG3_INDEX 1
@@ -164,9 +176,19 @@ struct Supervisor
         return this->cfg.opts.displayMinimumGraphics;
     }
 
+    ZunBool IsShadingDisabled()
+    {
+        return this->cfg.opts.suppressUseOfGoroudShading;
+    }
+
     ZunBool IsDepthTestDisabled()
     {
         return this->cfg.opts.disableDepthTest;
+    }
+
+    ZunBool IsForced60Fps()
+    {
+        return this->cfg.opts.force60Fps;
     }
 
     ZunBool IsColorCompositingDisabled()
@@ -184,6 +206,11 @@ struct Supervisor
         return this->cfg.opts.disableFog;
     }
 
+    ZunBool IsDInputDisabled()
+    {
+        return this->cfg.opts.dontUseDirectInput;
+    }
+
     ZunBool ShouldForceBackbufferClear()
     {
         return this->cfg.opts.clearBackBufferOnRefresh | this->cfg.opts.displayMinimumGraphics;
@@ -199,7 +226,7 @@ struct Supervisor
     // inline copy of this in 0.13's main.obj would give the wrong OnTimerElapsed/~AnmManager ICF survivor.
     ZunBool ShouldRunAt60Fps()
     {
-        return this->cfg.opts.force60Fps && this->vsyncEnabled;
+        return this->IsForced60Fps() && this->vsyncEnabled;
     }
 #endif
 
@@ -219,7 +246,9 @@ struct Supervisor
     LPDIRECTINPUT8 dinputIface;
     LPDIRECTINPUTDEVICE8 keyboard;
     LPDIRECTINPUTDEVICE8 controller;
+#if BUILT_SINCE(101)
     DIDEVCAPS controllerCaps;
+#endif
     HWND hwndGameWindow;
     D3DXMATRIX viewMatrix;
     D3DXMATRIX projectionMatrix;
@@ -268,8 +297,12 @@ ZunResult Supervisor_RegisterChain();
 ZUN_ASSERT_SIZE(Supervisor, 0x4d8);
 #elif BUILT_SINCE(102f)
 ZUN_ASSERT_SIZE(Supervisor, 0x4a0);
-#else
+#elif BUILT_SINCE(102)
 ZUN_ASSERT_SIZE(Supervisor, 0x49c);
+#elif BUILT_SINCE(101)
+ZUN_ASSERT_SIZE(Supervisor, 0x490);
+#else
+ZUN_ASSERT_SIZE(Supervisor, 0x464);
 #endif
 
 extern Supervisor g_Supervisor;

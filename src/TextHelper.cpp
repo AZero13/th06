@@ -66,6 +66,7 @@ class TextHelper
     bool ReleaseBuffer();
     bool InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight);
     bool CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface);
+    bool SetAlpha(u8 alpha);
 
     bool DrawStringWithFont(i32 x, i32 y, HFONT font, COLORREF color, COLORREF shadow, const char *text);
     bool DrawString(i32 x, i32 y, i32 fontSize, COLORREF color, COLORREF shadow, const char *text);
@@ -209,7 +210,7 @@ bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
     {
         return false;
     }
-    imageWidthInBytes = ((((width * formatInfo->bitCount) / CHAR_BIT) + 3) / 4) * 4;
+    imageWidthInBytes = ((((width * formatInfo->bitCount) / 8) + 3) / 4) * 4;
     bitmapInfo.bV4Size = sizeof(BITMAPV4HEADER);
     bitmapInfo.bV4Width = width;
     bitmapInfo.bV4Height = -(height + 1);
@@ -358,6 +359,39 @@ bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
 }
 
 #define TEXT_BUFFER_HEIGHT 64
+// Unused; TH10 keeps it at 0x437200, right after CopyTextToSurface.
+bool TextHelper::SetAlpha(u8 alpha)
+{
+    i32 i;
+    i32 size = this->imageWidthInBytes * this->height;
+    u8 *buffer = (u8 *)this->buffer;
+
+    switch (this->format)
+    {
+    case D3DFMT_A8R8G8B8:
+        for (i = 2; i < size; i += 4)
+        {
+            buffer[i] = alpha;
+        }
+        break;
+    case D3DFMT_A1R5G5B5:
+        for (i = 1; i < size; i += 2)
+        {
+            buffer[i] = (buffer[i] & 0x7f) | (alpha != 0 ? 0x80 : 0);
+        }
+        break;
+    case D3DFMT_A4R4G4B4:
+        for (i = 1; i < size; i += 2)
+        {
+            buffer[i] = (buffer[i] & 0x0f) | (alpha & 0xf0);
+        }
+        break;
+    default:
+        return false;
+    }
+    return true;
+}
+
 void TextHelper_CreateTextBuffer()
 {
     g_Supervisor.d3dDevice->CreateImageSurface(GAME_WINDOW_WIDTH, TEXT_BUFFER_HEIGHT, D3DFMT_A1R5G5B5,

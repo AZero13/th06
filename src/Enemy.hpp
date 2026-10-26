@@ -19,10 +19,13 @@ struct Enemy;
 
 struct EnemyShooter
 {
+#if BUILT_SINCE(013)
+    // Builds before 2002-08-25 (1.00 to 1.02c) leave EnemyShooter locals uninitialized.
     EnemyShooter()
     {
         memset(this, 0, sizeof(EnemyShooter));
     }
+#endif
 
     i16 sprite;
     i16 color;

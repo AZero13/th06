@@ -199,7 +199,12 @@ u32 BulletManager::SpawnSingleBullet(EnemyShooter *bulletProps, i32 bulletIdx1, 
     bullet->angle = utils::AddNormalizeAngle(bulletAngle, 0.0f);
     bullet->pos = bulletProps->position;
     bullet->pos[2] = 0.1f;
+#if BUILT_SINCE(013)
     sincosmul(&bullet->velocity, bullet->angle, bulletSpeed);
+#else
+    // Builds before 2002-08-25 (1.00 to 1.02c) aim the velocity with the angle before it is normalized.
+    sincosmul(&bullet->velocity, bulletAngle, bulletSpeed);
+#endif
     bullet->exFlags = bulletProps->flags;
     bullet->color = bulletProps->color;
     bullet->sprites.spriteBullet = this->bulletTypeTemplates[bulletProps->sprite].spriteBullet;
@@ -520,7 +525,12 @@ i32 BulletManager::DespawnBullets(i32 maxBonusScore, ZunBool awardPoints)
 
             if (awardPoints)
             {
+#if BUILT_SINCE(101)
                 g_ItemManager.SpawnItem(&laser->pos, ITEM_POINT_BULLET, ITEM_STATE_MAGNETED);
+#else
+                // 1.00 bug: the laser's item spawns at the last bullet visited by the loop above.
+                g_ItemManager.SpawnItem(&bullet->pos, ITEM_POINT_BULLET, ITEM_STATE_MAGNETED);
+#endif
                 float offset = laser->startOffset;
                 fsincos_wrapper(&sine, &cosine, laser->angle);
 

@@ -10,7 +10,7 @@ namespace th06
 #define ITEM_TABLES 8
 
 // clang-format off
-u8 g_RandomItems[] = {
+static u8 g_RandomItems[] = {
     ITEM_POWER_SMALL, ITEM_POWER_SMALL, ITEM_POINT,       ITEM_POWER_SMALL,
     ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POWER_SMALL, ITEM_POINT,
     ITEM_POINT,       ITEM_POINT,       ITEM_POWER_SMALL, ITEM_POWER_SMALL,

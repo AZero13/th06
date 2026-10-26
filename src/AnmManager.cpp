@@ -545,7 +545,11 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, ZunBool roundVertices)
             this->currentTexture = this->textures[vm->sprite->sourceFileIndex];
             g_Supervisor.d3dDevice->SetTexture(0, this->currentTexture);
         }
+        // clang-format off
+#if BUILT_SINCE(101)
     }
+#endif
+    // 1.00 only sets the vertex shader when the sprite changes.
     if (this->currentVertexShader != AnmVertexShader_2)
     {
         if (!g_Supervisor.IsVertexBufferDisabled())
@@ -558,6 +562,9 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, ZunBool roundVertices)
         }
         this->currentVertexShader = AnmVertexShader_2;
     }
+#if BUILT_BEFORE(101)
+    }
+#endif
     this->SetRenderStateForVm(vm);
     if (!g_Supervisor.IsVertexBufferDisabled())
     {
@@ -591,6 +598,7 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, ZunBool roundVertices)
     }
     return ZUN_SUCCESS;
 }
+// clang-format on
 
 ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
 {
@@ -602,10 +610,12 @@ ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
+#if BUILT_SINCE(102)
     if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
+#endif
     float fVar2 = vm->sprite->widthPx * vm->scaleX / 2.0f;
     float fVar3 = vm->sprite->heightPx * vm->scaleY / 2.0f;
     if (!(vm->flags.anchor & AnmVmAnchor_Left))
@@ -663,10 +673,12 @@ ZunResult AnmManager::Draw(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
+#if BUILT_SINCE(102)
     if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
+#endif
     z = vm->rotation.z;
     sincos(z, zSine, zCosine);
     xOffset = rintf(vm->pos.x);
@@ -710,10 +722,12 @@ ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
+#if BUILT_SINCE(102)
     if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
+#endif
 
     f32 centerX = vm->sprite->widthPx * vm->scaleX / 2.0f;
     f32 centerY = vm->sprite->heightPx * vm->scaleY / 2.0f;
@@ -757,10 +771,12 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
+#if BUILT_SINCE(102)
     if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
+#endif
 
     worldTransformMatrix = vm->matrix;
     worldTransformMatrix.m[0][0] *= vm->scaleX;
@@ -821,9 +837,12 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
             this->currentTexture = this->textures[vm->sprite->sourceFileIndex];
             g_Supervisor.d3dDevice->SetTexture(0, this->currentTexture);
         }
+        // clang-format off
+#if BUILT_SINCE(101)
     }
+#endif
 
-    // Set vertex shader to TEX1 | XYZ
+    // Set vertex shader to TEX1 | XYZ (1.00 only does this when the sprite changes)
     if (this->currentVertexShader != AnmVertexShader_3)
     {
         if (!g_Supervisor.IsVertexBufferDisabled())
@@ -837,6 +856,9 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
         }
         this->currentVertexShader = AnmVertexShader_3;
     }
+#if BUILT_BEFORE(101)
+    }
+#endif
 
     // Reset the render state based on the settings fo the given VM.
     this->SetRenderStateForVm(vm);
@@ -853,6 +875,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     }
     return ZUN_SUCCESS;
 }
+// clang-format on
 
 #pragma var_order(textureMatrix, unusedMatrix, worldTransformMatrix)
 ZunResult AnmManager::Draw2(AnmVm *vm)
@@ -875,10 +898,12 @@ ZunResult AnmManager::Draw2(AnmVm *vm)
         return this->Draw3(vm);
     }
 
+#if BUILT_SINCE(102)
     if (vm->color == 0)
     {
         return ZUN_ERROR;
     }
+#endif
 
     worldTransformMatrix = vm->matrix;
     worldTransformMatrix.m[3][0] = rintf(vm->pos.x) - 0.5f;

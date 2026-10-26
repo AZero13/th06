@@ -304,7 +304,19 @@ static ZunResult SetupDInput(Supervisor *supervisor)
         return ZUN_ERROR;
     }
 
+#if BUILT_SINCE(102)
     supervisor->keyboard->Acquire();
+#else
+    if (FAILED(supervisor->keyboard->Acquire()))
+    {
+        SAFE_RELEASE(supervisor->keyboard);
+
+        SAFE_RELEASE(supervisor->dinputIface);
+
+        g_GameErrorContext.Log(TH_ERR_DIRECTINPUT_ACQUIRE_NOT_AVAILABLE);
+        return ZUN_ERROR;
+    }
+#endif
     g_GameErrorContext.Log(TH_ERR_DIRECTINPUT_INITIALIZED);
 
     supervisor->dinputIface->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumGameControllerDevicesCallback, NULL,
@@ -317,13 +329,21 @@ static ZunResult SetupDInput(Supervisor *supervisor)
         supervisor->controller->Acquire();
 #endif
 
+#if BUILT_SINCE(101)
+#if BUILT_SINCE(102)
         g_Supervisor.controllerCaps.dwSize = sizeof(DIDEVCAPS);
+#else
+        // 1.01 stores the size in the wrong field, so GetCapabilities sees a dwSize of 0.
+        g_Supervisor.controllerCaps.dwAxes = sizeof(DIDEVCAPS);
+#endif
 
         supervisor->controller->GetCapabilities(&g_Supervisor.controllerCaps);
+#endif
 #if BUILT_SINCE(102f)
         supervisor->controller->EnumObjects(EnumGameControllerObjectsCallback, NULL, DIDFT_ALL);
-#else
+#elif BUILT_SINCE(101)
         // Until 1.02d only the axes are enumerated; 1.02f enumerates everything and filters in the callback.
+        // 1.00 sets no axis ranges and reads the joystick's own limits instead.
         supervisor->controller->EnumObjects(EnumGameControllerObjectsCallback, NULL, DIDFT_AXIS);
 #endif
 
@@ -601,7 +621,12 @@ BOOL Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
             strcpy(this->pbg3ArchiveNames[pbg3FileIdx], filename);
 
             char verPath[128];
+#if BUILD_VERSION == BUILD_VERSION_101
+            // 1.01 still uses the 1.00 data archives.
+            sprintf(verPath, "ver%.4x.dat", 0x0100);
+#else
             sprintf(verPath, "ver%.4x.dat", GAME_VERSION);
+#endif
             i32 res = this->pbg3Archives[pbg3FileIdx]->FindEntry(verPath);
             if (res < 0)
             {
@@ -632,9 +657,11 @@ ZunResult Supervisor::LoadConfig(const char *path)
         g_Supervisor.cfg.lifeCount = 2;
         g_Supervisor.cfg.bombCount = 3;
         g_Supervisor.cfg.colorMode16bit = 0xff;
+#if BUILT_SINCE(102)
         g_Supervisor.cfg.version = CONFIG_VERSION;
         g_Supervisor.cfg.padXAxis = 600;
         g_Supervisor.cfg.padYAxis = 600;
+#endif
         FILE *wavFile = fopen("bgm/th06_01.wav", "rb");
         if (wavFile != NULL)
         {
@@ -660,14 +687,19 @@ ZunResult Supervisor::LoadConfig(const char *path)
             g_Supervisor.cfg.colorMode16bit >= 2 || g_Supervisor.cfg.musicMode >= 3 ||
             g_Supervisor.cfg.defaultDifficulty >= 5 || g_Supervisor.cfg.playSounds >= 2 ||
             g_Supervisor.cfg.windowed >= 2 || g_Supervisor.cfg.frameskipConfig >= 3 ||
-            g_Supervisor.cfg.version != CONFIG_VERSION || g_ReadFileSize != sizeof(GameConfiguration))
+#if BUILT_SINCE(102)
+            g_Supervisor.cfg.version != CONFIG_VERSION ||
+#endif
+            g_ReadFileSize != sizeof(GameConfiguration))
         {
             g_Supervisor.cfg.lifeCount = 2;
             g_Supervisor.cfg.bombCount = 3;
             g_Supervisor.cfg.colorMode16bit = 0xff;
+#if BUILT_SINCE(102)
             g_Supervisor.cfg.version = CONFIG_VERSION;
             g_Supervisor.cfg.padXAxis = 600;
             g_Supervisor.cfg.padYAxis = 600;
+#endif
             FILE *wavFile = fopen("bgm/th06_01.wav", "rb");
             if (wavFile != NULL)
             {
@@ -691,15 +723,15 @@ ZunResult Supervisor::LoadConfig(const char *path)
         g_ControllerMapping = g_Supervisor.cfg.controllerMapping;
         ZUN_FREE(data);
     }
-    if (this->IsVertexBufferDisabled())
+    if (this->cfg.opts.dontUseVertexBuf != false)
     {
         g_GameErrorContext.Log(TH_ERR_NO_VERTEX_BUFFER);
     }
-    if (this->IsFogDisabled())
+    if (this->cfg.opts.disableFog != false)
     {
         g_GameErrorContext.Log(TH_ERR_NO_FOG);
     }
-    if (this->Is16bitColorMode())
+    if (this->cfg.opts.force16bitColorMode != false)
     {
         g_GameErrorContext.Log(TH_ERR_USE_16BIT_TEXTURES);
     }
@@ -707,39 +739,39 @@ ZunResult Supervisor::LoadConfig(const char *path)
     {
         g_GameErrorContext.Log(TH_ERR_FORCE_BACKBUFFER_CLEAR);
     }
-    if (this->IsMinimumGraphicsMode())
+    if (this->cfg.opts.displayMinimumGraphics != false)
     {
         g_GameErrorContext.Log(TH_ERR_DONT_RENDER_ITEMS);
     }
-    if (this->cfg.opts.suppressUseOfGoroudShading)
+    if (this->cfg.opts.suppressUseOfGoroudShading != false)
     {
         g_GameErrorContext.Log(TH_ERR_NO_GOURAUD_SHADING);
     }
-    if (this->IsDepthTestDisabled())
+    if (this->cfg.opts.disableDepthTest != false)
     {
         g_GameErrorContext.Log(TH_ERR_NO_DEPTH_TESTING);
     }
-    if (this->cfg.opts.force60Fps)
+    if (this->cfg.opts.force60Fps != false)
     {
         g_GameErrorContext.Log(TH_ERR_FORCE_60FPS_MODE);
 #if BUILT_SINCE(102f)
         this->vsyncEnabled = false;
 #endif
     }
-    if (this->IsColorCompositingDisabled())
+    if (this->cfg.opts.disableColorCompositing != false)
     {
         g_GameErrorContext.Log(TH_ERR_NO_TEXTURE_COLOR_COMPOSITING);
     }
-    if (this->IsColorCompositingDisabled())
+    if (this->cfg.opts.disableColorCompositing != false)
     {
         g_GameErrorContext.Log(TH_ERR_LAUNCH_WINDOWED);
     }
-    if (this->IsReferenceRasterizerMode())
+    if (this->cfg.opts.referenceRasterizerMode != false)
     {
         g_GameErrorContext.Log(TH_ERR_FORCE_REFERENCE_RASTERIZER);
     }
 #if BUILT_SINCE(102g)
-    if (this->cfg.opts.dontUseDirectInput)
+    if (this->cfg.opts.dontUseDirectInput != false)
     {
         g_GameErrorContext.Log(TH_ERR_DO_NOT_USE_DIRECTINPUT);
     }
@@ -757,7 +789,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
 ZunBool Supervisor::ReadMidiFile(u32 midiFileIdx, const char *path)
 {
     // Return conventions seem opposite of normal? But they're never used anyway
-    if (g_Supervisor.GetMusicMode() == MIDI)
+    if (g_Supervisor.cfg.musicMode == MIDI)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
@@ -772,7 +804,7 @@ ZunBool Supervisor::ReadMidiFile(u32 midiFileIdx, const char *path)
 
 ZunBool Supervisor::PlayMidiFile(i32 midiFileIdx)
 {
-    if (g_Supervisor.GetMusicMode() == MIDI)
+    if (g_Supervisor.cfg.musicMode == MIDI)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
@@ -787,10 +819,10 @@ ZunBool Supervisor::PlayMidiFile(i32 midiFileIdx)
 
 ZunResult Supervisor::SetupMidiPlayback(const char *path)
 {
-    if (g_Supervisor.GetMusicMode() == MIDI)
+    if (g_Supervisor.cfg.musicMode == MIDI)
     {
     }
-    else if (g_Supervisor.GetMusicMode() == WAV)
+    else if (g_Supervisor.cfg.musicMode == WAV)
     {
     }
     else
@@ -806,14 +838,14 @@ ZunResult Supervisor::PlayAudio(const char *path)
     char audioPaths[2][256];
     char *pathExtension;
 
-    if (g_Supervisor.GetMusicMode() == MIDI)
+    if (g_Supervisor.cfg.musicMode == MIDI)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
             g_Supervisor.midiOutput->LoadAndPlay(path);
         }
     }
-    else if (g_Supervisor.GetMusicMode() == WAV)
+    else if (g_Supervisor.cfg.musicMode == WAV)
     {
         strcpy(audioPaths[0], path);
         strcpy(audioPaths[1], path);
@@ -844,7 +876,7 @@ ZunResult Supervisor::PlayAudio(const char *path)
 
 ZunResult Supervisor::StopAudio()
 {
-    if (g_Supervisor.GetMusicMode() == MIDI)
+    if (g_Supervisor.cfg.musicMode == MIDI)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
@@ -853,7 +885,7 @@ ZunResult Supervisor::StopAudio()
     }
     else
     {
-        if (g_Supervisor.GetMusicMode() == WAV)
+        if (g_Supervisor.cfg.musicMode == WAV)
         {
             g_SoundPlayer.StopBGM();
         }
@@ -868,7 +900,7 @@ ZunResult Supervisor::StopAudio()
 
 ZunResult Supervisor::FadeOutMusic(f32 fadeOutSeconds)
 {
-    if (g_Supervisor.GetMusicMode() == MIDI)
+    if (g_Supervisor.cfg.musicMode == MIDI)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
@@ -877,7 +909,7 @@ ZunResult Supervisor::FadeOutMusic(f32 fadeOutSeconds)
     }
     else
     {
-        if (g_Supervisor.GetMusicMode() == WAV)
+        if (g_Supervisor.cfg.musicMode == WAV)
         {
             if (this->effectiveFramerateMultiplier == 0.0f)
             {
