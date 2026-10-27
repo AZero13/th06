@@ -1,45 +1,46 @@
 #pragma once
-
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
 #include "ReplayData.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
+#define REPLAY_MAGIC "T6RP"
+
+ZunResult ReplayManager_RegisterChain(ZunBool isDemo, const char *replayFile);
+
+void StopRecordingReplay();
+void SaveReplay(const char *replayPath, const char *replayName);
+ZunResult ValidateReplayData(ReplayData *data, i32 fileSize);
+
+// Recording reserves this many bytes; saved stages contain only the used input records.
+#define STAGE_REPLAY_BUFFER_SIZE 0x69780
+
 struct ReplayManager
 {
-    static ZunResult RegisterChain(i32 isDemo, char *replayFile);
-    static ChainCallbackResult OnUpdate(ReplayManager *mgr);
-    static ChainCallbackResult OnUpdateDemoHighPrio(ReplayManager *mgr);
-    static ChainCallbackResult OnUpdateDemoLowPrio(ReplayManager *mgr);
-    static ChainCallbackResult OnDraw(ReplayManager *mgr);
-    static ZunResult AddedCallback(ReplayManager *mgr);
-    static ZunResult AddedCallbackDemo(ReplayManager *mgr);
-    static ZunResult DeletedCallback(ReplayManager *mgr);
-    static void StopRecording();
-    static void SaveReplay(char *replay_path, char *param_2);
-    static ZunResult ValidateReplayData(ReplayData *data, i32 fileSize);
-
     ReplayManager()
     {
     }
 
-    i32 IsDemo()
+    ZunBool IsDemo()
     {
         return this->isDemo;
     }
 
     i32 frameId;
     ReplayData *replayData;
-    i32 isDemo;
-    char *replayFile;
-    u8 unk10[52];
+    ZunBool isDemo;
+    const char *replayFile;
+    unreferenced_fields(0x34);
     u16 unk44;
+    alignment_padding(0x2);
     ReplayDataInput *replayInputs;
     ReplayDataInput *replayInputStageBookmarks[7];
     ChainElem *calcChain;
     ChainElem *drawChain;
     ChainElem *calcChainDemoHighPrio;
 };
-}; // namespace th06
+ZUN_ASSERT_TYPE(ReplayManager, 0x74, 4);
+
+} // namespace th06

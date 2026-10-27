@@ -1,47 +1,33 @@
+#include "stdafx.h"
+
 #include "Stage.hpp"
-#include "AnmIdx.hpp"
-#include "AnmManager.hpp"
-#include "Chain.hpp"
 #include "ChainPriorities.hpp"
-#include "GameManager.hpp"
-#include "Global.hpp"
-#include "Gui.hpp"
 #include "ScreenEffect.hpp"
-#include "Supervisor.hpp"
-#include "ZunColor.hpp"
-#include "ZunMemory.hpp"
-#include <d3d8.h>
 
 namespace th06
 {
-DIFFABLE_STATIC_ARRAY_ASSIGN(StageFile, 8, g_StageFiles) = {
-    {"dummy", "dummy"},
-    {"data/stg1bg.anm", "data/stage1.std"},
-    {"data/stg2bg.anm", "data/stage2.std"},
-    {"data/stg3bg.anm", "data/stage3.std"},
-    {"data/stg4bg.anm", "data/stage4.std"},
-    {"data/stg5bg.anm", "data/stage5.std"},
-    {"data/stg6bg.anm", "data/stage6.std"},
-    {"data/stg7bg.anm", "data/stage7.std"},
-};
-DIFFABLE_STATIC(ChainElem, g_StageOnDrawHighPrioChain)
-DIFFABLE_STATIC(Stage, g_Stage)
-DIFFABLE_STATIC(ChainElem, g_StageOnDrawLowPrioChain)
-DIFFABLE_STATIC(ChainElem, g_StageCalcChain)
+ChainCallbackResult Stage_OnUpdate(Stage *stage);
+ChainCallbackResult Stage_OnDrawHighPrio(Stage *stage);
+ChainCallbackResult Stage_OnDrawLowPrio(Stage *stage);
+ZunResult Stage_AddedCallback(Stage *stage);
+ZunResult Stage_DeletedCallback(Stage *stage);
 
-Stage::Stage()
-{
-}
+Stage g_Stage;
+ChainElem g_StageCalcChain;
+ChainElem g_StageDrawHighPrioChain;
+ChainElem g_StageOnDrawLowPrioChain;
 
-#pragma var_order(posInterpRatio, curInsn, pos, facingDirInterpRatio, skyFogInterpRatio, idx)
-ChainCallbackResult Stage::OnUpdate(Stage *stage)
+#define GET_ARG(type, num) ((type *)curInstr->args)[num]
+#define GET_INT_ARG(num) GET_ARG(i32, num)
+#define GET_FLOAT_ARG(num) GET_ARG(float, num)
+#define GET_FLOAT3_ARG() GET_ARG(D3DXVECTOR3, 0)
+
+#pragma var_order(posInterpRatio, curInstr, pos)
+ChainCallbackResult Stage_OnUpdate(Stage *stage)
 {
     f32 posInterpRatio;
-    f32 facingDirInterpRatio;
     D3DXVECTOR3 pos;
-    i32 idx;
-    f32 skyFogInterpRatio;
-    RawStageInstr *curInsn;
+    StdRawInstr *curInstr;
 
     if (stage->stdData == NULL)
     {
@@ -53,99 +39,99 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
         // spellcard background a bit, to give a visual indication of what's
         // going on.
         COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_ALPHA_BYTE_IDX, 0x60);
-        COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_BLUE_BYTE_IDX, 0x80);
+        COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_RED_BYTE_IDX, 0x80);
         COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_GREEN_BYTE_IDX, 0x30);
-        COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_RED_BYTE_IDX, 0x30);
+        COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_BLUE_BYTE_IDX, 0x30);
         return CHAIN_CALLBACK_RESULT_CONTINUE;
     }
     for (;;)
     {
-        curInsn = stage->beginningOfScript + stage->instructionIndex;
-        switch (curInsn->opcode)
+        curInstr = stage->beginningOfScript + stage->instructionIndex;
+        switch (curInstr->opcode)
         {
-        case STDOP_CAMERA_POSITION_KEY:
-            if (curInsn->frame == -1)
+        case STD_OPCODE_CAMERA_POSITION_KEY:
+            if (curInstr->time == -1)
             {
-                stage->positionInterpInitial = *(D3DXVECTOR3 *)curInsn->args;
+                stage->positionInterpInitial = GET_FLOAT3_ARG();
                 stage->position.x = stage->positionInterpInitial.x;
                 stage->position.y = stage->positionInterpInitial.y;
                 stage->position.z = stage->positionInterpInitial.z;
             }
-            else if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+            else if (stage->scriptTime >= curInstr->time)
             {
-                pos = *(D3DXVECTOR3 *)curInsn->args;
+                pos = GET_FLOAT3_ARG();
                 stage->position.x = pos.x;
                 stage->position.y = pos.y;
                 stage->position.z = pos.z;
                 stage->positionInterpInitial = pos;
-                stage->positionInterpStartTime = curInsn->frame;
+                stage->positionInterpStartTime = curInstr->time;
                 stage->instructionIndex++;
-                curInsn++;
-                while (curInsn->opcode != 0)
+                curInstr++;
+                while (curInstr->opcode != 0)
                 {
-                    curInsn++;
+                    curInstr++;
                 }
-                stage->positionInterpEndTime = curInsn->frame;
-                stage->positionInterpFinal = *(D3DXVECTOR3 *)curInsn->args;
+                stage->positionInterpEndTime = curInstr->time;
+                stage->positionInterpFinal = GET_FLOAT3_ARG();
             }
             break;
-        case STDOP_FOG:
-            if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+        case STD_OPCODE_FOG:
+            if (stage->scriptTime >= curInstr->time)
             {
-                stage->skyFog.color = curInsn->args[0];
-                stage->skyFog.nearPlane = ((f32 *)curInsn->args)[1];
-                stage->skyFog.farPlane = ((f32 *)curInsn->args)[2];
+                stage->skyFog.color = GET_INT_ARG(0);
+                stage->skyFog.nearPlane = GET_FLOAT_ARG(1);
+                stage->skyFog.farPlane = GET_FLOAT_ARG(2);
                 if (stage->skyFogInterpDuration == 0)
                 {
                     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
-                    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&stage->skyFog.nearPlane);
-                    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&stage->skyFog.farPlane);
+                    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&stage->skyFog.nearPlane);
+                    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&stage->skyFog.farPlane);
                 }
                 stage->instructionIndex++;
                 stage->skyFogInterpFinal = stage->skyFog;
                 continue;
             }
             break;
-        case STDOP_FOG_INTERP:
-            if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+        case STD_OPCODE_FOG_INTERP:
+            if (stage->scriptTime >= curInstr->time)
             {
                 stage->skyFogInterpInitial = stage->skyFog;
-                stage->skyFogInterpDuration = curInsn->args[0];
-                stage->skyFogInterpTimer.InitializeForPopup();
+                stage->skyFogInterpDuration = GET_INT_ARG(0);
+                stage->skyFogInterpTimer = 0;
                 stage->instructionIndex++;
                 continue;
             }
             break;
-        case STDOP_CAMERA_FACING:
-            if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+        case STD_OPCODE_CAMERA_FACING:
+            if (stage->scriptTime >= curInstr->time)
             {
                 stage->facingDirInterpInitial = stage->facingDirInterpFinal;
-                stage->facingDirInterpFinal = *(D3DXVECTOR3 *)curInsn->args;
+                stage->facingDirInterpFinal = GET_FLOAT3_ARG();
                 stage->instructionIndex++;
                 continue;
             }
             break;
-        case STDOP_CAMERA_FACING_INTERP_LINEAR:
-            if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+        case STD_OPCODE_CAMERA_FACING_INTERP_LINEAR:
+            if (stage->scriptTime >= curInstr->time)
             {
-                stage->facingDirInterpDuration = curInsn->args[0];
-                stage->facingDirInterpTimer.InitializeForPopup();
+                stage->facingDirInterpDuration = GET_INT_ARG(0);
+                stage->facingDirInterpTimer = 0;
                 stage->instructionIndex++;
                 continue;
             }
             break;
-        case STDOP_PAUSE:
+        case STD_OPCODE_STD_PAUSE:
             if (stage->unpauseFlag)
             {
                 stage->instructionIndex++;
-                stage->unpauseFlag = '\0';
+                stage->unpauseFlag = 0;
                 continue;
             }
             break;
         }
-        if (curInsn->frame != -1)
+        if (curInstr->time != -1)
         {
-            posInterpRatio = (stage->scriptTime.AsFramesFloat() - stage->positionInterpStartTime) /
+            posInterpRatio = ((f32)stage->scriptTime - stage->positionInterpStartTime) /
                              (stage->positionInterpEndTime - stage->positionInterpStartTime);
             pos = stage->positionInterpFinal;
             stage->position.x =
@@ -157,29 +143,29 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
         }
         if (stage->facingDirInterpDuration != 0)
         {
-            if ((ZunBool)(stage->facingDirInterpTimer.current < stage->facingDirInterpDuration))
+            if (stage->facingDirInterpTimer < stage->facingDirInterpDuration)
             {
-                stage->facingDirInterpTimer.Tick();
+                stage->facingDirInterpTimer++;
             }
             else
             {
-                stage->facingDirInterpTimer.SetCurrent(stage->facingDirInterpDuration);
+                stage->facingDirInterpTimer = stage->facingDirInterpDuration;
             }
             pos = stage->facingDirInterpFinal - stage->facingDirInterpInitial;
-            facingDirInterpRatio = stage->facingDirInterpTimer.AsFramesFloat() / stage->facingDirInterpDuration;
+            f32 facingDirInterpRatio = (f32)stage->facingDirInterpTimer / stage->facingDirInterpDuration;
             g_GameManager.stageCameraFacingDir.x = pos.x * facingDirInterpRatio + stage->facingDirInterpInitial.x;
             g_GameManager.stageCameraFacingDir.y = pos.y * facingDirInterpRatio + stage->facingDirInterpInitial.y;
             g_GameManager.stageCameraFacingDir.z = pos.z * facingDirInterpRatio + stage->facingDirInterpInitial.z;
         }
         if (stage->skyFogInterpDuration != 0)
         {
-            stage->skyFogInterpTimer.Tick();
-            skyFogInterpRatio = stage->skyFogInterpTimer.AsFramesFloat() / stage->skyFogInterpDuration;
+            stage->skyFogInterpTimer++;
+            f32 skyFogInterpRatio = (f32)stage->skyFogInterpTimer / stage->skyFogInterpDuration;
             if (skyFogInterpRatio >= 1.0f)
             {
-                skyFogInterpRatio = 1.0;
+                skyFogInterpRatio = 1.0f;
             }
-            for (idx = 0; idx < 4; idx++)
+            for (i32 idx = 0; idx < 4; idx++)
             {
                 COLOR_SET_COMPONENT(stage->skyFog.color, idx,
                                     (u8)(((f32)COLOR_GET_COMPONENT(stage->skyFogInterpFinal.color, idx) -
@@ -188,46 +174,46 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
                                          (f32)COLOR_GET_COMPONENT(stage->skyFogInterpInitial.color, idx)));
             }
             stage->skyFog.nearPlane =
-                (stage->skyFogInterpFinal.nearPlane - stage->skyFogInterpInitial.nearPlane) * skyFogInterpRatio +
-                stage->skyFogInterpInitial.nearPlane;
+                (f32)((stage->skyFogInterpFinal.nearPlane - stage->skyFogInterpInitial.nearPlane) * skyFogInterpRatio +
+                      stage->skyFogInterpInitial.nearPlane);
             stage->skyFog.farPlane =
-                (stage->skyFogInterpFinal.farPlane - stage->skyFogInterpInitial.farPlane) * skyFogInterpRatio +
-                stage->skyFogInterpInitial.farPlane;
+                (f32)((stage->skyFogInterpFinal.farPlane - stage->skyFogInterpInitial.farPlane) * skyFogInterpRatio +
+                      stage->skyFogInterpInitial.farPlane);
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
-            g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&stage->skyFog.nearPlane);
-            g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&stage->skyFog.farPlane);
-            if ((ZunBool)(stage->skyFogInterpTimer.current >= stage->skyFogInterpDuration))
+            g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&stage->skyFog.nearPlane);
+            g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&stage->skyFog.farPlane);
+            if (stage->skyFogInterpTimer >= stage->skyFogInterpDuration)
             {
                 stage->skyFogInterpDuration = 0;
             }
         }
-        if (curInsn->opcode != STDOP_PAUSE)
+        if (curInstr->opcode != STD_OPCODE_STD_PAUSE)
         {
-            stage->scriptTime.Tick();
+            stage->scriptTime++;
         }
         stage->UpdateObjects();
         if (stage->spellcardState >= RUNNING)
         {
             if (stage->ticksSinceSpellcardStarted == 60)
             {
-                stage->spellcardState = static_cast<SpellcardState>(stage->spellcardState + 1);
+                stage->spellcardState = (SpellcardState)(stage->spellcardState + 1);
             }
-            stage->ticksSinceSpellcardStarted = stage->ticksSinceSpellcardStarted + 1;
+            stage->ticksSinceSpellcardStarted++;
             g_AnmManager->ExecuteScript(&stage->spellcardBackground);
         }
         return CHAIN_CALLBACK_RESULT_CONTINUE;
     }
 }
 
-ChainCallbackResult Stage::OnDrawHighPrio(Stage *stage)
+ChainCallbackResult Stage_OnDrawHighPrio(Stage *stage)
 {
     if (stage->skyFogNeedsSetup)
     {
-        stage->skyFogNeedsSetup = 0;
+        stage->skyFogNeedsSetup = false;
         g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
     }
-    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&stage->skyFog.nearPlane);
-    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&stage->skyFog.farPlane);
+    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&stage->skyFog.nearPlane);
+    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&stage->skyFog.farPlane);
     if (stage->spellcardState <= RUNNING)
     {
         if (!g_Gui.IsStageFinished())
@@ -239,31 +225,29 @@ ChainCallbackResult Stage::OnDrawHighPrio(Stage *stage)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(val, stageToSpellcardBackgroundAlpha, gameRegion)
-ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
+ChainCallbackResult Stage_OnDrawLowPrio(Stage *stage)
 {
-    f32 val;
-    i32 stageToSpellcardBackgroundAlpha;
-    ZunRect gameRegion;
-
     if (stage->spellcardState <= RUNNING)
     {
         if (!g_Gui.IsStageFinished())
         {
             stage->RenderObjects(2);
             stage->RenderObjects(3);
+
+            i32 stageToSpellcardBackgroundAlpha;
             if (stage->spellcardState == RUNNING)
             {
-                gameRegion.left = GAME_REGION_LEFT;
-                gameRegion.top = GAME_REGION_TOP;
-                gameRegion.right = GAME_REGION_LEFT + GAME_REGION_WIDTH;
-                gameRegion.bottom = GAME_REGION_TOP + GAME_REGION_HEIGHT;
+                ZunRect gameRegion;
+                gameRegion.left = GAME_REGION_POS_X;
+                gameRegion.top = GAME_REGION_POS_Y;
+                gameRegion.right = GAME_REGION_POS_RIGHT;
+                gameRegion.bottom = GAME_REGION_POS_BOTTOM;
                 stageToSpellcardBackgroundAlpha = (stage->ticksSinceSpellcardStarted * 255) / 60;
-                ScreenEffect::DrawSquare(&gameRegion, stageToSpellcardBackgroundAlpha << 24);
+                ScreenEffect_DrawSquare(&gameRegion, stageToSpellcardBackgroundAlpha << 24);
             }
         }
     }
-    if (RUNNING <= stage->spellcardState)
+    if (stage->spellcardState >= RUNNING)
     {
         if (stage->ticksSinceSpellcardStarted <= g_Supervisor.cfg.frameskipConfig)
         {
@@ -271,33 +255,38 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
         }
         g_AnmManager->Draw(&stage->spellcardBackground);
     }
-    g_Supervisor.viewport.MinZ = 0.0;
-    g_Supervisor.viewport.MaxZ = 0.5;
-    GameManager::SetupCameraStageBackground(0);
+    g_Supervisor.viewport.MinZ = 0.0f;
+    g_Supervisor.viewport.MaxZ = 0.5f;
+    SetupCameraStageBackground(0);
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
+
+    f32 val;
     val = 1000.0f;
-    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&val);
+    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&val);
     val = 2000.0f;
-    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&val);
+    g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(DWORD *)&val);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(interpFinal, interpInitial, scriptTimer, facingDirTimer)
-ZunResult Stage::AddedCallback(Stage *stage)
+ZunResult Stage_AddedCallback(Stage *stage)
 {
-    ZunTimer *facingDirTimer;
-    ZunTimer *scriptTimer;
+    static StageFile g_StageFiles[] = {
+        {"dummy", "dummy"},
+        {"data/stg1bg.anm", "data/stage1.std"},
+        {"data/stg2bg.anm", "data/stage2.std"},
+        {"data/stg3bg.anm", "data/stage3.std"},
+        {"data/stg4bg.anm", "data/stage4.std"},
+        {"data/stg5bg.anm", "data/stage5.std"},
+        {"data/stg6bg.anm", "data/stage6.std"},
+        {"data/stg7bg.anm", "data/stage7.std"},
+    };
 
-    D3DXVECTOR3 interpFinal;
-    D3DXVECTOR3 interpInitial;
-
-    scriptTimer = &stage->scriptTime;
-    scriptTimer->InitializeForPopup();
+    stage->scriptTime = 0;
 
     stage->instructionIndex = 0;
-    stage->position.x = 0.0;
-    stage->position.y = 0.0;
-    stage->position.z = 0.0;
+    stage->position.x = 0.0f;
+    stage->position.y = 0.0f;
+    stage->position.z = 0.0f;
     stage->spellcardState = NOT_RUNNING;
     stage->skyFogInterpDuration = 0;
 
@@ -307,21 +296,13 @@ ZunResult Stage::AddedCallback(Stage *stage)
         return ZUN_ERROR;
     }
     stage->skyFog.color = COLOR_BLACK;
-    stage->skyFog.nearPlane = 200.0;
-    stage->skyFog.farPlane = 500.0;
-    interpFinal.x = 0;
-    interpFinal.y = 0;
-    interpFinal.z = 1.0;
-    stage->facingDirInterpFinal = interpFinal;
-
-    interpInitial.x = 0;
-    interpInitial.y = 0;
-    interpInitial.z = 1.0;
-    stage->facingDirInterpInitial = interpInitial;
+    stage->skyFog.nearPlane = 200.0f;
+    stage->skyFog.farPlane = 500.0f;
+    stage->facingDirInterpFinal = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+    stage->facingDirInterpInitial = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
 
     stage->facingDirInterpDuration = 1;
-    facingDirTimer = &stage->facingDirInterpTimer;
-    facingDirTimer->InitializeForPopup();
+    stage->facingDirInterpTimer = 0;
     stage->unpauseFlag = 0;
 
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
@@ -330,72 +311,52 @@ ZunResult Stage::AddedCallback(Stage *stage)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(stg, timer)
-ZunResult Stage::RegisterChain(u32 stage)
+ZunResult Stage_RegisterChain(u32 stage)
 {
-
     Stage *stg = &g_Stage;
-    ZunTimer *timer;
 
     memset(stg, 0, sizeof(Stage));
     stg->stdData = NULL;
 
-    timer = &stg->timer;
-    timer->InitializeForPopup();
+    stg->timer = 0;
 
     stg->stage = stage;
-    g_StageCalcChain.callback = (ChainCallback)Stage::OnUpdate;
-    g_StageCalcChain.addedCallback = NULL;
-    g_StageCalcChain.deletedCallback = NULL;
-    g_StageCalcChain.addedCallback = (ChainAddedCallback)Stage::AddedCallback;
-    g_StageCalcChain.deletedCallback = (ChainDeletedCallback)Stage::DeletedCallback;
+    g_StageCalcChain.SetCallback((ChainCallback)Stage_OnUpdate);
+    g_StageCalcChain.addedCallback = (ChainAddedCallback)Stage_AddedCallback;
+    g_StageCalcChain.deletedCallback = (ChainDeletedCallback)Stage_DeletedCallback;
     g_StageCalcChain.arg = stg;
 
-    if (g_Chain.AddToCalcChain(&g_StageCalcChain, TH_CHAIN_PRIO_CALC_STAGE))
+    if (g_FuncChain.AddToCalcChain(&g_StageCalcChain, TH_CHAIN_PRIO_CALC_STAGE) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    g_StageOnDrawHighPrioChain.callback = (ChainCallback)OnDrawHighPrio;
-    g_StageOnDrawHighPrioChain.addedCallback = NULL;
-    g_StageOnDrawHighPrioChain.deletedCallback = NULL;
-    g_StageOnDrawHighPrioChain.arg = stg;
-    g_Chain.AddToDrawChain(&g_StageOnDrawHighPrioChain, TH_CHAIN_PRIO_DRAW_HIGH_PRIO_STAGE);
-    g_StageOnDrawLowPrioChain.callback = (ChainCallback)OnDrawLowPrio;
-    g_StageOnDrawLowPrioChain.addedCallback = NULL;
-    g_StageOnDrawLowPrioChain.deletedCallback = NULL;
+    g_StageDrawHighPrioChain.SetCallback((ChainCallback)Stage_OnDrawHighPrio);
+    g_StageDrawHighPrioChain.arg = stg;
+    g_FuncChain.AddToDrawChain(&g_StageDrawHighPrioChain, TH_CHAIN_PRIO_DRAW_HIGH_PRIO_STAGE);
+    g_StageOnDrawLowPrioChain.SetCallback((ChainCallback)Stage_OnDrawLowPrio);
     g_StageOnDrawLowPrioChain.arg = stg;
-    g_Chain.AddToDrawChain(&g_StageOnDrawLowPrioChain, TH_CHAIN_PRIO_DRAW_LOW_PRIO_STAGE);
+    g_FuncChain.AddToDrawChain(&g_StageOnDrawLowPrioChain, TH_CHAIN_PRIO_DRAW_LOW_PRIO_STAGE);
 
     return ZUN_SUCCESS;
 }
 
-ZunResult Stage::DeletedCallback(Stage *s)
+ZunResult Stage_DeletedCallback(Stage *s)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_STAGEBG);
-    if (s->quadVms != NULL)
-    {
-        void *quadVms = s->quadVms;
-        free(quadVms);
-        s->quadVms = NULL;
-    }
-    if (s->stdData != NULL)
-    {
-        void *stdData = s->stdData;
-        free(stdData);
-        s->stdData = NULL;
-    }
+    ZUN_SAFE_FREE(s->quadVms);
+    ZUN_SAFE_FREE(s->stdData);
     return ZUN_SUCCESS;
 }
 
-void Stage::CutChain()
+void Stage_CutChain()
 {
-    g_Chain.Cut(&g_StageCalcChain);
-    g_Chain.Cut(&g_StageOnDrawHighPrioChain);
-    g_Chain.Cut(&g_StageOnDrawLowPrioChain);
+    g_FuncChain.Cut(&g_StageCalcChain);
+    g_FuncChain.Cut(&g_StageDrawHighPrioChain);
+    g_FuncChain.Cut(&g_StageOnDrawLowPrioChain);
 }
 
 #pragma var_order(vmIdx, idx, curObj, curQuad)
-ZunResult Stage::LoadStageData(char *anmpath, char *stdpath)
+ZunResult Stage::LoadStageData(const char *anmpath, const char *stdpath)
 {
     RawStageObject *curObj;
     RawStageQuadBasic *curQuad;
@@ -406,7 +367,7 @@ ZunResult Stage::LoadStageData(char *anmpath, char *stdpath)
     {
         return ZUN_ERROR;
     }
-    this->stdData = (RawStageHeader *)FileSystem::OpenPath(stdpath, false);
+    this->stdData = (RawStageHeader *)FileSystem::OpenPath(stdpath);
     if (this->stdData == NULL)
     {
         g_GameErrorContext.Log(TH_ERR_STAGE_DATA_CORRUPTED);
@@ -414,20 +375,20 @@ ZunResult Stage::LoadStageData(char *anmpath, char *stdpath)
     }
     this->objectsCount = this->stdData->nbObjects;
     this->quadCount = this->stdData->nbFaces;
-    this->objectInstances = (RawStageObjectInstance *)(this->stdData->facesOffset + (i32)this->stdData);
-    this->beginningOfScript = (RawStageInstr *)(this->stdData->scriptOffset + (i32)this->stdData);
+    this->objectInstances = (RawStageObjectInstance *)(this->stdData->facesOffset + (u32)this->stdData);
+    this->beginningOfScript = (StdRawInstr *)(this->stdData->scriptOffset + (u32)this->stdData);
     this->objects = (RawStageObject **)(this->stdData + 1);
     for (idx = 0; idx < this->objectsCount; idx++)
     {
-        this->objects[idx] = (RawStageObject *)((i32)this->objects[idx] + (i32)this->stdData);
+        this->objects[idx] = (RawStageObject *)((u32)this->objects[idx] + (u32)this->stdData);
     }
-    this->quadVms = (AnmVm *)ZunAlloc(this->quadCount * sizeof(AnmVm));
+    this->quadVms = ZUN_ALLOC_ARRAY(AnmVm, this->quadCount);
     for (idx = 0, vmIdx = 0; idx < this->objectsCount; idx++)
     {
         curObj = this->objects[idx];
         curObj->flags = 1;
-        curQuad = &curObj->firstQuad;
-        while (0 <= curQuad->type)
+        curQuad = curObj->quads;
+        while (curQuad->type >= 0)
         {
             g_AnmManager->ExecuteAnmIdx(&this->quadVms[vmIdx], curQuad->anmScript + ANM_OFFSET_STAGEBG);
             curQuad->vmIdx = vmIdx++;
@@ -437,24 +398,22 @@ ZunResult Stage::LoadStageData(char *anmpath, char *stdpath)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(objQuadType1, vmsNotFinished, objIdx, vm, obj, objQuad)
+#pragma var_order(objQuadType1, vmsNotFinished, objIdx, vm)
 ZunResult Stage::UpdateObjects()
 {
     AnmVm *vm;
-    RawStageQuadBasic *objQuad;
     RawStageQuadBasic *objQuadType1;
     i32 objIdx;
     i32 vmsNotFinished;
-    RawStageObject *obj;
 
     for (objIdx = 0; objIdx < this->objectsCount; objIdx++)
     {
-        obj = this->objects[objIdx];
-        if (obj->flags & 1 != 0)
+        RawStageObject *obj = this->objects[objIdx];
+        if (obj->flags & 1)
         {
             vmsNotFinished = 0;
-            objQuad = &obj->firstQuad;
-            while (0 <= objQuad->type)
+            RawStageQuadBasic *objQuad = obj->quads;
+            while (objQuad->type >= 0)
             {
                 vm = &this->quadVms[objQuad->vmIdx];
                 switch (objQuad->type)
@@ -478,7 +437,7 @@ ZunResult Stage::UpdateObjects()
             }
             if (vmsNotFinished == 0)
             {
-                obj->flags = obj->flags & ~1;
+                obj->flags &= ~1;
             }
         }
     }
@@ -486,10 +445,9 @@ ZunResult Stage::UpdateObjects()
 }
 
 #pragma var_order(unk8, curQuadVm, instancesDrawn, instance, worldMatrix, obj, quadScaledPos, quadPos, curQuad,        \
-                  didDraw, projectSrc, quadWidth)
+                  didDraw, projectSrc)
 ZunResult Stage::RenderObjects(i32 zLevel)
 {
-    f32 quadWidth;
     D3DXVECTOR3 projectSrc;
     ZunBool didDraw;
     RawStageQuadBasic *curQuad;
@@ -504,17 +462,17 @@ ZunResult Stage::RenderObjects(i32 zLevel)
 
     instance = &this->objectInstances[0];
     instancesDrawn = 0;
-    didDraw = 0;
-    projectSrc.x = 0.0;
-    projectSrc.y = 0.0;
-    projectSrc.z = 0.0;
+    didDraw = false;
+    projectSrc.x = 0.0f;
+    projectSrc.y = 0.0f;
+    projectSrc.z = 0.0f;
     D3DXMatrixIdentity(&worldMatrix);
     while (instance->id >= 0)
     {
         obj = this->objects[instance->id];
         if (obj->zLevel == zLevel)
         {
-            curQuad = &obj->firstQuad;
+            curQuad = obj->quads;
             unk8 = 0;
 
             //  Say hello to helper cube:
@@ -602,7 +560,7 @@ ZunResult Stage::RenderObjects(i32 zLevel)
             }
 
             // Then F
-            worldMatrix.m[3][2] = worldMatrix.m[3][2] - (obj->size).z;
+            worldMatrix.m[3][2] = worldMatrix.m[3][2] - obj->size.z;
             D3DXVec3Project(&quadPos, &projectSrc, &g_Supervisor.viewport, &g_Supervisor.projectionMatrix,
                             &g_Supervisor.viewMatrix, &worldMatrix);
             if (quadPos.y >= g_Supervisor.viewport.Y &&
@@ -612,7 +570,7 @@ ZunResult Stage::RenderObjects(i32 zLevel)
             }
 
             // And finally B
-            worldMatrix.m[3][1] = worldMatrix.m[3][1] + (obj->size).y;
+            worldMatrix.m[3][1] = worldMatrix.m[3][1] + obj->size.y;
             D3DXVec3Project(&quadPos, &projectSrc, &g_Supervisor.viewport, &g_Supervisor.projectionMatrix,
                             &g_Supervisor.viewMatrix, &worldMatrix);
             if (quadPos.y >= g_Supervisor.viewport.Y &&
@@ -626,8 +584,8 @@ ZunResult Stage::RenderObjects(i32 zLevel)
             goto skip;
 
         render:
-            didDraw = 1;
-            while (0 <= curQuad->type)
+            didDraw = true;
+            while (curQuad->type >= 0)
             {
                 curQuadVm = this->quadVms + curQuad->vmIdx;
                 switch (curQuad->type)
@@ -646,6 +604,7 @@ ZunResult Stage::RenderObjects(i32 zLevel)
                     }
                     if (curQuadVm->autoRotate == 2)
                     {
+                        float quadWidth;
                         if (curQuad->size.x != 0.0f)
                         {
                             quadWidth = curQuad->size.x;
@@ -682,4 +641,4 @@ ZunResult Stage::RenderObjects(i32 zLevel)
     }
     return ZUN_SUCCESS;
 }
-}; // namespace th06
+} // namespace th06

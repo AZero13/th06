@@ -1,12 +1,9 @@
 #pragma once
-
-#include "AnmVm.hpp"
-#include "Chain.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
 
 namespace th06
 {
+ZunResult MusicRoom_RegisterChain();
 struct TrackDescriptor
 {
     TrackDescriptor()
@@ -18,7 +15,7 @@ struct TrackDescriptor
     char title[34];
     char description[8][66];
 };
-ZUN_ASSERT_SIZE(TrackDescriptor, 0x272);
+ZUN_ASSERT_TYPE(TrackDescriptor, 0x272, 1);
 
 struct MusicRoom
 {
@@ -27,18 +24,13 @@ struct MusicRoom
         memset(this, 0, sizeof(MusicRoom));
     }
 
-    static ZunResult AddedCallback(MusicRoom *musicRoom);
-    static ZunResult DeletedCallback(MusicRoom *musicRoom);
     ZunBool ProcessInput();
     ZunResult CheckInputEnable();
-    static ChainCallbackResult OnDraw(MusicRoom *musicRoom);
-    static ChainCallbackResult OnUpdate(MusicRoom *musicRoom);
-    static ZunResult RegisterChain();
 
     ChainElem *calc_chain;
     ChainElem *draw_chain;
     i32 waitFramesCount;
-    i32 enableInput;
+    ZunBool enableInput;
     i32 cursor;
     i32 selectedSongIndex;
     i32 listingOffset;
@@ -48,5 +40,6 @@ struct MusicRoom
     AnmVm titleSprites[32];
     AnmVm descriptionSprites[16];
 };
-ZUN_ASSERT_SIZE(MusicRoom, 0x3434);
-}; // namespace th06
+ZUN_ASSERT_TYPE(MusicRoom, 0x3434, 4);
+
+} // namespace th06

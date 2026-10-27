@@ -1,36 +1,32 @@
-#include "AsciiManager.hpp"
+#include "stdafx.h"
+
+#include "ChainPriorities.hpp"
 #include "StageMenu.hpp"
 
-#include "AnmManager.hpp"
-#include "ChainPriorities.hpp"
-#include "GameManager.hpp"
-#include "Global.hpp"
-#include "Gui.hpp"
-#include "Supervisor.hpp"
-#include <stdio.h>
+// Keep AsciiManager.hpp outside the common PCH so its inline methods are
+// emitted after their first callers.
+#include "AsciiManager.hpp"
+
+// Unnecessary include, but forces vector constructor iterator
+// to the top of the trial build.
+#include "EffectManager.hpp"
 
 namespace th06
 {
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawMenusChain)
-DIFFABLE_STATIC(AsciiManager, g_AsciiManager)
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerCalcChain)
-DIFFABLE_STATIC(ChainElem, g_AsciiManagerOnDrawPopupsChain)
+AsciiManager g_AsciiManager;
+ChainElem g_AsciiMgrCalcChain;
+ChainElem g_AsciiManagerOnDrawMenusChain;
+#if BUILT_SINCE(100)
+ChainElem g_AsciiManagerOnDrawPopupsChainElem;
+#endif
 
-AsciiManager::AsciiManager()
-{
-}
-
-StageMenu::StageMenu()
-{
-}
-
-ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
+ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *mgr)
 {
     if (!g_GameManager.isInGameMenu && !g_GameManager.isInRetryMenu)
     {
         AsciiManagerPopup *curPopup = &mgr->popups[0];
-        i32 i = 0;
-        for (; i < ARRAY_SIZE_SIGNED(mgr->popups); i++, curPopup++)
+        i32 i; // NOTE: This doesn't match if i is put in the loop?
+        for (i = 0; i < ASCII_TOTAL_POPUPS_COUNT; i++, curPopup++)
         {
             if (!curPopup->inUse)
             {
@@ -38,7 +34,7 @@ ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
             }
 
             curPopup->position.y -= 0.5f * g_Supervisor.effectiveFramerateMultiplier;
-            curPopup->timer.Tick();
+            curPopup->timer++;
             if (curPopup->timer > 60)
             {
                 curPopup->inUse = false;
@@ -57,16 +53,28 @@ ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult AsciiManager::OnDrawMenus(AsciiManager *mgr)
+ChainCallbackResult AsciiManager_OnDrawMenus(AsciiManager *mgr)
 {
+#if BUILT_BEFORE(100)
+    // 0.08 draws popups and menus from a single chain callback.
+    if (g_Supervisor.hasD3dHardwareVertexProcessing)
+    {
+        mgr->DrawPopupsWithHwVertexProcessing();
+    }
+    else
+    {
+        mgr->DrawPopupsWithoutHwVertexProcessing();
+    }
+#endif
     mgr->DrawStrings();
-    mgr->numStrings = 0;
+    mgr->ResetStrings();
     mgr->gameMenu.OnDrawGameMenu();
     mgr->retryMenu.OnDrawRetryMenu();
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult AsciiManager::OnDrawPopups(AsciiManager *mgr)
+#if BUILT_SINCE(100)
+ChainCallbackResult AsciiManager_OnDrawPopups(AsciiManager *mgr)
 {
     if (g_Supervisor.hasD3dHardwareVertexProcessing)
     {
@@ -78,41 +86,10 @@ ChainCallbackResult AsciiManager::OnDrawPopups(AsciiManager *mgr)
     }
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
+#endif
 
-ZunResult AsciiManager::RegisterChain()
+static ZunResult AsciiManager_AddedCallback(AsciiManager *s)
 {
-    AsciiManager *mgr = &g_AsciiManager;
-
-    g_AsciiManagerCalcChain.callback = (ChainCallback)AsciiManager::OnUpdate;
-    g_AsciiManagerCalcChain.addedCallback = NULL;
-    g_AsciiManagerCalcChain.deletedCallback = NULL;
-    g_AsciiManagerCalcChain.addedCallback = (ChainAddedCallback)AsciiManager::AddedCallback;
-    g_AsciiManagerCalcChain.deletedCallback = (ChainDeletedCallback)AsciiManager::DeletedCallback;
-    g_AsciiManagerCalcChain.arg = mgr;
-    if (g_Chain.AddToCalcChain(&g_AsciiManagerCalcChain, TH_CHAIN_PRIO_CALC_ASCIIMANAGER) != ZUN_SUCCESS)
-    {
-        return ZUN_ERROR;
-    }
-
-    g_AsciiManagerOnDrawMenusChain.callback = (ChainCallback)OnDrawMenus;
-    g_AsciiManagerOnDrawMenusChain.addedCallback = NULL;
-    g_AsciiManagerOnDrawMenusChain.deletedCallback = NULL;
-    g_AsciiManagerOnDrawMenusChain.arg = mgr;
-    g_Chain.AddToDrawChain(&g_AsciiManagerOnDrawMenusChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_MENUS);
-
-    g_AsciiManagerOnDrawPopupsChain.callback = (ChainCallback)OnDrawPopups;
-    g_AsciiManagerOnDrawPopupsChain.addedCallback = NULL;
-    g_AsciiManagerOnDrawPopupsChain.deletedCallback = NULL;
-    g_AsciiManagerOnDrawPopupsChain.arg = mgr;
-    g_Chain.AddToDrawChain(&g_AsciiManagerOnDrawPopupsChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_POPUPS);
-
-    return ZUN_SUCCESS;
-}
-
-ZunResult AsciiManager::AddedCallback(AsciiManager *s)
-{
-    int x, y, z;
-
     if (g_AnmManager->LoadAnm(ANM_FILE_ASCII, "data/ascii.anm", ANM_OFFSET_ASCII) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
@@ -129,30 +106,7 @@ ZunResult AsciiManager::AddedCallback(AsciiManager *s)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(vm1, mgr1, mgr0)
-void AsciiManager::InitializeVms()
-{
-    memset(this, 0, sizeof(AsciiManager));
-
-    this->color = 0xffffffff;
-    this->scale.x = 1.0;
-    this->scale.y = 1.0;
-
-    this->vm1.flags.anchor = AnmVmAnchor_TopLeft;
-    AnmVm *vm1 = &this->vm1;
-    AnmManager *mgr1 = g_AnmManager;
-    vm1->Initialize();
-    mgr1->SetActiveSprite(vm1, 0);
-
-    AnmManager *mgr0 = g_AnmManager;
-    this->vm0.Initialize();
-    mgr0->SetActiveSprite(&this->vm0, 0x20);
-
-    this->vm1.pos.z = 0.1;
-    this->isSelected = 0;
-}
-
-ZunResult AsciiManager::DeletedCallback(AsciiManager *s)
+static ZunResult AsciiManager_DeletedCallback(AsciiManager *s)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_ASCII);
     g_AnmManager->ReleaseAnm(ANM_FILE_ASCIIS);
@@ -160,23 +114,51 @@ ZunResult AsciiManager::DeletedCallback(AsciiManager *s)
     return ZUN_SUCCESS;
 }
 
-void AsciiManager::CutChain()
+ZunResult AsciiManager_RegisterChain()
 {
-    g_Chain.Cut(&g_AsciiManagerCalcChain);
-    g_Chain.Cut(&g_AsciiManagerOnDrawMenusChain);
-    // What about g_AsciiManagerOnDrawPopupsChain? It looks like zun forgot
+    AsciiManager *mgr = &g_AsciiManager;
+
+    g_AsciiMgrCalcChain.SetCallback((ChainCallback)AsciiManager_OnUpdate);
+    g_AsciiMgrCalcChain.addedCallback = (ChainAddedCallback)AsciiManager_AddedCallback;
+    g_AsciiMgrCalcChain.deletedCallback = (ChainDeletedCallback)AsciiManager_DeletedCallback;
+    g_AsciiMgrCalcChain.arg = mgr;
+    if (g_FuncChain.AddToCalcChain(&g_AsciiMgrCalcChain, TH_CHAIN_PRIO_CALC_ASCIIMANAGER) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+
+    g_AsciiManagerOnDrawMenusChain.SetCallback((ChainCallback)AsciiManager_OnDrawMenus);
+    g_AsciiManagerOnDrawMenusChain.arg = mgr;
+    g_FuncChain.AddToDrawChain(&g_AsciiManagerOnDrawMenusChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_MENUS);
+
+#if BUILT_SINCE(100)
+    g_AsciiManagerOnDrawPopupsChainElem.SetCallback((ChainCallback)AsciiManager_OnDrawPopups);
+    g_AsciiManagerOnDrawPopupsChainElem.arg = mgr;
+    g_FuncChain.AddToDrawChain(&g_AsciiManagerOnDrawPopupsChainElem, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_POPUPS);
+#endif
+
+    return ZUN_SUCCESS;
+}
+
+void AsciiManager_CutChain()
+{
+    g_FuncChain.Cut(&g_AsciiMgrCalcChain);
+    g_FuncChain.Cut(&g_AsciiManagerOnDrawMenusChain);
+
+    // What about g_AsciiManagerOnDrawPopupsChainElem? It looks like zun forgot
     // to free it!
+    // Since 1.00, this misses the separate popup chain added by the draw split.
 }
 
 void AsciiManager::AddString(D3DXVECTOR3 *position, const char *text)
 {
-    if (this->numStrings >= ARRAY_SIZE_SIGNED(this->strings))
+    if (this->numStrings >= ASCII_STRING_COUNT)
     {
         return;
     }
 
     AsciiManagerString *curString = &this->strings[this->numStrings];
-    this->numStrings += 1;
+    this->numStrings++;
     // Hello unguarded strcpy my old friend. If text is bigger than 64
     // characters, kboom.
     strcpy(curString->text, text);
@@ -185,13 +167,13 @@ void AsciiManager::AddString(D3DXVECTOR3 *position, const char *text)
     curString->scale.x = this->scale.x;
     curString->scale.y = this->scale.y;
     curString->isGui = this->isGui;
-    if (g_Supervisor.cfg.IsSoftwareTexturing())
+    if (g_Supervisor.IsSoftwareTexturing())
     {
         curString->isSelected = this->isSelected;
     }
     else
     {
-        curString->isSelected = 0;
+        curString->isSelected = false;
     }
 }
 
@@ -207,46 +189,43 @@ void AsciiManager::AddFormatText(D3DXVECTOR3 *position, const char *fmt, ...)
     va_end(args);
 }
 
-#pragma var_order(charWidth, i, string, text, guiString, padding_1, padding_2, padding_3)
+#pragma var_order(charWidth, i, string, text, guiString, unusedVec3)
 void AsciiManager::DrawStrings(void)
 {
-    i32 padding_1;
-    i32 padding_2;
-    i32 padding_3;
-    i32 i;
-    BOOL guiString;
     f32 charWidth;
-    AsciiManagerString *string;
     u8 *text;
+    D3DXVECTOR3 unusedVec3; // NOTE: Not padding, IN calls default constructor
 
-    guiString = TRUE;
-    string = this->strings;
-    this->vm0.flags.isVisible = 1;
-    this->vm0.flags.anchor = AnmVmAnchor_TopLeft;
+    ZunBool guiString = TRUE;
+    AsciiManagerString *string = this->strings;
+    this->fontVm.flags.isVisible = true;
+    this->fontVm.flags.anchor = AnmVmAnchor_TopLeft;
+
+    i32 i;
     for (i = 0; i < this->numStrings; i++, string++)
     {
-        this->vm0.pos = string->position;
+        this->fontVm.pos = string->position;
         text = (u8 *)string->text;
-        this->vm0.scaleX = string->scale.x;
-        this->vm0.scaleY = string->scale.y;
-        charWidth = 14 * string->scale.x;
+        this->fontVm.scaleX = string->scale.x;
+        this->fontVm.scaleY = string->scale.y;
+        charWidth = 14.0f * string->scale.x;
         if (guiString != string->isGui)
         {
             guiString = string->isGui;
             if (guiString)
             {
-                g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-                g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-                g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-                g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+                g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+                g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+                g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+                g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
                 g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
             }
             else
             {
                 g_Supervisor.viewport.X = 0;
                 g_Supervisor.viewport.Y = 0;
-                g_Supervisor.viewport.Width = 640;
-                g_Supervisor.viewport.Height = 480;
+                g_Supervisor.viewport.Width = GAME_WINDOW_WIDTH;
+                g_Supervisor.viewport.Height = GAME_WINDOW_HEIGHT;
                 g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
             }
         }
@@ -254,27 +233,27 @@ void AsciiManager::DrawStrings(void)
         {
             if (*text == '\n')
             {
-                this->vm0.pos.y = 16 * string->scale.y + this->vm0.pos.y;
-                this->vm0.pos.x = string->position.x;
+                this->fontVm.pos.y = 16 * string->scale.y + this->fontVm.pos.y;
+                this->fontVm.pos.x = string->position.x;
             }
             else if (*text == ' ')
             {
-                this->vm0.pos.x += charWidth;
+                this->fontVm.pos.x += charWidth;
             }
             else
             {
-                if (string->isSelected == FALSE)
+                if (!string->isSelected)
                 {
-                    this->vm0.sprite = &g_AnmManager->sprites[*text - 0x15];
-                    this->vm0.color = string->color;
+                    this->fontVm.sprite = g_AnmManager->GetSprite(*text + ANM_SPRITE_ASCII_FONT_SPRITE(' '));
+                    this->fontVm.color = string->color;
                 }
                 else
                 {
-                    this->vm0.sprite = &g_AnmManager->sprites[*text + 0x61];
-                    this->vm0.color = 0xFFFFFFFF;
+                    this->fontVm.sprite = g_AnmManager->GetSprite(*text + ANM_SPRITE_ASCIIS_FONT_SPRITE(' '));
+                    this->fontVm.color = COLOR_WHITE;
                 }
-                g_AnmManager->DrawNoRotation(&this->vm0);
-                this->vm0.pos.x += charWidth;
+                g_AnmManager->DrawNoRotation(&this->fontVm);
+                this->fontVm.pos.x += charWidth;
             }
             text++;
         }
@@ -283,17 +262,14 @@ void AsciiManager::DrawStrings(void)
 
 void AsciiManager::CreatePopup1(D3DXVECTOR3 *position, i32 value, D3DCOLOR color)
 {
-    AsciiManagerPopup *popup;
-    i32 characterCount;
-
-    if (this->nextPopupIndex1 >= (ARRAY_SIZE_SIGNED(this->popups) - 3))
+    if (this->nextPopupIndex1 >= ASCII_SCORE_POPUPS_COUNT)
     {
         this->nextPopupIndex1 = 0;
     }
 
-    popup = &this->popups[this->nextPopupIndex1];
-    popup->inUse = 1;
-    characterCount = 0;
+    AsciiManagerPopup *popup = &this->popups[ASCII_SCORE_POPUPS_START + this->nextPopupIndex1];
+    popup->inUse = true;
+    i32 characterCount = 0;
 
     if (value >= 0)
     {
@@ -316,25 +292,30 @@ void AsciiManager::CreatePopup1(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
 
     popup->characterCount = characterCount;
     popup->color = color;
-    popup->timer.InitializeForPopup();
+    popup->timer = 0;
     popup->position = *position;
+#if BUILT_BEFORE(102)
+    // 1.00 and 1.01 move popups into the game region when they are created, for the software vertex path.
+    if (!g_Supervisor.hasD3dHardwareVertexProcessing)
+    {
+        popup->position.x += g_GameManager.gameRegionScreenPos.x;
+        popup->position.y += g_GameManager.gameRegionScreenPos.y;
+    }
+#endif
 
     this->nextPopupIndex1++;
 }
 
 void AsciiManager::CreatePopup2(D3DXVECTOR3 *position, i32 value, D3DCOLOR color)
 {
-    AsciiManagerPopup *popup;
-    i32 characterCount;
-
-    if (this->nextPopupIndex2 >= 3)
+    if (this->nextPopupIndex2 >= ASCII_PLAYER_POPUPS_COUNT)
     {
         this->nextPopupIndex2 = 0;
     }
 
-    popup = &this->popups[0x200 + this->nextPopupIndex2];
-    popup->inUse = 1;
-    characterCount = 0;
+    AsciiManagerPopup *popup = &this->popups[ASCII_PLAYER_POPUPS_START + this->nextPopupIndex2];
+    popup->inUse = true;
+    i32 characterCount = 0;
 
     if (value >= 0)
     {
@@ -357,8 +338,16 @@ void AsciiManager::CreatePopup2(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
 
     popup->characterCount = characterCount;
     popup->color = color;
-    popup->timer.InitializeForPopup();
+    popup->timer = 0;
     popup->position = *position;
+#if BUILT_BEFORE(102)
+    // 1.00 and 1.01 move popups into the game region when they are created, for the software vertex path.
+    if (!g_Supervisor.hasD3dHardwareVertexProcessing)
+    {
+        popup->position.x += g_GameManager.gameRegionScreenPos.x;
+        popup->position.y += g_GameManager.gameRegionScreenPos.y;
+    }
+#endif
 
     this->nextPopupIndex2++;
 }
@@ -397,7 +386,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->curState = GAME_MENU_PAUSE_SELECTED_UNPAUSE;
         for (vmIdx = 0; vmIdx < ARRAY_SIZE_SIGNED(this->menuSprites); vmIdx++)
         {
-            if (this->menuSprites[vmIdx].flags.isVisible)
+            if (this->menuSprites[vmIdx].IsVisible())
             {
                 this->menuSprites[vmIdx].pendingInterrupt = 2;
             }
@@ -410,7 +399,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->curState = GAME_MENU_QUIT_SELECTED_YES;
         for (vmIdx = 0; vmIdx < ARRAY_SIZE_SIGNED(this->menuSprites); vmIdx++)
         {
-            if (this->menuSprites[vmIdx].flags.isVisible)
+            if (this->menuSprites[vmIdx].IsVisible())
             {
                 this->menuSprites[vmIdx].pendingInterrupt = 2;
             }
@@ -434,8 +423,8 @@ i32 StageMenu::OnUpdateGameMenu()
         {
             g_AnmManager->RequestScreenshot();
             g_AnmManager->SetAndExecuteScriptIdx(&this->menuBackground, ANM_SCRIPT_CAPTURE_PAUSE_BG);
-            this->menuBackground.pos.x = GAME_REGION_LEFT;
-            this->menuBackground.pos.y = GAME_REGION_TOP;
+            this->menuBackground.pos.x = GAME_REGION_POS_X;
+            this->menuBackground.pos.y = GAME_REGION_POS_Y;
             this->menuBackground.pos.z = 0.0f;
         }
     case GAME_MENU_PAUSE_CURSOR_UNPAUSE:
@@ -447,7 +436,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_QUIT].scaleX = 1.5f;
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_UNPAUSE].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_QUIT].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        if (4 <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -474,7 +463,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_QUIT].scaleX = 1.7f;
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_UNPAUSE].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_QUIT].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
-        if (4 <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -497,7 +486,7 @@ i32 StageMenu::OnUpdateGameMenu()
         break;
     case GAME_MENU_PAUSE_SELECTED_UNPAUSE:
         /* Close menu, wait 20 frames for the animation? */
-        if (20 <= this->numFrames)
+        if (this->numFrames >= 20)
         {
             this->curState = GAME_MENU_PAUSE_OPENING;
             g_GameManager.isInGameMenu = 0;
@@ -516,7 +505,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_NO].scaleX = 1.5f;
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_YES].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_NO].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        if (4 <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -542,7 +531,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_NO].scaleX = 1.7f;
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_YES].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
         this->menuSprites[GAME_MENU_SPRITE_CURSOR_NO].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
-        if (GAME_MENU_SPRITE_CURSOR_YES <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -564,7 +553,7 @@ i32 StageMenu::OnUpdateGameMenu()
         }
         break;
     case GAME_MENU_QUIT_SELECTED_YES:
-        if (20 <= this->numFrames)
+        if (this->numFrames >= 20)
         {
             this->curState = GAME_MENU_PAUSE_OPENING;
             g_GameManager.isInGameMenu = 0;
@@ -593,26 +582,25 @@ void StageMenu::OnDrawGameMenu()
 
     if (g_GameManager.isInGameMenu)
     {
-        g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-        g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-        g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-        g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+        g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+        g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+        g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+        g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
         g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
         if (g_Supervisor.lockableBackbuffer && this->curState != GAME_MENU_PAUSE_OPENING)
         {
             AnmVm menuBackground = this->menuBackground;
-            menuBackground.flags.zWriteDisable = 1;
+            menuBackground.flags.zWriteDisable = true;
             g_AnmManager->DrawNoRotation(&menuBackground);
         }
         for (vmIdx = 0; vmIdx < ARRAY_SIZE_SIGNED(this->menuSprites); vmIdx++)
         {
-            if (this->menuSprites[vmIdx].flags.isVisible)
+            if (this->menuSprites[vmIdx].IsVisible())
             {
                 g_AnmManager->DrawNoRotation(&this->menuSprites[vmIdx]);
             }
         }
     }
-    return;
 }
 
 enum RetryGameMenuState
@@ -636,25 +624,25 @@ enum RetryGameMenuState
 
 i32 StageMenu::OnUpdateRetryMenu()
 {
-    i32 idx;
+    i32 i;
 
     if (g_GameManager.isInPracticeMode)
     {
-        g_GameManager.isInRetryMenu = 0;
+        g_GameManager.isInRetryMenu = false;
         g_GameManager.guiScore = g_GameManager.score;
         g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
         return 1;
     }
     if (g_GameManager.isInReplay)
     {
-        g_GameManager.isInRetryMenu = 0;
+        g_GameManager.isInRetryMenu = false;
         g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
         g_GameManager.guiScore = g_GameManager.score;
         return 1;
     }
-    if (g_GameManager.numRetries >= 3 || g_GameManager.difficulty >= EXTRA)
+    if (g_GameManager.continuesUsed >= MAX_CONTINUE_CREDITS || g_GameManager.difficulty >= EXTRA)
     {
-        g_GameManager.isInRetryMenu = 0;
+        g_GameManager.isInRetryMenu = false;
         g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
         g_GameManager.guiScore = g_GameManager.score;
         return 1;
@@ -664,24 +652,24 @@ i32 StageMenu::OnUpdateRetryMenu()
     case RETRY_MENU_OPENING:
         if (this->numFrames == 0)
         {
-            for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
+            for (i = RETRY_MENU_SPRITES_START; i < RETRY_MENU_SPRITES_END; i++)
             {
-                if (idx < 2)
+                if (i < 2)
                 {
-                    g_AnmManager->SetAndExecuteScriptIdx(&this->menuSprites[idx], idx + 8);
+                    g_AnmManager->SetAndExecuteScriptIdx(&this->menuSprites[i], i + 8);
                 }
                 else
                 {
-                    g_AnmManager->SetAndExecuteScriptIdx(&this->menuSprites[idx], idx + 4);
+                    g_AnmManager->SetAndExecuteScriptIdx(&this->menuSprites[i], i + 4);
                 }
-                this->menuSprites[idx].pendingInterrupt = 1;
+                this->menuSprites[i].pendingInterrupt = 1;
             }
             if (g_Supervisor.lockableBackbuffer)
             {
                 g_AnmManager->RequestScreenshot();
                 g_AnmManager->SetAndExecuteScriptIdx(&this->menuBackground, ANM_SCRIPT_CAPTURE_PAUSE_BG);
-                this->menuBackground.pos.x = GAME_REGION_LEFT;
-                this->menuBackground.pos.y = GAME_REGION_TOP;
+                this->menuBackground.pos.x = GAME_REGION_POS_X;
+                this->menuBackground.pos.y = GAME_REGION_POS_Y;
                 this->menuBackground.pos.z = 0.0f;
             }
         }
@@ -698,7 +686,7 @@ i32 StageMenu::OnUpdateRetryMenu()
         this->menuSprites[RETRY_MENU_SPRITE_NO].scaleX = 1.5f;
         this->menuSprites[RETRY_MENU_SPRITE_YES].posOffset = D3DXVECTOR3(-4.0f, -4.0f, 0.0f);
         this->menuSprites[RETRY_MENU_SPRITE_NO].posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        if (4 <= this->numFrames)
+        if (this->numFrames >= 4)
         {
             if (WAS_PRESSED(TH_BUTTON_UP) || WAS_PRESSED(TH_BUTTON_DOWN))
             {
@@ -706,9 +694,9 @@ i32 StageMenu::OnUpdateRetryMenu()
             }
             if (WAS_PRESSED(TH_BUTTON_SHOOT))
             {
-                for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
+                for (i = RETRY_MENU_SPRITES_START; i < RETRY_MENU_SPRITES_END; i++)
                 {
-                    this->menuSprites[idx].pendingInterrupt = 2;
+                    this->menuSprites[i].pendingInterrupt = 2;
                 }
                 this->curState = RETRY_MENU_SELECTED_YES;
                 this->menuBackground.pendingInterrupt = 1;
@@ -733,9 +721,9 @@ i32 StageMenu::OnUpdateRetryMenu()
             }
             if (WAS_PRESSED(TH_BUTTON_SHOOT))
             {
-                for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
+                for (i = RETRY_MENU_SPRITES_START; i < RETRY_MENU_SPRITES_END; i++)
                 {
-                    this->menuSprites[idx].pendingInterrupt = 2;
+                    this->menuSprites[i].pendingInterrupt = 2;
                 }
                 this->curState = RETRY_MENU_SELECTED_NO;
                 this->numFrames = 0;
@@ -747,11 +735,11 @@ i32 StageMenu::OnUpdateRetryMenu()
         {
             this->curState = 0;
             this->numFrames = 0;
-            g_GameManager.isInRetryMenu = 0;
+            g_GameManager.isInRetryMenu = false;
             g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
-            for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
+            for (i = RETRY_MENU_SPRITES_START; i < RETRY_MENU_SPRITES_END; i++)
             {
-                this->menuSprites[idx].SetInvisible();
+                this->menuSprites[i].SetInvisible();
             }
             g_GameManager.guiScore = g_GameManager.score;
             return 0;
@@ -762,21 +750,26 @@ i32 StageMenu::OnUpdateRetryMenu()
         {
             this->curState = 0;
             this->numFrames = 0;
-            g_GameManager.isInRetryMenu = 0;
-            for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
+            g_GameManager.isInRetryMenu = false;
+            for (i = RETRY_MENU_SPRITES_START; i < RETRY_MENU_SPRITES_END; i++)
             {
-                this->menuSprites[idx].SetInvisible();
+                this->menuSprites[i].SetInvisible();
             }
-            g_GameManager.numRetries++;
-            g_GameManager.guiScore = g_GameManager.numRetries;
+            g_GameManager.continuesUsed++;
+            g_GameManager.guiScore = g_GameManager.continuesUsed;
             g_GameManager.nextScoreIncrement = 0;
             g_GameManager.score = g_GameManager.guiScore;
+#if BUILT_SINCE(102g)
             g_GameManager.livesRemaining = g_Supervisor.defaultConfig.lifeCount;
             g_GameManager.bombsRemaining = g_Supervisor.defaultConfig.bombCount;
+#else
+            g_GameManager.livesRemaining = g_Supervisor.cfg.lifeCount;
+            g_GameManager.bombsRemaining = g_Supervisor.cfg.bombCount;
+#endif
             g_GameManager.grazeInStage = 0;
             g_GameManager.pointItemsCollectedInStage = 0;
             g_GameManager.currentPower = 0;
-            g_GameManager.extraLives = 0;
+            g_GameManager.livesEarned = 0;
             g_Gui.flags.flag0 = 2;
             g_Gui.flags.flag1 = 2;
             g_Gui.flags.flag3 = 2;
@@ -786,9 +779,9 @@ i32 StageMenu::OnUpdateRetryMenu()
         }
         break;
     }
-    for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
+    for (i = RETRY_MENU_SPRITES_START; i < RETRY_MENU_SPRITES_END; i++)
     {
-        g_AnmManager->ExecuteScript(&this->menuSprites[idx]);
+        g_AnmManager->ExecuteScript(&this->menuSprites[i]);
     }
     if (g_Supervisor.lockableBackbuffer)
     {
@@ -800,14 +793,12 @@ i32 StageMenu::OnUpdateRetryMenu()
 
 void StageMenu::OnDrawRetryMenu()
 {
-    int idx;
-
     if (g_GameManager.isInRetryMenu)
     {
-        g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-        g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-        g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-        g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+        g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+        g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+        g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+        g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
         g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
         if (g_Supervisor.lockableBackbuffer && (this->curState != RETRY_MENU_OPENING || this->numFrames > 2))
         {
@@ -819,121 +810,117 @@ void StageMenu::OnDrawRetryMenu()
             this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER].pos.x +=
                 8.0f * this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER].scaleX;
             this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER].sprite =
-                &g_AnmManager->sprites[30 - g_GameManager.numRetries];
+                g_AnmManager->GetSprite(30 - g_GameManager.continuesUsed);
             g_AnmManager->DrawNoRotation(&this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER]);
         }
-        for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
+        for (i32 i = RETRY_MENU_SPRITES_START; i < RETRY_MENU_SPRITES_END; i++)
         {
-            if (this->menuSprites[idx].flags.isVisible)
+            if (this->menuSprites[i].IsVisible())
             {
-                g_AnmManager->DrawNoRotation(&this->menuSprites[idx]);
+                g_AnmManager->DrawNoRotation(&this->menuSprites[i]);
             }
         }
     }
-    return;
 }
 
 #pragma var_order(currentPopup, j, i, currentDigit, unusedVec3)
 void AsciiManager::DrawPopupsWithHwVertexProcessing()
 {
     u8 *currentDigit;
-    AsciiManagerPopup *currentPopup;
     i32 i;
     i32 j;
-    D3DXVECTOR3 unusedVec3;
+    D3DXVECTOR3 unusedVec3; // NOTE: Not padding
 
-    currentPopup = this->popups;
-    g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-    g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-    g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-    g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+    AsciiManagerPopup *currentPopup = this->popups;
+    g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+    g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+    g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+    g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
 
-    for (i = 0; i < ARRAY_SIZE_SIGNED(this->popups); i++, currentPopup++)
+    for (i = 0; i < ASCII_TOTAL_POPUPS_COUNT; i++, currentPopup++)
     {
-        if (currentPopup->inUse == 0)
+        if (!currentPopup->inUse)
         {
             continue;
         }
 
-        this->vm1.pos.x = currentPopup->position.x - (currentPopup->characterCount * 4);
-        this->vm1.pos.y = currentPopup->position.y;
-        this->vm1.color = currentPopup->color;
+        this->scorePopupVm.pos.x = currentPopup->position.x - (currentPopup->characterCount * 4);
+        this->scorePopupVm.pos.y = currentPopup->position.y;
+        this->scorePopupVm.color = currentPopup->color;
 
         currentDigit = (u8 *)currentPopup->digits + currentPopup->characterCount - 1;
-        for (j = currentPopup->characterCount; 0 < j; j--)
+        for (j = currentPopup->characterCount; j > 0; j--)
         {
-            this->vm1.sprite = g_AnmManager->sprites + *currentDigit;
+            this->scorePopupVm.sprite = g_AnmManager->GetSprite(*currentDigit);
             if (*currentDigit >= '\n')
             {
-                this->vm1.matrix.m[0][0] = 0.1875f;
-                this->vm1.matrix.m[1][1] = 0.03125f;
-                g_AnmManager->Draw2(&this->vm1);
-                this->vm1.matrix.m[0][0] = 0.03125f;
-                this->vm1.matrix.m[1][1] = 0.03125f;
+                // TODO: explain these values
+                this->scorePopupVm.matrix.m[0][0] = 0.1875f;
+                this->scorePopupVm.matrix.m[1][1] = 0.03125f;
+                g_AnmManager->Draw2(&this->scorePopupVm);
+                this->scorePopupVm.matrix.m[0][0] = 0.03125f;
+                this->scorePopupVm.matrix.m[1][1] = 0.03125f;
             }
             else
             {
-                g_AnmManager->Draw2(&this->vm1);
+                g_AnmManager->Draw2(&this->scorePopupVm);
             }
 
-            this->vm1.pos.x += 8.0f;
+            this->scorePopupVm.pos.x += 8.0f;
             currentDigit--;
         }
     }
-
-    return;
 }
 
 #pragma var_order(currentPopup, j, i, currentDigit, unusedVec3)
 void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
 {
     u8 *currentDigit;
-    AsciiManagerPopup *currentPopup;
     i32 i;
     i32 j;
-    D3DXVECTOR3 unusedVec3;
+    D3DXVECTOR3 unusedVec3; // NOTE: Not padding
 
-    currentPopup = this->popups;
-    g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-    g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-    g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-    g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+    AsciiManagerPopup *currentPopup = this->popups;
+    g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+    g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+    g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+    g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
 
-    for (i = 0; i < ARRAY_SIZE_SIGNED(this->popups); i++, currentPopup++)
+    for (i = 0; i < ASCII_TOTAL_POPUPS_COUNT; i++, currentPopup++)
     {
-        if (currentPopup->inUse == 0)
+        if (!currentPopup->inUse)
         {
             continue;
         }
 
-        this->vm1.pos.x = currentPopup->position.x - (currentPopup->characterCount * 4);
-        this->vm1.pos.y = currentPopup->position.y;
-        this->vm1.color = currentPopup->color;
+        this->scorePopupVm.pos.x = currentPopup->position.x - (currentPopup->characterCount * 4);
+        this->scorePopupVm.pos.y = currentPopup->position.y;
+        this->scorePopupVm.color = currentPopup->color;
 
         currentDigit = (u8 *)currentPopup->digits + currentPopup->characterCount - 1;
-        for (j = currentPopup->characterCount; 0 < j; j--)
+        for (j = currentPopup->characterCount; j > 0; j--)
         {
-            this->vm1.sprite = g_AnmManager->sprites + *currentDigit;
+            this->scorePopupVm.sprite = g_AnmManager->GetSprite(*currentDigit + ANM_SPRITE_SCORE_TEXT);
             if (*currentDigit >= '\n')
             {
-                this->vm1.matrix.m[0][0] = 0.1875f;
-                this->vm1.matrix.m[1][1] = 0.03125f;
-                g_AnmManager->DrawNoRotation(&this->vm1);
-                this->vm1.matrix.m[0][0] = 0.03125f;
-                this->vm1.matrix.m[1][1] = 0.03125f;
+                // TODO: explain these values
+                this->scorePopupVm.matrix.m[0][0] = 0.1875f;
+                this->scorePopupVm.matrix.m[1][1] = 0.03125f;
+                g_AnmManager->DrawNoRotation(&this->scorePopupVm);
+                this->scorePopupVm.matrix.m[0][0] = 0.03125f;
+                this->scorePopupVm.matrix.m[1][1] = 0.03125f;
             }
             else
             {
-                g_AnmManager->Draw2(&this->vm1);
+                g_AnmManager->Draw2(&this->scorePopupVm);
             }
 
-            this->vm1.pos.x += 8.0f;
+            this->scorePopupVm.pos.x += 8.0f;
             currentDigit--;
         }
     }
-
-    return;
 }
-}; // namespace th06
+
+} // namespace th06

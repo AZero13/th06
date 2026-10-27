@@ -129,7 +129,16 @@ def check_file(path: Path, message: str) -> Path:
     return path.absolute()
 
 
-ONLY_CHOICES = ["vs", "dx8", "py", "pragma", "ninja", "satsuki", "ghidra", "objdiff"]
+ONLY_CHOICES = [
+    "vs",
+    "dx8",
+    "py",
+    "pragma",
+    "ninja",
+    "satsuki",
+    "ghidra",
+    "objdiff",
+]
 
 
 def parse_arguments() -> Namespace:

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 //-----------------------------------------------------------------------------
 // File: DSUtil.cpp
 //
@@ -9,12 +11,7 @@
 //-----------------------------------------------------------------------------
 #define STRICT
 #include "zwave.hpp"
-#include "Global.hpp"
-#include "dxutil.hpp"
-#include <dsound.h>
 #include <dxerr8.h>
-#include <mmsystem.h>
-#include <windows.h>
 
 namespace th06
 {
@@ -105,6 +102,47 @@ HRESULT CSoundManager::SetPrimaryBufferFormat(DWORD dwPrimaryChannels, DWORD dwP
 
     SAFE_RELEASE(pDSBPrimary);
 
+    return S_OK;
+}
+
+HRESULT CSoundManager::Create(CSound **ppSound, LPTSTR strWaveFileName, DWORD dwCreationFlags, GUID guid3DAlgorithm,
+                              DWORD dwNumBuffers)
+{
+    LPDIRECTSOUNDBUFFER *apDSBuffer = new LPDIRECTSOUNDBUFFER[dwNumBuffers];
+    CWaveFile *pWaveFile = new CWaveFile();
+    pWaveFile->Open(strWaveFileName, NULL, WAVEFILE_READ);
+    DWORD dwDSBufferSize = pWaveFile->GetSize();
+    DSBUFFERDESC dsbd;
+    ZeroMemory(&dsbd, sizeof(DSBUFFERDESC));
+    dsbd.dwSize = sizeof(DSBUFFERDESC);
+    dsbd.dwFlags = dwCreationFlags;
+    dsbd.dwBufferBytes = dwDSBufferSize;
+    dsbd.guid3DAlgorithm = guid3DAlgorithm;
+    dsbd.lpwfxFormat = pWaveFile->m_pwfx;
+    m_pDS->CreateSoundBuffer(&dsbd, &apDSBuffer[0], NULL);
+    for (DWORD i = 1; i < dwNumBuffers; i++)
+        m_pDS->DuplicateSoundBuffer(apDSBuffer[0], &apDSBuffer[i]);
+    *ppSound = new CSound(apDSBuffer, dwDSBufferSize, dwNumBuffers, pWaveFile);
+    return S_OK;
+}
+
+HRESULT CSoundManager::CreateFromMemory(CSound **ppSound, BYTE *pbData, ULONG ulDataSize, LPWAVEFORMATEX pwfx,
+                                        DWORD dwCreationFlags, GUID guid3DAlgorithm, DWORD dwNumBuffers)
+{
+    LPDIRECTSOUNDBUFFER *apDSBuffer = new LPDIRECTSOUNDBUFFER[dwNumBuffers];
+    CWaveFile *pWaveFile = new CWaveFile();
+    pWaveFile->OpenFromMemory(pbData, ulDataSize, pwfx, WAVEFILE_READ);
+    DSBUFFERDESC dsbd;
+    ZeroMemory(&dsbd, sizeof(DSBUFFERDESC));
+    dsbd.dwSize = sizeof(DSBUFFERDESC);
+    dsbd.dwFlags = dwCreationFlags;
+    dsbd.dwBufferBytes = ulDataSize;
+    dsbd.guid3DAlgorithm = guid3DAlgorithm;
+    dsbd.lpwfxFormat = pwfx;
+    m_pDS->CreateSoundBuffer(&dsbd, &apDSBuffer[0], NULL);
+    for (DWORD i = 1; i < dwNumBuffers; i++)
+        m_pDS->DuplicateSoundBuffer(apDSBuffer[0], &apDSBuffer[i]);
+    *ppSound = new CSound(apDSBuffer, ulDataSize, dwNumBuffers, pWaveFile);
     return S_OK;
 }
 
@@ -341,7 +379,6 @@ HRESULT CSound::RestoreBuffer(LPDIRECTSOUNDBUFFER pDSB, BOOL *pbWasRestored)
 // Name: CSound::GetFreeBuffer()
 // Desc: Checks to see if a buffer is playing and returns TRUE if it is.
 //-----------------------------------------------------------------------------
-#pragma var_order(bIsPlaying, i)
 LPDIRECTSOUNDBUFFER CSound::GetFreeBuffer()
 {
     BOOL bIsPlaying = FALSE;
@@ -349,8 +386,7 @@ LPDIRECTSOUNDBUFFER CSound::GetFreeBuffer()
     if (m_apDSBuffer == NULL)
         return FALSE;
 
-    DWORD i;
-    for (i = 0; i < m_dwNumBuffers; i++)
+    for (DWORD i = 0; i < m_dwNumBuffers; i++)
     {
         if (m_apDSBuffer[i])
         {
@@ -379,6 +415,22 @@ LPDIRECTSOUNDBUFFER CSound::GetBuffer(DWORD dwIndex)
         return NULL;
 
     return m_apDSBuffer[dwIndex];
+}
+
+//-----------------------------------------------------------------------------
+// Name: CSound::Get3DBufferInterface()
+// Desc:
+//-----------------------------------------------------------------------------
+HRESULT CSound::Get3DBufferInterface(DWORD dwIndex, LPDIRECTSOUND3DBUFFER *ppDS3DBuffer)
+{
+    if (m_apDSBuffer == NULL)
+        return CO_E_NOTINITIALIZED;
+    if (dwIndex >= m_dwNumBuffers)
+        return E_INVALIDARG;
+
+    *ppDS3DBuffer = NULL;
+
+    return m_apDSBuffer[dwIndex]->QueryInterface(IID_IDirectSound3DBuffer, (VOID **)ppDS3DBuffer);
 }
 
 //-----------------------------------------------------------------------------
@@ -413,7 +465,7 @@ HRESULT CSound::Play(DWORD dwPriority, DWORD dwFlags)
         Reset();
     }
 
-    this->m_dwIsFadingOut = 0;
+    this->m_dwIsFadingOut = FALSE;
     this->m_dwCurFadeoutProgress = 0;
     this->m_dwTotalFadeout = 0;
 
@@ -431,17 +483,17 @@ HRESULT CSound::Stop()
 
     HRESULT hr = 0;
 
-    utils::DebugPrint2("CSound::Stop ");
+    DebugPrint("CSound::Stop ");
 
     for (DWORD i = 0; i < m_dwNumBuffers; i++)
     {
-        utils::DebugPrint2("%d ", i);
+        DebugPrint("%d ", i);
         hr |= m_apDSBuffer[i]->Stop();
     }
 
-    utils::DebugPrint2("\n");
+    DebugPrint("\n");
 
-    this->m_dwIsFadingOut = 0;
+    this->m_dwIsFadingOut = FALSE;
 
     return hr;
 }
@@ -461,6 +513,30 @@ HRESULT CSound::Reset()
         hr |= m_apDSBuffer[i]->SetCurrentPosition(0);
 
     return hr;
+}
+
+//-----------------------------------------------------------------------------
+// Name: CSound::IsSoundPlaying()
+// Desc: Checks to see if a buffer is playing and returns TRUE if it is.
+//-----------------------------------------------------------------------------
+BOOL CSound::IsSoundPlaying()
+{
+    BOOL bIsPlaying = FALSE;
+
+    if (m_apDSBuffer == NULL)
+        return FALSE;
+
+    for (DWORD i = 0; i < m_dwNumBuffers; i++)
+    {
+        if (m_apDSBuffer[i])
+        {
+            DWORD dwStatus = 0;
+            m_apDSBuffer[i]->GetStatus(&dwStatus);
+            bIsPlaying |= ((dwStatus & DSBSTATUS_PLAYING) != 0);
+        }
+    }
+
+    return bIsPlaying;
 }
 
 //-----------------------------------------------------------------------------
@@ -497,12 +573,12 @@ CStreamingSound::~CStreamingSound()
 //-----------------------------------------------------------------------------
 HRESULT CStreamingSound::UpdateFadeOut()
 {
-    if (this->m_dwIsFadingOut != 0)
+    if (this->m_dwIsFadingOut)
     {
-        this->m_dwCurFadeoutProgress = this->m_dwCurFadeoutProgress - 1;
+        this->m_dwCurFadeoutProgress--;
         if (this->m_dwCurFadeoutProgress <= 0)
         {
-            this->m_dwIsFadingOut = 0;
+            this->m_dwIsFadingOut = FALSE;
             this->m_apDSBuffer[0]->Stop();
             return 1;
         }
@@ -521,6 +597,9 @@ HRESULT CStreamingSound::UpdateFadeOut()
                   dwPlayDelta, hr, dwDSLockedBufferSize, dwCurrentPlayPos)
 HRESULT CStreamingSound::HandleWaveStreamNotification(BOOL bLoopedPlay)
 {
+    // NOTE: ZUN must've changed the names of these variables since they don't get placed
+    // in the correct order by default and this is one of the few CSound functions
+    // that has any changes from the original.
     HRESULT hr;
     DWORD dwCurrentPlayPos;
     DWORD dwPlayDelta;
@@ -537,7 +616,7 @@ HRESULT CStreamingSound::HandleWaveStreamNotification(BOOL bLoopedPlay)
     BOOL bRestored;
     if (FAILED(hr = RestoreBuffer(m_apDSBuffer[0], &bRestored)))
     {
-        utils::DebugPrint2("error : RetoreBuffer in HandleWaveStreamNotification\n");
+        DebugPrint("error : RestoreBuffer in HandleWaveStreamNotification\n");
         return DXTRACE_ERR(TEXT("RestoreBuffer"), hr);
     }
 
@@ -546,7 +625,7 @@ HRESULT CStreamingSound::HandleWaveStreamNotification(BOOL bLoopedPlay)
         // The buffer was restored, so we need to fill it with new data
         if (FAILED(hr = FillBufferWithSound(m_apDSBuffer[0], FALSE)))
         {
-            utils::DebugPrint2("error : FillBufferWithSound in HandleWaveStreamNotification\n");
+            DebugPrint("error : FillBufferWithSound in HandleWaveStreamNotification\n");
             return DXTRACE_ERR(TEXT("FillBufferWithSound"), hr);
         }
         return S_OK;
@@ -558,7 +637,7 @@ HRESULT CStreamingSound::HandleWaveStreamNotification(BOOL bLoopedPlay)
     if (FAILED(hr = m_apDSBuffer[0]->Lock(m_dwNextWriteOffset, m_dwNotifySize, &pDSLockedBuffer, &dwDSLockedBufferSize,
                                           &pDSLockedBuffer2, &dwDSLockedBufferSize2, 0L)))
     {
-        utils::DebugPrint2("error : Buffer->Lock in HandleWaveStreamNotification\n");
+        DebugPrint("error : Buffer->Lock in HandleWaveStreamNotification\n");
         return DXTRACE_ERR(TEXT("Lock"), hr);
     }
 
@@ -572,7 +651,7 @@ HRESULT CStreamingSound::HandleWaveStreamNotification(BOOL bLoopedPlay)
         // Fill the DirectSound buffer with wav data
         if (FAILED(hr = m_pWaveFile->Read((BYTE *)pDSLockedBuffer, dwDSLockedBufferSize, &dwBytesWrittenToBuffer)))
         {
-            utils::DebugPrint2("error : m_pWaveFile->Read in HandleWaveStreamNotification\n");
+            DebugPrint("error : m_pWaveFile->Read in HandleWaveStreamNotification\n");
             return DXTRACE_ERR(TEXT("Read"), hr);
         }
     }
@@ -605,14 +684,14 @@ HRESULT CStreamingSound::HandleWaveStreamNotification(BOOL bLoopedPlay)
                 // This will keep reading in until the buffer is full (for very short files).
                 if (FAILED(hr = m_pWaveFile->ResetFile(true)))
                 {
-                    utils::DebugPrint2("error : m_pWaveFile->ResetFile in HandleWaveStreamNotification\n");
+                    DebugPrint("error : m_pWaveFile->ResetFile in HandleWaveStreamNotification\n");
                     return DXTRACE_ERR(TEXT("ResetFile"), hr);
                 }
 
                 if (FAILED(hr = m_pWaveFile->Read((BYTE *)pDSLockedBuffer + dwReadSoFar,
                                                   dwDSLockedBufferSize - dwReadSoFar, &dwBytesWrittenToBuffer)))
                 {
-                    utils::DebugPrint2("error : m_pWaveFile->Read(+) in HandleWaveStreamNotification\n");
+                    DebugPrint("error : m_pWaveFile->Read(+) in HandleWaveStreamNotification\n");
                     return DXTRACE_ERR(TEXT("Read"), hr);
                 }
 
@@ -630,7 +709,7 @@ HRESULT CStreamingSound::HandleWaveStreamNotification(BOOL bLoopedPlay)
     // depending if the user wants to loop the sound
     if (FAILED(hr = m_apDSBuffer[0]->GetCurrentPosition(&dwCurrentPlayPos, NULL)))
     {
-        utils::DebugPrint2("error : m_apDSBuffer[0]->GetCurrentPosition in HandleWaveStreamNotification\n");
+        DebugPrint("error : m_apDSBuffer[0]->GetCurrentPosition in HandleWaveStreamNotification\n");
         return DXTRACE_ERR(TEXT("GetCurrentPosition"), hr);
     }
 
@@ -747,24 +826,24 @@ HRESULT CWaveFile::Open(LPTSTR strFileName, WAVEFORMATEX *pwfx, DWORD dwFlags)
         {
             switch (mmioInfo.wErrorRet)
             {
-            case MMIOERR_PATHNOTFOUND:
-                utils::DebugPrint2("The directory specification is incorrect. \n");
-                break;
             case MMIOERR_ACCESSDENIED:
-                utils::DebugPrint2("The file is protected and cannot be opened. \n");
-                break;
-            case MMIOERR_SHARINGVIOLATION:
-                utils::DebugPrint2("The file is being used by another application and is unavailable. \n");
-                break;
-            case MMIOERR_TOOMANYOPENFILES:
-                utils::DebugPrint2("too Meny Open Files \n");
+                DebugPrint("The file is protected and cannot be opened. \n");
                 break;
             case MMIOERR_INVALIDFILE:
-                utils::DebugPrint2(
+                DebugPrint(
                     "Another failure condition occurred. This is the default error for an open-file failure. \n");
                 break;
+            case MMIOERR_PATHNOTFOUND:
+                DebugPrint("The directory specification is incorrect. \n");
+                break;
+            case MMIOERR_SHARINGVIOLATION:
+                DebugPrint("The file is being used by another application and is unavailable. \n");
+                break;
+            case MMIOERR_TOOMANYOPENFILES:
+                DebugPrint("too Meny Open Files \n");
+                break;
             }
-            utils::DebugPrint2("error : mmioOpen in CWaveFile::Open()\n");
+            DebugPrint("error : mmioOpen in CWaveFile::Open()\n");
             return E_FAIL;
         }
 
@@ -772,13 +851,13 @@ HRESULT CWaveFile::Open(LPTSTR strFileName, WAVEFORMATEX *pwfx, DWORD dwFlags)
         {
             // ReadMMIO will fail if its an not a wave file
             mmioClose(m_hmmio, 0);
-            utils::DebugPrint2("error : ReadOpen in CWaveFile::Open()\n");
+            DebugPrint("error : ReadOpen in CWaveFile::Open()\n");
             return E_FAIL;
         }
 
         if (FAILED(hr = ResetFile(false)))
         {
-            utils::DebugPrint2("error : ResetFile in CWaveFile::Open()\n");
+            DebugPrint("error : ResetFile in CWaveFile::Open()\n");
             return E_FAIL;
         }
 
@@ -909,7 +988,7 @@ HRESULT CWaveFile::ResetFile(bool loop)
     {
         if (m_hmmio == NULL)
         {
-            utils::DebugPrint2("error : m_hmmio\t== NULL in CWaveFile::ResetFile\n");
+            DebugPrint("error : m_hmmio\t== NULL in CWaveFile::ResetFile\n");
             return CO_E_NOTINITIALIZED;
         }
 
@@ -918,7 +997,7 @@ HRESULT CWaveFile::ResetFile(bool loop)
             // Seek to the data
             if (-1 == mmioSeek(m_hmmio, m_ckRiff.dwDataOffset + sizeof(FOURCC), SEEK_SET))
             {
-                utils::DebugPrint2("error : mmioSeek in CWaveFile::ResetFile\n");
+                DebugPrint("error : mmioSeek in CWaveFile::ResetFile\n");
                 return DXTRACE_ERR(TEXT("mmioSeek"), E_FAIL);
             }
 
@@ -927,7 +1006,7 @@ HRESULT CWaveFile::ResetFile(bool loop)
             MMRESULT res = mmioDescend(m_hmmio, &m_ck, &m_ckRiff, MMIO_FINDCHUNK);
             if (0 != res)
             {
-                utils::DebugPrint2("error : mmioDescend in CWaveFile::ResetFile\n");
+                DebugPrint("error : mmioDescend in CWaveFile::ResetFile\n");
                 return DXTRACE_ERR(TEXT("mmioDescend"), E_FAIL);
             }
 
@@ -940,7 +1019,7 @@ HRESULT CWaveFile::ResetFile(bool loop)
                 MMIOINFO mmioinfoIn;
                 if (0 != mmioGetInfo(this->m_hmmio, &mmioinfoIn, 0))
                 {
-                    utils::DebugPrint2("error : mmioGetInfo in CWaveFile::ResetFile\n");
+                    DebugPrint("error : mmioGetInfo in CWaveFile::ResetFile\n");
                     return E_FAIL;
                 }
                 for (int i = 0; i < this->m_loopStartPoint; i++)
@@ -949,13 +1028,12 @@ HRESULT CWaveFile::ResetFile(bool loop)
                     {
                         if (0 != mmioAdvance(this->m_hmmio, &mmioinfoIn, 0))
                         {
-                            utils::DebugPrint2("error : mmioAdvance in CWaveFile::ResetFile\n");
+                            DebugPrint("error : mmioAdvance in CWaveFile::ResetFile\n");
                             return E_FAIL;
                         }
                         if (mmioinfoIn.pchNext == mmioinfoIn.pchEndRead)
                         {
-                            utils::DebugPrint2(
-                                "error : mmioinfoIn.pchNext == mmioinfoIn.pchEndRead in CWaveFile::ResetFile\n");
+                            DebugPrint("error : mmioinfoIn.pchNext == mmioinfoIn.pchEndRead in CWaveFile::ResetFile\n");
                             return E_FAIL;
                         }
                     }
@@ -964,8 +1042,8 @@ HRESULT CWaveFile::ResetFile(bool loop)
                 this->m_ck.cksize = this->m_ck.cksize - this->m_loopStartPoint;
                 if (mmioSetInfo(this->m_hmmio, &mmioinfoIn, 0) != 0)
                 {
-                    utils::DebugPrint2("error : mmioSetInfo in CWaveFile::ResetFile\n");
-                    return 0x80004005;
+                    DebugPrint("error : mmioSetInfo in CWaveFile::ResetFile\n");
+                    return E_FAIL;
                 }
             }
         }
@@ -1017,7 +1095,8 @@ HRESULT CWaveFile::Read(BYTE *pBuffer, DWORD dwSizeToRead, DWORD *pdwSizeRead)
 
         if (0 != mmioGetInfo(m_hmmio, &mmioinfoIn, 0))
         {
-            utils::DebugPrint2("error :\t%s(%s)\n", __FILE__, 1060);
+#line 1060 "zwave.cpp"
+            DebugPrint("error :\t%s(%s)\n", __FILE__, __LINE__);
             return DXTRACE_ERR(TEXT("mmioGetInfo"), E_FAIL);
         }
 
@@ -1034,17 +1113,15 @@ HRESULT CWaveFile::Read(BYTE *pBuffer, DWORD dwSizeToRead, DWORD *pdwSizeRead)
             {
                 if (0 != mmioAdvance(m_hmmio, &mmioinfoIn, MMIO_READ))
                 {
-                    // Note: 1075 here is _probably_ the line number. I'm not
-                    // using __LINE__ to avoid mismatches due to reformatting.
-                    utils::DebugPrint2("error :\t%s(%s)\n", __FILE__, 1075);
+#line 1075
+                    DebugPrint("error :\t%s(%s)\n", __FILE__, __LINE__);
                     return DXTRACE_ERR(TEXT("mmioAdvance"), E_FAIL);
                 }
 
                 if (mmioinfoIn.pchNext == mmioinfoIn.pchEndRead)
                 {
-                    // Note: 1075 here is _probably_ the line number. I'm not
-                    // using __LINE__ to avoid mismatches due to reformatting.
-                    utils::DebugPrint2("error :\t%s(%s)\n", __FILE__, 1079);
+#line 1079
+                    DebugPrint("error :\t%s(%s)\n", __FILE__, __LINE__);
                     return DXTRACE_ERR(TEXT("mmioinfoIn.pchNext"), E_FAIL);
                 }
             }
@@ -1056,7 +1133,8 @@ HRESULT CWaveFile::Read(BYTE *pBuffer, DWORD dwSizeToRead, DWORD *pdwSizeRead)
 
         if (0 != mmioSetInfo(m_hmmio, &mmioinfoIn, 0))
         {
-            utils::DebugPrint2("error :\t%s(%s)\n", __FILE__, 1088);
+#line 1088
+            DebugPrint("error :\t%s(%s)\n", __FILE__, __LINE__);
             return DXTRACE_ERR(TEXT("mmioSetInfo"), E_FAIL);
         }
 
@@ -1080,4 +1158,4 @@ HRESULT CWaveFile::Close()
     }
     return S_OK;
 }
-}; // namespace th06
+} // namespace th06

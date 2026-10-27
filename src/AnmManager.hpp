@@ -1,60 +1,64 @@
 #pragma once
-
 #include <d3d8.h>
 #include <d3dx8math.h>
 
 #include "AnmIdx.hpp"
 #include "AnmVm.hpp"
-#include "GameManager.hpp"
+#include "Supervisor.hpp"
 #include "ZunResult.hpp"
-#include "ZunTimer.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
 // structure of a vertex with SetVertexShade FVF set to D3DFVF_DIFFUSE | D3DFVF_XYZRHW
 struct VertexDiffuseXyzrwh
 {
-    D3DXVECTOR4 position;
+    D3DXVECTOR3 position;
+    float position_w;
     D3DCOLOR diffuse;
 };
+ZUN_ASSERT_TYPE(VertexDiffuseXyzrwh, 0x14, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_XYZRHW
 struct VertexTex1Xyzrwh
 {
     D3DXVECTOR4 position;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1Xyzrwh, 0x18, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZRHW
 struct VertexTex1DiffuseXyzrwh
 {
     D3DXVECTOR4 position;
     D3DCOLOR diffuse;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1DiffuseXyzrwh, 0x1c, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZ
 struct VertexTex1DiffuseXyz
 {
     D3DXVECTOR3 position;
     D3DCOLOR diffuse;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1DiffuseXyz, 0x18, 4);
 
 struct AnmRawSprite
 {
     u32 id;
-    D3DXVECTOR2 offset;
-    D3DXVECTOR2 size;
+    ZunVec2 offset;
+    ZunVec2 size;
 };
+ZUN_ASSERT_TYPE(AnmRawSprite, 0x14, 4);
 
 struct AnmRawScript
 {
     u32 id;
-    AnmRawInstr *firstInstruction;
+    u32 firstInstructionOffset;
 };
+ZUN_ASSERT_TYPE(AnmRawScript, 8, 4);
 
 struct AnmRawEntry
 {
@@ -69,44 +73,64 @@ struct AnmRawEntry
     u32 spriteIdxOffset;
     u32 mipmapNameOffset;
     u32 version;
-    u32 unk1;
+    unreferenced_fields(0x4);
     u32 textureOffset;
     u32 hasData;
     u32 nextOffset;
-    u32 unk2;
-    u32 spriteOffsets[10];
-    AnmRawScript scripts[10];
+    unreferenced_fields(0x4);
+    u32 spriteOffsets[];
 };
-ZUN_ASSERT_SIZE(AnmRawEntry, 0xb8);
+ZUN_ASSERT_TYPE(AnmRawEntry, 0x40, 4);
 
 struct RenderVertexInfo
 {
     D3DXVECTOR3 position;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
-ZUN_ASSERT_SIZE(RenderVertexInfo, 0x14);
+ZUN_ASSERT_TYPE(RenderVertexInfo, 0x14, 4);
 
-struct AnmManager
+#define MAX_ANM_SCRIPTS 2048
+#define MAX_ANM_SPRITES 2048
+
+class AnmManager
 {
+  public:
     AnmManager();
     ~AnmManager();
 
-    void ReleaseVertexBuffer()
-    {
-        if (this->vertexBuffer != NULL)
-        {
-            this->vertexBuffer->Release();
-            this->vertexBuffer = NULL;
-        }
-    }
+    void ReleaseVertexBuffer();
     void SetupVertexBuffer();
 
     ZunResult CreateEmptyTexture(i32 textureIdx, u32 width, u32 height, i32 textureFormat);
-    ZunResult LoadTexture(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey);
-    ZunResult LoadTextureAlphaChannel(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey);
+    ZunResult LoadTexture(i32 textureIdx, const char *textureName, i32 textureFormat, D3DCOLOR colorKey);
+    ZunResult LoadTextureAlphaChannel(i32 textureIdx, const char *textureName, i32 textureFormat, D3DCOLOR colorKey);
     void ReleaseTexture(i32 textureIdx);
-    void TakeScreenshotIfRequested();
+
+    void ReleaseSurfaces(void)
+    {
+        for (i32 i = 0; i < ARRAY_SIZE_SIGNED(this->surfaces); i++)
+        {
+            SAFE_RELEASE(this->surfaces[i]);
+        }
+    }
+
+    void TakeScreenshotIfRequested()
+    {
+        if (this->screenshotTextureId >= 0)
+        {
+            this->TakeScreenshot(this->screenshotTextureId, this->screenshotLeft, this->screenshotTop,
+                                 this->screenshotWidth, this->screenshotHeight);
+            this->screenshotTextureId = -1;
+        }
+    }
+
     void TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32 height);
+
+    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
+    {
+        vm->Initialize();
+        this->SetActiveSprite(vm, spriteIdx);
+    }
 
     void SetAndExecuteScript(AnmVm *vm, AnmRawInstr *beginingOfScript);
     void SetAndExecuteScriptIdx(AnmVm *vm, i32 anmFileIdx)
@@ -115,55 +139,72 @@ struct AnmManager
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
     }
 
-    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
+    void ClearScriptRange(i32 base, i32 range)
     {
-        vm->Initialize();
-        this->SetActiveSprite(vm, spriteIdx);
+        for (i32 i = 0; i < range; i++)
+        {
+            this->scripts[i + base] = NULL;
+        }
     }
 
-    void SetCurrentVertexShader(u8 vertexShader)
+    ZunBool ShouldDraw(AnmVm *vm)
     {
-        this->currentVertexShader = vertexShader;
+        if (vm->sprite == NULL)
+        {
+            return false;
+        }
+        if (vm->sprite->sourceFileIndex < 0)
+        {
+            return false;
+        }
+        return this->textures[vm->sprite->sourceFileIndex] != NULL;
     }
-    void SetCurrentColorOp(u8 colorOp)
+
+    void ClearBlendMode()
     {
-        this->currentColorOp = colorOp;
+        this->currentBlendMode = AnmBlendMode_NotSet;
     }
-    void SetCurrentBlendMode(u8 blendMode)
+    void ClearColorOp()
     {
-        this->currentBlendMode = blendMode;
+        this->currentColorOp = AnmColorOp_NotSet;
     }
-    void SetCurrentZWriteDisable(u8 zwriteDisable)
+    void ClearVertexShader()
     {
-        this->currentZWriteDisable = zwriteDisable;
+        this->currentVertexShader = AnmVertexShader_NotSet;
     }
-    void SetCurrentTexture(IDirect3DTexture8 *texture)
+    void ClearTexture()
     {
-        this->currentTexture = texture;
+        this->currentTexture = NULL;
     }
-    void SetCurrentSprite(AnmLoadedSprite *sprite)
+    void ClearZWrite()
     {
-        this->currentSprite = sprite;
+        this->currentZWriteDisable = AnmZWriteState_NotSet;
+    }
+    void ClearSprite()
+    {
+        this->currentSprite = NULL;
     }
 
     i32 ExecuteScript(AnmVm *vm);
     ZunResult Draw(AnmVm *vm);
     void DrawTextToSprite(u32 spriteDstIndex, i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontWidth,
-                          i32 fontHeight, ZunColor textColor, ZunColor shadowColor, char *strToPrint);
-    void DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...);
-    void DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...);
-    void DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...);
+                          i32 fontHeight, ZunColor textColor, ZunColor shadowColor, const char *strToPrint);
+    void DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...);
+    void DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...);
+    void DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...);
     ZunResult DrawNoRotation(AnmVm *vm);
-    ZunResult DrawInner(AnmVm *vm, i32 unk);
+
+#define RENDER_VERTICES_DEFAULT false
+#define RENDER_VERTICES_ROUND_INPUTS true
+    ZunResult DrawInner(AnmVm *vm, ZunBool roundVertices);
     ZunResult DrawFacingCamera(AnmVm *vm);
     ZunResult Draw2(AnmVm *vm);
     ZunResult Draw3(AnmVm *vm);
 
     void LoadSprite(u32 spriteIdx, AnmLoadedSprite *sprite);
-    ZunResult SetActiveSprite(AnmVm *vm, u32 spriteIdx);
+    ZunResult SetActiveSprite(AnmVm *vm, i32 spriteIdx);
 
-    void ReleaseSurfaces(void);
-    ZunResult LoadSurface(i32 surfaceIdx, char *path);
+    ZunResult LoadSurface(i32 surfaceIdx, const char *path);
     void ReleaseSurface(i32 surfaceIdx);
     void CopySurfaceToBackBuffer(i32 surfaceIdx, i32 left, i32 top, i32 x, i32 y);
     void DrawEndingRect(i32 surfaceIdx, i32 rectX, i32 rectY, i32 rectLeft, i32 rectTop, i32 width, i32 height);
@@ -172,49 +213,55 @@ struct AnmManager
                            float yOffset);
 
     void ReleaseAnm(i32 anmIdx);
-    ZunResult LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset);
-    void AnmManager::ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
+    ZunResult LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset);
+    void ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
     {
         vm->anmFileIndex = anmFileIdx;
-        vm->pos = D3DXVECTOR3(0, 0, 0);
-        vm->posOffset = D3DXVECTOR3(0, 0, 0);
-        vm->fontHeight = 15;
-        vm->fontWidth = 15;
+        vm->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+        vm->posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+        vm->fontWidth = vm->fontHeight = DEFAULT_ANM_FONT_SIZE;
 
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
     }
 
     void SetRenderStateForVm(AnmVm *vm);
 
-    void RequestScreenshot()
+    void RequestScreenshot(i32 textureId = 3, i32 left = GAME_REGION_POS_X, i32 top = GAME_REGION_POS_Y,
+                           i32 width = GAME_REGION_WIDTH, i32 height = GAME_REGION_HEIGHT)
     {
-        this->screenshotTextureId = 3;
-        this->screenshotLeft = GAME_REGION_LEFT;
-        this->screenshotTop = GAME_REGION_TOP;
-        this->screenshotWidth = GAME_REGION_WIDTH;
-        this->screenshotHeight = GAME_REGION_HEIGHT;
+        this->screenshotTextureId = textureId;
+        this->screenshotLeft = left;
+        this->screenshotTop = top;
+        this->screenshotWidth = width;
+        this->screenshotHeight = height;
     }
 
-    AnmLoadedSprite sprites[2048];
+    AnmLoadedSprite *GetSprite(i32 index)
+    {
+        return &this->sprites[index];
+    }
+
+  private:
+    AnmLoadedSprite sprites[MAX_ANM_SPRITES];
     AnmVm virtualMachine;
-    IDirect3DTexture8 *textures[264];
+    LPDIRECT3DTEXTURE8 textures[264];
     void *imageDataArray[256];
     i32 maybeLoadedSpriteCount;
-    AnmRawInstr *scripts[2048];
-    i32 spriteIndices[2048];
+    AnmRawInstr *scripts[MAX_ANM_SCRIPTS];
+    i32 spriteIndices[MAX_ANM_SPRITES];
     AnmRawEntry *anmFiles[128];
     u32 anmFilesSpriteIndexOffsets[128];
-    IDirect3DSurface8 *surfaces[32];
-    IDirect3DSurface8 *surfacesBis[32];
+    LPDIRECT3DSURFACE8 surfaces[32];
+    LPDIRECT3DSURFACE8 surfacesBis[32];
     D3DXIMAGE_INFO surfaceSourceInfo[32];
     D3DCOLOR currentTextureFactor;
-    IDirect3DTexture8 *currentTexture;
+    LPDIRECT3DTEXTURE8 currentTexture;
     u8 currentBlendMode;
     u8 currentColorOp;
     u8 currentVertexShader;
     u8 currentZWriteDisable;
     AnmLoadedSprite *currentSprite;
-    IDirect3DVertexBuffer8 *vertexBuffer;
+    LPDIRECT3DVERTEXBUFFER8 vertexBuffer;
     RenderVertexInfo vertexBufferContents[4];
     i32 screenshotTextureId;
     i32 screenshotLeft;
@@ -222,8 +269,7 @@ struct AnmManager
     i32 screenshotWidth;
     i32 screenshotHeight;
 };
-ZUN_ASSERT_SIZE(AnmManager, 0x2112c);
+ZUN_ASSERT_TYPE(AnmManager, 0x2112c, 4);
 
-DIFFABLE_EXTERN(AnmManager *, g_AnmManager);
-DIFFABLE_EXTERN(const D3DFORMAT, g_TextureFormatD3D8Mapping[6]);
-}; // namespace th06
+extern AnmManager *g_AnmManager;
+} // namespace th06

@@ -1,24 +1,18 @@
-#include "AnmManager.hpp"
-#include "Global.hpp"
-#include "Supervisor.hpp"
-#include "TextHelper.hpp"
-#include "ZunMath.hpp"
-#include "i18n.hpp"
+#include "stdafx.h"
 
-#include <stdio.h>
+#include "AnmManager.hpp"
+#include "TextHelper.hpp"
 
 namespace th06
 {
-DIFFABLE_STATIC(VertexTex1Xyzrwh, g_PrimitivesToDrawVertexBuf[4]);
-DIFFABLE_STATIC(VertexTex1DiffuseXyzrwh, g_PrimitivesToDrawNoVertexBuf[4]);
-DIFFABLE_STATIC(VertexTex1DiffuseXyz, g_PrimitivesToDrawUnknown[4]);
-DIFFABLE_STATIC(AnmManager *, g_AnmManager)
+VertexTex1Xyzrwh g_PrimitivesToDrawVertexBuf[4];
+VertexTex1DiffuseXyzrwh g_QuadsToDrawNoVertexBuf[4];
+VertexTex1DiffuseXyz g_PrimitivesToDrawUnknown[4];
+AnmManager *g_AnmManager;
 
-#ifndef DIFFBUILD
-const D3DFORMAT g_TextureFormatD3D8Mapping[6] = {
+const D3DFORMAT g_TextureFormatD3D8Mapping[] = {
     D3DFMT_UNKNOWN, D3DFMT_A8R8G8B8, D3DFMT_A1R5G5B5, D3DFMT_R5G6B5, D3DFMT_R8G8B8, D3DFMT_A4R4G4B4,
 };
-#endif
 
 #define TEX_FMT_UNKNOWN 0
 #define TEX_FMT_A8R8G8B8 1
@@ -27,73 +21,46 @@ const D3DFORMAT g_TextureFormatD3D8Mapping[6] = {
 #define TEX_FMT_R8G8B8 4
 #define TEX_FMT_A4R4G4B4 5
 
-void AnmManager::ReleaseSurfaces(void)
-{
-    for (i32 idx = 0; idx < ARRAY_SIZE_SIGNED(this->surfaces); idx++)
-    {
-        if (this->surfaces[idx] != NULL)
-        {
-            this->surfaces[idx]->Release();
-            this->surfaces[idx] = NULL;
-        }
-    }
-}
-
-void AnmManager::TakeScreenshotIfRequested()
-{
-    if (this->screenshotTextureId >= 0)
-    {
-        this->TakeScreenshot(this->screenshotTextureId, this->screenshotLeft, this->screenshotTop,
-                             this->screenshotWidth, this->screenshotHeight);
-        this->screenshotTextureId = -1;
-    }
-    return;
-}
-
 AnmManager::AnmManager()
 {
     this->maybeLoadedSpriteCount = 0;
 
     memset(this, 0, sizeof(AnmManager));
 
-    for (i32 spriteIndex = 0; spriteIndex < ARRAY_SIZE_SIGNED(this->sprites); spriteIndex++)
+    for (i32 i = 0; i < MAX_ANM_SPRITES; i++)
     {
-        this->sprites[spriteIndex].sourceFileIndex = -1;
+        this->sprites[i].sourceFileIndex = -1;
     }
 
-    g_PrimitivesToDrawVertexBuf[3].position.w = 1.0;
-    g_PrimitivesToDrawVertexBuf[2].position.w = g_PrimitivesToDrawVertexBuf[3].position.w;
-    g_PrimitivesToDrawVertexBuf[1].position.w = g_PrimitivesToDrawVertexBuf[2].position.w;
-    g_PrimitivesToDrawVertexBuf[0].position.w = g_PrimitivesToDrawVertexBuf[1].position.w;
-    g_PrimitivesToDrawVertexBuf[0].textureUV.x = 0.0;
-    g_PrimitivesToDrawVertexBuf[0].textureUV.y = 0.0;
-    g_PrimitivesToDrawVertexBuf[1].textureUV.x = 1.0;
-    g_PrimitivesToDrawVertexBuf[1].textureUV.y = 0.0;
-    g_PrimitivesToDrawVertexBuf[2].textureUV.x = 0.0;
-    g_PrimitivesToDrawVertexBuf[2].textureUV.y = 1.0;
-    g_PrimitivesToDrawVertexBuf[3].textureUV.x = 1.0;
-    g_PrimitivesToDrawVertexBuf[3].textureUV.y = 1.0;
+    g_PrimitivesToDrawVertexBuf[0].position.w = g_PrimitivesToDrawVertexBuf[1].position.w =
+        g_PrimitivesToDrawVertexBuf[2].position.w = g_PrimitivesToDrawVertexBuf[3].position.w = 1.0f;
+    g_PrimitivesToDrawVertexBuf[0].textureUV.x = 0.0f;
+    g_PrimitivesToDrawVertexBuf[0].textureUV.y = 0.0f;
+    g_PrimitivesToDrawVertexBuf[1].textureUV.x = 1.0f;
+    g_PrimitivesToDrawVertexBuf[1].textureUV.y = 0.0f;
+    g_PrimitivesToDrawVertexBuf[2].textureUV.x = 0.0f;
+    g_PrimitivesToDrawVertexBuf[2].textureUV.y = 1.0f;
+    g_PrimitivesToDrawVertexBuf[3].textureUV.x = 1.0f;
+    g_PrimitivesToDrawVertexBuf[3].textureUV.y = 1.0f;
 
-    g_PrimitivesToDrawNoVertexBuf[3].position.w = 1.0;
-    g_PrimitivesToDrawNoVertexBuf[2].position.w = g_PrimitivesToDrawNoVertexBuf[3].position.w;
-    g_PrimitivesToDrawNoVertexBuf[1].position.w = g_PrimitivesToDrawNoVertexBuf[2].position.w;
-    g_PrimitivesToDrawNoVertexBuf[0].position.w = g_PrimitivesToDrawNoVertexBuf[1].position.w;
-    g_PrimitivesToDrawNoVertexBuf[0].textureUV.x = 0.0;
-    g_PrimitivesToDrawNoVertexBuf[0].textureUV.y = 0.0;
-    g_PrimitivesToDrawNoVertexBuf[1].textureUV.x = 1.0;
-    g_PrimitivesToDrawNoVertexBuf[1].textureUV.y = 0.0;
-    g_PrimitivesToDrawNoVertexBuf[2].textureUV.x = 0.0;
-    g_PrimitivesToDrawNoVertexBuf[2].textureUV.y = 1.0;
-    g_PrimitivesToDrawNoVertexBuf[3].textureUV.x = 1.0;
-    g_PrimitivesToDrawNoVertexBuf[3].textureUV.y = 1.0;
+    g_QuadsToDrawNoVertexBuf[0].position.w = g_QuadsToDrawNoVertexBuf[1].position.w =
+        g_QuadsToDrawNoVertexBuf[2].position.w = g_QuadsToDrawNoVertexBuf[3].position.w = 1.0f;
+    g_QuadsToDrawNoVertexBuf[0].textureUV.x = 0.0f;
+    g_QuadsToDrawNoVertexBuf[0].textureUV.y = 0.0f;
+    g_QuadsToDrawNoVertexBuf[1].textureUV.x = 1.0f;
+    g_QuadsToDrawNoVertexBuf[1].textureUV.y = 0.0f;
+    g_QuadsToDrawNoVertexBuf[2].textureUV.x = 0.0f;
+    g_QuadsToDrawNoVertexBuf[2].textureUV.y = 1.0f;
+    g_QuadsToDrawNoVertexBuf[3].textureUV.x = 1.0f;
+    g_QuadsToDrawNoVertexBuf[3].textureUV.y = 1.0f;
 
     this->vertexBuffer = NULL;
     this->currentTexture = NULL;
-    this->currentBlendMode = 0;
-    this->currentColorOp = 0;
+    this->currentBlendMode = AnmBlendMode_Normal;
+    this->currentColorOp = AnmColorOp_Modulate;
     this->currentTextureFactor = 1;
-    this->currentVertexShader = 0;
-    this->currentZWriteDisable = 0;
+    this->currentVertexShader = AnmVertexShader_0;
+    this->currentZWriteDisable = false;
     this->screenshotTextureId = -1;
 }
 
@@ -103,29 +70,19 @@ AnmManager::~AnmManager()
 
 void AnmManager::SetupVertexBuffer()
 {
-    this->vertexBufferContents[2].position.x = -128;
-    this->vertexBufferContents[0].position.x = -128;
-    this->vertexBufferContents[3].position.x = 128;
-    this->vertexBufferContents[1].position.x = 128;
+    this->vertexBufferContents[0].position.x = this->vertexBufferContents[2].position.x = -128.0f;
+    this->vertexBufferContents[1].position.x = this->vertexBufferContents[3].position.x = 128.0f;
 
-    this->vertexBufferContents[1].position.y = -128;
-    this->vertexBufferContents[0].position.y = -128;
-    this->vertexBufferContents[3].position.y = 128;
-    this->vertexBufferContents[2].position.y = 128;
+    this->vertexBufferContents[0].position.y = this->vertexBufferContents[1].position.y = -128.0f;
+    this->vertexBufferContents[2].position.y = this->vertexBufferContents[3].position.y = 128.0f;
 
-    this->vertexBufferContents[3].position.z = 0;
-    this->vertexBufferContents[2].position.z = 0;
-    this->vertexBufferContents[1].position.z = 0;
-    this->vertexBufferContents[0].position.z = 0;
+    this->vertexBufferContents[2].position.z = this->vertexBufferContents[3].position.z = 0.0f;
+    this->vertexBufferContents[0].position.z = this->vertexBufferContents[1].position.z = 0.0f;
 
-    this->vertexBufferContents[2].textureUV.x = 0;
-    this->vertexBufferContents[0].textureUV.x = 0;
-    this->vertexBufferContents[3].textureUV.x = 1;
-    this->vertexBufferContents[1].textureUV.x = 1;
-    this->vertexBufferContents[1].textureUV.y = 0;
-    this->vertexBufferContents[0].textureUV.y = 0;
-    this->vertexBufferContents[3].textureUV.y = 1;
-    this->vertexBufferContents[2].textureUV.y = 1;
+    this->vertexBufferContents[0].textureUV.x = this->vertexBufferContents[2].textureUV.x = 0.0f;
+    this->vertexBufferContents[1].textureUV.x = this->vertexBufferContents[3].textureUV.x = 1.0f;
+    this->vertexBufferContents[0].textureUV.y = this->vertexBufferContents[1].textureUV.y = 0.0f;
+    this->vertexBufferContents[2].textureUV.y = this->vertexBufferContents[3].textureUV.y = 1.0f;
 
     g_PrimitivesToDrawUnknown[0].position = this->vertexBufferContents[0].position;
     g_PrimitivesToDrawUnknown[1].position = this->vertexBufferContents[1].position;
@@ -141,14 +98,14 @@ void AnmManager::SetupVertexBuffer()
     g_PrimitivesToDrawUnknown[3].textureUV.x = this->vertexBufferContents[3].textureUV.x;
     g_PrimitivesToDrawUnknown[3].textureUV.y = this->vertexBufferContents[3].textureUV.y;
 
-    RenderVertexInfo *buffer;
+    BYTE *buffer;
 
-    if (((g_Supervisor.cfg.opts >> GCOS_DONT_USE_VERTEX_BUF) & 1) == 0)
+    if (!g_Supervisor.IsVertexBufferDisabled())
     {
         g_Supervisor.d3dDevice->CreateVertexBuffer(sizeof(this->vertexBufferContents), 0, D3DFVF_TEX1 | D3DFVF_XYZ,
                                                    D3DPOOL_MANAGED, &this->vertexBuffer);
 
-        this->vertexBuffer->Lock(0, 0, (BYTE **)&buffer, 0);
+        this->vertexBuffer->Lock(0, 0, &buffer, 0);
         memcpy(buffer, this->vertexBufferContents, sizeof(this->vertexBufferContents));
         this->vertexBuffer->Unlock();
 
@@ -156,17 +113,17 @@ void AnmManager::SetupVertexBuffer()
     }
 }
 
-ZunResult AnmManager::LoadTexture(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey)
+ZunResult AnmManager::LoadTexture(i32 textureIdx, const char *textureName, i32 textureFormat, D3DCOLOR colorKey)
 {
     ReleaseTexture(textureIdx);
-    this->imageDataArray[textureIdx] = FileSystem::OpenPath(textureName, 0);
+    this->imageDataArray[textureIdx] = FileSystem::OpenPath(textureName);
 
     if (this->imageDataArray[textureIdx] == NULL)
     {
         return ZUN_ERROR;
     }
 
-    if (((g_Supervisor.cfg.opts >> GCOS_FORCE_16BIT_COLOR_MODE) & 1) != 0)
+    if (g_Supervisor.Is16bitColorMode())
     {
         if (g_TextureFormatD3D8Mapping[textureFormat] == D3DFMT_A8R8G8B8 ||
             g_TextureFormatD3D8Mapping[textureFormat] == D3DFMT_UNKNOWN)
@@ -179,7 +136,7 @@ ZunResult AnmManager::LoadTexture(i32 textureIdx, char *textureName, i32 texture
         }
     }
 
-    if (D3DXCreateTextureFromFileInMemoryEx(g_Supervisor.d3dDevice, this->imageDataArray[textureIdx], g_LastFileSize, 0,
+    if (D3DXCreateTextureFromFileInMemoryEx(g_Supervisor.d3dDevice, this->imageDataArray[textureIdx], g_ReadFileSize, 0,
                                             0, 0, 0, g_TextureFormatD3D8Mapping[textureFormat], D3DPOOL_MANAGED,
                                             D3DX_FILTER_NONE | D3DX_FILTER_POINT, D3DX_DEFAULT, colorKey, NULL, NULL,
                                             &this->textures[textureIdx]) != D3D_OK)
@@ -190,9 +147,9 @@ ZunResult AnmManager::LoadTexture(i32 textureIdx, char *textureName, i32 texture
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(surfaceDesc, data, lockedRectDst, lockedRectSrc, textureSrc, dstData0, srcData0, y0, x0, dstData1,   \
-                  srcData1, y1, x1, dstData2, srcData2, y2, x2)
-ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, char *textureName, i32 textureFormat, D3DCOLOR colorKey)
+#pragma var_order(surfaceDesc, data, lockedRectDst, lockedRectSrc, textureSrc)
+ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textureName, i32 textureFormat,
+                                              D3DCOLOR colorKey)
 {
     struct Argb1555Pixel
     {
@@ -210,27 +167,12 @@ ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, char *textureName,
         u16 a : 4;
     };
 
-    IDirect3DTexture8 *textureSrc;
     D3DSURFACE_DESC surfaceDesc;
     D3DLOCKED_RECT lockedRectDst;
     D3DLOCKED_RECT lockedRectSrc;
-    u8 *data;
 
-    u8 *dstData0;
-    u8 *srcData0;
-    i32 x0;
-    i32 y0;
-    Argb1555Pixel *dstData1;
-    Argb1555Pixel *srcData1;
-    i32 y1;
-    i32 x1;
-    Argb4444Pixel *dstData2;
-    Argb4444Pixel *srcData2;
-    i32 y2;
-    i32 x2;
-
-    textureSrc = NULL;
-    data = FileSystem::OpenPath(textureName, 0);
+    LPDIRECT3DTEXTURE8 textureSrc = NULL;
+    u8 *data = FileSystem::OpenPath(textureName);
 
     if (data == NULL)
     {
@@ -246,84 +188,82 @@ ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, char *textureName,
         goto err;
     }
 
-    if (D3DXCreateTextureFromFileInMemoryEx(g_Supervisor.d3dDevice, data, g_LastFileSize, 0, 0, 0, 0,
+    if (D3DXCreateTextureFromFileInMemoryEx(g_Supervisor.d3dDevice, data, g_ReadFileSize, 0, 0, 0, 0,
                                             surfaceDesc.Format, D3DPOOL_SYSTEMMEM, D3DX_FILTER_NONE | D3DX_FILTER_POINT,
                                             D3DX_DEFAULT, colorKey, NULL, NULL, &textureSrc) != D3D_OK)
     {
         goto err;
     }
 
-    if (this->textures[textureIdx]->LockRect(0, &lockedRectDst, NULL, 0) != 0)
+    if (this->textures[textureIdx]->LockRect(0, &lockedRectDst, NULL, 0) != D3D_OK)
         goto err;
 
-    if (textureSrc->LockRect(0, &lockedRectSrc, NULL, D3DLOCK_NO_DIRTY_UPDATE) != 0)
+    if (textureSrc->LockRect(0, &lockedRectSrc, NULL, D3DLOCK_NO_DIRTY_UPDATE) != D3D_OK)
         goto err;
 
     // Copy over the alpha channel from the source to the destination, taking
     // into account the texture format.
     switch (surfaceDesc.Format)
     {
-    case D3DFMT_A8R8G8B8:
-        for (y0 = 0; y0 < surfaceDesc.Height; y0++)
+#pragma var_order(dstData, srcData)
+    case D3DFMT_A8R8G8B8: {
+        u8 *dstData, *srcData;
+        for (i32 y = 0; y < surfaceDesc.Height; y++)
         {
-            dstData0 = (u8 *)lockedRectDst.pBits + y0 * lockedRectDst.Pitch;
-            srcData0 = (u8 *)lockedRectSrc.pBits + y0 * lockedRectSrc.Pitch;
+            dstData = (u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch;
+            srcData = (u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch;
 
-            for (x0 = 0; x0 < surfaceDesc.Width; x0++, srcData0 += 4, dstData0 += 4)
+            for (i32 x = 0; x < surfaceDesc.Width; x++, srcData += 4, dstData += 4)
             {
-                dstData0[3] = srcData0[0];
+                dstData[3] = srcData[0];
             }
         }
         break;
-
-    case D3DFMT_A1R5G5B5:
-        for (y1 = 0; y1 < surfaceDesc.Height; y1++)
+    }
+#pragma var_order(dstData, srcData)
+    case D3DFMT_A1R5G5B5: {
+        Argb1555Pixel *dstData, *srcData;
+        for (i32 y = 0; y < surfaceDesc.Height; y++)
         {
+            dstData = (Argb1555Pixel *)((u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch);
+            srcData = (Argb1555Pixel *)((u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch);
 
-            dstData1 = (Argb1555Pixel *)((u8 *)lockedRectDst.pBits + y1 * lockedRectDst.Pitch);
-            srcData1 = (Argb1555Pixel *)((u8 *)lockedRectSrc.pBits + y1 * lockedRectSrc.Pitch);
-
-            for (x1 = 0; x1 < surfaceDesc.Width; x1++, srcData1++, dstData1++)
+            for (i32 x = 0; x < surfaceDesc.Width; x++, srcData++, dstData++)
             {
-                dstData1->a = srcData1->b >> 4;
+                dstData->a = srcData->b >> 4;
             }
         }
         break;
-
-    case D3DFMT_A4R4G4B4:
-        for (y2 = 0; y2 < surfaceDesc.Height; y2++)
+    }
+#pragma var_order(dstData, srcData)
+    case D3DFMT_A4R4G4B4: {
+        Argb4444Pixel *dstData, *srcData;
+        for (i32 y = 0; y < surfaceDesc.Height; y++)
         {
-            dstData2 = (Argb4444Pixel *)((u8 *)lockedRectDst.pBits + y2 * lockedRectDst.Pitch);
-            srcData2 = (Argb4444Pixel *)((u8 *)lockedRectSrc.pBits + y2 * lockedRectSrc.Pitch);
+            dstData = (Argb4444Pixel *)((u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch);
+            srcData = (Argb4444Pixel *)((u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch);
 
-            for (x2 = 0; x2 < surfaceDesc.Width; x2++, srcData2++, dstData2++)
+            for (i32 x = 0; x < surfaceDesc.Width; x++, srcData++, dstData++)
             {
-                dstData2->a = srcData2->b;
+                dstData->a = srcData->b;
             }
         }
         break;
+    }
     }
 
     textureSrc->UnlockRect(0);
     this->textures[textureIdx]->UnlockRect(0);
 
-    if (textureSrc != NULL)
-    {
-        textureSrc->Release();
-        textureSrc = NULL;
-    }
+    SAFE_RELEASE(textureSrc);
 
-    free(data);
+    ZUN_FREE(data);
     return ZUN_SUCCESS;
 
 err:
-    if (textureSrc != NULL)
-    {
-        textureSrc->Release();
-        textureSrc = NULL;
-    }
+    SAFE_RELEASE(textureSrc);
 
-    free(data);
+    ZUN_FREE(data);
     return ZUN_ERROR;
 }
 
@@ -335,11 +275,11 @@ ZunResult AnmManager::CreateEmptyTexture(i32 textureIdx, u32 width, u32 height, 
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(anm, anmName, rawSprite, index, curSpriteOffset, loadedSprite)
-ZunResult AnmManager::LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset)
+#pragma var_order(anm, anmName, rawSprite, i, curOffset)
+ZunResult AnmManager::LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset)
 {
     this->ReleaseAnm(anmIdx);
-    this->anmFiles[anmIdx] = (AnmRawEntry *)FileSystem::OpenPath(path, 0);
+    this->anmFiles[anmIdx] = (AnmRawEntry *)FileSystem::OpenPath(path);
 
     AnmRawEntry *anm = this->anmFiles[anmIdx];
 
@@ -351,7 +291,7 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset)
 
     anm->textureIdx = anmIdx;
 
-    char *anmName = (char *)((u8 *)anm + anm->nameOffset);
+    const char *anmName = (char *)anm + anm->nameOffset;
 
     if (*anmName == '@')
     {
@@ -365,7 +305,7 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset)
 
     if (anm->mipmapNameOffset != 0)
     {
-        anmName = (char *)((u8 *)anm + anm->mipmapNameOffset);
+        anmName = (char *)anm + anm->mipmapNameOffset;
         if (this->LoadTextureAlphaChannel(anm->textureIdx, anmName, anm->format, anm->colorKey) != ZUN_SUCCESS)
         {
             g_GameErrorContext.Fatal(TH_ERR_ANMMANAGER_TEXTURE_CORRUPTED, anmName);
@@ -375,14 +315,14 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset)
 
     anm->spriteIdxOffset = spriteIdxOffset;
 
-    u32 *curSpriteOffset = anm->spriteOffsets;
+    u32 *curOffset = anm->spriteOffsets;
 
-    i32 index;
     AnmRawSprite *rawSprite;
 
-    for (index = 0; index < this->anmFiles[anmIdx]->numSprites; index++, curSpriteOffset++)
+    i32 i;
+    for (i = 0; i < this->anmFiles[anmIdx]->numSprites; i++, curOffset++)
     {
-        rawSprite = (AnmRawSprite *)((u8 *)anm + *curSpriteOffset);
+        rawSprite = (AnmRawSprite *)((u8 *)anm + *curOffset);
 
         AnmLoadedSprite loadedSprite;
         loadedSprite.sourceFileIndex = this->anmFiles[anmIdx]->textureIdx;
@@ -390,15 +330,15 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset)
         loadedSprite.startPixelInclusive.y = rawSprite->offset.y;
         loadedSprite.endPixelInclusive.x = rawSprite->offset.x + rawSprite->size.x;
         loadedSprite.endPixelInclusive.y = rawSprite->offset.y + rawSprite->size.y;
-        loadedSprite.textureWidth = (float)anm->width;
-        loadedSprite.textureHeight = (float)anm->height;
+        loadedSprite.textureWidth = anm->width;
+        loadedSprite.textureHeight = anm->height;
         this->LoadSprite(rawSprite->id + spriteIdxOffset, &loadedSprite);
     }
 
-    for (index = 0; index < anm->numScripts; index++, curSpriteOffset += 2)
+    for (i = 0; i < anm->numScripts; i++, curOffset += 2)
     {
-        this->scripts[curSpriteOffset[0] + spriteIdxOffset] = (AnmRawInstr *)((u8 *)anm + curSpriteOffset[1]);
-        this->spriteIndices[curSpriteOffset[0] + spriteIdxOffset] = spriteIdxOffset;
+        this->scripts[curOffset[0] + spriteIdxOffset] = (AnmRawInstr *)((u8 *)anm + curOffset[1]);
+        this->spriteIndices[curOffset[0] + spriteIdxOffset] = spriteIdxOffset;
     }
 
     this->anmFilesSpriteIndexOffsets[anmIdx] = spriteIdxOffset;
@@ -406,20 +346,20 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, char *path, i32 spriteIdxOffset)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(entry, spriteIdx, spriteIdxOffset, i, byteOffset, anmFilePtr, anmIdx, )
+#pragma var_order(entry, spriteIdx, spriteIdxOffset, i, byteOffset)
 void AnmManager::ReleaseAnm(i32 anmIdx)
 {
     if (this->anmFiles[anmIdx] != NULL)
     {
         i32 *spriteIdx;
-        i32 i;
         i32 spriteIdxOffset = this->anmFilesSpriteIndexOffsets[anmIdx];
         u32 *byteOffset = this->anmFiles[anmIdx]->spriteOffsets;
+
+        i32 i;
         for (i = 0; i < this->anmFiles[anmIdx]->numSprites; i++, byteOffset++)
         {
             spriteIdx = (i32 *)((u8 *)this->anmFiles[anmIdx] + *byteOffset);
-            memset(&this->sprites[*spriteIdx + spriteIdxOffset], 0,
-                   sizeof(this->sprites[*spriteIdx + spriteIdxOffset]));
+            memset(&this->sprites[*spriteIdx + spriteIdxOffset], 0, sizeof(AnmLoadedSprite));
             this->sprites[*spriteIdx + spriteIdxOffset].sourceFileIndex = -1;
         }
 
@@ -431,27 +371,19 @@ void AnmManager::ReleaseAnm(i32 anmIdx)
         this->anmFilesSpriteIndexOffsets[anmIdx] = 0;
         AnmRawEntry *entry = this->anmFiles[anmIdx];
         this->ReleaseTexture(entry->textureIdx);
-        AnmRawEntry *anmFilePtr = this->anmFiles[anmIdx];
-        free(anmFilePtr);
-        this->anmFiles[anmIdx] = 0;
-        this->currentBlendMode = 0xff;
-        this->currentColorOp = 0xff;
-        this->currentVertexShader = 0xff;
+        ZUN_FREE(this->anmFiles[anmIdx]);
+        this->anmFiles[anmIdx] = NULL;
+        this->currentBlendMode = AnmBlendMode_NotSet;
+        this->currentColorOp = AnmColorOp_NotSet;
+        this->currentVertexShader = AnmVertexShader_NotSet;
         this->currentTexture = NULL;
     }
 }
 
 void AnmManager::ReleaseTexture(i32 textureIdx)
 {
-    if (this->textures[textureIdx] != NULL)
-    {
-        this->textures[textureIdx]->Release();
-        this->textures[textureIdx] = NULL;
-    }
-
-    void *imageDataArray = this->imageDataArray[textureIdx];
-    free(imageDataArray);
-
+    SAFE_RELEASE(this->textures[textureIdx]);
+    ZUN_FREE(this->imageDataArray[textureIdx]);
     this->imageDataArray[textureIdx] = NULL;
 }
 
@@ -475,14 +407,14 @@ void AnmManager::LoadSprite(u32 spriteIdx, AnmLoadedSprite *sprite)
         this->sprites[spriteIdx].endPixelInclusive.y - this->sprites[spriteIdx].startPixelInclusive.y;
 }
 
-ZunResult AnmManager::SetActiveSprite(AnmVm *vm, u32 sprite_index)
+ZunResult AnmManager::SetActiveSprite(AnmVm *vm, i32 sprite_index)
 {
     if (this->sprites[sprite_index].sourceFileIndex < 0)
     {
         return ZUN_ERROR;
     }
 
-    vm->activeSpriteIndex = (i16)sprite_index;
+    vm->activeSpriteIndex = sprite_index;
     vm->sprite = this->sprites + sprite_index;
     D3DXMatrixIdentity(&vm->matrix);
     vm->matrix.m[0][0] = vm->sprite->widthPx / vm->sprite->textureWidth;
@@ -493,20 +425,15 @@ ZunResult AnmManager::SetActiveSprite(AnmVm *vm, u32 sprite_index)
 
 void AnmManager::SetAndExecuteScript(AnmVm *vm, AnmRawInstr *beginingOfScript)
 {
-    ZunTimer *timer;
-
-    vm->flags.flip = 0;
+    vm->flags.flip = AnmVmMirror_None;
     vm->Initialize();
     vm->beginingOfScript = beginingOfScript;
     vm->currentInstruction = vm->beginingOfScript;
 
-    timer = &(vm->currentTimeInScript);
-    timer->current = 0;
-    timer->subFrame = 0.0;
-    timer->previous = -999;
+    vm->currentTimeInScript = 0;
 
-    vm->flags.isVisible = 0;
-    if (beginingOfScript)
+    vm->flags.isVisible = false;
+    if (beginingOfScript != NULL)
     {
         this->ExecuteScript(vm);
     }
@@ -517,29 +444,29 @@ void AnmManager::SetRenderStateForVm(AnmVm *vm)
     if (this->currentBlendMode != vm->flags.blendMode)
     {
         this->currentBlendMode = vm->flags.blendMode;
-        if (this->currentBlendMode == AnmVmBlendMode_InvSrcAlpha)
+        if (this->currentBlendMode == AnmBlendMode_Normal)
         {
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
         }
-        else
+        else // AnmBlendMode_Additive
         {
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
         }
     }
-    if ((((g_Supervisor.cfg.opts >> GCOS_USE_D3D_HW_TEXTURE_BLENDING) & 1) == 0) &&
-        (((g_Supervisor.cfg.opts >> GCOS_NO_COLOR_COMP) & 1) == 0) && (this->currentColorOp != vm->flags.colorOp))
+    if (!g_Supervisor.IsHardwareBlendingDisabled() && !g_Supervisor.IsColorCompositingDisabled() &&
+        this->currentColorOp != vm->flags.colorOp)
     {
         this->currentColorOp = vm->flags.colorOp;
-        if (this->currentColorOp == AnmVmColorOp_Modulate)
+        if (this->currentColorOp == AnmColorOp_Modulate)
         {
             g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
         }
-        else
+        else // AnmColorOp_Add
         {
             g_Supervisor.d3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_ADD);
         }
     }
-    if (((g_Supervisor.cfg.opts >> GCOS_DONT_USE_VERTEX_BUF) & 1) == 0)
+    if (!g_Supervisor.IsVertexBufferDisabled())
     {
         if (this->currentTextureFactor != vm->color)
         {
@@ -549,38 +476,34 @@ void AnmManager::SetRenderStateForVm(AnmVm *vm)
     }
     else
     {
-        g_PrimitivesToDrawNoVertexBuf[0].diffuse = vm->color;
-        g_PrimitivesToDrawNoVertexBuf[1].diffuse = vm->color;
-        g_PrimitivesToDrawNoVertexBuf[2].diffuse = vm->color;
-        g_PrimitivesToDrawNoVertexBuf[3].diffuse = vm->color;
+        g_QuadsToDrawNoVertexBuf[0].diffuse = vm->color;
+        g_QuadsToDrawNoVertexBuf[1].diffuse = vm->color;
+        g_QuadsToDrawNoVertexBuf[2].diffuse = vm->color;
+        g_QuadsToDrawNoVertexBuf[3].diffuse = vm->color;
         g_PrimitivesToDrawUnknown[0].diffuse = vm->color;
         g_PrimitivesToDrawUnknown[1].diffuse = vm->color;
         g_PrimitivesToDrawUnknown[2].diffuse = vm->color;
         g_PrimitivesToDrawUnknown[3].diffuse = vm->color;
     }
-    if ((((g_Supervisor.cfg.opts >> GCOS_TURN_OFF_DEPTH_TEST) & 1) == 0) &&
-        (this->currentZWriteDisable != vm->flags.zWriteDisable))
+    if (!g_Supervisor.IsDepthTestDisabled() && this->currentZWriteDisable != vm->flags.zWriteDisable)
     {
         this->currentZWriteDisable = vm->flags.zWriteDisable;
-        if (this->currentZWriteDisable == 0)
+        if (!this->currentZWriteDisable)
         {
-            g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, 1);
+            g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
         }
         else
         {
-            g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, 0);
+            g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
         }
     }
-    return;
 }
 
-static f32 g_ZeroPointFive = 0.5;
-
-ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
+ZunResult AnmManager::DrawInner(AnmVm *vm, ZunBool roundVertices)
 {
-    if (param_3 != 0)
+    static const f32 g_ZeroPointFive = 0.5f;
+    if (roundVertices)
     {
-        // TODO: It'd be nice to find a way to match this without inline assembly.
         __asm {
             fld g_PrimitivesToDrawVertexBuf[0 * TYPE g_PrimitivesToDrawVertexBuf].position.x
             frndint
@@ -622,10 +545,14 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
             this->currentTexture = this->textures[vm->sprite->sourceFileIndex];
             g_Supervisor.d3dDevice->SetTexture(0, this->currentTexture);
         }
+        // clang-format off
+#if BUILT_SINCE(101)
     }
-    if (this->currentVertexShader != 2)
+#endif
+    // 1.00 only sets the vertex shader when the sprite changes.
+    if (this->currentVertexShader != AnmVertexShader_2)
     {
-        if (((g_Supervisor.cfg.opts >> GCOS_DONT_USE_VERTEX_BUF) & 1) == 0)
+        if (!g_Supervisor.IsVertexBufferDisabled())
         {
             g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_TEX1 | D3DFVF_XYZRHW);
         }
@@ -633,60 +560,65 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, i32 param_3)
         {
             g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZRHW);
         }
-        this->currentVertexShader = 2;
+        this->currentVertexShader = AnmVertexShader_2;
     }
+#if BUILT_BEFORE(101)
+    }
+#endif
     this->SetRenderStateForVm(vm);
-    if (((g_Supervisor.cfg.opts >> GCOS_DONT_USE_VERTEX_BUF) & 1) == 0)
+    if (!g_Supervisor.IsVertexBufferDisabled())
     {
-        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawVertexBuf, 0x18);
+        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawVertexBuf,
+                                                sizeof(VertexTex1Xyzrwh));
     }
     else
     {
-        g_PrimitivesToDrawNoVertexBuf[0].position.x = g_PrimitivesToDrawVertexBuf[0].position.x;
-        g_PrimitivesToDrawNoVertexBuf[0].position.y = g_PrimitivesToDrawVertexBuf[0].position.y;
-        g_PrimitivesToDrawNoVertexBuf[0].position.z = g_PrimitivesToDrawVertexBuf[0].position.z;
-        g_PrimitivesToDrawNoVertexBuf[1].position.x = g_PrimitivesToDrawVertexBuf[1].position.x;
-        g_PrimitivesToDrawNoVertexBuf[1].position.y = g_PrimitivesToDrawVertexBuf[1].position.y;
-        g_PrimitivesToDrawNoVertexBuf[1].position.z = g_PrimitivesToDrawVertexBuf[1].position.z;
-        g_PrimitivesToDrawNoVertexBuf[2].position.x = g_PrimitivesToDrawVertexBuf[2].position.x;
-        g_PrimitivesToDrawNoVertexBuf[2].position.y = g_PrimitivesToDrawVertexBuf[2].position.y;
-        g_PrimitivesToDrawNoVertexBuf[2].position.z = g_PrimitivesToDrawVertexBuf[2].position.z;
-        g_PrimitivesToDrawNoVertexBuf[3].position.x = g_PrimitivesToDrawVertexBuf[3].position.x;
-        g_PrimitivesToDrawNoVertexBuf[3].position.y = g_PrimitivesToDrawVertexBuf[3].position.y;
-        g_PrimitivesToDrawNoVertexBuf[3].position.z = g_PrimitivesToDrawVertexBuf[3].position.z;
-        g_PrimitivesToDrawNoVertexBuf[0].textureUV.x = g_PrimitivesToDrawNoVertexBuf[2].textureUV.x =
+        g_QuadsToDrawNoVertexBuf[0].position.x = g_PrimitivesToDrawVertexBuf[0].position.x;
+        g_QuadsToDrawNoVertexBuf[0].position.y = g_PrimitivesToDrawVertexBuf[0].position.y;
+        g_QuadsToDrawNoVertexBuf[0].position.z = g_PrimitivesToDrawVertexBuf[0].position.z;
+        g_QuadsToDrawNoVertexBuf[1].position.x = g_PrimitivesToDrawVertexBuf[1].position.x;
+        g_QuadsToDrawNoVertexBuf[1].position.y = g_PrimitivesToDrawVertexBuf[1].position.y;
+        g_QuadsToDrawNoVertexBuf[1].position.z = g_PrimitivesToDrawVertexBuf[1].position.z;
+        g_QuadsToDrawNoVertexBuf[2].position.x = g_PrimitivesToDrawVertexBuf[2].position.x;
+        g_QuadsToDrawNoVertexBuf[2].position.y = g_PrimitivesToDrawVertexBuf[2].position.y;
+        g_QuadsToDrawNoVertexBuf[2].position.z = g_PrimitivesToDrawVertexBuf[2].position.z;
+        g_QuadsToDrawNoVertexBuf[3].position.x = g_PrimitivesToDrawVertexBuf[3].position.x;
+        g_QuadsToDrawNoVertexBuf[3].position.y = g_PrimitivesToDrawVertexBuf[3].position.y;
+        g_QuadsToDrawNoVertexBuf[3].position.z = g_PrimitivesToDrawVertexBuf[3].position.z;
+        g_QuadsToDrawNoVertexBuf[0].textureUV.x = g_QuadsToDrawNoVertexBuf[2].textureUV.x =
             vm->sprite->uvStart.x + vm->uvScrollPos.x;
-        g_PrimitivesToDrawNoVertexBuf[1].textureUV.x = g_PrimitivesToDrawNoVertexBuf[3].textureUV.x =
+        g_QuadsToDrawNoVertexBuf[1].textureUV.x = g_QuadsToDrawNoVertexBuf[3].textureUV.x =
             vm->sprite->uvEnd.x + vm->uvScrollPos.x;
-        g_PrimitivesToDrawNoVertexBuf[0].textureUV.y = g_PrimitivesToDrawNoVertexBuf[1].textureUV.y =
+        g_QuadsToDrawNoVertexBuf[0].textureUV.y = g_QuadsToDrawNoVertexBuf[1].textureUV.y =
             vm->sprite->uvStart.y + vm->uvScrollPos.y;
-        g_PrimitivesToDrawNoVertexBuf[2].textureUV.y = g_PrimitivesToDrawNoVertexBuf[3].textureUV.y =
+        g_QuadsToDrawNoVertexBuf[2].textureUV.y = g_QuadsToDrawNoVertexBuf[3].textureUV.y =
             vm->sprite->uvEnd.y + vm->uvScrollPos.y;
-        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawNoVertexBuf, 0x1c);
+        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_QuadsToDrawNoVertexBuf,
+                                                sizeof(VertexTex1DiffuseXyzrwh));
     }
     return ZUN_SUCCESS;
 }
+// clang-format on
 
 ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
 {
-    float fVar2;
-    float fVar3;
-
-    if (vm->flags.isVisible == 0)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
-    if (vm->flags.flag1 == 0)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
-    if (vm->color == 0)
+#if BUILT_SINCE(102)
+    if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
-    fVar2 = (vm->sprite->widthPx * vm->scaleX) / 2.0f;
-    fVar3 = (vm->sprite->heightPx * vm->scaleY) / 2.0f;
-    if ((vm->flags.anchor & AnmVmAnchor_Left) == 0)
+#endif
+    float fVar2 = vm->sprite->widthPx * vm->scaleX / 2.0f;
+    float fVar3 = vm->sprite->heightPx * vm->scaleY / 2.0f;
+    if (!(vm->flags.anchor & AnmVmAnchor_Left))
     {
         g_PrimitivesToDrawVertexBuf[0].position.x = g_PrimitivesToDrawVertexBuf[2].position.x = vm->pos.x - fVar2;
         g_PrimitivesToDrawVertexBuf[1].position.x = g_PrimitivesToDrawVertexBuf[3].position.x = fVar2 + vm->pos.x;
@@ -697,7 +629,7 @@ ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
         g_PrimitivesToDrawVertexBuf[1].position.x = g_PrimitivesToDrawVertexBuf[3].position.x =
             fVar2 + vm->pos.x + fVar2;
     }
-    if ((vm->flags.anchor & AnmVmAnchor_Top) == 0)
+    if (!(vm->flags.anchor & AnmVmAnchor_Top))
     {
         g_PrimitivesToDrawVertexBuf[0].position.y = g_PrimitivesToDrawVertexBuf[1].position.y = vm->pos.y - fVar3;
         g_PrimitivesToDrawVertexBuf[2].position.y = g_PrimitivesToDrawVertexBuf[3].position.y = fVar3 + vm->pos.y;
@@ -708,7 +640,7 @@ ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
         g_PrimitivesToDrawVertexBuf[2].position.y = g_PrimitivesToDrawVertexBuf[3].position.y =
             fVar3 + vm->pos.y + fVar3;
     }
-    return this->DrawInner(vm, 1);
+    return this->DrawInner(vm, RENDER_VERTICES_ROUND_INPUTS);
 }
 
 void AnmManager::TranslateRotation(VertexTex1Xyzrwh *param_1, f32 x, f32 y, f32 sine, f32 cosine, f32 xOffset,
@@ -716,7 +648,6 @@ void AnmManager::TranslateRotation(VertexTex1Xyzrwh *param_1, f32 x, f32 y, f32 
 {
     param_1->position.x = x * cosine + y * sine + xOffset;
     param_1->position.y = -x * sine + y * cosine + yOffset;
-    return;
 }
 
 #pragma var_order(spriteXCenter, spriteYCenter, yOffset, xOffset, zSine, z, zCosine)
@@ -734,24 +665,26 @@ ZunResult AnmManager::Draw(AnmVm *vm)
     {
         return this->DrawNoRotation(vm);
     }
-    if (vm->flags.isVisible == 0)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
-    if (vm->flags.flag1 == 0)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
-    if (vm->color == 0)
+#if BUILT_SINCE(102)
+    if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
+#endif
     z = vm->rotation.z;
     sincos(z, zSine, zCosine);
     xOffset = rintf(vm->pos.x);
     yOffset = rintf(vm->pos.y);
-    spriteXCenter = rintf((vm->sprite->widthPx * vm->scaleX) / 2.0f);
-    spriteYCenter = rintf((vm->sprite->heightPx * vm->scaleY) / 2.0f);
+    spriteXCenter = rintf(vm->sprite->widthPx * vm->scaleX / 2.0f);
+    spriteYCenter = rintf(vm->sprite->heightPx * vm->scaleY / 2.0f);
     this->TranslateRotation(&g_PrimitivesToDrawVertexBuf[0], -spriteXCenter - 0.5f, -spriteYCenter - 0.5f, zSine,
                             zCosine, xOffset, yOffset);
     this->TranslateRotation(&g_PrimitivesToDrawVertexBuf[1], spriteXCenter - 0.5f, -spriteYCenter - 0.5f, zSine,
@@ -762,44 +695,43 @@ ZunResult AnmManager::Draw(AnmVm *vm)
                             xOffset, yOffset);
     g_PrimitivesToDrawVertexBuf[0].position.z = g_PrimitivesToDrawVertexBuf[1].position.z =
         g_PrimitivesToDrawVertexBuf[2].position.z = g_PrimitivesToDrawVertexBuf[3].position.z = vm->pos.z;
-    if ((vm->flags.anchor & AnmVmAnchor_Left) != 0)
+    if (vm->flags.anchor & AnmVmAnchor_Left)
     {
         g_PrimitivesToDrawVertexBuf[0].position.x += spriteXCenter;
         g_PrimitivesToDrawVertexBuf[1].position.x += spriteXCenter;
         g_PrimitivesToDrawVertexBuf[2].position.x += spriteXCenter;
         g_PrimitivesToDrawVertexBuf[3].position.x += spriteXCenter;
     }
-    if ((vm->flags.anchor & AnmVmAnchor_Top) != 0)
+    if (vm->flags.anchor & AnmVmAnchor_Top)
     {
         g_PrimitivesToDrawVertexBuf[0].position.y += spriteYCenter;
         g_PrimitivesToDrawVertexBuf[1].position.y += spriteYCenter;
         g_PrimitivesToDrawVertexBuf[2].position.y += spriteYCenter;
         g_PrimitivesToDrawVertexBuf[3].position.y += spriteYCenter;
     }
-    return this->DrawInner(vm, 0);
+    return this->DrawInner(vm, RENDER_VERTICES_DEFAULT);
 }
 
 ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
 {
-    f32 centerX;
-    f32 centerY;
+    if (!vm->IsVisible())
+    {
+        return ZUN_ERROR;
+    }
+    if (!vm->flags.isVisibleOverride)
+    {
+        return ZUN_ERROR;
+    }
+#if BUILT_SINCE(102)
+    if (vm->color == COLOR_NONE)
+    {
+        return ZUN_ERROR;
+    }
+#endif
 
-    if (!vm->flags.isVisible)
-    {
-        return ZUN_ERROR;
-    }
-    if (!vm->flags.flag1)
-    {
-        return ZUN_ERROR;
-    }
-    if (vm->color == 0)
-    {
-        return ZUN_ERROR;
-    }
-
-    centerX = vm->sprite->widthPx * vm->scaleX / 2.0f;
-    centerY = vm->sprite->heightPx * vm->scaleY / 2.0f;
-    if ((vm->flags.anchor & AnmVmAnchor_Left) == 0)
+    f32 centerX = vm->sprite->widthPx * vm->scaleX / 2.0f;
+    f32 centerY = vm->sprite->heightPx * vm->scaleY / 2.0f;
+    if (!(vm->flags.anchor & AnmVmAnchor_Left))
     {
         g_PrimitivesToDrawVertexBuf[0].position.x = g_PrimitivesToDrawVertexBuf[2].position.x = vm->pos.x - centerX;
         g_PrimitivesToDrawVertexBuf[1].position.x = g_PrimitivesToDrawVertexBuf[3].position.x = vm->pos.x + centerX;
@@ -810,7 +742,7 @@ ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
         g_PrimitivesToDrawVertexBuf[1].position.x = g_PrimitivesToDrawVertexBuf[3].position.x =
             vm->pos.x + centerX + centerX;
     }
-    if ((vm->flags.anchor & AnmVmAnchor_Top) == 0)
+    if (!(vm->flags.anchor & AnmVmAnchor_Top))
     {
         g_PrimitivesToDrawVertexBuf[0].position.y = g_PrimitivesToDrawVertexBuf[1].position.y = vm->pos.y - centerY;
         g_PrimitivesToDrawVertexBuf[2].position.y = g_PrimitivesToDrawVertexBuf[3].position.y = vm->pos.y + centerY;
@@ -821,35 +753,36 @@ ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
         g_PrimitivesToDrawVertexBuf[2].position.y = g_PrimitivesToDrawVertexBuf[3].position.y =
             vm->pos.y + centerY + centerY;
     }
-    return this->DrawInner(vm, 0);
+    return this->DrawInner(vm, RENDER_VERTICES_DEFAULT);
 }
 
-#pragma var_order(textureMatrix, rotationMatrix, worldTransformMatrix, scaledXCenter, scaledYCenter)
+#pragma var_order(textureMatrix, rotationMatrix, worldTransformMatrix)
 ZunResult AnmManager::Draw3(AnmVm *vm)
 {
     D3DXMATRIX worldTransformMatrix;
     D3DXMATRIX rotationMatrix;
     D3DXMATRIX textureMatrix;
-    f32 scaledXCenter;
-    f32 scaledYCenter;
 
-    if (!vm->flags.isVisible)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
-    if (!vm->flags.flag1)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
-    if (vm->color == 0)
+#if BUILT_SINCE(102)
+    if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
+#endif
 
     worldTransformMatrix = vm->matrix;
     worldTransformMatrix.m[0][0] *= vm->scaleX;
     worldTransformMatrix.m[1][1] *= -vm->scaleY;
 
+    // NOTE: These comparisons being doubles is not a typo
     if (vm->rotation.x != 0.0)
     {
         D3DXMatrixRotationX(&rotationMatrix, vm->rotation.x);
@@ -868,24 +801,22 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
         D3DXMatrixMultiply(&worldTransformMatrix, &worldTransformMatrix, &rotationMatrix);
     }
 
-    if ((vm->flags.anchor & AnmVmAnchor_Left) == 0)
+    if (!(vm->flags.anchor & AnmVmAnchor_Left))
     {
         worldTransformMatrix.m[3][0] = vm->pos.x;
     }
     else
     {
-        scaledXCenter = vm->sprite->widthPx * vm->scaleX / 2.0f;
-        worldTransformMatrix.m[3][0] = fabsf(scaledXCenter) + vm->pos.x;
+        worldTransformMatrix.m[3][0] = fabsf(vm->sprite->widthPx * vm->scaleX / 2.0f) + vm->pos.x;
     }
 
-    if ((vm->flags.anchor & AnmVmAnchor_Top) == 0)
+    if (!(vm->flags.anchor & AnmVmAnchor_Top))
     {
         worldTransformMatrix.m[3][1] = -vm->pos.y;
     }
     else
     {
-        scaledYCenter = vm->sprite->heightPx * vm->scaleY / 2.0f;
-        worldTransformMatrix.m[3][1] = -vm->pos.y - fabsf(scaledYCenter);
+        worldTransformMatrix.m[3][1] = -vm->pos.y - fabsf(vm->sprite->heightPx * vm->scaleY / 2.0f);
     }
 
     worldTransformMatrix.m[3][2] = vm->pos.z;
@@ -906,37 +837,45 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
             this->currentTexture = this->textures[vm->sprite->sourceFileIndex];
             g_Supervisor.d3dDevice->SetTexture(0, this->currentTexture);
         }
+        // clang-format off
+#if BUILT_SINCE(101)
     }
+#endif
 
-    // Set vertex shader to TEX1 | XYZ
-    if (this->currentVertexShader != 3)
+    // Set vertex shader to TEX1 | XYZ (1.00 only does this when the sprite changes)
+    if (this->currentVertexShader != AnmVertexShader_3)
     {
-        if ((g_Supervisor.cfg.opts >> GCOS_DONT_USE_VERTEX_BUF & 1) == 0)
+        if (!g_Supervisor.IsVertexBufferDisabled())
         {
             g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_TEX1 | D3DFVF_XYZ);
-            g_Supervisor.d3dDevice->SetStreamSource(0, this->vertexBuffer, 0x14);
+            g_Supervisor.d3dDevice->SetStreamSource(0, this->vertexBuffer, sizeof(RenderVertexInfo));
         }
         else
         {
             g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZ);
         }
-        this->currentVertexShader = 3;
+        this->currentVertexShader = AnmVertexShader_3;
     }
+#if BUILT_BEFORE(101)
+    }
+#endif
 
     // Reset the render state based on the settings fo the given VM.
     this->SetRenderStateForVm(vm);
 
     // Draw the VM.
-    if ((g_Supervisor.cfg.opts >> GCOS_DONT_USE_VERTEX_BUF & 1) == 0)
+    if (!g_Supervisor.IsVertexBufferDisabled())
     {
         g_Supervisor.d3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
     }
     else
     {
-        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawUnknown, 0x18);
+        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawUnknown,
+                                                sizeof(VertexTex1DiffuseXyz));
     }
     return ZUN_SUCCESS;
 }
+// clang-format on
 
 #pragma var_order(textureMatrix, unusedMatrix, worldTransformMatrix)
 ZunResult AnmManager::Draw2(AnmVm *vm)
@@ -945,33 +884,35 @@ ZunResult AnmManager::Draw2(AnmVm *vm)
     D3DXMATRIX unusedMatrix;
     D3DXMATRIX textureMatrix;
 
-    if (!vm->flags.isVisible)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
-    if (!vm->flags.flag1)
+    if (!vm->flags.isVisibleOverride)
     {
         return ZUN_ERROR;
     }
 
-    if (vm->rotation.x != 0 || vm->rotation.y != 0 || vm->rotation.z != 0)
+    if (vm->rotation.x != 0.0f || vm->rotation.y != 0.0f || vm->rotation.z != 0.0f)
     {
         return this->Draw3(vm);
     }
 
+#if BUILT_SINCE(102)
     if (vm->color == 0)
     {
         return ZUN_ERROR;
     }
+#endif
 
     worldTransformMatrix = vm->matrix;
     worldTransformMatrix.m[3][0] = rintf(vm->pos.x) - 0.5f;
     worldTransformMatrix.m[3][1] = -rintf(vm->pos.y) + 0.5f;
-    if ((vm->flags.anchor & AnmVmAnchor_Left) != 0)
+    if (vm->flags.anchor & AnmVmAnchor_Left)
     {
         worldTransformMatrix.m[3][0] += (vm->sprite->widthPx * vm->scaleX) / 2.0f;
     }
-    if ((vm->flags.anchor & AnmVmAnchor_Top) != 0)
+    if (vm->flags.anchor & AnmVmAnchor_Top)
     {
         worldTransformMatrix.m[3][1] -= (vm->sprite->heightPx * vm->scaleY) / 2.0f;
     }
@@ -992,51 +933,39 @@ ZunResult AnmManager::Draw2(AnmVm *vm)
             this->currentTexture = this->textures[vm->sprite->sourceFileIndex];
             g_Supervisor.d3dDevice->SetTexture(0, this->currentTexture);
         }
-        if (this->currentVertexShader != 3)
+        if (this->currentVertexShader != AnmVertexShader_3)
         {
-            if ((g_Supervisor.cfg.opts >> GCOS_DONT_USE_VERTEX_BUF & 1) == 0)
+            if (!g_Supervisor.IsVertexBufferDisabled())
             {
                 g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_TEX1 | D3DFVF_XYZ);
-                g_Supervisor.d3dDevice->SetStreamSource(0, this->vertexBuffer, 0x14);
+                g_Supervisor.d3dDevice->SetStreamSource(0, this->vertexBuffer, sizeof(RenderVertexInfo));
             }
             else
             {
                 g_Supervisor.d3dDevice->SetVertexShader(D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZ);
             }
-            this->currentVertexShader = 3;
+            this->currentVertexShader = AnmVertexShader_3;
         }
     }
     this->SetRenderStateForVm(vm);
-    if ((g_Supervisor.cfg.opts >> GCOS_DONT_USE_VERTEX_BUF & 1) == 0)
+    if (!g_Supervisor.IsVertexBufferDisabled())
     {
         g_Supervisor.d3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
     }
     else
     {
-        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawUnknown, 0x18);
+        g_Supervisor.d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, g_PrimitivesToDrawUnknown,
+                                                sizeof(VertexTex1DiffuseXyz));
     }
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(curInstr, local_c, local_10, local_14, local_18, local_1c, local_20, nextInstr, local_28, local_2c,  \
-                  local_30, local_34, local_38, local_3c)
+#define GET_ARG(type, num) ((type *)curInstr->args)[num]
+#define GET_INT_ARG(num) GET_ARG(i32, num)
+#define GET_FLOAT_ARG(num) GET_ARG(float, num)
+
 i32 AnmManager::ExecuteScript(AnmVm *vm)
 {
-    AnmRawInstr *curInstr;
-    u32 *local_c;
-    f32 *local_10;
-    f32 *local_14;
-    f32 *local_18;
-    f32 *local_1c;
-    u32 *local_20;
-    AnmRawInstr *nextInstr;
-    ZunColor local_28;
-    ZunColor local_2c;
-    f32 local_30;
-    i32 local_34;
-    i32 local_38;
-    f32 local_3c;
-
     if (vm->currentInstruction == NULL)
     {
         return 1;
@@ -1044,179 +973,185 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
 
     if (vm->pendingInterrupt != 0)
     {
-        goto yolo;
+        goto run_interrupt;
     }
 
-    while (curInstr = vm->currentInstruction, curInstr->time <= vm->currentTimeInScript.AsFrames())
+    AnmRawInstr *curInstr;
+    while (curInstr = vm->currentInstruction, curInstr->time <= (i32)vm->currentTimeInScript)
     {
         switch (curInstr->opcode)
         {
-        case AnmOpcode_Exit:
-            vm->flags.isVisible = 0;
-        case AnmOpcode_ExitHide:
+        case ANM_OPCODE_ANM_DELETE:
+            vm->flags.isVisible = false;
+            // fallthrough
+        case ANM_OPCODE_ANM_STATIC:
             vm->currentInstruction = NULL;
             return 1;
-        case AnmOpcode_SetActiveSprite:
-            vm->flags.isVisible = 1;
-            this->SetActiveSprite(vm, curInstr->args[0] + this->spriteIndices[vm->anmFileIndex]);
-            vm->timeOfLastSpriteSet = vm->currentTimeInScript.AsFrames();
+        case ANM_OPCODE_SET_SPRITE:
+            vm->flags.isVisible = true;
+            this->SetActiveSprite(vm, GET_INT_ARG(0) + this->spriteIndices[vm->anmFileIndex]);
+            vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
-        case AnmOpcode_SetRandomSprite:
-            vm->flags.isVisible = 1;
-            local_c = &curInstr->args[0];
-            this->SetActiveSprite(vm, local_c[0] + g_Rng.GetRandomU16InRange(local_c[1]) +
-                                          this->spriteIndices[vm->anmFileIndex]);
-            vm->timeOfLastSpriteSet = vm->currentTimeInScript.AsFrames();
+        case ANM_OPCODE_SPRITE_SET_RAND: {
+            vm->flags.isVisible = true;
+            u32 *args = (u32 *)curInstr->args;
+            this->SetActiveSprite(vm,
+                                  args[0] + g_Rng.GetRandomU16InRange(args[1]) + this->spriteIndices[vm->anmFileIndex]);
+            vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
-        case AnmOpcode_SetScale:
-            vm->scaleX = *(f32 *)&curInstr->args[0];
-            vm->scaleY = *(f32 *)&curInstr->args[1];
+        }
+        case ANM_OPCODE_SCALE:
+            vm->scaleX = GET_FLOAT_ARG(0);
+            vm->scaleY = GET_FLOAT_ARG(1);
             break;
-        case AnmOpcode_SetAlpha:
-            COLOR_SET_COMPONENT(vm->color, COLOR_ALPHA_BYTE_IDX, curInstr->args[0] & 0xff);
+        case ANM_OPCODE_ALPHA:
+            COLOR_SET_COMPONENT(vm->color, COLOR_ALPHA_BYTE_IDX, GET_INT_ARG(0) & 0xff);
             break;
-        case AnmOpcode_SetColor:
-            vm->color = COLOR_COMBINE_ALPHA(curInstr->args[0], vm->color);
+        case ANM_OPCODE_COLOR:
+            vm->color = COLOR_COMBINE_ALPHA(GET_INT_ARG(0), vm->color);
             break;
-        case AnmOpcode_Jump:
-            vm->currentInstruction = (AnmRawInstr *)((i32)vm->beginingOfScript->args + curInstr->args[0] - 4);
+        case ANM_OPCODE_JUMP:
+            vm->currentInstruction = (AnmRawInstr *)((u32)vm->beginingOfScript + GET_INT_ARG(0));
             vm->currentTimeInScript.current = vm->currentInstruction->time;
             continue;
-        case AnmOpcode_FlipX:
-            vm->flags.flip ^= 1;
-            vm->scaleX *= -1.f;
+        case ANM_OPCODE_SCALE_FLIP_X:
+            vm->flags.flip ^= AnmVmMirror_X;
+            vm->scaleX *= -1.0f;
             break;
-        case AnmOpcode_UsePosOffset:
-            vm->flags.usePosOffset = curInstr->args[0];
+        case ANM_OPCODE_POSITION_MODE:
+            vm->flags.usePosOffset = GET_INT_ARG(0);
             break;
-        case AnmOpcode_FlipY:
-            vm->flags.flip ^= 2;
-            vm->scaleY *= -1.f;
+        case ANM_OPCODE_SCALE_FLIP_Y:
+            vm->flags.flip ^= AnmVmMirror_Y;
+            vm->scaleY *= -1.0f;
             break;
-        case AnmOpcode_SetRotation:
-            local_10 = (f32 *)&curInstr->args[0];
-            vm->rotation.x = *local_10++;
-            vm->rotation.y = *local_10++;
-            vm->rotation.z = *local_10;
+        case ANM_OPCODE_ROTATION: {
+            f32 *rotationVals = (f32 *)curInstr->args;
+            vm->rotation.x = *rotationVals++;
+            vm->rotation.y = *rotationVals++;
+            vm->rotation.z = *rotationVals;
             break;
-        case AnmOpcode_SetAngleVel:
-            local_14 = (f32 *)&curInstr->args[0];
-            vm->angleVel.x = *local_14++;
-            vm->angleVel.y = *local_14++;
-            vm->angleVel.z = *local_14;
+        }
+        case ANM_OPCODE_ROTATION_SPEED: {
+            f32 *angleVelVals = (f32 *)curInstr->args;
+            vm->angleVel.x = *angleVelVals++;
+            vm->angleVel.y = *angleVelVals++;
+            vm->angleVel.z = *angleVelVals;
             break;
-        case AnmOpcode_SetScaleSpeed:
-            local_18 = (f32 *)&curInstr->args[0];
-            vm->scaleInterpFinalX = *local_18++;
-            vm->scaleInterpFinalY = *local_18;
+        }
+        case ANM_OPCODE_SCALE_SPEED: {
+            f32 *scaleInterpVals = (f32 *)curInstr->args;
+            vm->scaleInterpFinalX = *scaleInterpVals++;
+            vm->scaleInterpFinalY = *scaleInterpVals;
             vm->scaleInterpEndTime = 0;
             break;
-        case AnmOpcode_ScaleTime:
-            local_1c = (f32 *)&curInstr->args[0];
-            vm->scaleInterpFinalX = *local_1c++;
-            vm->scaleInterpFinalY = *local_1c++;
-            vm->scaleInterpEndTime = *(u16 *)local_1c;
-            vm->scaleInterpTime.InitializeForPopup();
+        }
+        case ANM_OPCODE_SCALE_INTERP_LINEAR: {
+            f32 *scaleInterpVals = (f32 *)curInstr->args;
+            vm->scaleInterpFinalX = *scaleInterpVals++;
+            vm->scaleInterpFinalY = *scaleInterpVals++;
+            vm->scaleInterpEndTime = *(u16 *)scaleInterpVals;
+            vm->scaleInterpTime = 0;
             vm->scaleInterpInitialX = vm->scaleX;
             vm->scaleInterpInitialY = vm->scaleY;
             break;
-        case AnmOpcode_Fade:
-            local_20 = (u32 *)&curInstr->args[0];
+        }
+        case ANM_OPCODE_ALPHA_INTERP_LINEAR: {
+            u32 *alphaInterpVals = (u32 *)curInstr->args;
             vm->alphaInterpInitial = vm->color;
-            vm->alphaInterpFinal = COLOR_SET_ALPHA2(vm->color, local_20[0]);
-            vm->alphaInterpEndTime = local_20[1];
-            vm->alphaInterpTime.InitializeForPopup();
+            vm->alphaInterpFinal = COLOR_SET_ALPHA2(vm->color, alphaInterpVals[0]);
+            vm->alphaInterpEndTime = alphaInterpVals[1];
+            vm->alphaInterpTime = 0;
             break;
-        case AnmOpcode_SetBlendAdditive:
-            vm->flags.blendMode = AnmVmBlendMode_One;
+        }
+        case ANM_OPCODE_BLEND_MODE_ADDITIVE:
+            vm->flags.blendMode = AnmBlendMode_Additive;
             break;
-        case AnmOpcode_SetBlendDefault:
-            vm->flags.blendMode = AnmVmBlendMode_InvSrcAlpha;
+        case ANM_OPCODE_BLEND_MODE_NORMAL:
+            vm->flags.blendMode = AnmBlendMode_Normal;
             break;
-        case AnmOpcode_SetPosition:
-            if (vm->flags.usePosOffset == 0)
+        case ANM_OPCODE_MOVE_POSITION:
+            if (!vm->flags.usePosOffset)
             {
-                vm->pos =
-                    D3DXVECTOR3(*(f32 *)&curInstr->args[0], *(f32 *)&curInstr->args[1], *(f32 *)&curInstr->args[2]);
+                vm->pos = D3DXVECTOR3(GET_FLOAT_ARG(0), GET_FLOAT_ARG(1), GET_FLOAT_ARG(2));
             }
             else
             {
-                vm->posOffset =
-                    D3DXVECTOR3(*(f32 *)&curInstr->args[0], *(f32 *)&curInstr->args[1], *(f32 *)&curInstr->args[2]);
+                vm->posOffset = D3DXVECTOR3(GET_FLOAT_ARG(0), GET_FLOAT_ARG(1), GET_FLOAT_ARG(2));
             }
             break;
-        case AnmOpcode_PosTimeAccel:
-            vm->flags.posTime = 2;
-            goto PosTimeDoStuff;
-        case AnmOpcode_PosTimeDecel:
-            vm->flags.posTime = 1;
-            goto PosTimeDoStuff;
-        case AnmOpcode_PosTimeLinear:
-            vm->flags.posTime = 0;
-        PosTimeDoStuff:
-            if (vm->flags.usePosOffset == 0)
+        case ANM_OPCODE_MOVE_POSITION_INTERP_DECELERATE_FAST:
+            vm->flags.moveInterpMode = AnmVmInterp_DecelerateFast;
+            goto move_position_interp_common;
+        case ANM_OPCODE_MOVE_POSITION_INTERP_DECELERATE_SLOW:
+            vm->flags.moveInterpMode = AnmVmInterp_DecelerateSlow;
+            goto move_position_interp_common;
+        case ANM_OPCODE_MOVE_POSITION_INTERP_LINEAR:
+            vm->flags.moveInterpMode = AnmVmInterp_Linear;
+        move_position_interp_common:
+            if (!vm->flags.usePosOffset)
             {
-                memcpy(vm->posInterpInitial, vm->pos, sizeof(D3DXVECTOR3));
+                vm->posInterpInitial = vm->pos;
             }
             else
             {
-                memcpy(vm->posInterpInitial, vm->posOffset, sizeof(D3DXVECTOR3));
+                vm->posInterpInitial = vm->posOffset;
             }
-            vm->posInterpFinal =
-                D3DXVECTOR3(*(f32 *)&curInstr->args[0], *(f32 *)&curInstr->args[1], *(f32 *)&curInstr->args[2]);
-            vm->posInterpEndTime = curInstr->args[3];
-            vm->posInterpTime.InitializeForPopup();
+            vm->posInterpFinal = D3DXVECTOR3(GET_FLOAT_ARG(0), GET_FLOAT_ARG(1), GET_FLOAT_ARG(2));
+            vm->posInterpEndTime = GET_INT_ARG(3);
+            vm->posInterpTime = 0;
             break;
-        case AnmOpcode_StopHide:
-            vm->flags.isVisible = 0;
-        case AnmOpcode_Stop:
+        case ANM_OPCODE_ANM_HALT_INVISIBLE:
+            vm->flags.isVisible = false;
+        case ANM_OPCODE_ANM_HALT: {
             if (vm->pendingInterrupt == 0)
             {
-                vm->flags.isStopped = 1;
-                vm->currentTimeInScript.Decrement(1);
-                goto stop;
+                vm->flags.isStopped = true;
+                vm->currentTimeInScript--;
+                goto break_parser;
             }
-        yolo:
-            nextInstr = NULL;
+        run_interrupt:
+            AnmRawInstr *nextInstr = NULL;
             curInstr = vm->beginingOfScript;
-            while ((curInstr->opcode != AnmOpcode_InterruptLabel || vm->pendingInterrupt != curInstr->args[0]) &&
-                   curInstr->opcode != AnmOpcode_Exit && curInstr->opcode != AnmOpcode_ExitHide)
+            while ((curInstr->opcode != ANM_OPCODE_INTERRUPT_LABEL || vm->pendingInterrupt != GET_INT_ARG(0)) &&
+                   curInstr->opcode != ANM_OPCODE_ANM_DELETE && curInstr->opcode != ANM_OPCODE_ANM_STATIC)
             {
-                if (curInstr->opcode == AnmOpcode_InterruptLabel && curInstr->args[0] == 0xffffffff)
+                if (curInstr->opcode == ANM_OPCODE_INTERRUPT_LABEL && GET_INT_ARG(0) == -1)
                 {
                     nextInstr = curInstr;
                 }
-                curInstr = (AnmRawInstr *)((i32)curInstr->args + curInstr->argsCount);
+                curInstr = (AnmRawInstr *)((u32)(curInstr + 1) + curInstr->argsSize);
             }
 
             vm->pendingInterrupt = 0;
-            vm->flags.isStopped = 0;
-            if (curInstr->opcode != AnmOpcode_InterruptLabel)
+            vm->flags.isStopped = false;
+            if (curInstr->opcode != ANM_OPCODE_INTERRUPT_LABEL)
             {
                 if (nextInstr == NULL)
                 {
-                    vm->currentTimeInScript.Decrement(1);
-                    goto stop;
+                    vm->currentTimeInScript--;
+                    goto break_parser;
                 }
                 curInstr = nextInstr;
             }
 
-            curInstr = (AnmRawInstr *)((i32)curInstr->args + curInstr->argsCount);
+            curInstr = (AnmRawInstr *)((u32)(curInstr + 1) + curInstr->argsSize);
             vm->currentInstruction = curInstr;
-            vm->currentTimeInScript.SetCurrent(vm->currentInstruction->time);
-            vm->flags.isVisible = 1;
+            vm->currentTimeInScript = vm->currentInstruction->time;
+            vm->flags.isVisible = true;
             continue;
-        case AnmOpcode_SetVisibility:
-            vm->flags.isVisible = curInstr->args[0];
+        }
+        case ANM_OPCODE_ANM_FLAG_VISIBLE:
+            vm->flags.isVisible = GET_INT_ARG(0);
             break;
-        case AnmOpcode_AnchorTopLeft:
+        case ANM_OPCODE_ANCHOR_TOP_LEFT:
             vm->flags.anchor = AnmVmAnchor_TopLeft;
             break;
-        case AnmOpcode_SetAutoRotate:
-            vm->autoRotate = curInstr->args[0];
+        case ANM_OPCODE_SET_AUTO_ROTATE:
+            vm->autoRotate = GET_INT_ARG(0);
             break;
-        case AnmOpcode_UVScrollX:
-            vm->uvScrollPos.x += *(f32 *)&curInstr->args[0];
+        case ANM_OPCODE_SCROLL_SET_X:
+            vm->uvScrollPos.x += GET_FLOAT_ARG(0);
             if (vm->uvScrollPos.x >= 1.0f)
             {
                 vm->uvScrollPos.x -= 1.0f;
@@ -1226,8 +1161,8 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
                 vm->uvScrollPos.x += 1.0f;
             }
             break;
-        case AnmOpcode_UVScrollY:
-            vm->uvScrollPos.y += *(f32 *)&curInstr->args[0];
+        case ANM_OPCODE_SCROLL_SET_Y:
+            vm->uvScrollPos.y += GET_FLOAT_ARG(0);
             if (vm->uvScrollPos.y >= 1.0f)
             {
                 vm->uvScrollPos.y -= 1.0f;
@@ -1237,18 +1172,18 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
                 vm->uvScrollPos.y += 1.0f;
             }
             break;
-        case AnmOpcode_SetZWriteDisable:
-            vm->flags.zWriteDisable = curInstr->args[0];
+        case ANM_OPCODE_FLAG_DISABLE_Z_WRITE:
+            vm->flags.zWriteDisable = GET_INT_ARG(0);
             break;
-        case AnmOpcode_Nop:
-        case AnmOpcode_InterruptLabel:
+        case ANM_OPCODE_NOP:
+        case ANM_OPCODE_INTERRUPT_LABEL:
         default:
             break;
         }
-        vm->currentInstruction = (AnmRawInstr *)((u32)curInstr->args + curInstr->argsCount);
+        vm->currentInstruction = (AnmRawInstr *)((u32)(curInstr + 1) + curInstr->argsSize);
     }
 
-stop:
+break_parser:
     if (vm->angleVel.x != 0.0f)
     {
         vm->rotation.x =
@@ -1266,31 +1201,31 @@ stop:
     }
     if (vm->scaleInterpEndTime > 0)
     {
-        vm->scaleInterpTime.Tick();
-        if (vm->scaleInterpTime.AsFrames() >= vm->scaleInterpEndTime)
+        vm->scaleInterpTime++;
+        if ((i32)vm->scaleInterpTime >= vm->scaleInterpEndTime)
         {
             vm->scaleY = vm->scaleInterpFinalY;
             vm->scaleX = vm->scaleInterpFinalX;
             vm->scaleInterpEndTime = 0;
-            vm->scaleInterpFinalY = 0.0;
-            vm->scaleInterpFinalX = 0.0;
+            vm->scaleInterpFinalY = 0.0f;
+            vm->scaleInterpFinalX = 0.0f;
         }
         else
         {
-            vm->scaleX = (vm->scaleInterpFinalX - vm->scaleInterpInitialX) * vm->scaleInterpTime.AsFramesFloat() /
-                             vm->scaleInterpEndTime +
-                         vm->scaleInterpInitialX;
-            vm->scaleY = (vm->scaleInterpFinalY - vm->scaleInterpInitialY) * vm->scaleInterpTime.AsFramesFloat() /
-                             vm->scaleInterpEndTime +
-                         vm->scaleInterpInitialY;
+            vm->scaleX =
+                (vm->scaleInterpFinalX - vm->scaleInterpInitialX) * (f32)vm->scaleInterpTime / vm->scaleInterpEndTime +
+                vm->scaleInterpInitialX;
+            vm->scaleY =
+                (vm->scaleInterpFinalY - vm->scaleInterpInitialY) * (f32)vm->scaleInterpTime / vm->scaleInterpEndTime +
+                vm->scaleInterpInitialY;
         }
-        if ((vm->flags.flip & 1) != 0)
+        if (vm->flags.flip & AnmVmMirror_X)
         {
-            vm->scaleX = vm->scaleX * -1.f;
+            vm->scaleX *= -1.0f;
         }
-        if ((vm->flags.flip & 2) != 0)
+        if (vm->flags.flip & AnmVmMirror_Y)
         {
-            vm->scaleY = vm->scaleY * -1.f;
+            vm->scaleY *= -1.0f;
         }
     }
     else
@@ -1298,166 +1233,162 @@ stop:
         vm->scaleY = g_Supervisor.effectiveFramerateMultiplier * vm->scaleInterpFinalY + vm->scaleY;
         vm->scaleX = g_Supervisor.effectiveFramerateMultiplier * vm->scaleInterpFinalX + vm->scaleX;
     }
-    if (0 < vm->alphaInterpEndTime)
+
+#pragma var_order(colors, alphaInterpVal, colorInterp)
+    if (vm->alphaInterpEndTime > 0)
     {
-        vm->alphaInterpTime.Tick();
-        local_2c = vm->alphaInterpInitial;
-        local_28 = vm->alphaInterpFinal;
-        local_30 = vm->alphaInterpTime.AsFramesFloat() / (f32)vm->alphaInterpEndTime;
-        if (local_30 >= 1.0f)
+        vm->alphaInterpTime++;
+        D3DCOLOR colors[2];
+        colors[0] = vm->alphaInterpInitial;
+        colors[1] = vm->alphaInterpFinal;
+        float alphaInterpVal = (f32)vm->alphaInterpTime / (f32)vm->alphaInterpEndTime;
+        if (alphaInterpVal >= 1.0f)
         {
-            local_30 = 1.0;
+            alphaInterpVal = 1.0f;
         }
-        for (local_38 = 0; local_38 < 4; local_38++)
+        i32 colorInterp;
+        for (i32 i = 0; i < 4; i++)
         {
-            local_34 = ((f32)COLOR_GET_COMPONENT(local_28, local_38) - (f32)COLOR_GET_COMPONENT(local_2c, local_38)) *
-                           local_30 +
-                       COLOR_GET_COMPONENT(local_2c, local_38);
-            if (local_34 < 0)
+            colorInterp =
+                ((f32)COLOR_GET_COMPONENT(colors[1], i) - (f32)COLOR_GET_COMPONENT(colors[0], i)) * alphaInterpVal +
+                COLOR_GET_COMPONENT(colors[0], i);
+            if (colorInterp < 0)
             {
-                local_34 = 0;
+                colorInterp = 0;
             }
-            COLOR_SET_COMPONENT(local_2c, local_38, local_34 >= 256 ? 255 : local_34);
+            COLOR_SET_COMPONENT(colors[0], i, colorInterp >= 256 ? 255 : colorInterp);
         }
-        vm->color = local_2c;
-        if (vm->alphaInterpTime.AsFrames() >= vm->alphaInterpEndTime)
+        vm->color = colors[0];
+        if ((i32)vm->alphaInterpTime >= vm->alphaInterpEndTime)
         {
             vm->alphaInterpEndTime = 0;
         }
     }
+
     if (vm->posInterpEndTime != 0)
     {
-        local_3c = vm->posInterpTime.AsFramesFloat() / (f32)vm->posInterpEndTime;
-        if (local_3c >= 1.0f)
+        float interpVal = (f32)vm->posInterpTime / (f32)vm->posInterpEndTime;
+        if (interpVal >= 1.0f)
         {
-            local_3c = 1.0;
+            interpVal = 1.0f;
         }
-        switch (vm->flags.posTime)
+        switch (vm->flags.moveInterpMode)
         {
-        case 1:
-            local_3c = 1.0f - local_3c;
-            local_3c *= local_3c;
-            local_3c = 1.0f - local_3c;
+        case AnmVmInterp_DecelerateSlow:
+            interpVal = 1.0f - interpVal;
+            interpVal *= interpVal;
+            interpVal = 1.0f - interpVal;
             break;
-        case 2:
-            local_3c = 1.0f - local_3c;
-            local_3c = local_3c * local_3c * local_3c * local_3c;
-            local_3c = 1.0f - local_3c;
+        case AnmVmInterp_DecelerateFast:
+            interpVal = 1.0f - interpVal;
+            interpVal = interpVal * interpVal * interpVal * interpVal;
+            interpVal = 1.0f - interpVal;
             break;
         }
-        if (vm->flags.usePosOffset == 0)
+        if (!vm->flags.usePosOffset)
         {
-            vm->pos.x = local_3c * vm->posInterpFinal.x + (1.0f - local_3c) * vm->posInterpInitial.x;
-            vm->pos.y = local_3c * vm->posInterpFinal.y + (1.0f - local_3c) * vm->posInterpInitial.y;
-            vm->pos.z = local_3c * vm->posInterpFinal.z + (1.0f - local_3c) * vm->posInterpInitial.z;
+            vm->pos.x = interpVal * vm->posInterpFinal.x + (1.0f - interpVal) * vm->posInterpInitial.x;
+            vm->pos.y = interpVal * vm->posInterpFinal.y + (1.0f - interpVal) * vm->posInterpInitial.y;
+            vm->pos.z = interpVal * vm->posInterpFinal.z + (1.0f - interpVal) * vm->posInterpInitial.z;
         }
         else
         {
-            vm->posOffset.x = local_3c * vm->posInterpFinal.x + (1.0f - local_3c) * vm->posInterpInitial.x;
-            vm->posOffset.y = local_3c * vm->posInterpFinal.y + (1.0f - local_3c) * vm->posInterpInitial.y;
-            vm->posOffset.z = local_3c * vm->posInterpFinal.z + (1.0f - local_3c) * vm->posInterpInitial.z;
+            vm->posOffset.x = interpVal * vm->posInterpFinal.x + (1.0f - interpVal) * vm->posInterpInitial.x;
+            vm->posOffset.y = interpVal * vm->posInterpFinal.y + (1.0f - interpVal) * vm->posInterpInitial.y;
+            vm->posOffset.z = interpVal * vm->posInterpFinal.z + (1.0f - interpVal) * vm->posInterpInitial.z;
         }
 
-        if (vm->posInterpTime.AsFrames() >= vm->posInterpEndTime)
+        if ((i32)vm->posInterpTime >= vm->posInterpEndTime)
         {
             vm->posInterpEndTime = 0;
         }
-        vm->posInterpTime.Tick();
+        vm->posInterpTime++;
     }
-    vm->currentTimeInScript.Tick();
+    vm->currentTimeInScript++;
     return 0;
 }
 
 void AnmManager::DrawTextToSprite(u32 textureDstIdx, i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight,
                                   i32 fontWidth, i32 fontHeight, ZunColor textColor, ZunColor shadowColor,
-                                  char *strToPrint)
+                                  const char *strToPrint)
 {
     if (fontWidth <= 0)
     {
-        fontWidth = 15;
+        fontWidth = DEFAULT_ANM_FONT_SIZE;
     }
     if (fontHeight <= 0)
     {
-        fontHeight = 15;
+        fontHeight = DEFAULT_ANM_FONT_SIZE;
     }
-    TextHelper::RenderTextToTexture(xPos, yPos, spriteWidth, spriteHeight, fontWidth, fontHeight, textColor,
-                                    shadowColor, strToPrint, this->textures[textureDstIdx]);
-    return;
+    TextHelper_RenderTextToTexture(xPos, yPos, spriteWidth, spriteHeight, fontWidth, fontHeight, textColor, shadowColor,
+                                   strToPrint, this->textures[textureDstIdx]);
 }
 
-#pragma var_order(argptr, buffer, fontWidth)
-void AnmManager::DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...)
+#pragma var_order(args, buffer, fontWidth)
+void AnmManager::DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
-    u32 fontWidth;
     char buffer[64];
-    va_list argptr;
+    va_list args;
 
-    fontWidth = vm->fontWidth;
-    va_start(argptr, fmt);
-    vsprintf(buffer, fmt, argptr);
-    va_end(argptr);
+    i32 fontWidth = vm->fontWidth;
+    va_start(args, fmt);
+    vsprintf(buffer, fmt, args);
+    va_end(args);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, vm->sprite->startPixelInclusive.x,
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, buffer);
     vm->flags.isVisible = true;
-    return;
 }
 
-#pragma var_order(args, secondPartStartX, buf, fontWidth)
-void AnmManager::DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...)
+#pragma var_order(args, secondPartStartX, buffer, fontWidth)
+void AnmManager::DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
-    char buf[64];
+    char buffer[64];
     va_list args;
-    i32 fontWidth;
-    i32 secondPartStartX;
 
-    fontWidth = vm->fontWidth <= 0 ? 15 : vm->fontWidth;
+    i32 fontWidth = vm->fontWidth <= 0 ? DEFAULT_ANM_FONT_SIZE : vm->fontWidth;
     va_start(args, fmt);
-    vsprintf(buf, fmt, args);
+    vsprintf(buffer, fmt, args);
     va_end(args);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, vm->sprite->startPixelInclusive.x,
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, " ");
-    secondPartStartX =
-        vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth - ((f32)strlen(buf) * (f32)(fontWidth + 1) / 2.0f);
+    i32 secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth -
+                           ((f32)strlen(buffer) * (f32)(fontWidth + 1) / 2.0f);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, secondPartStartX, vm->sprite->startPixelInclusive.y,
                            vm->sprite->textureWidth, vm->sprite->textureHeight, fontWidth, vm->fontHeight, textColor,
-                           shadowColor, buf);
+                           shadowColor, buffer);
     vm->flags.isVisible = true;
-    return;
 }
 
-#pragma var_order(args, secondPartStartX, buf, fontWidth)
-void AnmManager::DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, char *fmt, ...)
+#pragma var_order(args, secondPartStartX, buffer, fontWidth)
+void AnmManager::DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
-    char buf[64];
+    char buffer[64];
     va_list args;
-    i32 fontWidth;
-    i32 secondPartStartX;
 
-    fontWidth = vm->fontWidth <= 0 ? 15 : vm->fontWidth;
+    i32 fontWidth = vm->fontWidth <= 0 ? DEFAULT_ANM_FONT_SIZE : vm->fontWidth;
     va_start(args, fmt);
-    vsprintf(buf, fmt, args);
+    vsprintf(buffer, fmt, args);
     va_end(args);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, vm->sprite->startPixelInclusive.x,
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, " ");
-    secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth / 2.0f -
-                       ((f32)strlen(buf) * (f32)(fontWidth + 1) / 4.0f);
+    i32 secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth / 2.0f -
+                           ((f32)strlen(buffer) * (f32)(fontWidth + 1) / 4.0f);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, secondPartStartX, vm->sprite->startPixelInclusive.y,
                            vm->sprite->textureWidth, vm->sprite->textureHeight, fontWidth, vm->fontHeight, textColor,
-                           shadowColor, buf);
+                           shadowColor, buffer);
     vm->flags.isVisible = true;
-    return;
 }
 
-ZunResult AnmManager::LoadSurface(i32 surfaceIdx, char *path)
+ZunResult AnmManager::LoadSurface(i32 surfaceIdx, const char *path)
 {
     if (this->surfaces[surfaceIdx] != NULL)
     {
         this->ReleaseSurface(surfaceIdx);
     }
-    u8 *data = FileSystem::OpenPath(path, 0);
+    u8 *data = FileSystem::OpenPath(path);
     if (data == NULL)
     {
         g_GameErrorContext.Fatal(TH_ERR_CANNOT_BE_LOADED, path);
@@ -1465,13 +1396,13 @@ ZunResult AnmManager::LoadSurface(i32 surfaceIdx, char *path)
     }
 
     LPDIRECT3DSURFACE8 surface;
-    if (g_Supervisor.d3dDevice->CreateImageSurface(0x280, 0x400, g_Supervisor.presentParameters.BackBufferFormat,
+    if (g_Supervisor.d3dDevice->CreateImageSurface(640, 1024, g_Supervisor.presentParameters.BackBufferFormat,
                                                    &surface) != D3D_OK)
     {
         return ZUN_ERROR;
     }
 
-    if (D3DXLoadSurfaceFromFileInMemory(surface, NULL, NULL, data, g_LastFileSize, NULL, D3DX_FILTER_NONE, 0,
+    if (D3DXLoadSurfaceFromFileInMemory(surface, NULL, NULL, data, g_ReadFileSize, NULL, D3DX_FILTER_NONE, 0,
                                         &this->surfaceSourceInfo[surfaceIdx]) != D3D_OK)
     {
         goto fail;
@@ -1505,36 +1436,20 @@ ZunResult AnmManager::LoadSurface(i32 surfaceIdx, char *path)
         goto fail;
     }
 
-    if (surface != NULL)
-    {
-        surface->Release();
-        surface = NULL;
-    }
-    free(data);
+    SAFE_RELEASE(surface);
+    ZUN_FREE(data);
     return ZUN_SUCCESS;
 
 fail:
-    if (surface != NULL)
-    {
-        surface->Release();
-        surface = NULL;
-    }
-    free(data);
+    SAFE_RELEASE(surface);
+    ZUN_FREE(data);
     return ZUN_ERROR;
 }
 
 void AnmManager::ReleaseSurface(i32 surfaceIdx)
 {
-    if (this->surfaces[surfaceIdx] != NULL)
-    {
-        this->surfaces[surfaceIdx]->Release();
-        this->surfaces[surfaceIdx] = NULL;
-    }
-    if (this->surfacesBis[surfaceIdx] != NULL)
-    {
-        this->surfacesBis[surfaceIdx]->Release();
-        this->surfacesBis[surfaceIdx] = NULL;
-    }
+    SAFE_RELEASE(this->surfaces[surfaceIdx]);
+    SAFE_RELEASE(this->surfacesBis[surfaceIdx]);
 }
 
 void AnmManager::CopySurfaceToBackBuffer(i32 surfaceIdx, i32 left, i32 top, i32 x, i32 y)
@@ -1544,7 +1459,7 @@ void AnmManager::CopySurfaceToBackBuffer(i32 surfaceIdx, i32 left, i32 top, i32 
         return;
     }
 
-    IDirect3DSurface8 *destSurface;
+    LPDIRECT3DSURFACE8 destSurface;
     if (g_Supervisor.d3dDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &destSurface) != D3D_OK)
     {
         return;
@@ -1591,7 +1506,7 @@ void AnmManager::DrawEndingRect(i32 surfaceIdx, i32 rectX, i32 rectY, i32 rectLe
         return;
     }
 
-    IDirect3DSurface8 *D3D_Surface;
+    LPDIRECT3DSURFACE8 D3D_Surface;
     if (g_Supervisor.d3dDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &D3D_Surface) != D3D_OK)
     {
         return;
@@ -1635,24 +1550,25 @@ void AnmManager::DrawEndingRect(i32 surfaceIdx, i32 rectX, i32 rectY, i32 rectLe
 #pragma var_order(rect, destSurface, sourceSurface)
 void AnmManager::TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32 height)
 {
-    LPDIRECT3DSURFACE8 sourceSurface;
-    LPDIRECT3DSURFACE8 destSurface;
-    RECT rect;
-
     if (this->textures[textureId] == NULL)
     {
         return;
     }
+
+    LPDIRECT3DSURFACE8 sourceSurface;
     if (g_Supervisor.d3dDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &sourceSurface) != D3D_OK)
     {
         return;
     }
+
+    LPDIRECT3DSURFACE8 destSurface;
     if (this->textures[textureId]->GetSurfaceLevel(0, &destSurface) != D3D_OK)
     {
         sourceSurface->Release();
         return;
     }
 
+    RECT rect;
     rect.left = left;
     rect.top = top;
     rect.right = left + width;
@@ -1665,6 +1581,5 @@ void AnmManager::TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32
     }
     destSurface->Release();
     sourceSurface->Release();
-    return;
 }
-}; // namespace th06
+} // namespace th06

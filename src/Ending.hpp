@@ -1,14 +1,9 @@
 #pragma once
-
-#include "AnmVm.hpp"
-#include "Chain.hpp"
 #include "ZunResult.hpp"
-#include "ZunTimer.hpp"
-#include "inttypes.hpp"
 
 namespace th06
 {
-
+ZunResult Ending_RegisterChain();
 enum EndingFadeType
 {
     ENDING_FADE_TYPE_NO_FADE,
@@ -23,71 +18,71 @@ enum EndOpcode
 {
     END_OPCODE_FADE_IN_BLACK = '0',
     END_OPCODE_FADE_OUT_BLACK = '1',
-    END_OPCODE_FADE_IN = '2',
-    END_OPCODE_FADE_OUT = '3',
-    END_OPCODE_EXECUTE_ANM = 'a',
+    END_OPCODE_FADE_IN_WHITE = '2',
+    END_OPCODE_FADE_OUT_WHITE = '3',
+    END_OPCODE_ANM_SET_SLOT = 'a',
     END_OPCODE_BACKGROUND = 'b',
-    END_OPCODE_COLOR = 'c',
-    END_OPCODE_PLAY_MUSIC = 'm',
-    END_OPCODE_WAIT_RESET = 'r',
+    END_OPCODE_TEXT_COLOR = 'c',
+    END_OPCODE_MUSIC = 'm',
+    END_OPCODE_WAIT_CLEAR = 'r',
     END_OPCODE_SET_DELAY = 's',
-    END_OPCODE_SET_VERTICAL_SCROLL_POS = 'v',
+    END_OPCODE_BACKGROUND_SCROLL_SET = 'v',
     END_OPCODE_WAIT = 'w',
-    END_OPCODE_END = 'z',
-    END_OPCODE_EXEC_END_FILE = 'F',
-    END_OPCODE_FADE_MUSIC = 'M',
-    END_OPCODE_ROLL_STAFF = 'R',
-    END_OPCODE_SCROLL_BACKGROUND = 'V',
+    END_OPCODE_END_DELETE = 'z',
+    END_OPCODE_END_SWITCH = 'F',
+    END_OPCODE_MUSIC_FADE_OUT = 'M',
+    END_OPCODE_CLEAR = 'R',
+    END_OPCODE_BACKGROUND_SCROLL = 'V',
 };
+
+#define SPRITES_PER_LINE_GROUP 2
+// NOTE: Currently unclear if this is intended to be 8 line groups
+// or fewer line groups with some extra space for more sprites.
+#define END_SPRITE_COUNT 16
 
 struct Ending
 {
     Ending()
     {
         memset(this, 0, sizeof(Ending));
-        this->line2Delay = 8;
-        this->timer2.InitializeForPopup();
-        this->timer1.InitializeForPopup();
+        this->longDelay = 8;
+        this->pauseTimer = 0;
+        this->scriptTime = 0;
         this->backgroundPos.x = 0.0f;
         this->backgroundPos.y = 0.0f;
         this->backgroundScrollSpeed = 0.0f;
     }
 
-    static ZunResult RegisterChain();
-    static ChainCallbackResult OnUpdate(Ending *ending);
-    static ChainCallbackResult OnDraw(Ending *ending);
-    static ZunResult AddedCallback(Ending *ending);
-    static ZunResult DeletedCallback(Ending *ending);
-
     i32 ReadEndFileParameter();
 
     ZunResult ParseEndFile();
 
-    ZunResult LoadEnding(char *endFilePath);
+    ZunResult LoadEnding(const char *endFilePath);
     void FadingEffect();
 
     ChainElem *calcChain;
     ChainElem *drawChain;
     ZunVec2 backgroundPos;
     f32 backgroundScrollSpeed;
-    AnmVm sprites[16];
-    char *endFileData;
+    AnmVm sprites[END_SPRITE_COUNT];
+    u8 *endFileData;
     ZunBool hasSeenEnding;
-    ZunTimer timer1;
-    ZunTimer timer2;
-    ZunTimer timer3;
-    i32 minWaitResetFrames;
-    i32 minWaitFrames;
-    i32 line2Delay;
-    i32 topLineDelay;
-    i32 unk_1150;
-    i32 timesFileParsed;
+    ZunTimer scriptTime;
+    ZunTimer pauseTimer;
+    ZunTimer clearTimer;
+    i32 minWaitClearFrames;
+    i32 minWaitPauseFrames;
+    i32 longDelay;
+    i32 shortDelay;
+    unreferenced_fields(0x4);
+    i32 textLine;
     ZunColor textColor;
-    ZunColor endingFadeColor;
-    i32 timeFading;
-    i32 fadeFrames;
+    ZunColor fadeColor;
+    i32 fadeTimer;
+    i32 fadeDuration;
     EndingFadeType fadeType;
-    char *endFileDataPtr;
+    const char *endFileDataPtr;
 };
-ZUN_ASSERT_SIZE(Ending, 0x1170);
-}; // namespace th06
+ZUN_ASSERT_TYPE(Ending, 0x1170, 4);
+
+} // namespace th06

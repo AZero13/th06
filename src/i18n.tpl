@@ -8,9 +8,11 @@
 #define TH_JP_DBG_MAINMENU_VRAM "Debug : title 開始 VRAM = %d\n"
 #define TH_JP_DBG_RESULTSCREEN_COUNAT "counat = %d\n"
 #define TH_JP_ERR_ALREADY_RUNNING "二つは起動できません\n"
+#define TH_JP_ERR_DIRECTX8_REQUIRED "DirextX 8.0 以上をインストールしないと動きません\n"
 #define TH_JP_ERR_D3D_COULD_NOT_CREATE_OBJ "Direct3D オブジェクトは何故か作成出来なかった\n"
 #define TH_JP_ERR_LOGGER_START "東方動作記録 --------------------------------------------- \n"
 #define TH_JP_ERR_LOGGER_END "---------------------------------------------------------- \n"
+#define TH_JP_ERR_DETAILED_LOGGER_START "詳細ログ --------------------------------------------- \n"
 #define TH_JP_ERR_NO_PAD_FOUND "使えるパッドが存在しないようです、残念\n"
 #define TH_JP_ERR_OPTION_CHANGED_RESTART "再起動を要するオプションが変更されたので再起動します\n"
 #define TH_JP_ERR_SCREEN_INIT_32BITS "初回起動、画面を 32Bits で初期化しました\n"
@@ -32,7 +34,8 @@
 #define TH_JP_ERR_CONFIG_NOT_FOUND "コンフィグデータが見つからないので初期化しました\n"
 #define TH_JP_ERR_CONFIG_CORRUPTED "コンフィグデータが破壊されていたので再初期化しました\n"
 #define TH_JP_ERR_NO_WAVE_FILE "wave データが無いので、midi にします\n"
-#define TH_JP_ERR_NOT_A_WAV_FILE "Wav ファイルじゃない? %s\n"
+#define TH_JP_ERR_NOT_A_WAV_FILE_A "Wav ファイルじゃない %s\n"
+#define TH_JP_ERR_NOT_A_WAV_FILE_B "Wav ファイルじゃない? %s\n"
 #define TH_JP_ERR_NO_VERTEX_BUFFER "頂点バッファの使用を抑制します\n"
 #define TH_JP_ERR_NO_FOG "フォグの使用を抑制します\n"
 #define TH_JP_ERR_USE_16BIT_TEXTURES "16Bit のテクスチャの使用を強制します\n"
@@ -40,14 +43,15 @@
 #define TH_JP_ERR_DONT_RENDER_ITEMS "ゲーム周りのアイテムの描画を抑制します\n"
 #define TH_JP_ERR_NO_GOURAUD_SHADING "グーローシェーディングを抑制します\n"
 #define TH_JP_ERR_NO_DEPTH_TESTING "デプステストを抑制します\n"
-#define TH_JP_ERR_FORCE_60FPS_MODE "60フレーム強制モードにします\n"
-#define TH_JP_ERR_NO_TEXTURE_COLOR_COMPOSITING "テクスチャの色合成を抑制します\n"
+#define TH_JP_ERR_FORCE_60FPS_MODE "６０フレーム強制モードにします\n"
+#define TH_JP_ERR_NO_TEXTURE_COLOR_COMPOSITING "テクスチャの色合成を抑制しますn"
 #define TH_JP_ERR_LAUNCH_WINDOWED "ウィンドウモードで起動します\n"
-#define TH_JP_ERR_FORCE_REFERENCE_RASTERIZER "リファレンスラスタライザを強制しますn"
+#define TH_JP_ERR_FORCE_REFERENCE_RASTERIZER "リファレンスラスタライザを強制します\n"
 #define TH_JP_ERR_DO_NOT_USE_DIRECTINPUT "パッド、キーボードの入力に DirectInput を使用しません\n"
 #define TH_JP_ERR_DIRECTINPUT_NOT_AVAILABLE "DirectInput が使用できません\n"
 #define TH_JP_ERR_DIRECTINPUT_SETDATAFORMAT_NOT_AVAILABLE "DirectInput SetDataFormat が使用できません\n"
 #define TH_JP_ERR_DIRECTINPUT_SETCOOPERATIVELEVEL_NOT_AVAILABLE "DirectInput SetCooperativeLevel が使用できません\n"
+#define TH_JP_ERR_DIRECTINPUT_ACQUIRE_NOT_AVAILABLE "DirectInput Acquire が使用できません\n"
 #define TH_JP_ERR_DIRECTINPUT_INITIALIZED "DirectInput は正常に初期化されました\n"
 #define TH_JP_ERR_PAD_FOUND "有効なパッドを発見しました\n"
 #define TH_JP_ERR_FILE_CANNOT_BE_EXPORTED "ファイルが書き出せません %s\n"
@@ -90,10 +94,14 @@
 #define TH_JP_SATSUKI_RIN_FLOWER "冴月 麟 (花)"
 #define TH_JP_SATSUKI_RIN_WIND "冴月 麟 (風)"
 
+#define TH_JP_SONG_NAME "♪%s"
+
+#define TH_JP_KEYBOARD "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:;･@abcdefghijklmnopqrstuvwxyz+-/*=%0123456789(){}[]<>#!?'\"$      --"
+
 #define TH_JP_UNKNOWN_SPELLCARD "？？？？？"
 
 #define TH_JP_CM_DAT_FILE "紅魔郷CM.dat"
-#define TH_JP_ED_DAT_FILE "紅魔郷ED.DAT"
+#define TH_JP_ED_DAT_FILE "紅魔郷ED.dat"
 #define TH_JP_IN_DAT_FILE "紅魔郷IN.dat"
 #define TH_JP_MD_DAT_FILE "紅魔郷MD.dat"
 #define TH_JP_ST_DAT_FILE "紅魔郷ST.dat"
@@ -105,9 +113,11 @@
 #define TH_EN_DBG_MAINMENU_VRAM "Debug : title menu VRAM = %d\n"
 #define TH_EN_DBG_RESULTSCREEN_COUNAT "counat = %d\n"
 #define TH_EN_ERR_ALREADY_RUNNING "Touhou cannot be started\n"
+#define TH_EN_ERR_DIRECTX8_REQUIRED "DirectX 8.0 or later must be installed to run this game\n"
 #define TH_EN_ERR_D3D_COULD_NOT_CREATE_OBJ "Direct3D object could not be created for some reason\n"
 #define TH_EN_ERR_LOGGER_START "Logger started --------------------------------------------- \n"
 #define TH_EN_ERR_LOGGER_END "---------------------------------------------------------- \n"
+#define TH_EN_ERR_DETAILED_LOGGER_START "Detailed log --------------------------------------------- \n"
 #define TH_EN_ERR_NO_PAD_FOUND "Unfortunately, there doesn't seem to be a pad that can be used.\n"
 #define TH_EN_ERR_OPTION_CHANGED_RESTART "An option that requires a restart has been changed.\n"
 #define TH_EN_ERR_SCREEN_INIT_32BITS "First startup, screen initialized with 32Bits.\n"
@@ -129,7 +139,8 @@
 #define TH_EN_ERR_CONFIG_NOT_FOUND "Config not found, initializing with default values.\n"
 #define TH_EN_ERR_CONFIG_CORRUPTED "Config corrupted, reinitializing with default values.\n"
 #define TH_EN_ERR_NO_WAVE_FILE "There is no wave data, so I'll make it midi!\n"
-#define TH_EN_ERR_NOT_A_WAV_FILE "%s isn't a wav file?"
+#define TH_EN_ERR_NOT_A_WAV_FILE_A "%s isn't a wav file\n"
+#define TH_EN_ERR_NOT_A_WAV_FILE_B "%s isn't a wav file?\n"
 #define TH_EN_ERR_NO_VERTEX_BUFFER "Suppressing the use of the vertex buffer.\n"
 #define TH_EN_ERR_NO_FOG "Suppressing the use of fog.\n"
 #define TH_EN_ERR_USE_16BIT_TEXTURES "Enforces the use of 16Bit textures.\n"
@@ -138,13 +149,14 @@
 #define TH_EN_ERR_NO_GOURAUD_SHADING "Suppress gouraud shading.\n"
 #define TH_EN_ERR_NO_DEPTH_TESTING "Suppress depth testing.\n"
 #define TH_EN_ERR_FORCE_60FPS_MODE "Force 60FPS mode.\n"
-#define TH_EN_ERR_NO_TEXTURE_COLOR_COMPOSITING "Suppress texture color compositing.\n"
+#define TH_EN_ERR_NO_TEXTURE_COLOR_COMPOSITING "Suppress texture color compositing.n"
 #define TH_EN_ERR_LAUNCH_WINDOWED "Launch in windowed mode.\n"
 #define TH_EN_ERR_FORCE_REFERENCE_RASTERIZER "Force reference rasterizer.\n"
 #define TH_EN_ERR_DO_NOT_USE_DIRECTINPUT "Do not use DirectInput for pad and keyboard input.\n"
 #define TH_EN_ERR_DIRECTINPUT_NOT_AVAILABLE "DirectInput is not available.\n"
 #define TH_EN_ERR_DIRECTINPUT_SETDATAFORMAT_NOT_AVAILABLE "DirectInput SetDataFormat is not available.\n"
 #define TH_EN_ERR_DIRECTINPUT_SETCOOPERATIVELEVEL_NOT_AVAILABLE "DirectInput SetCooperativeLevel is not available.\n"
+#define TH_EN_ERR_DIRECTINPUT_ACQUIRE_NOT_AVAILABLE "DirectInput Acquire is not available.\n"
 #define TH_EN_ERR_DIRECTINPUT_INITIALIZED "DirectInput was successfully initialized.\n"
 #define TH_EN_ERR_PAD_FOUND "Found a valid pad.\n"
 #define TH_EN_ERR_FILE_CANNOT_BE_EXPORTED "File cannot be exported %s.\n"
@@ -186,6 +198,10 @@
 #define TH_EN_SATSUKI_RIN_FLOWER "Satsuki Rin (Flower)"
 #define TH_EN_SATSUKI_RIN_WIND "Satsuki Rin (Wind)"
 
+#define TH_EN_SONG_NAME "♪%s"
+
+#define TH_EN_KEYBOARD "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:;･@abcdefghijklmnopqrstuvwxyz+-/*=%0123456789(){}[]<>#!?'\"$      --"
+
 #define TH_EN_UNKNOWN_SPELLCARD "??????"
 
 #define TH_EN_CM_DAT_FILE "KOUMAKYO_CM.dat"
@@ -203,9 +219,11 @@
 #define TH_DBG_MAINMENU_VRAM TH_MAKE_LANG_STR(TH_LANG, _DBG_MAINMENU_VRAM)
 #define TH_DBG_RESULTSCREEN_COUNAT TH_MAKE_LANG_STR(TH_LANG, _DBG_RESULTSCREEN_COUNAT)
 #define TH_ERR_ALREADY_RUNNING TH_MAKE_LANG_STR(TH_LANG, _ERR_ALREADY_RUNNING)
+#define TH_ERR_DIRECTX8_REQUIRED TH_MAKE_LANG_STR(TH_LANG, _ERR_DIRECTX8_REQUIRED)
 #define TH_ERR_D3D_ERR_COULD_NOT_CREATE_OBJ TH_MAKE_LANG_STR(TH_LANG, _ERR_D3D_COULD_NOT_CREATE_OBJ)
 #define TH_ERR_LOGGER_START TH_MAKE_LANG_STR(TH_LANG, _ERR_LOGGER_START)
 #define TH_ERR_LOGGER_END TH_MAKE_LANG_STR(TH_LANG, _ERR_LOGGER_END)
+#define TH_ERR_DETAILED_LOGGER_START TH_MAKE_LANG_STR(TH_LANG, _ERR_DETAILED_LOGGER_START)
 #define TH_ERR_NO_PAD_FOUND TH_MAKE_LANG_STR(TH_LANG, _ERR_NO_PAD_FOUND)
 #define TH_ERR_OPTION_CHANGED_RESTART TH_MAKE_LANG_STR(TH_LANG, _ERR_OPTION_CHANGED_RESTART)
 #define TH_ERR_SCREEN_INIT_32BITS TH_MAKE_LANG_STR(TH_LANG, _ERR_SCREEN_INIT_32BITS)
@@ -225,7 +243,8 @@
 #define TH_ERR_CONFIG_NOT_FOUND TH_MAKE_LANG_STR(TH_LANG, _ERR_CONFIG_NOT_FOUND)
 #define TH_ERR_CONFIG_CORRUPTED TH_MAKE_LANG_STR(TH_LANG, _ERR_CONFIG_CORRUPTED)
 #define TH_ERR_NO_WAVE_FILE TH_MAKE_LANG_STR(TH_LANG, _ERR_NO_WAVE_FILE)
-#define TH_ERR_NOT_A_WAV_FILE TH_MAKE_LANG_STR(TH_LANG, _ERR_NOT_A_WAV_FILE)
+#define TH_ERR_NOT_A_WAV_FILE_A TH_MAKE_LANG_STR(TH_LANG, _ERR_NOT_A_WAV_FILE_A)
+#define TH_ERR_NOT_A_WAV_FILE_B TH_MAKE_LANG_STR(TH_LANG, _ERR_NOT_A_WAV_FILE_B)
 #define TH_ERR_NO_VERTEX_BUFFER TH_MAKE_LANG_STR(TH_LANG, _ERR_NO_VERTEX_BUFFER)
 #define TH_ERR_NO_FOG TH_MAKE_LANG_STR(TH_LANG, _ERR_NO_FOG)
 #define TH_ERR_USE_16BIT_TEXTURES TH_MAKE_LANG_STR(TH_LANG, _ERR_USE_16BIT_TEXTURES)
@@ -241,6 +260,7 @@
 #define TH_ERR_DIRECTINPUT_NOT_AVAILABLE TH_MAKE_LANG_STR(TH_LANG, _ERR_DIRECTINPUT_NOT_AVAILABLE)
 #define TH_ERR_DIRECTINPUT_SETDATAFORMAT_NOT_AVAILABLE TH_MAKE_LANG_STR(TH_LANG, _ERR_DIRECTINPUT_SETDATAFORMAT_NOT_AVAILABLE)
 #define TH_ERR_DIRECTINPUT_SETCOOPERATIVELEVEL_NOT_AVAILABLE TH_MAKE_LANG_STR(TH_LANG, _ERR_DIRECTINPUT_SETCOOPERATIVELEVEL_NOT_AVAILABLE)
+#define TH_ERR_DIRECTINPUT_ACQUIRE_NOT_AVAILABLE TH_MAKE_LANG_STR(TH_LANG, _ERR_DIRECTINPUT_ACQUIRE_NOT_AVAILABLE)
 #define TH_ERR_DIRECTINPUT_INITIALIZED TH_MAKE_LANG_STR(TH_LANG, _ERR_DIRECTINPUT_INITIALIZED)
 #define TH_ERR_PAD_FOUND TH_MAKE_LANG_STR(TH_LANG, _ERR_PAD_FOUND)
 #define TH_ERR_FILE_CANNOT_BE_EXPORTED TH_MAKE_LANG_STR(TH_LANG, _ERR_FILE_CANNOT_BE_EXPORTED)
@@ -280,6 +300,8 @@
 #define TH_KIRISAME_MARISA_LOVE TH_MAKE_LANG_STR(TH_LANG, _KIRISAME_MARISA_LOVE)
 #define TH_SATSUKI_RIN_FLOWER TH_MAKE_LANG_STR(TH_LANG, _SATSUKI_RIN_FLOWER)
 #define TH_SATSUKI_RIN_WIND TH_MAKE_LANG_STR(TH_LANG, _SATSUKI_RIN_WIND)
+#define TH_SONG_NAME TH_MAKE_LANG_STR(TH_LANG, _SONG_NAME)
+#define TH_KEYBOARD TH_MAKE_LANG_STR(TH_LANG, _KEYBOARD)
 #define TH_UNKNOWN_SPELLCARD TH_MAKE_LANG_STR(TH_LANG, _UNKNOWN_SPELLCARD)
 #define TH_CM_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _CM_DAT_FILE)
 #define TH_ED_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _ED_DAT_FILE)
@@ -288,5 +310,4 @@
 #define TH_ST_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _ST_DAT_FILE)
 #define TH_TL_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _TL_DAT_FILE)
 
-#define TH_SONG_NAME "♪%s"
 #define TH_FONT_NAME "ＭＳ ゴシック"

@@ -8,7 +8,7 @@
 #ifndef DSUTIL_H
 #define DSUTIL_H
 
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <dsound.h>
 #include <mmreg.h>
 #include <mmsystem.h>
@@ -66,7 +66,9 @@ class CSoundManager
         return m_pDS;
     }
     HRESULT SetPrimaryBufferFormat(DWORD dwPrimaryChannels, DWORD dwPrimaryFreq, DWORD dwPrimaryBitRate);
-
+    HRESULT Create(CSound **sound, LPTSTR filename, DWORD flags, GUID algorithm, DWORD count);
+    HRESULT CreateFromMemory(CSound **sound, BYTE *data, ULONG size, LPWAVEFORMATEX format, DWORD flags, GUID algorithm,
+                             DWORD count);
     HRESULT CreateStreaming(CStreamingSound **ppStreamingSound, LPTSTR strWaveFileName, DWORD dwCreationFlags,
                             GUID guid3DAlgorithm, DWORD dwNotifyCount, DWORD dwNotifySize, HANDLE hNotifyEvent);
 };
@@ -80,18 +82,14 @@ class CSound
   protected:
     LPDIRECTSOUNDBUFFER *m_apDSBuffer;
     DWORD m_dwDSBufferSize;
-
-  public:
     CWaveFile *m_pWaveFile;
-
-  protected:
     DWORD m_dwNumBuffers;
 
   public:
     // th06 extensions for fadeout
     i32 m_dwCurFadeoutProgress;
     i32 m_dwTotalFadeout;
-    DWORD m_dwIsFadingOut;
+    BOOL m_dwIsFadingOut;
 
   protected:
     HRESULT RestoreBuffer(LPDIRECTSOUNDBUFFER pDSB, BOOL *pbWasRestored);
@@ -103,10 +101,24 @@ class CSound
     HRESULT FillBufferWithSound(LPDIRECTSOUNDBUFFER pDSB, BOOL bRepeatWavIfBufferLarger);
     LPDIRECTSOUNDBUFFER GetFreeBuffer();
     LPDIRECTSOUNDBUFFER GetBuffer(DWORD dwIndex);
+    HRESULT Get3DBufferInterface(DWORD index, LPDIRECTSOUND3DBUFFER *buffer);
 
     HRESULT Play(DWORD dwPriority, DWORD dwFlags);
     HRESULT Stop();
     HRESULT Reset();
+    BOOL IsSoundPlaying();
+
+    void StartFadeOut(float seconds)
+    {
+        this->m_dwIsFadingOut = TRUE;
+        this->m_dwCurFadeoutProgress = seconds * 60;
+        this->m_dwTotalFadeout = this->m_dwCurFadeoutProgress;
+    }
+
+    CWaveFile *GetWaveFile()
+    {
+        return m_pWaveFile;
+    }
 };
 
 //-----------------------------------------------------------------------------
@@ -177,8 +189,8 @@ class CWaveFile
     WAVEFORMATEX *GetFormat()
     {
         return m_pwfx;
-    };
+    }
 };
-}; // namespace th06
+} // namespace th06
 
 #endif // DSUTIL_H

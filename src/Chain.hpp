@@ -1,8 +1,6 @@
 #pragma once
-
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 #include <Windows.h>
 
@@ -28,28 +26,38 @@ typedef ZunResult (*ChainDeletedCallback)(void *);
 class ChainElem
 {
   public:
-    short priority;
+    ChainElem();
+    ~ChainElem();
+
+    void SetCallback(ChainCallback callback)
+    {
+        this->callback = callback;
+        this->addedCallback = NULL;
+        this->deletedCallback = NULL;
+    }
+
+    i16 priority;
     u16 isHeapAllocated : 1;
+    alignment_bitfields(u16, 15);
     ChainCallback callback;
     ChainAddedCallback addedCallback;
     ChainDeletedCallback deletedCallback;
-    struct ChainElem *prev;
-    struct ChainElem *next;
-    struct ChainElem *unkPtr;
+    ChainElem *prev;
+    ChainElem *next;
+    ChainElem *unkPtr;
     void *arg;
-
-    ChainElem();
-    ~ChainElem();
 };
-ZUN_ASSERT_SIZE(ChainElem, 0x20);
+ZUN_ASSERT_TYPE(ChainElem, 0x20, 4);
 
 class Chain
 {
   private:
     ChainElem calcChain;
     ChainElem drawChain;
-    unsigned int midiOutputDeviceCount;
-    unsigned int unk;
+    u32 midiOutputDeviceCount;
+    u32 unk;
+    // Only the first 0x48 bytes are referenced.
+    unreferenced_fields(0x34);
 
     void ReleaseSingleChain(ChainElem *root);
 
@@ -59,14 +67,14 @@ class Chain
 
     void Cut(ChainElem *to_remove);
     void Release(void);
-    int AddToCalcChain(ChainElem *elem, int priority);
-    int AddToDrawChain(ChainElem *elem, int priority);
+    ZunResult AddToCalcChain(ChainElem *elem, int priority);
+    ZunResult AddToDrawChain(ChainElem *elem, int priority);
     int RunDrawChain(void);
     int RunCalcChain(void);
 
     ChainElem *CreateElem(ChainCallback callback);
 };
-ZUN_ASSERT_SIZE(Chain, 0x48);
+ZUN_ASSERT_TYPE(Chain, 0x7c, 4);
 
-DIFFABLE_EXTERN(Chain, g_Chain)
-}; // namespace th06
+extern Chain g_FuncChain;
+} // namespace th06

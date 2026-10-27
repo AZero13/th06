@@ -1,31 +1,40 @@
 #pragma once
-
 #include <d3dx8math.h>
 
 #include "AnmManager.hpp"
 #include "Chain.hpp"
 #include "StageMenu.hpp"
+#include "Supervisor.hpp"
 #include "ZunResult.hpp"
 #include "ZunTimer.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
 #define TEXT_RIGHT_ARROW 0x7f
+
+#define ASCII_SCORE_POPUPS_COUNT 512
+#define ASCII_PLAYER_POPUPS_COUNT 3
+#define ASCII_TOTAL_POPUPS_COUNT (ASCII_SCORE_POPUPS_COUNT + ASCII_PLAYER_POPUPS_COUNT)
+
+#define ASCII_SCORE_POPUPS_START 0
+#define ASCII_PLAYER_POPUPS_START ASCII_SCORE_POPUPS_COUNT
+
+#define ASCII_STRING_COUNT 256
 
 struct AsciiManagerString
 {
     char text[64];
     D3DXVECTOR3 position;
     D3DCOLOR color;
-    D3DXVECTOR2 scale;
+    ZunVec2 scale;
     // If true, we are drawing the currently selected element of the MainMenu
     // class.
-    u32 isSelected;
+    ZunBool isSelected;
     // If true, we are drawing an element of the Gui class.
-    u32 isGui;
+    ZunBool isGui;
 };
-ZUN_ASSERT_SIZE(AsciiManagerString, 0x60);
+ZUN_ASSERT_TYPE(AsciiManagerString, 0x60, 4);
 
 struct AsciiManagerPopup
 {
@@ -35,19 +44,9 @@ struct AsciiManagerPopup
     ZunTimer timer;
     u8 inUse;
     u8 characterCount;
+    alignment_padding(0x2);
 };
-ZUN_ASSERT_SIZE(AsciiManagerPopup, 0x28);
-
-struct WeirdPadding
-{
-    WeirdPadding()
-    {
-        i32 pad11, pad12, pad13, pad14, pad15, pad16, pad17, pad18;
-        i32 pad21, pad22, pad23, pad24, pad25, pad26, pad27, pad28;
-        i32 pad31, pad32;
-    }
-    u32 unk;
-};
+ZUN_ASSERT_TYPE(AsciiManagerPopup, 0x28, 4);
 
 // The AsciiManager is responsible for drawing various textual elements on the
 // screen:
@@ -57,18 +56,23 @@ struct WeirdPadding
 // - Various text elements such as the "Stage clear" prompt.
 struct AsciiManager
 {
-    AsciiManager();
+    void InitializeVms()
+    {
+        memset(this, 0, sizeof(AsciiManager));
 
-    static ZunResult RegisterChain();
-    static void CutChain();
+        this->color = COLOR_WHITE;
+        this->scale.x = 1.0f;
+        this->scale.y = 1.0f;
 
-    static ChainCallbackResult OnUpdate(AsciiManager *s);
-    static ChainCallbackResult OnDrawMenus(AsciiManager *s);
-    static ChainCallbackResult OnDrawPopups(AsciiManager *s);
-    static ZunResult AddedCallback(AsciiManager *s);
-    static ZunResult DeletedCallback(AsciiManager *s);
+        this->scorePopupVm.flags.anchor = AnmVmAnchor_TopLeft;
 
-    void InitializeVms();
+        g_AnmManager->InitializeAndSetSprite(&this->scorePopupVm, 0);
+        // BUG: That's not how your sprite numbers work ZUN
+        g_AnmManager->InitializeAndSetSprite(&this->fontVm, ' ');
+
+        this->scorePopupVm.pos.z = 0.1f;
+        this->isSelected = false;
+    }
 
     void DrawStrings();
     void DrawPopupsWithHwVertexProcessing();
@@ -84,27 +88,51 @@ struct AsciiManager
         this->color = color;
     }
 
-    AnmVm vm0;
-    AnmVm vm1;
-    AsciiManagerString strings[256];
+    void SetScale(f32 x, f32 y)
+    {
+        this->scale.x = x;
+        this->scale.y = y;
+    }
+
+    void SetIsGui(ZunBool isGui)
+    {
+        this->isGui = isGui;
+    }
+
+    void SetIsSelected(ZunBool isSelected)
+    {
+        this->isSelected = isSelected;
+    }
+
+    void ResetStrings()
+    {
+        this->numStrings = 0;
+    }
+
+    AnmVm fontVm;
+    AnmVm scorePopupVm;
+    AsciiManagerString strings[ASCII_STRING_COUNT];
     i32 numStrings;
     D3DCOLOR color;
-    D3DXVECTOR2 scale;
+    ZunVec2 scale;
     // If true, we are drawing an element of the Gui class.
-    u32 isGui;
+    ZunBool isGui;
     // If true, we are drawing the currently selected element of the MainMenu
     // class.
     ZunBool isSelected;
     i32 nextPopupIndex1;
     i32 nextPopupIndex2;
-    // Seems unused
-    WeirdPadding unk3;
+    unreferenced_fields(0x4);
     // Menu that shows up when the player presses the menu button while in-game.
     StageMenu gameMenu;
     // Menu that shows up when the player dies after losing their last life.
     StageMenu retryMenu;
-    AsciiManagerPopup popups[515];
+    AsciiManagerPopup popups[ASCII_TOTAL_POPUPS_COUNT];
 };
-ZUN_ASSERT_SIZE(AsciiManager, 0xc1ac);
-DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);
-}; // namespace th06
+ZUN_ASSERT_TYPE(AsciiManager, 0xc1ac, 4);
+
+ZunResult AsciiManager_RegisterChain();
+void AsciiManager_CutChain();
+
+extern AsciiManager g_AsciiManager;
+} // namespace th06

@@ -1,75 +1,53 @@
 #include <stddef.h>
 
 #include "pbg3/Pbg3Archive.hpp"
+#include "pbg3/MemoryPbg3Reader.hpp"
 
 namespace th06
 {
-DIFFABLE_STATIC_ASSIGN(Pbg3Archive **, g_Pbg3Archives) = NULL;
-
 Pbg3Archive::Pbg3Archive()
 {
     this->fileTableOffset = 0;
     this->numOfEntries = 0;
     this->entries = NULL;
-    this->parser = NULL;
-    this->unk = 0;
+    this->reader = NULL;
+    this->resData = NULL;
 }
 
-i32 Pbg3Archive::ParseHeader()
+BOOL Pbg3Archive::ParseHeader()
 {
-    if (this->parser->ReadMagic() != 0x33474250)
+    if (this->reader->ReadInt() != 0x33474250)
     {
-        if (this->parser != NULL)
-        {
-            delete this->parser;
-            this->parser = NULL;
-        }
+        SAFE_DELETE(this->reader);
         return FALSE;
     }
 
-    this->numOfEntries = this->parser->ReadVarInt();
-    this->fileTableOffset = this->parser->ReadVarInt();
-    if (this->parser->SeekToOffset(this->fileTableOffset) == FALSE)
+    this->numOfEntries = this->reader->ReadVarInt();
+    this->fileTableOffset = this->reader->ReadVarInt();
+    if (this->reader->SeekToOffset(this->fileTableOffset) == FALSE)
     {
-        if (this->parser != NULL)
-        {
-            delete this->parser;
-            this->parser = NULL;
-        }
+        SAFE_DELETE(this->reader);
         return FALSE;
     }
 
     this->entries = new Pbg3Entry[this->numOfEntries];
     if (this->entries == NULL)
     {
-        if (this->parser != NULL)
-        {
-            delete this->parser;
-            this->parser = NULL;
-        }
+        SAFE_DELETE(this->reader);
         return FALSE;
     }
 
-    for (u32 idx = 0; idx < this->numOfEntries; idx += 1)
+    for (u32 idx = 0; idx < this->numOfEntries; idx++)
     {
-        this->entries[idx].unk2 = this->parser->ReadVarInt();
-        this->entries[idx].unk1 = this->parser->ReadVarInt();
-        this->entries[idx].checksum = this->parser->ReadVarInt();
-        this->entries[idx].dataOffset = this->parser->ReadVarInt();
-        this->entries[idx].uncompressedSize = this->parser->ReadVarInt();
-        if (this->parser->ReadString(this->entries[idx].filename, sizeof(this->entries[idx].filename)) == FALSE)
+        this->entries[idx].unk2 = this->reader->ReadVarInt();
+        this->entries[idx].unk1 = this->reader->ReadVarInt();
+        this->entries[idx].checksum = this->reader->ReadVarInt();
+        this->entries[idx].dataOffset = this->reader->ReadVarInt();
+        this->entries[idx].uncompressedSize = this->reader->ReadVarInt();
+        if (this->reader->ReadString(this->entries[idx].filename, sizeof(this->entries[idx].filename)) == FALSE)
         {
-            if (this->parser != NULL)
-            {
-                delete this->parser;
-                this->parser = NULL;
-            }
-            if (this->entries != NULL)
-            {
-                delete[] this->entries;
-                this->entries = NULL;
-            }
-
+            SAFE_DELETE(this->reader);
+            SAFE_DELETE_ARRAY(this->entries);
             return FALSE;
         }
     }
@@ -77,31 +55,21 @@ i32 Pbg3Archive::ParseHeader()
     return TRUE;
 }
 
-i32 Pbg3Archive::Release()
+BOOL Pbg3Archive::Release()
 {
     this->fileTableOffset = 0;
     this->numOfEntries = 0;
-    if (this->parser != NULL)
-    {
-        delete this->parser;
-        this->parser = NULL;
-    }
-    if (this->entries != NULL)
-    {
-        delete[] this->entries;
-        this->entries = NULL;
-    }
-    free(this->unk);
+    SAFE_DELETE(this->reader);
+    SAFE_DELETE_ARRAY(this->entries);
+    free(this->resData);
     return TRUE;
 }
 
-i32 Pbg3Archive::FindEntry(char *path)
+i32 Pbg3Archive::FindEntry(const char *path)
 {
-    for (u32 entryIdx = 0; entryIdx < this->numOfEntries; entryIdx += 1)
+    for (u32 entryIdx = 0; entryIdx < this->numOfEntries; entryIdx++)
     {
-        char *entryFilename = this->entries[entryIdx].filename;
-        i32 res = strcmp(path, entryFilename);
-        if (res == 0)
+        if (strcmp(path, this->entries[entryIdx].filename) == 0)
         {
             return entryIdx;
         }
@@ -119,9 +87,15 @@ u32 Pbg3Archive::GetEntrySize(u32 entryIdx)
     return this->entries[entryIdx].uncompressedSize;
 }
 
+// Dead KOG code
+u32 Pbg3Archive::GetEntrySize(const char *path)
+{
+    return this->GetEntrySize(this->FindEntry(path));
+}
+
 u8 *Pbg3Archive::ReadEntryRaw(u32 *outSize, u32 *outChecksum, i32 entryIdx)
 {
-    if (this->parser == NULL)
+    if (this->reader == NULL)
     {
         return NULL;
     }
@@ -135,7 +109,7 @@ u8 *Pbg3Archive::ReadEntryRaw(u32 *outSize, u32 *outChecksum, i32 entryIdx)
     if (outChecksum == NULL)
         return NULL;
 
-    if (this->parser->SeekToOffset(this->entries[entryIdx].dataOffset) == FALSE)
+    if (this->reader->SeekToOffset(this->entries[entryIdx].dataOffset) == FALSE)
         return NULL;
 
     u32 size;
@@ -152,7 +126,7 @@ u8 *Pbg3Archive::ReadEntryRaw(u32 *outSize, u32 *outChecksum, i32 entryIdx)
     if (data == NULL)
         return NULL;
 
-    if (this->parser->ReadByteAlignedData(data, size) == FALSE)
+    if (this->reader->Read(data, size) == FALSE)
     {
         free(data);
         return NULL;
@@ -168,26 +142,85 @@ Pbg3Archive::~Pbg3Archive()
     this->Release();
 }
 
-i32 Pbg3Archive::Load(char *path)
+BOOL Pbg3Archive::Load(const char *path)
 {
+    Pbg3Reader *fileReader;
+
     if (this->Release() == FALSE)
     {
         return FALSE;
     }
 
-    this->parser = new Pbg3Parser();
-    if (this->parser == NULL)
+    fileReader = new Pbg3Reader();
+    this->reader = fileReader;
+    if (this->reader == NULL)
     {
         return FALSE;
     }
 
-    if (this->parser->OpenArchive(path) == FALSE)
+    if (fileReader->OpenArchive(path) == FALSE)
     {
-        if (this->parser != NULL)
-        {
-            delete this->parser;
-            this->parser = NULL;
-        }
+        SAFE_DELETE(this->reader);
+        return FALSE;
+    }
+
+    return this->ParseHeader();
+}
+
+// Dead KOG code: opens an archive stored as an RCDATA resource. KOG's
+// CGrpLoader::LoadPR calls it as LzDecode::OpenR(NULL, name).
+BOOL Pbg3Archive::LoadR(HMODULE module, const char *name)
+{
+    HRSRC res;
+    HGLOBAL mem;
+    void *data;
+    DWORD size;
+    MemoryPbg3Reader *memReader;
+
+    if (this->Release() == FALSE)
+    {
+        return FALSE;
+    }
+
+    res = FindResource(module, name, RT_RCDATA);
+    if (res == NULL)
+    {
+        return FALSE;
+    }
+
+    mem = LoadResource(module, res);
+    if (mem == NULL)
+    {
+        return FALSE;
+    }
+
+    data = LockResource(mem);
+    if (data == NULL)
+    {
+        FreeResource(data);
+        return FALSE;
+    }
+
+    size = SizeofResource(module, res);
+    this->resData = malloc(size);
+    if (this->resData == NULL)
+    {
+        FreeResource(mem);
+        return FALSE;
+    }
+    memcpy(this->resData, data, size);
+    FreeResource(mem);
+
+    memReader = new MemoryPbg3Reader();
+    this->reader = memReader;
+    if (this->reader == NULL)
+    {
+        return FALSE;
+    }
+
+    if (memReader->Attach((u8 *)this->resData, size, NULL) == FALSE)
+    {
+        SAFE_DELETE(this->reader);
         return FALSE;
     }
 
@@ -231,7 +264,7 @@ i32 Pbg3Archive::Load(char *path)
     DEC_NEXT_BIT();
 
 #define DEC_READ_BITS(bitsCount)                                                                                       \
-    outBitMask = 0x01 << (bitsCount - 1);                                                                              \
+    outBitMask = 0x01u << (bitsCount - 1);                                                                             \
     inBits = 0;                                                                                                        \
     while (outBitMask != 0)                                                                                            \
     {                                                                                                                  \
@@ -244,12 +277,12 @@ i32 Pbg3Archive::Load(char *path)
         DEC_NEXT_BIT();                                                                                                \
     }
 
-u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, char *filename)
+u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, const char *filename)
 {
     if (entryIdx >= this->numOfEntries)
         return NULL;
 
-    if (this->parser == NULL)
+    if (this->reader == NULL)
         return NULL;
 
     u32 size = this->GetEntrySize(entryIdx);
@@ -338,4 +371,4 @@ u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, char *filename)
 
     return out;
 }
-}; // namespace th06
+} // namespace th06

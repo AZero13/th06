@@ -1,10 +1,9 @@
 #pragma once
-
 #include <Windows.h>
 
+#include "Global.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include "zwave.hpp"
 
 namespace th06
@@ -46,66 +45,87 @@ enum SoundIdx
     SOUND_POWERUP = 31,
 };
 
-struct SoundBufferIdxVolume
+struct SoundEffectData
 {
     i32 bufferIdx;
     i16 volume;
     i16 unk;
 };
-ZUN_ASSERT_SIZE(SoundBufferIdxVolume, 0x8);
+ZUN_ASSERT_TYPE(SoundEffectData, 0x8, 4);
+
+// This is more than the actual number of sound effects
+#define SOUND_EFFECT_COUNT 128
+
+#define SFX_QUEUE_LENGTH 3
+
+// BGM streaming buffer length and notification count. 1.02h halved both.
+#if BUILT_SINCE(102h)
+#define BACKGROUND_MUSIC_STREAM_SECONDS 2
+#define BACKGROUND_MUSIC_STREAM_NOTIFICATIONS 4
+#else
+#define BACKGROUND_MUSIC_STREAM_SECONDS 4
+#define BACKGROUND_MUSIC_STREAM_NOTIFICATIONS 8
+#endif
 
 struct SoundPlayer
 {
-    SoundPlayer();
+    SoundPlayer()
+    {
+        memset(this, 0, sizeof(SoundPlayer));
+        for (i32 i = 0; i < SOUND_EFFECT_COUNT; i++)
+        {
+            this->unk408[i] = -1;
+        }
+    }
 
     ZunResult InitializeDSound(HWND window);
     ZunResult InitSoundBuffers();
     ZunResult Release(void);
 
-    ZunResult LoadSound(i32 idx, char *path);
-    static WAVEFORMATEX *GetWavFormatData(u8 *soundData, char *formatString, i32 *formatSize,
-                                          u32 fileSizeExcludingFormat);
+    ZunResult LoadSound(i32 idx, const char *path);
     void PlaySounds();
-    void PlaySoundByIdx(SoundIdx idx, i32 unused);
+    void PlaySoundByIdx(SoundIdx idx, i32 unused = 0);
     ZunResult PlayBGM(BOOL isLooping);
     void StopBGM();
-    void FadeOut(f32 seconds)
+    void UpdateFades()
     {
-        CStreamingSound *bgm;
-
         if (this->backgroundMusic != NULL)
         {
-            bgm = this->backgroundMusic;
-            bgm->m_dwIsFadingOut = 1;
-            bgm->m_dwCurFadeoutProgress = seconds * 60;
-            bgm->m_dwTotalFadeout = bgm->m_dwCurFadeoutProgress;
+            this->backgroundMusic->UpdateFadeOut();
         }
     }
 
-    static DWORD __stdcall BackgroundMusicPlayerThread(LPVOID lpThreadParameter);
+    void FadeOut(float seconds)
+    {
+        if (this->backgroundMusic != NULL)
+        {
+            this->backgroundMusic->StartFadeOut(seconds);
+        }
+    }
 
     ZunResult LoadWav(char *path);
-    ZunResult LoadPos(char *path);
+    ZunResult LoadPos(const char *path);
 
     LPDIRECTSOUND dsoundHdl;
-    i32 unk4;
-    LPDIRECTSOUNDBUFFER soundBuffers[128];
-    LPDIRECTSOUNDBUFFER duplicateSoundBuffers[128];
-    i32 unk408[128];
+    unreferenced_fields(0x4); // possibly LPDIRECTSOUNDBUFFER primarySoundBuffer based on PBG code and later games
+    LPDIRECTSOUNDBUFFER soundBuffers[SOUND_EFFECT_COUNT];
+    LPDIRECTSOUNDBUFFER duplicateSoundBuffers[SOUND_EFFECT_COUNT];
+    i32 unk408[SOUND_EFFECT_COUNT];
     LPDIRECTSOUNDBUFFER initSoundBuffer;
     HWND gameWindow;
     CSoundManager *manager;
     DWORD backgroundMusicThreadId;
     HANDLE backgroundMusicThreadHandle;
-    i32 unk61c;
-    i32 soundBuffersToPlay[3];
+    unreferenced_fields(0x4);
+    i32 soundBuffersToPlay[SFX_QUEUE_LENGTH];
     CStreamingSound *backgroundMusic;
     HANDLE backgroundMusicUpdateEvent;
     BOOL isLooping;
 };
-ZUN_ASSERT_SIZE(SoundPlayer, 0x638);
 
-DIFFABLE_EXTERN(SoundBufferIdxVolume, g_SoundBufferIdxVol[32]);
-DIFFABLE_EXTERN(char, *g_SFXList[26]);
-DIFFABLE_EXTERN(SoundPlayer, g_SoundPlayer)
-}; // namespace th06
+ZUN_ASSERT_TYPE(SoundPlayer, 0x638, 4);
+
+extern SoundEffectData g_SoundBufferIdxVol[32];
+extern const char *g_SFXList[26];
+extern SoundPlayer g_SoundPlayer;
+} // namespace th06
