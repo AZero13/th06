@@ -1,3 +1,4 @@
+#include "DebugPrint.hpp"
 #include "pbg3/Pbg3Reader.hpp"
 
 namespace th06
@@ -5,6 +6,7 @@ namespace th06
 
 Pbg3Reader::Pbg3Reader() : IPbg3Reader(), FileAbstraction()
 {
+    DebugPrint("pbg");
 }
 
 Pbg3Reader::~Pbg3Reader()

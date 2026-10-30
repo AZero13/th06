@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include "ItemManager.hpp"
+
 #include "BombData.hpp"
 
 #include "EffectManager.hpp"

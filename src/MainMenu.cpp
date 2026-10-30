@@ -5,7 +5,6 @@
 #include "MainMenu.hpp"
 
 #include "AsciiManager.hpp"
-#include "ChainPriorities.hpp"
 #include "ReplayManager.hpp"
 #include "ScreenEffect.hpp"
 
@@ -1320,7 +1319,11 @@ i32 MainMenu::ReplayHandling()
                 for (cur = 0; cur < REPLAYS_PER_PAGE; cur++)
                 {
                     sprintf(replayFilePath, "./replay/th6_%.2d.rpy", cur + 1);
+#if BUILT_SINCE(100)
                     replayData = (ReplayData *)FileSystem::OpenPath(replayFilePath, EXTERNAL_FILE);
+#else
+                    replayData = (ReplayData *)FileSystem::OpenPath(replayFilePath);
+#endif
                     if (replayData == NULL)
                     {
                         continue;
@@ -1341,7 +1344,11 @@ i32 MainMenu::ReplayHandling()
                 {
                     for (cur = 0; cur < USER_REPLAY_COUNT; cur++)
                     {
+#if BUILT_SINCE(100)
                         replayData = (ReplayData *)FileSystem::OpenPath(replayFileInfo.cFileName, EXTERNAL_FILE);
+#else
+                        replayData = (ReplayData *)FileSystem::OpenPath(replayFileInfo.cFileName);
+#endif
                         if (replayData == NULL)
                         {
                             continue;
@@ -1405,7 +1412,11 @@ i32 MainMenu::ReplayHandling()
                 this->cursor = 0;
                 g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
                 this->currentReplay =
+#if BUILT_SINCE(100)
                     (ReplayData *)FileSystem::OpenPath(this->replayFilePaths[this->chosenReplay], EXTERNAL_FILE);
+#else
+                    (ReplayData *)FileSystem::OpenPath(this->replayFilePaths[this->chosenReplay]);
+#endif
                 ValidateReplayData(this->currentReplay, g_ReadFileSize);
                 for (cur = 0; cur < ARRAY_SIZE_SIGNED(this->currentReplay->stageReplayData); cur++)
                 {
@@ -1586,7 +1597,8 @@ ZunResult MainMenu::DrawReplayMenu()
 #if BUILT_SINCE(102g)
         for (i = 0; i < 7; i++)
 #else
-        // The trial predates the fix for stage details on later replay pages.
+        // Builds prior to 1.02g (including 1.02d and 1.02f) had a bug where stage details on replay pages after the
+        // first were not displayed.
         for (i = this->chosenReplay - this->chosenReplay % REPLAYS_PER_PAGE; i < 7; i++)
 #endif
         {
@@ -2331,4 +2343,5 @@ ZunResult MainMenu_RegisterChain(ZunBool isDemo)
     menu->frameCountForRefreshRateCalc = 0;
     return ZUN_SUCCESS;
 }
+
 } // namespace th06

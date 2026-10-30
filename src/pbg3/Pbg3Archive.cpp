@@ -2,6 +2,7 @@
 
 #include "pbg3/Pbg3Archive.hpp"
 #include "pbg3/MemoryPbg3Reader.hpp"
+#include "DebugPrint.hpp"
 
 namespace th06
 {
@@ -16,7 +17,7 @@ Pbg3Archive::Pbg3Archive()
 
 BOOL Pbg3Archive::ParseHeader()
 {
-    if (this->reader->ReadInt() != 0x33474250)
+    if (this->reader->ReadInt() != PBG3_MAGIC)
     {
         SAFE_DELETE(this->reader);
         return FALSE;
@@ -151,6 +152,8 @@ BOOL Pbg3Archive::Load(const char *path)
         return FALSE;
     }
 
+    // /O2 removes these calls and their strings. TH08's PbgArchive logs at the same points; its messages are used here.
+    DebugPrint("info : %s open arcfile\r\n", path);
     fileReader = new Pbg3Reader();
     this->reader = fileReader;
     if (this->reader == NULL)
@@ -160,6 +163,7 @@ BOOL Pbg3Archive::Load(const char *path)
 
     if (fileReader->OpenArchive(path) == FALSE)
     {
+        DebugPrint("info : %s not found\r\n", path);
         SAFE_DELETE(this->reader);
         return FALSE;
     }
@@ -218,7 +222,7 @@ BOOL Pbg3Archive::LoadR(HMODULE module, const char *name)
         return FALSE;
     }
 
-    if (memReader->Attach((u8 *)this->resData, size, NULL) == FALSE)
+    if (memReader->Attach(this->resData, size, NULL) == FALSE)
     {
         SAFE_DELETE(this->reader);
         return FALSE;
@@ -297,6 +301,7 @@ u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, const char *filename)
 
     if (rawData == NULL)
     {
+        DebugPrint("info : %s error\r\n", filename);
         free(out);
         return NULL;
     }

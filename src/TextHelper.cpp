@@ -60,6 +60,7 @@ class TextHelper
   public:
     TextHelper();
     ~TextHelper();
+    void ClearBuffer();
     bool AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT format);
     bool TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format);
     FormatInfo *GetFormatInfo(D3DFORMAT format);
@@ -127,6 +128,11 @@ FormatInfo g_FormatInfoArray[] = {
     {D3DFMT_A4R4G4B4, 16, 0x0000F000, 0x00000F00, 0x000000F0, 0x0000000F},
     {(D3DFORMAT)-1, 0, 0, 0, 0, 0},
 };
+
+void TextHelper::ClearBuffer()
+{
+    memset(this->buffer, 0, this->imageSizeInBytes);
+}
 
 TextHelper::TextHelper()
 {

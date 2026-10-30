@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include "ItemManager.hpp"
+
 #include "Player.hpp"
 
 #include "BombData.hpp"
@@ -7,7 +9,6 @@
 #include "ChainPriorities.hpp"
 #include "EffectManager.hpp"
 #include "EnemyManager.hpp"
-#include "ScreenEffect.hpp"
 
 namespace th06
 {
@@ -666,11 +667,11 @@ void Player::ScoreGraze(D3DXVECTOR3 *center)
 {
     D3DXVECTOR3 particlePosition;
 
-#if BUILT_SINCE(102)
+#if BUILT_SINCE(102b)
     if (!g_Player.bombInfo.isInUse)
 #endif
     {
-        // 1.00 and 1.01 also count graze while a bomb is active.
+        // Until 1.02b graze also counts while a bomb is active.
         if (g_GameManager.grazeInStage < 9999)
         {
             g_GameManager.grazeInStage++;
