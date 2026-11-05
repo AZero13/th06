@@ -7,6 +7,11 @@
 #include "ReplayManager.hpp"
 #include "ScreenEffect.hpp"
 #include "Stage.hpp"
+#include "Global.hpp"
+#include "Gui.hpp"
+#include "Player.hpp"
+#include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

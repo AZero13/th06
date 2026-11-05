@@ -2,6 +2,9 @@
 
 #include "MidiOutput.hpp"
 #include "MidiSub.hpp"
+#include "DebugPrint.hpp"
+#include "Global.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

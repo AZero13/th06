@@ -7,6 +7,14 @@
 #include "ScreenEffect.hpp"
 
 #include <direct.h>
+#include "AnmIdx.hpp"
+#include "AnmManager.hpp"
+#include "DebugPrint.hpp"
+#include "GameManager.hpp"
+#include "Global.hpp"
+#include "Player.hpp"
+#include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {
@@ -36,16 +44,16 @@ enum OptionsCursor
     OPTIONS_CURSOR_EXIT,
 };
 
-ZunResult LoadTitleAnm(MainMenu *menu);
-ZunResult LoadReplayMenu(MainMenu *menu);
-ZunResult LoadDiffCharSelect(MainMenu *s);
+static ZunResult LoadTitleAnm(MainMenu *menu);
+static ZunResult LoadReplayMenu(MainMenu *menu);
+static ZunResult LoadDiffCharSelect(MainMenu *s);
 
 static CursorMovement MoveCursor(MainMenu *menu, i32 menuLength);
 static void SwapMapping(MainMenu *menu, ControllerButton btnPressed, ControllerButton oldMapping, ZunBool unk);
 static void DrawMenuItem(AnmVm *vm, i32 itemNumber, i32 cursor, D3DCOLOR activeItemColor, D3DCOLOR inactiveItemColor,
                          i32 spriteIdx /* I think*/);
 
-MainMenu g_MainMenu;
+static MainMenu g_MainMenu;
 
 #if BUILT_SINCE(102)
 #define KEY_CONFIG_BUTTON_COUNT 9
@@ -2077,7 +2085,7 @@ ChainCallbackResult MainMenu_OnDraw(MainMenu *menu)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult LoadTitleAnm(MainMenu *menu)
+static ZunResult LoadTitleAnm(MainMenu *menu)
 {
     i32 i;
 
@@ -2127,7 +2135,7 @@ ZunResult LoadTitleAnm(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-ZunResult LoadDiffCharSelect(MainMenu *menu)
+static ZunResult LoadDiffCharSelect(MainMenu *menu)
 {
     AnmVm *vm;
     i32 i;
@@ -2197,7 +2205,7 @@ ZunResult LoadDiffCharSelect(MainMenu *menu)
 }
 
 #pragma var_order(i, vm)
-ZunResult LoadReplayMenu(MainMenu *menu)
+static ZunResult LoadReplayMenu(MainMenu *menu)
 {
     AnmVm *vm;
     i32 i;

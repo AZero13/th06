@@ -14,6 +14,7 @@
 #endif
 #include "zwave.hpp"
 #include <dxerr8.h>
+#include "DebugPrint.hpp"
 
 namespace th06
 {

@@ -2,6 +2,14 @@
 
 #include "EffectManager.hpp"
 #include "EnemyEclInstr.hpp"
+#include "AnmIdx.hpp"
+#include "AnmManager.hpp"
+#include "Enemy.hpp"
+#include "GameManager.hpp"
+#include "Global.hpp"
+#include "Player.hpp"
+#include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 
 #define GET_ARG(type, num) ((type *)&curInstr->args)[num]
 #define GET_STRING_ARG(num) &GET_ARG(char, num)

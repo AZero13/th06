@@ -8,6 +8,12 @@
 #include "ReplayManager.hpp"
 #include "Supervisor.hpp"
 #include "TextHelper.hpp"
+#include "AnmIdx.hpp"
+#include "AnmManager.hpp"
+#include "DebugPrint.hpp"
+#include "GameManager.hpp"
+#include "Global.hpp"
+#include "SoundPlayer.hpp"
 
 namespace th06
 {

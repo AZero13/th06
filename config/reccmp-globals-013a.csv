@@ -299,7 +299,7 @@ th06::g_AnmManager,0x6BFBA8,global,4
 th06::g_QuadsToDrawNoVertexBuf,0x6BFBB0,global,112
 th06::g_PrimitivesToDrawVertexBuf,0x6BFC20,global,96
 th06::g_PrimitivesToDrawUnknown,0x6BFC80,global,96
-th06::g_MainMenu,0x6BFCE0,global,69428
+g_MainMenu,0x6BFCE0,global,69428
 ?s_pList@CD3DXText@@1PAV1@A,0x6D17F8,global,4
 __fastflag,0x6D1808,global,4
 _aenvptr,0x6D1810,global,4

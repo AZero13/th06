@@ -324,7 +324,7 @@ th06::g_AnmManager,0x6d4588,global,4
 th06::g_QuadsToDrawNoVertexBuf,0x6d4590,global,112
 th06::g_PrimitivesToDrawVertexBuf,0x6d4600,global,96
 th06::g_PrimitivesToDrawUnknown,0x6d4660,global,96
-th06::g_MainMenu,0x6d46c0,global,69428
+g_MainMenu,0x6d46c0,global,69428
 ?s_pList@CD3DXText@@1PAV1@A,0x6E61D8,global,4
 __fastflag,0x6E61E8,global,4
 _adjust_fdiv,0x6E61EC,global,4

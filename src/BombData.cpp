@@ -5,6 +5,14 @@
 #include "EffectManager.hpp"
 #include "ItemManager.hpp"
 #include "ScreenEffect.hpp"
+#include "AnmIdx.hpp"
+#include "AnmManager.hpp"
+#include "GameManager.hpp"
+#include "Global.hpp"
+#include "Gui.hpp"
+#include "Player.hpp"
+#include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

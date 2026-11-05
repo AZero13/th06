@@ -4,6 +4,10 @@
 
 #include "AsciiManager.hpp"
 #include "ChainPriorities.hpp"
+#include "AnmIdx.hpp"
+#include "AnmManager.hpp"
+#include "Global.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

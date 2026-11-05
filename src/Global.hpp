@@ -54,7 +54,6 @@ namespace th06
 
 namespace utils
 {
-ZunResult CheckForRunningGameInstance(void);
 #if BUILT_BEFORE(102g)
 ZunBool CheckDirectXVersion(void);
 #endif

@@ -2,6 +2,10 @@
 
 #include "ChainPriorities.hpp"
 #include "ScreenEffect.hpp"
+#include "AnmManager.hpp"
+#include "GameManager.hpp"
+#include "Global.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

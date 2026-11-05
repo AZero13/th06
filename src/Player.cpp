@@ -8,6 +8,13 @@
 #include "EffectManager.hpp"
 #include "EnemyManager.hpp"
 #include "ItemManager.hpp"
+#include "AnmIdx.hpp"
+#include "AnmManager.hpp"
+#include "GameManager.hpp"
+#include "Global.hpp"
+#include "Gui.hpp"
+#include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

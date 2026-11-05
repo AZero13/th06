@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "TextHelper.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

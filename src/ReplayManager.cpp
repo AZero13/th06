@@ -1,8 +1,14 @@
-#include "ReplayManager.hpp"
 #include "stdafx.h"
+
+#include "ReplayManager.hpp"
 
 #include <stddef.h>
 #include <time.h>
+#include "DebugPrint.hpp"
+#include "GameManager.hpp"
+#include "Global.hpp"
+#include "Gui.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

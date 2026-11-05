@@ -3,6 +3,8 @@
 #include "AnmManager.hpp"
 
 #include "TextHelper.hpp"
+#include "Global.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

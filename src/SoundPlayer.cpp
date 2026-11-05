@@ -1,6 +1,9 @@
 #include "stdafx.h"
 
 #include "SoundPlayer.hpp"
+#include "DebugPrint.hpp"
+#include "Global.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

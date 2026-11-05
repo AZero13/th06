@@ -3,6 +3,10 @@
 #include "MidiOutput.hpp"
 #include "ScreenEffect.hpp"
 #include "Stage.hpp"
+#include "AnmManager.hpp"
+#include "Global.hpp"
+#include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {
@@ -38,6 +42,38 @@ static i32 GameWindow_InitD3dInterface();
 static void GameWindow_Present();
 
 GameWindow g_GameWindow;
+
+static i32 GameWindow_InitD3dInterface(void)
+{
+    g_Supervisor.d3dIface = Direct3DCreate8(D3D_SDK_VERSION);
+
+    if (g_Supervisor.d3dIface == NULL)
+    {
+        g_GameErrorContext.Fatal(TH_ERR_D3D_ERR_COULD_NOT_CREATE_OBJ);
+        return 1;
+    }
+    return 0;
+}
+
+static ZunResult CheckForRunningGameInstance(void)
+{
+    static HANDLE g_ExclusiveMutex;
+
+    g_ExclusiveMutex = CreateMutex(NULL, TRUE, TEXT("Touhou Koumakyou App"));
+
+    if (g_ExclusiveMutex == NULL)
+    {
+        return ZUN_ERROR;
+    }
+    else if (GetLastError() == ERROR_ALREADY_EXISTS)
+    {
+        g_GameErrorContext.Fatal(TH_ERR_ALREADY_RUNNING);
+        return ZUN_ERROR;
+    }
+
+    return ZUN_SUCCESS;
+}
+
 } // namespace th06
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -46,7 +82,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     RenderResult renderResult = RENDER_RESULT_KEEP_RUNNING;
 
-    if (utils::CheckForRunningGameInstance())
+    if (CheckForRunningGameInstance())
     {
         g_GameErrorContext.Flush();
 
@@ -400,18 +436,6 @@ static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPara
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-static i32 GameWindow_InitD3dInterface(void)
-{
-    g_Supervisor.d3dIface = Direct3DCreate8(D3D_SDK_VERSION);
-
-    if (g_Supervisor.d3dIface == NULL)
-    {
-        g_GameErrorContext.Fatal(TH_ERR_D3D_ERR_COULD_NOT_CREATE_OBJ);
-        return 1;
-    }
-    return 0;
-}
-
 static void GameWindow_CreateGameWindow(HINSTANCE hInstance)
 {
     WNDCLASS base_class;
@@ -756,24 +780,6 @@ static void GameWindow_InitD3dDevice(void)
 
 namespace utils
 {
-ZunResult CheckForRunningGameInstance(void)
-{
-    static HANDLE g_ExclusiveMutex;
-    g_ExclusiveMutex = CreateMutex(NULL, TRUE, TEXT("Touhou Koumakyou App"));
-
-    if (g_ExclusiveMutex == NULL)
-    {
-        return ZUN_ERROR;
-    }
-    else if (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-        g_GameErrorContext.Fatal(TH_ERR_ALREADY_RUNNING);
-        return ZUN_ERROR;
-    }
-
-    return ZUN_SUCCESS;
-}
-
 #if BUILT_BEFORE(102g)
 // Adapted from the DirectX 8 SDK's getdxver sample (dxver.cpp). Returns true when DirectX 8 is missing;
 // 1.02f is the only build that doesn't inline it, so its code shows this form.

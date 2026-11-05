@@ -2,6 +2,8 @@
 
 #include "Global.hpp"
 #include <ddraw.h>
+#include "DebugPrint.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {

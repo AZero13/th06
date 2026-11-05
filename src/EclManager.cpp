@@ -1,11 +1,21 @@
-#include "EclManager.hpp"
 #include "stdafx.h"
 
+#include "EclManager.hpp"
 #include "EffectManager.hpp"
 #include "EnemyEclInstr.hpp"
 #include "EnemyManager.hpp"
 #include "ItemManager.hpp"
 #include "Stage.hpp"
+#include "AnmIdx.hpp"
+#include "AnmManager.hpp"
+#include "DebugPrint.hpp"
+#include "Enemy.hpp"
+#include "GameManager.hpp"
+#include "Global.hpp"
+#include "Gui.hpp"
+#include "Player.hpp"
+#include "SoundPlayer.hpp"
+#include "Supervisor.hpp"
 
 namespace th06
 {
@@ -619,7 +629,8 @@ restart_sub_changed:
         case ECL_OPCODE_LASER_ROTATE:
             if (enemy->lasers[GET_INSTR_INT_ARG(0)] != NULL)
             {
-                enemy->lasers[GET_INSTR_INT_ARG(0)]->angle += *EclGetVarFloat(enemy, &GET_INSTR_FLOAT_ARG(1), NULL);
+                enemy->lasers[GET_INSTR_INT_ARG(0)]->angle =
+                    enemy->lasers[GET_INSTR_INT_ARG(0)]->angle + *EclGetVarFloat(enemy, &GET_INSTR_FLOAT_ARG(1), NULL);
             }
             break;
         case ECL_OPCODE_LASER_ROTATE_FROM_PLAYER:
