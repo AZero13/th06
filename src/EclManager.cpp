@@ -210,6 +210,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
     EclRawInstr *curInstr;
     void *args;
     ZunVec3 genericFloat3;
+    ZunVec2 genericFloat2;
     i32 genericInt;
     f32 genericFloat;
 
@@ -446,35 +447,30 @@ restart_sub_changed:
             enemy->flags.movementMode = EnemyMove_AxisSpeed;
             break;
         case ECL_OPCODE_MOVE_VELOCITY:
-            // BUG: This instruction is encoded with 2 floats, not 3
-            genericFloat3 = GET_INSTR_ARG(ZunVec3, 0);
-            enemy->angle = *EclGetVarFloat(enemy, &genericFloat3.x, NULL);
-            enemy->speed = *EclGetVarFloat(enemy, &genericFloat3.y, NULL);
+            genericFloat2 = GET_INSTR_ARG(ZunVec2, 0);
+            enemy->angle = *EclGetVarFloat(enemy, &genericFloat2.x, NULL);
+            enemy->speed = *EclGetVarFloat(enemy, &genericFloat2.y, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_MOVE_ANGULAR_VELOCITY:
-            // BUG: This instruction is encoded with 1 float, not 3
-            genericFloat3 = GET_INSTR_ARG(ZunVec3, 0);
-            enemy->angularVelocity = *EclGetVarFloat(enemy, &genericFloat3.x, NULL);
+            genericFloat = GET_INSTR_ARG(float, 0);
+            enemy->angularVelocity = *EclGetVarFloat(enemy, &genericFloat, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_MOVE_TOWARDS_PLAYER:
-            // BUG: This instruction is encoded with 2 floats, not 3
-            genericFloat3 = GET_INSTR_ARG(ZunVec3, 0);
-            enemy->angle = g_Player.AngleToPlayer(&enemy->position) + genericFloat3.x;
-            enemy->speed = *EclGetVarFloat(enemy, &genericFloat3.y, NULL);
+            genericFloat2 = GET_INSTR_ARG(ZunVec2, 0);
+            enemy->angle = g_Player.AngleToPlayer(&enemy->position) + genericFloat2.x;
+            enemy->speed = *EclGetVarFloat(enemy, &genericFloat2.y, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_MOVE_SPEED:
-            // BUG: This instruction is encoded with 1 float, not 3
-            genericFloat3 = GET_INSTR_ARG(ZunVec3, 0);
-            enemy->speed = *EclGetVarFloat(enemy, &genericFloat3.x, NULL);
+            genericFloat = GET_INSTR_ARG(float, 0);
+            enemy->speed = *EclGetVarFloat(enemy, &genericFloat, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_MOVE_ACCELERATION:
-            // BUG: This instruction is encoded with 1 float, not 3
-            genericFloat3 = GET_INSTR_ARG(ZunVec3, 0);
-            enemy->acceleration = *EclGetVarFloat(enemy, &genericFloat3.x, NULL);
+            genericFloat = GET_INSTR_ARG(float, 0);
+            enemy->acceleration = *EclGetVarFloat(enemy, &genericFloat, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_BULLET_FAN_AIMED:

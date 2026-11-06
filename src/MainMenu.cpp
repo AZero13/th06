@@ -2334,10 +2334,13 @@ static ZunResult MainMenu_DeletedCallback(MainMenu *menu)
     }
     g_AnmManager->ReleaseSurface(0);
     g_AnmManager->ClearScriptRange(ANM_OFFSET_TITLE01, ANM_OFFSET_TITLE01S - ANM_OFFSET_TITLE01);
+    g_FuncChain.Cut(menu->chainCalc);
+    menu->chainCalc = NULL;
     g_FuncChain.Cut(menu->chainDraw);
     menu->chainDraw = NULL;
 
     ZUN_FREE(menu->currentReplay);
+    menu->currentReplay = NULL;
     return ZUN_SUCCESS;
 }
 
