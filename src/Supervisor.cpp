@@ -262,7 +262,7 @@ BOOL CALLBACK EnumGameControllerObjectsCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi
 
 static ZunResult SetupDInput(Supervisor *supervisor)
 {
-    HINSTANCE hInst = (HINSTANCE)GetWindowLong(supervisor->hwndGameWindow, GWL_HINSTANCE);
+    HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(supervisor->hwndGameWindow, GWLP_HINSTANCE);
 
 #if BUILT_SINCE(102g)
     if (supervisor->IsDInputDisabled())
@@ -597,16 +597,8 @@ void Supervisor::ReleasePbg3(i32 pbg3FileIdx)
         return;
     }
 
-    // Double free! Release is called internally by the Pbg3Archive destructor,
-    // and as such should not be called directly. By calling it directly here,
-    // it ends up being called twice, which will cause the resources owned by
-    // Pbg3Archive to be freed multiple times, which can result in crashes.
-    //
-    // For some reason, this double-free doesn't cause crashes in the original
-    // game. Maybe some accuracy improvements in the PBG3 handling will show
-    // why.
-    this->pbg3Archives[pbg3FileIdx]->Release();
     ZUN_DELETE(this->pbg3Archives[pbg3FileIdx]);
+    this->pbg3Archives[pbg3FileIdx] = NULL;
 }
 
 BOOL Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)

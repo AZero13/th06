@@ -168,10 +168,13 @@ LPVOID FileAbstraction::ReadWholeFile(DWORD maxSize)
 
     oldLocation = Tell();
 
-    // Pretty sure the plan here was to seek to 0, but woops the code
-    // is buggy. And yes, this case leaks the data. Amazing, I know.
-    if (FALSE == Seek(oldLocation, FILE_BEGIN))
+    // Seek to the start of the file before reading, then restore the original
+    // offset once we're done. This avoids leaking the allocated buffer on errors.
+    if (FALSE == Seek(0, FILE_BEGIN))
+    {
+        LocalFree(data);
         return NULL;
+    }
 
     if (FALSE == Read(data, dataLen, &outDataLen))
     {

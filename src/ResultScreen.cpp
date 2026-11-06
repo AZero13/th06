@@ -2160,9 +2160,16 @@ static ZunResult ResultScreen_DeletedCallback(ResultScreen *resultScreen)
     g_AnmManager->ReleaseAnm(ANM_FILE_RESULT03);
     g_AnmManager->ReleaseSurface(0);
 
-    g_FuncChain.Cut(resultScreen->drawChain);
-
-    resultScreen->drawChain = NULL;
+    if (resultScreen->calcChain != NULL)
+    {
+        g_FuncChain.Cut(resultScreen->calcChain);
+        resultScreen->calcChain = NULL;
+    }
+    if (resultScreen->drawChain != NULL)
+    {
+        g_FuncChain.Cut(resultScreen->drawChain);
+        resultScreen->drawChain = NULL;
+    }
 
     ZUN_DELETE(resultScreen);
 

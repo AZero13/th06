@@ -235,14 +235,23 @@ static ZunResult ReplayManager_AddedCallbackDemo(ReplayManager *mgr)
 
 static ZunResult ReplayManager_DeletedCallback(ReplayManager *mgr)
 {
-    g_FuncChain.Cut(mgr->drawChain);
-    mgr->drawChain = NULL;
+    if (mgr->calcChain != NULL)
+    {
+        g_FuncChain.Cut(mgr->calcChain);
+        mgr->calcChain = NULL;
+    }
     if (mgr->calcChainDemoHighPrio != NULL)
     {
         g_FuncChain.Cut(mgr->calcChainDemoHighPrio);
         mgr->calcChainDemoHighPrio = NULL;
     }
+    if (mgr->drawChain != NULL)
+    {
+        g_FuncChain.Cut(mgr->drawChain);
+        mgr->drawChain = NULL;
+    }
     ZUN_FREE(g_ReplayManager->replayData);
+    g_ReplayManager->replayData = NULL;
     ZUN_DELETE(g_ReplayManager);
     g_ReplayManager = NULL;
     return ZUN_SUCCESS;

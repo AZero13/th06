@@ -997,10 +997,8 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
                 }
 
                 curLaser->vm.scaleX = length / 16.0f;
-                // Bug: ZUN intended to set laserSize.y instead of laserSize.x
-                // This way, between hitboxStartTime and startTime, the laser would have a thinner hitbox.
-                // Setting laserSize.x results in a tiny hitbox at the laser midpoint.
-                laserSize.x = length / 2.0f;
+                // Keep the laser's active hitbox thickness in sync with the sprite width.
+                laserSize.y = length / 2.0f;
             }
 
             if (curLaser->timer >= curLaser->hitboxStartTime)
@@ -1052,11 +1050,8 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
             {
                 length = curLaser->width - ((f32)curLaser->timer * curLaser->width) / curLaser->despawnDuration;
                 curLaser->vm.scaleX = length / 16.0f;
-                // Bug: ZUN intended to set laserSize.y instead of laserSize.x
-                // This way, for hitboxEndDelay ticks after the laser starts despawning,
-                // the laser would have a thinner hitbox.
-                // Setting laserSize.x results in a tiny hitbox at the laser midpoint.
-                laserSize.x = length / 2.0f;
+                // Keep the shrinking hitbox aligned with the laser thickness instead of its midpoint.
+                laserSize.y = length / 2.0f;
             }
 
             if (curLaser->timer < curLaser->hitboxEndDelay)
