@@ -91,10 +91,7 @@ ZunResult EclManager::Load(const char *eclPath)
 
 void EclManager::Unload()
 {
-    if (this->eclFile != NULL)
-    {
-        ZUN_FREE(this->eclFile);
-    }
+    ZUN_FREE(this->eclFile);
     this->eclFile = NULL;
 }
 

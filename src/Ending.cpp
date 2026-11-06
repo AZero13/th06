@@ -558,16 +558,8 @@ static ZunResult Ending_DeletedCallback(Ending *ending)
     g_AnmManager->ReleaseSurface(0);
     ZUN_FREE(ending->endFileData);
 
-    if (ending->calcChain != NULL)
-    {
-        g_FuncChain.Cut(ending->calcChain);
-        ending->calcChain = NULL;
-    }
-    if (ending->drawChain != NULL)
-    {
-        g_FuncChain.Cut(ending->drawChain);
-        ending->drawChain = NULL;
-    }
+    g_FuncChain.Cut(ending->calcChain);
+    g_FuncChain.Cut(ending->drawChain);
 
     ZUN_DELETE(ending);
 
