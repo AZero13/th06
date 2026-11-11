@@ -1,8 +1,13 @@
-#include "ReplayManager.hpp"
 #include "stdafx.h"
+
+#include "ReplayManager.hpp"
 
 #include <stddef.h>
 #include <time.h>
+// The trials' replay file did not have this; 0.13 and 0.13a order their functions as without it.
+#if BUILT_SINCE(100)
+#include <string>
+#endif
 
 namespace th06
 {

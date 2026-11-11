@@ -1,5 +1,6 @@
-#include "EclManager.hpp"
 #include "stdafx.h"
+
+#include "EclManager.hpp"
 
 #include "EffectManager.hpp"
 #include "EnemyEclInstr.hpp"
@@ -9,7 +10,6 @@
 
 namespace th06
 {
-
 // clang-format off
 i32 g_SpellcardScore[] = {
 #if BUILT_SINCE(100)
@@ -203,6 +203,13 @@ static void EclMoveTime(Enemy *enemy, EclRawInstr *instr)
     enemy->flags.movementMode = EnemyMove_Interp;
 }
 
+// This file's own empty debug print, separate from the shared DebugPrint. The ECL file's copy is
+// emitted right after its first caller in both TH06 and TH08, unlike every other file's, and TH10
+// still has per-file prints (DebugPrint_smollscore, DebugPrint__spttest). The name is ours.
+static void EclDebugPrint(const char *fmt, ...)
+{
+}
+
 #pragma var_order(genericFloat3, genericInt, genericFloat, args, curInstr)
 ZunResult EclManager::RunEcl(Enemy *enemy)
 {
@@ -385,7 +392,7 @@ restart_sub_changed:
 #if !TRIALBUILD
             if (enemy->flags.disableCallStack)
             {
-                DebugPrint("error : no Stack Ret\n");
+                EclDebugPrint("error : no Stack Ret\n");
             }
 #endif
             enemy->stackDepth--;
@@ -428,7 +435,7 @@ restart_sub_changed:
 #if !TRIALBUILD
             if (GET_INSTR_INT_ARG(0) >= ENEMY_ANM_SLOTS)
             {
-                DebugPrint("error : sub anim overflow\n");
+                EclDebugPrint("error : sub anim overflow\n");
             }
 #endif
             g_AnmManager->SetAndExecuteScriptIdx(&enemy->vms[GET_INSTR_INT_ARG(0)],
