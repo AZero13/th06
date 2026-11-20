@@ -199,14 +199,14 @@ def configure(build_type, build_version, ver_suffix):
         )
 
         pbg3_sources = [
-            "IPbg3Reader",
+            "Pbg3Archive",
             "Pbg3Reader",
+            "Pbg3Writer",
+            "IPbg3Reader",
             "IPbg3Writer",
             "MemoryPbg3Reader",
-            "Pbg3Archive",
-            "Pbg3Writer",
             "LzEncode",
-            "FileAbstraction",
+            "FileAbstraction"
         ]
 
         # TODO: might make more sense to work the other way around: generate

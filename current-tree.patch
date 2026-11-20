@@ -1,0 +1,259 @@
+diff --git a/scripts/configure.py b/scripts/configure.py
+index d343aa4e..ed6fae7f 100644
+--- a/scripts/configure.py
++++ b/scripts/configure.py
+@@ -199,14 +199,14 @@ def configure(build_type, build_version, ver_suffix):
+         )
+ 
+         pbg3_sources = [
+-            "IPbg3Reader",
++            "Pbg3Archive",
+             "Pbg3Reader",
++            "Pbg3Writer",
++            "FileAbstraction",
++            "IPbg3Reader",
+             "IPbg3Writer",
+             "MemoryPbg3Reader",
+-            "Pbg3Archive",
+-            "Pbg3Writer",
+             "LzEncode",
+-            "FileAbstraction",
+         ]
+ 
+         # TODO: might make more sense to work the other way around: generate
+diff --git a/src/EclManager.cpp b/src/EclManager.cpp
+index b22fde96..b998c509 100644
+--- a/src/EclManager.cpp
++++ b/src/EclManager.cpp
+@@ -205,13 +205,6 @@ static void EclMoveTime(Enemy *enemy, EclRawInstr *instr)
+ }
+ 
+ // Both retail diagnostics call the same empty release stub. Its original name is unknown.
+-static void ReportEclError(const char *message)
+-{
+-#ifdef DEBUG
+-    DebugPrint("%s", message);
+-#endif
+-}
+-
+ #pragma var_order(genericFloat3, genericInt, genericFloat, args, curInstr)
+ ZunResult EclManager::RunEcl(Enemy *enemy)
+ {
+@@ -394,7 +387,7 @@ restart_sub_changed:
+ #if !TRIALBUILD
+             if (enemy->flags.disableCallStack)
+             {
+-                ReportEclError("error : no Stack Ret\n");
++                DebugPrint("error : no Stack Ret\n");
+             }
+ #endif
+             enemy->stackDepth--;
+@@ -437,7 +430,7 @@ restart_sub_changed:
+ #if !TRIALBUILD
+             if (GET_INSTR_INT_ARG(0) >= ENEMY_ANM_SLOTS)
+             {
+-                ReportEclError("error : sub anim overflow\n");
++                DebugPrint("error : sub anim overflow\n");
+             }
+ #endif
+             g_AnmManager->SetAndExecuteScriptIdx(&enemy->vms[GET_INSTR_INT_ARG(0)],
+@@ -1184,11 +1177,6 @@ restart_sub_changed:
+     return ZUN_SUCCESS;
+ }
+ 
+-// Dead: nothing calls this. Scripts use ECL_OPCODE_DEBUG_WATCH, which RunEcl has no case for.
+-void EclManager::DebugWatch(i32 value)
+-{
+-}
+-
+ static i32 *EclGetVar(Enemy *enemy, EclVarId *eclVarId, EclValueType *valueType)
+ {
+ 
+diff --git a/src/EclManager.hpp b/src/EclManager.hpp
+index 34b7b11b..273d2de9 100644
+--- a/src/EclManager.hpp
++++ b/src/EclManager.hpp
+@@ -336,7 +336,6 @@ struct EclManager
+     void Unload();
+     ZunResult RunEcl(Enemy *enemy);
+     ZunResult CallEclSub(EnemyEclContext *enemyEcl, i16 subId);
+-    void DebugWatch(i32 value);
+ 
+     EclRawHeader *eclFile;
+     EclRawInstr **subTable;
+diff --git a/src/pbg3/IPbg3Writer.cpp b/src/pbg3/IPbg3Writer.cpp
+index 9cf28451..b1c7a00c 100644
+--- a/src/pbg3/IPbg3Writer.cpp
++++ b/src/pbg3/IPbg3Writer.cpp
+@@ -1,4 +1,5 @@
+ #include "pbg3/IPbg3Writer.hpp"
++#include "DebugPrint.hpp"
+ 
+ #define MAKE_DWORD(a, b, c, d) ((DWORD)(MAKEWORD(c, d) << 16) | (DWORD)MAKEWORD(a, b))
+ #define MAKE_INV_DWORD(a, b, c, d) MAKE_DWORD(d, c, b, a)
+@@ -59,6 +60,7 @@ BOOL IPbg3Writer::WriteString(const char *value)
+ {
+     if (value == NULL)
+     {
++        DebugPrint("info : %s error\r\n", value);
+         return FALSE;
+     }
+     while (*value != '\0')
+diff --git a/src/pbg3/MemoryPbg3Reader.cpp b/src/pbg3/MemoryPbg3Reader.cpp
+index dc48b264..22b92a37 100644
+--- a/src/pbg3/MemoryPbg3Reader.cpp
++++ b/src/pbg3/MemoryPbg3Reader.cpp
+@@ -1,4 +1,5 @@
+ #include "pbg3/MemoryPbg3Reader.hpp"
++#include "DebugPrint.hpp"
+ #include <string.h>
+ 
+ namespace th06
+@@ -28,6 +29,7 @@ BOOL MemoryPbg3Reader::Attach(void *buffer, DWORD length, const FILETIME *time)
+     this->Detach();
+     if (buffer == NULL)
+     {
++        DebugPrint("info : %s error\r\n", "memory archive");
+         return FALSE;
+     }
+     if (length == 0)
+diff --git a/src/pbg3/Pbg3Archive.cpp b/src/pbg3/Pbg3Archive.cpp
+index 0a955634..13f3694f 100644
+--- a/src/pbg3/Pbg3Archive.cpp
++++ b/src/pbg3/Pbg3Archive.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "pbg3/MemoryPbg3Reader.hpp"
+ #include "pbg3/Pbg3Archive.hpp"
++#include "DebugPrint.hpp"
+ 
+ namespace th06
+ {
+@@ -21,6 +22,8 @@ Pbg3Archive::~Pbg3Archive()
+ 
+ BOOL Pbg3Archive::Load(const char *path)
+ {
++    DebugPrint("info : %s open arcfile\r\n", path);
++
+     Pbg3Reader *fileReader;
+ 
+     if (this->Release() == FALSE)
+@@ -37,6 +40,7 @@ BOOL Pbg3Archive::Load(const char *path)
+ 
+     if (fileReader->OpenArchive(path) == FALSE)
+     {
++        DebugPrint("info : %s not found\r\n", path);
+         SAFE_DELETE(this->reader);
+         return FALSE;
+     }
+@@ -104,6 +108,16 @@ BOOL Pbg3Archive::LoadR(HMODULE module, const char *name)
+     return this->ParseHeader();
+ }
+ 
++BOOL Pbg3Archive::Release()
++{
++    this->fileTableOffset = 0;
++    this->numOfEntries = 0;
++    SAFE_DELETE(this->reader);
++    SAFE_DELETE_ARRAY(this->entries);
++    free(this->resData);
++    return TRUE;
++}
++
+ #define LZSS_DICTSIZE 0x2000
+ #define LZSS_DICTSIZE_MASK 0x1fff
+ #define LZSS_MIN_MATCH 3
+@@ -174,6 +188,7 @@ u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, const char *filename)
+ 
+     if (rawData == NULL)
+     {
++        DebugPrint("info : %s error\r\n", filename);
+         free(out);
+         return NULL;
+     }
+@@ -249,6 +264,28 @@ u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, const char *filename)
+     return out;
+ }
+ 
++u32 Pbg3Archive::GetEntrySize(u32 entryIdx)
++{
++    if (entryIdx >= this->numOfEntries)
++    {
++        return 0;
++    }
++
++    return this->entries[entryIdx].uncompressedSize;
++}
++
++i32 Pbg3Archive::FindEntry(const char *path)
++{
++    for (u32 entryIdx = 0; entryIdx < this->numOfEntries; entryIdx++)
++    {
++        if (strcmp(path, this->entries[entryIdx].filename) == 0)
++        {
++            return entryIdx;
++        }
++    }
++    return -1;
++}
++
+ BOOL Pbg3Archive::ParseHeader()
+ {
+     if (this->reader->ReadInt() != PBG3_MAGIC)
+@@ -290,38 +327,6 @@ BOOL Pbg3Archive::ParseHeader()
+     return TRUE;
+ }
+ 
+-BOOL Pbg3Archive::Release()
+-{
+-    this->fileTableOffset = 0;
+-    this->numOfEntries = 0;
+-    SAFE_DELETE(this->reader);
+-    SAFE_DELETE_ARRAY(this->entries);
+-    free(this->resData);
+-    return TRUE;
+-}
+-
+-i32 Pbg3Archive::FindEntry(const char *path)
+-{
+-    for (u32 entryIdx = 0; entryIdx < this->numOfEntries; entryIdx++)
+-    {
+-        if (strcmp(path, this->entries[entryIdx].filename) == 0)
+-        {
+-            return entryIdx;
+-        }
+-    }
+-    return -1;
+-}
+-
+-u32 Pbg3Archive::GetEntrySize(u32 entryIdx)
+-{
+-    if (entryIdx >= this->numOfEntries)
+-    {
+-        return 0;
+-    }
+-
+-    return this->entries[entryIdx].uncompressedSize;
+-}
+-
+ u8 *Pbg3Archive::ReadEntryRaw(u32 *outSize, u32 *outChecksum, i32 entryIdx)
+ {
+     if (this->reader == NULL)
+diff --git a/src/pbg3/Pbg3Writer.cpp b/src/pbg3/Pbg3Writer.cpp
+index 11c3f051..d2d9c085 100644
+--- a/src/pbg3/Pbg3Writer.cpp
++++ b/src/pbg3/Pbg3Writer.cpp
+@@ -1,4 +1,5 @@
+ #include "pbg3/Pbg3Writer.hpp"
++#include "DebugPrint.hpp"
+ 
+ namespace th06
+ {
+@@ -15,6 +16,7 @@ BOOL Pbg3Writer::OpenArchive(const char *path)
+ {
+     this->Close();
+     this->Reset();
++    DebugPrint("info : %s\r\n", path);
+     return FileAbstraction::Open(path, "w") != FALSE;
+ }
+ 

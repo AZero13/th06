@@ -1,4 +1,5 @@
 #include "pbg3/IPbg3Writer.hpp"
+#include "DebugPrint.hpp"
 
 #define MAKE_DWORD(a, b, c, d) ((DWORD)(MAKEWORD(c, d) << 16) | (DWORD)MAKEWORD(a, b))
 #define MAKE_INV_DWORD(a, b, c, d) MAKE_DWORD(d, c, b, a)
@@ -59,6 +60,7 @@ BOOL IPbg3Writer::WriteString(const char *value)
 {
     if (value == NULL)
     {
+        DebugPrint("info : %s error\r\n", value);
         return FALSE;
     }
     while (*value != '\0')

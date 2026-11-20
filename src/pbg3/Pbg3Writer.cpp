@@ -1,4 +1,5 @@
 #include "pbg3/Pbg3Writer.hpp"
+#include "DebugPrint.hpp"
 
 namespace th06
 {
@@ -15,6 +16,7 @@ BOOL Pbg3Writer::OpenArchive(const char *path)
 {
     this->Close();
     this->Reset();
+    DebugPrint("info : %s\r\n", path);
     return FileAbstraction::Open(path, "w") != FALSE;
 }
 

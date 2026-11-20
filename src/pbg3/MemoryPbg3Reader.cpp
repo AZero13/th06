@@ -1,4 +1,5 @@
 #include "pbg3/MemoryPbg3Reader.hpp"
+#include "DebugPrint.hpp"
 #include <string.h>
 
 namespace th06
@@ -28,6 +29,7 @@ BOOL MemoryPbg3Reader::Attach(void *buffer, DWORD length, const FILETIME *time)
     this->Detach();
     if (buffer == NULL)
     {
+        DebugPrint("info : %s error\r\n", "memory archive");
         return FALSE;
     }
     if (length == 0)

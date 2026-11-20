@@ -2,6 +2,7 @@
 
 #include "pbg3/MemoryPbg3Reader.hpp"
 #include "pbg3/Pbg3Archive.hpp"
+#include "DebugPrint.hpp"
 
 namespace th06
 {
@@ -21,6 +22,8 @@ Pbg3Archive::~Pbg3Archive()
 
 BOOL Pbg3Archive::Load(const char *path)
 {
+    DebugPrint("info : %s open arcfile\r\n", path);
+
     Pbg3Reader *fileReader;
 
     if (this->Release() == FALSE)
@@ -37,6 +40,7 @@ BOOL Pbg3Archive::Load(const char *path)
 
     if (fileReader->OpenArchive(path) == FALSE)
     {
+        DebugPrint("info : %s not found\r\n", path);
         SAFE_DELETE(this->reader);
         return FALSE;
     }
@@ -102,6 +106,16 @@ BOOL Pbg3Archive::LoadR(HMODULE module, const char *name)
     }
 
     return this->ParseHeader();
+}
+
+BOOL Pbg3Archive::Release()
+{
+    this->fileTableOffset = 0;
+    this->numOfEntries = 0;
+    SAFE_DELETE(this->reader);
+    SAFE_DELETE_ARRAY(this->entries);
+    free(this->resData);
+    return TRUE;
 }
 
 #define LZSS_DICTSIZE 0x2000
@@ -174,6 +188,7 @@ u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, const char *filename)
 
     if (rawData == NULL)
     {
+        DebugPrint("info : %s error\r\n", filename);
         free(out);
         return NULL;
     }
@@ -249,6 +264,28 @@ u8 *Pbg3Archive::ReadDecompressEntry(u32 entryIdx, const char *filename)
     return out;
 }
 
+u32 Pbg3Archive::GetEntrySize(u32 entryIdx)
+{
+    if (entryIdx >= this->numOfEntries)
+    {
+        return 0;
+    }
+
+    return this->entries[entryIdx].uncompressedSize;
+}
+
+i32 Pbg3Archive::FindEntry(const char *path)
+{
+    for (u32 entryIdx = 0; entryIdx < this->numOfEntries; entryIdx++)
+    {
+        if (strcmp(path, this->entries[entryIdx].filename) == 0)
+        {
+            return entryIdx;
+        }
+    }
+    return -1;
+}
+
 BOOL Pbg3Archive::ParseHeader()
 {
     if (this->reader->ReadInt() != PBG3_MAGIC)
@@ -288,38 +325,6 @@ BOOL Pbg3Archive::ParseHeader()
     }
 
     return TRUE;
-}
-
-BOOL Pbg3Archive::Release()
-{
-    this->fileTableOffset = 0;
-    this->numOfEntries = 0;
-    SAFE_DELETE(this->reader);
-    SAFE_DELETE_ARRAY(this->entries);
-    free(this->resData);
-    return TRUE;
-}
-
-i32 Pbg3Archive::FindEntry(const char *path)
-{
-    for (u32 entryIdx = 0; entryIdx < this->numOfEntries; entryIdx++)
-    {
-        if (strcmp(path, this->entries[entryIdx].filename) == 0)
-        {
-            return entryIdx;
-        }
-    }
-    return -1;
-}
-
-u32 Pbg3Archive::GetEntrySize(u32 entryIdx)
-{
-    if (entryIdx >= this->numOfEntries)
-    {
-        return 0;
-    }
-
-    return this->entries[entryIdx].uncompressedSize;
 }
 
 u8 *Pbg3Archive::ReadEntryRaw(u32 *outSize, u32 *outChecksum, i32 entryIdx)

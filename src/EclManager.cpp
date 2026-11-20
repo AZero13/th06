@@ -205,13 +205,6 @@ static void EclMoveTime(Enemy *enemy, EclRawInstr *instr)
 }
 
 // Both retail diagnostics call the same empty release stub. Its original name is unknown.
-static void ReportEclError(const char *message)
-{
-#ifdef DEBUG
-    DebugPrint("%s", message);
-#endif
-}
-
 #pragma var_order(genericFloat3, genericInt, genericFloat, args, curInstr)
 ZunResult EclManager::RunEcl(Enemy *enemy)
 {
@@ -394,7 +387,7 @@ restart_sub_changed:
 #if !TRIALBUILD
             if (enemy->flags.disableCallStack)
             {
-                ReportEclError("error : no Stack Ret\n");
+                DebugPrint("error : no Stack Ret\n");
             }
 #endif
             enemy->stackDepth--;
@@ -437,7 +430,7 @@ restart_sub_changed:
 #if !TRIALBUILD
             if (GET_INSTR_INT_ARG(0) >= ENEMY_ANM_SLOTS)
             {
-                ReportEclError("error : sub anim overflow\n");
+                DebugPrint("error : sub anim overflow\n");
             }
 #endif
             g_AnmManager->SetAndExecuteScriptIdx(&enemy->vms[GET_INSTR_INT_ARG(0)],
@@ -1182,11 +1175,6 @@ restart_sub_changed:
     enemy->currentContext.currentInstr = curInstr;
     enemy->currentContext.time++;
     return ZUN_SUCCESS;
-}
-
-// Dead: nothing calls this. Scripts use ECL_OPCODE_DEBUG_WATCH, which RunEcl has no case for.
-void EclManager::DebugWatch(i32 value)
-{
 }
 
 static i32 *EclGetVar(Enemy *enemy, EclVarId *eclVarId, EclValueType *valueType)
